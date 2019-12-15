@@ -1,0 +1,35 @@
+{
+  "name": "yui.ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "yui.ts",
+  "scripts": {
+    "prebuild": "mkdir dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc -p tsconfig.json && node dist/yui.js",
+    "start:test": "tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\""
+  },
+  "author": "Polaris",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/uws": "^11.149.1",
+    "@typeit/discord": "^1.0.3",
+    "@types/node": "^12.12.17",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "ffmpeg-binaries": "^4.0.0",
+    "fs": "0.0.1-security",
+    "get-youtube-id": "^1.0.1",
+    "lodash": "^4.17.15",
+    "node-opus": "^0.3.3",
+    "opusscript": "0.0.7",
+    "path": "^0.12.7",
+    "reflect-metadata": "^0.1.13",
+    "request": "^2.88.0",
+    "tsc": "^1.20150623.0",
+    "tsc-watch": "^4.0.0",
+    "tslib": "^1.10.0",
+    "typescript": "^3.7.3",
+    "ytdl-core": "^1.0.3"
+  }
+}
