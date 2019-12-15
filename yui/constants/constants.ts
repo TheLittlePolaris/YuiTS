@@ -1,7 +1,1 @@
-export default {
-  YOUTUBE_API_KEY: "AIzaSyAI0t5D5CtdhagH9HH835ZwvCgLgJtOrsg",
-  TOKEN: "MzkwODY2Mjg4NTc2MDM2ODY0.Di952g.3bOee1JI_DNWZgh1nPuh8gF2XTs",
-  PREFIX: ">",
-  TENOR_KEY: "0G2I5KW33CKZ",
-  TENOR_ANONYMOUS_ID: "8446e63eeac94e79afe9f5a11ab542bd"
-};
+export default {};
