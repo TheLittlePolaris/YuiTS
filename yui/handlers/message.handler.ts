@@ -159,7 +159,7 @@ export class MessageHandler {
     }
   }
 
-  public get musicService() {
-    return this.musicService;
+  public get musicService(): MusicService {
+    return this._musicService;
   }
 }

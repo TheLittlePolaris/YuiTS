@@ -1,10 +1,9 @@
 import request from "request";
-import constants from "../../constants/constants";
 
 export function youtubeRequestService<T>(url: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     request(
-      `${url}&key=${constants.YOUTUBE_API_KEY}`,
+      `${url}&key=${process.env.YOUTUBE_API_KEY}`,
       (err: string, response, body: string) => {
         if (err) {
           handleErrors(err);

@@ -7,7 +7,6 @@ import {
   ClientOptions,
   GuildMember
 } from "discord.js";
-import Constants from "./constants/constants";
 import { MessageHandler } from "./handlers/message.handler";
 import { VoiceStateHandler } from "./handlers/voice-state.handler";
 
@@ -16,7 +15,7 @@ export class YuiCore {
   private yui: DiscordClient;
   private messageHandler: MessageHandler;
   private voiceStateHandler: VoiceStateHandler;
-  private prefix = Constants.PREFIX;
+  private prefix = process.env.PREFIX;
 
   constructor() {
     const clientOptions: ClientOptions = {
@@ -31,13 +30,14 @@ export class YuiCore {
     };
     this.yui = new Client(clientOptions);
     this.messageHandler = new MessageHandler();
+    console.log(this.messageHandler);
     this.voiceStateHandler = new VoiceStateHandler(
-      this.messageHandler.musicService
+      this.messageHandler.musicService || null
     );
   }
 
-  public async start(): Promise<void> {
-    this.yui.login(Constants.TOKEN);
+  public start(): void {
+    this.yui.login(process.env.TOKEN);
     this.yui.on("ready", () => this.onReady());
   }
 

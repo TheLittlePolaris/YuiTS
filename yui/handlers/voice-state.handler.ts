@@ -10,6 +10,7 @@ export class VoiceStateHandler {
   }
 
   public checkOnVoiceStateUpdate(oldMem, newMem) {
+    if (!oldMem && !newMem) return;
     let voiceStateCheck = this.checkOnLeave(oldMem, newMem);
     switch (voiceStateCheck.action) {
       case "clear": {

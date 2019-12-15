@@ -18,12 +18,12 @@ import {
   getPlaylistId
 } from "./youtube-services/youtube.service";
 import { MusicQueue } from "./music-entities/music-queue";
-import { YUI_COLOR_CODE } from "../interfaces/yui-constants.interface";
 import { SongMetaData } from "./music-entities/song-metadata";
 import { YoutubeSongItemMetadata } from "../interfaces/youtube-song-metadata.interface";
 import { embedConstructor } from "./music-functions/music-embed-constructor";
 import ytdl from "ytdl-core";
 import { set, get } from "lodash";
+import constants from "../constants/constants";
 
 export class MusicService {
   private _streams: Map<string, MusicStream> = new Map();
@@ -155,7 +155,7 @@ export class MusicService {
       embedStatus: tempStatus,
       authorAvatarUrl: message.author.avatarURL,
       description: nowPlayingDescription,
-      color: YUI_COLOR_CODE,
+      color: constants.YUI_COLOR_CODE,
       thumbnailUrl: queue.last.thumbnailUrl,
       appendTimeStamp: true,
       titleHyperLink: queue.last.videoUrl,
