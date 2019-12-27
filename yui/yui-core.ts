@@ -12,7 +12,7 @@ import { VoiceStateHandler } from "./handlers/voice-state.handler";
 import constants from "./constants/constants";
 
 @Discord
-export class YuiCore {
+export default class YuiCore {
   private yui: Client;
   private messageHandler: MessageHandler;
   private voiceStateHandler: VoiceStateHandler;
@@ -72,6 +72,7 @@ export class YuiCore {
 
   @On("voiceStateUpdate")
   async onVoiceStateUpdate(oldMember: GuildMember, newMember: GuildMember) {
+    // TODO: check this
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldMember, newMember);
   }
 }

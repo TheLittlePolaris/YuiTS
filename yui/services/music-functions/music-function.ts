@@ -4,28 +4,29 @@ export function isYoutubeLink(link: string): boolean {
   } else return false;
 }
 
-export function youtubeTimeConverter(duration): Promise<number> {
+export function youtubeTimeConverter(duration: string): Promise<number> {
   return new Promise(resolve => {
     var match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/).slice(1);
     var result =
-      (parseInt(match[0], 10) || 0) * 3600 +
-      (parseInt(match[1], 10) || 0) * 60 +
-      (parseInt(match[2], 10) || 0);
+      (parseInt(match[0], 10) || 0) * 3600 + // hours
+      (parseInt(match[1], 10) || 0) * 60 + // minutes
+      (parseInt(match[2], 10) || 0); // seconds
     resolve(result);
   });
 }
 
-enum TimeConverterValue {
+export enum TimeConverterValue {
   LIVE = "LIVE"
 }
 
-export function timeConverter(number: number) {
+export function timeConverter(duration: number) {
   return new Promise(resolve => {
-    if (number === 0) {
+    if (duration === 0) {
       return resolve(TimeConverterValue.LIVE);
     }
-    let totalMinutes = Math.floor(number / 60);
-    let seconds = number % 60 >= 10 ? `${number % 60}` : `0${number % 60}`;
+    let totalMinutes = Math.floor(duration / 60);
+    let seconds =
+      duration % 60 >= 10 ? `${duration % 60}` : `0${duration % 60}`;
     if (totalMinutes < 60) {
       return resolve(`${totalMinutes}:${seconds}`);
     } else {

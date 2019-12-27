@@ -69,7 +69,9 @@ export class MusicService {
     console.log("Created guild stream === ", guildStream.id);
     if (!guildStream.voiceConnection) {
       console.log("Enter create voice connection.");
-      await this.createVoiceConnection(guildStream, message);
+      await this.createVoiceConnection(guildStream, message).catch(
+        this.handleError
+      );
     }
     const _arguments: string = args.join(" ");
     console.log("Play query arguments: ", _arguments);
@@ -335,7 +337,7 @@ export class MusicService {
     return this._streams;
   }
 
-  private handleError(error: Error): Promise<null> {
+  private handleError(error: Error | string): Promise<null> {
     const now = new Date();
     console.error(
       `=========== ERROR ===========\n===== ${now.toString()} =====\n${error}`

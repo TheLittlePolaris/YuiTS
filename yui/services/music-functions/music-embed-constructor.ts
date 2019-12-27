@@ -1,6 +1,6 @@
 import { RichEmbed } from "discord.js";
 
-interface EmbedConstructor {
+interface IEmbedConstructor {
   title: string;
   embedStatus: string;
   authorAvatarUrl: string;
@@ -13,7 +13,7 @@ interface EmbedConstructor {
 }
 
 export function discordRichEmbedConstructor(
-  records: EmbedConstructor
+  records: IEmbedConstructor
 ): Promise<RichEmbed> {
   return new Promise((resolve, reject) => {
     const embed = new RichEmbed()

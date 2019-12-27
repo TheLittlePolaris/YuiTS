@@ -1,6 +1,7 @@
 import { MusicService } from "../services/music.service";
 import { GuildMember } from "discord.js";
 import { VoiceState } from "../interfaces/voice-state.interface";
+import { MusicStream } from "../services/music-entities/music-stream";
 
 export class VoiceStateHandler {
   private currentMusicService: MusicService;
@@ -9,7 +10,7 @@ export class VoiceStateHandler {
     this.currentMusicService = musicService;
   }
 
-  public checkOnVoiceStateUpdate(oldMem, newMem) {
+  public checkOnVoiceStateUpdate(oldMem: GuildMember, newMem: GuildMember) {
     if (!oldMem && !newMem) return;
     let voiceStateCheck = this.checkOnLeave(oldMem, newMem);
     switch (voiceStateCheck.action) {
@@ -20,9 +21,6 @@ export class VoiceStateHandler {
         }
         break;
       }
-      case "ignore": {
-        break;
-      }
       case "leave": {
         if (oldMem.voiceChannel.members.size === 1) {
           const timeout = setTimeout(() => {
@@ -30,6 +28,10 @@ export class VoiceStateHandler {
           }, 30000);
           voiceStateCheck.stream.set("leaveOnTimeout", timeout);
         }
+        break;
+      }
+      default:
+      case "ignore": {
         break;
       }
     }
@@ -68,7 +70,7 @@ export class VoiceStateHandler {
     }
   }
 
-  public leaveVoiceChannel(stream) {
+  public leaveVoiceChannel(stream: MusicStream) {
     stream.boundVoiceChannel.leave();
     stream.boundTextChannel.send(
       "**_There's no one around so I'll leave too. Bye~!_**"
