@@ -9,13 +9,14 @@ import {
 } from "discord.js";
 import { MessageHandler } from "./handlers/message.handler";
 import { VoiceStateHandler } from "./handlers/voice-state.handler";
+import constants from "./constants/constants";
 
 @Discord
 export class YuiCore {
-  private yui: DiscordClient;
+  private yui: Client;
   private messageHandler: MessageHandler;
   private voiceStateHandler: VoiceStateHandler;
-  private prefix = process.env.PREFIX;
+  private prefix = constants.PREFIX;
 
   constructor() {
     const clientOptions: ClientOptions = {
@@ -30,7 +31,7 @@ export class YuiCore {
     };
     this.yui = new Client(clientOptions);
     this.messageHandler = new MessageHandler();
-    console.log(this.messageHandler);
+    // console.log(!!this.messageHandler && this.messageHandler);
     this.voiceStateHandler = new VoiceStateHandler(
       this.messageHandler.musicService || null
     );
@@ -50,7 +51,10 @@ export class YuiCore {
           url: "https://twitch.tv/onlypolaris",
           type: "STREAMING"
         })
-        .catch(err => Promise.resolve(null))
+        .catch(err => {
+          console.error("err := " + err);
+          Promise.resolve(null);
+        })
     ]);
     if (ready) console.log("Yui is ready");
   }

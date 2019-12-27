@@ -1,10 +1,10 @@
-import { SongMetaData } from "./song-metadata";
+import { ISong } from "../../interfaces/song-metadata.interface";
 
 export class MusicQueue {
-  private songs: Array<SongMetaData> = [];
+  private songs: Array<ISong> = [];
 
   /**
-   * @type {SongMetaData(id, name, channel, duration, req, vUrl, tUrl)}
+   * @type {ISong} - SongProperties
    */
   constructor() {
     this.songs = [];
@@ -18,34 +18,34 @@ export class MusicQueue {
   }
 
   /**
-   * @param {SongMetaData} song - Add a song at the end of the queue
+   * @param {ISong} song - Add a song at the end of the queue
    */
-  addSong(song) {
+  addSong(song: ISong) {
     this.songs.push(song);
   }
   /**
-   * @param {SongMetaData} song Add the song to after the currently playing song
+   * @param {ISong} song Add the song to after the currently playing song
    */
-  addNext(song) {
+  addNext(song: ISong) {
     this.songs.splice(1, 0, song);
   }
   /**
-   * @returns {SongMetaData} Remove the song from the start of queue
+   * @returns {ISong} Remove the song from the start of queue
    */
   shiftSong() {
     return this.songs.shift();
   }
   /**
-   * @param {SongMetaData} currSong - Append the song to the start of queue
+   * @param {ISong} currSong - Append the song to the start of queue
    */
-  unshiftSong(currSong) {
+  unshiftSong(currSong: ISong) {
     this.songs.unshift(currSong);
   }
   /**
    * @param {Number} index - Position of the song
-   * @returns {SongMetaData} The song at specified position
+   * @returns {ISong} The song at specified position
    */
-  getAt(index) {
+  at(index) {
     return this.songs[index];
   }
   /**
@@ -62,13 +62,13 @@ export class MusicQueue {
     this.songs.splice(1, temp);
   }
   /**
-   * @returns {SongMetaData} The first song in the queue
+   * @returns {ISong} The first song in the queue
    */
   get first() {
     return this.songs[0];
   }
   /**
-   * @returns {SongMetaData} The last song in the queue
+   * @returns {ISong} The last song in the queue
    */
   get last() {
     return this.songs[this.length - 1];
@@ -99,7 +99,7 @@ export class MusicQueue {
    *  @param index - The exact posistion of the song
    *  @returns string: Name of the removed song
    */
-  spliceSong(index) {
+  spliceSong(index: number) {
     let songName = this.songs[index].title;
     this.songs.splice(index, 1);
     return songName;
@@ -108,7 +108,7 @@ export class MusicQueue {
    * @param {Number} index - start position in queue
    * @param {Number} length - the amount of songs to be removed
    */
-  spliceSongs(index, length) {
+  spliceSongs(index: number, length: number) {
     this.songs.splice(index, length);
   }
 

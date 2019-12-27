@@ -4,7 +4,9 @@ import {
   VoiceChannel,
   TextChannel,
   StreamDispatcher,
-  VoiceConnection
+  VoiceConnection,
+  AudioPlayer,
+  StreamOptions
 } from "discord.js";
 import { MusicStream } from "./music-entities/music-stream";
 import {
@@ -15,12 +17,16 @@ import {
 import {
   getID,
   getInfoIds,
-  getPlaylistId
+  getPlaylistId,
+  getPlaylistItems
 } from "./youtube-services/youtube.service";
 import { MusicQueue } from "./music-entities/music-queue";
-import { SongMetaData } from "./music-entities/song-metadata";
-import { YoutubeSongItemMetadata } from "../interfaces/youtube-song-metadata.interface";
-import { embedConstructor } from "./music-functions/music-embed-constructor";
+import { ISong } from "../interfaces/song-metadata.interface";
+import {
+  IYoutubeSongItemMetadata,
+  IYoutubePlaylistItemMetadata
+} from "../interfaces/youtube-song-metadata.interface";
+import { discordRichEmbedConstructor } from "./music-functions/music-embed-constructor";
 import ytdl from "ytdl-core";
 import { set, get } from "lodash";
 import constants from "../constants/constants";
@@ -28,7 +34,7 @@ import constants from "../constants/constants";
 export class MusicService {
   private _streams: Map<string, MusicStream> = new Map();
 
-  public pushStream(
+  public createStream(
     guild: Guild,
     boundVoiceChannel: VoiceChannel,
     boundTextChannel: TextChannel
@@ -42,27 +48,36 @@ export class MusicService {
         boundTextChannel
       );
       this._streams.set(guild.id, stream);
-      return stream;
+      resolve(stream);
     });
   }
 
   public async play(message: Message, args?: Array<string>): Promise<void> {
     const { id } = message.guild;
+    console.log("Enter play function.");
     if (!id) {
+      console.log("Error: Message without guild.");
       this.sendMessage(message, "Something went wrong! Please try again");
       return;
     }
-    const guildStream = await this.pushStream(
+    console.log("message ====", message.id);
+    const guildStream = await this.createStream(
       message.guild,
       message.member.voiceChannel,
       message.channel as TextChannel
     );
-    if (!guildStream.voiceConnection)
+    console.log("Created guild stream === ", guildStream.id);
+    if (!guildStream.voiceConnection) {
+      console.log("Enter create voice connection.");
       await this.createVoiceConnection(guildStream, message);
+    }
     const _arguments: string = args.join(" ");
-    if (isYoutubeLink(_arguments) && args.indexOf("list=") > -1) {
+    console.log("Play query arguments: ", _arguments);
+    if (isYoutubeLink(_arguments) && _arguments.indexOf("list=") > -1) {
+      console.log("enter queue playlist");
       this.queuePlaylist(guildStream, message, _arguments);
     } else {
+      console.log("enter queue song");
       return await this.queueSong(guildStream, message, _arguments);
     }
   }
@@ -71,10 +86,15 @@ export class MusicService {
     stream: MusicStream,
     message: Message
   ): Promise<VoiceConnection> {
-    return new Promise(async (res, rej) => {
-      const connection = await message.member.voiceChannel.join();
+    return new Promise(async (resolve, reject) => {
+      console.log("creating voice connection ... ");
+      const connection = await message.member.voiceChannel
+        .join()
+        .catch(this.handleError);
+      if (!connection) reject("Could not create voice connection");
       stream.set("voiceConnection", connection);
-      res(connection);
+      console.log("Created voice connection. Status == ", connection.status);
+      resolve(connection);
     });
   }
 
@@ -83,64 +103,81 @@ export class MusicService {
     message: Message,
     args: string
   ): Promise<void> {
+    console.log("Entered queue playlist. Start enqueuing...");
     try {
-      const youtubePlaylistId = await getPlaylistId(args).catch(null);
+      const youtubePlaylistId = await getPlaylistId(args).catch(
+        this.handleError
+      );
+      console.log("Youtube playlist id === ", youtubePlaylistId);
       if (!!youtubePlaylistId) {
-        const sentMessage = stream.boundTextChannel
+        const sentMessage: Message = (await stream.boundTextChannel
           .send(
             ":hourglass_flowing_sand: **_Loading playlist, please wait..._**"
           )
-          .catch(console.error);
-        if (!!sentMessage) {
-          let nextPageToken = "";
-          let oldQueueLength = stream.queue.length;
-          // await this.getItems(
-          //   stream,
-          //   youtubePlaylistId,
-          //   nextPageToken,
-          //   sentMessage,
-          //   oldQueueLength,
-          //   message.member.displayName
-          // ).catch(console.error);
+          .catch(this.handleError)) as Message;
+        // TODO: Implement queue playlist
+        const requester = message.member.displayName;
+        const playList = await getPlaylistItems(youtubePlaylistId).catch(null);
+        const nAdded = playList && playList.length;
+        if (!playList) {
+          stream.boundTextChannel.send("Something went wrong!");
+          const error = new Error("Playlist's id not found");
+          return this.handleError(error);
+        }
+        console.log(nAdded);
+        const queuedPlaylist = await this.pushToQueue(
+          stream.queue,
+          playList,
+          requester,
+          true
+        ).catch(this.handleError);
+        const editedMessage = await sentMessage
+          .edit(":white_check_mark: **Enqueued " + nAdded + " songs!**")
+          .catch(this.handleError);
+        if (stream.isPlaying === false) {
+          stream.set("isPlaying", true);
+          console.log("Start playing music from playlist! ==> LEGGO!!");
+          this.playMusic(stream);
+          stream.boundTextChannel
+            .send("**`🎶 Playlist starting - NOW! 🎶`**")
+            .catch(this.handleError);
         }
       }
-      // await getPlaylistId(args, function (playlistID) {
-      //     guild.boundTextChannel.send(":hourglass_flowing_sand: **_Loading playlist, please wait..._**").then(async (msg) => {
-      //         let nextPageToken = '';
-      //         let oldQueueLength = guild.queue.length;
-      //         await getItems(guild, playlistID, nextPageToken, msg, oldQueueLength, message.member.displayName).catch(console.error);
-      //     }).catch(console.error);
-      // });
-    } catch (err) {
+    } catch (error) {
       stream.boundTextChannel.send(
         "Sorry, something went wrong and i couldn't get the playlist."
       );
-      console.error(err + "");
-      return Promise.resolve(null);
+      return this.handleError(error as Error);
     }
+    Promise.resolve();
   }
-
-  public getItems() {}
 
   public async queueSong(
     stream: MusicStream,
     message: Message,
     args: string
   ): Promise<void> {
+    console.log("Enter queue song. Start enqueuing... ");
     let requester: string = message.member.displayName;
     let queue: MusicQueue = stream.queue;
     let tempStatus: string;
     const videoId = await getID(args);
-    const [itemInfo] = await Promise.all([getInfoIds(videoId)]);
-    const [pushToQueue] = await Promise.all([
-      this.pushToQueue(queue, itemInfo[0], requester, true)
-    ]);
+    // const [itemInfo] = await Promise.all([getInfoIds(videoId)]);
+    const itemInfo = await getInfoIds(videoId);
+    const pushToQueue = await this.pushToQueue(
+      queue,
+      itemInfo,
+      requester,
+      true
+    );
+
     // const channelId = await getChannelID(queue.last.id);
     if (!stream.isPlaying) {
+      console.log("play music ");
       stream.set("isPlaying", true);
       this.playMusic(stream);
       tempStatus = "♫ Now Playing ♫";
-    }
+    } else tempStatus = "♬ Added To QUEUE ♬";
     var nowPlayingDescription =
       "*`Channel`*: **`" +
       queue.last.channelId +
@@ -150,108 +187,118 @@ export class MusicService {
       (queue.length === 1
         ? ""
         : "\n*`Position in queue`*: **`" + (queue.length - 1) + "`**");
-    const embed = await embedConstructor({
+    const embed = await discordRichEmbedConstructor({
       title: queue.last.title,
       embedStatus: tempStatus,
       authorAvatarUrl: message.author.avatarURL,
       description: nowPlayingDescription,
       color: constants.YUI_COLOR_CODE,
-      thumbnailUrl: queue.last.thumbnailUrl,
+      thumbnailUrl: queue.last.videoThumbnail,
       appendTimeStamp: true,
       titleHyperLink: queue.last.videoUrl,
       footer: `Requested by ${requester}`
-    });
-    message.channel.send(embed).catch(console.error);
+    }).catch(this.handleError);
+
+    await stream.boundTextChannel.send(embed).catch(this.handleError);
+
+    return Promise.resolve();
   }
 
   public pushToQueue(
     queue: MusicQueue,
-    data: YoutubeSongItemMetadata,
+    data: IYoutubeSongItemMetadata[],
     requester: string,
     atEnd: boolean
-  ) {
+  ): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
-      if (!data.id) reject("Video not available.");
-      else {
-        const id = data.id,
-          title = data.snippet.title,
-          channelId = data.snippet.channelId,
-          channelTitle = data.snippet.channelTitle,
-          duration = await youtubeTimeConverter(data.contentDetails.duration),
-          videoUrl = `https://www.youtube.com/watch?v=${id}`,
-          thumbnailUrl = data.snippet.thumbnails.default.url;
-        const newSong = new SongMetaData(
-          id,
-          title,
-          channelId,
-          channelTitle,
-          duration,
-          requester,
-          videoUrl,
-          thumbnailUrl
+      if (!data.length) {
+        this.handleError(new Error("No data was supplied"));
+        reject(false);
+      } else {
+        const promises = data.map(
+          async (_song: IYoutubePlaylistItemMetadata) => {
+            if (!_song.id) {
+              this.handleError(new Error("Song id was undefined."));
+              return null;
+            }
+            const song: ISong = {
+              id: _song.id,
+              title: _song.snippet.title,
+              channelId: _song.snippet.channelId,
+              channelTitle: _song.snippet.channelTitle,
+              duration: await youtubeTimeConverter(
+                _song.contentDetails.duration
+              ),
+              requester,
+              videoUrl: `https://www.youtube.com/watch?v=${_song.id}`,
+              videoThumbnail: _song.snippet.thumbnails.default.url
+            };
+            atEnd
+              ? Promise.resolve(queue.addSong(song))
+              : Promise.resolve(queue.addNext(song));
+          }
         );
-        if (atEnd) {
-          resolve(queue.addSong(newSong));
-        } else {
-          resolve(queue.addNext(newSong));
-        }
+        const [promisedPromises] = await Promise.all(promises);
+        resolve(true);
       }
     });
   }
 
   public async playMusic(stream: MusicStream) {
-    let currSong = stream.queue.getAt(0);
+    let currSong = stream.queue.at(0);
     let qual: string | number = isNaN(currSong.duration) ? 95 : "highestaudio";
     let ytdlStream = ytdl("https://www.youtube.com/watch?v=" + currSong.id, {
       quality: qual,
       filter: "audioonly"
     });
+    const streamOptions: StreamOptions = {
+      volume: 0.7,
+      passes: 2
+    };
     const streamDispatcher: StreamDispatcher = await stream.voiceConnection.playStream(
       ytdlStream,
-      {
-        volume: 0.7,
-        passes: 2
-      }
+      streamOptions
     );
+
     stream.set("streamDispatcher", streamDispatcher);
-    let sent;
+    let sent: Message;
     stream.streamDispatcher.on("start", () => {
-      set(stream.streamDispatcher, "");
+      set(stream.voiceConnection, "player.streamingData.pausedTime", 0);
+      // TODO: CHECK THIS!  set from 'lodash', just a possibility
+      // stream.voiceConnection.player.streamingData.pausedTime = 0 // this is unreachable
       if (!stream.isLooping) {
         stream.boundTextChannel
-          .send("**` 🎧 Now Playing: " + stream.queue.getAt(0).title + "`**")
-          .then(msg => {
-            sent = msg;
+          .send("**` 🎧 Now Playing: " + stream.queue.at(0).title + "`**")
+          .then((sentMessage: Message) => {
+            sent = sentMessage;
           });
       }
     });
+
     stream.streamDispatcher.on("end", reason => {
       if (sent && !stream.isLooping) {
         sent.delete(50);
       }
-      let temp = stream.queue.shiftSong();
+      const endedSong = stream.queue.shiftSong();
       if (stream.isLooping) {
-        stream.queue.unshiftSong(temp);
+        stream.queue.unshiftSong(endedSong);
       } else if (stream.isQueueLooping) {
-        stream.queue.addSong(temp);
+        stream.queue.addSong(endedSong);
       }
       if (stream.queue.isEmpty()) {
         if (!stream.isAutoPlaying) {
-          const voiceConnection = get(stream, "voiceConnection");
-          voiceConnection && voiceConnection.setSpeaking(false);
-          this.resetStatus(stream);
+          stream.voiceConnection.speaking = false;
+          return this.resetStatus(stream);
         } else {
           // return autoPlaySong(stream, temp.requester);
         }
-      } else {
-        this.playMusic(stream);
       }
+      return this.playMusic(stream);
     });
   }
 
   public resetStatus(stream: MusicStream) {
-    // let stream = this.streams.get(guildId);
-    if (stream) {
+    if (stream && stream.id) {
       stream.set("isAutoPlaying", false);
       stream.set("isQueueLooping", false);
       stream.set("isLooping", false);
@@ -261,30 +308,38 @@ export class MusicService {
         if (stream.streamDispatcher) {
           // stream.voiceConnection.player.destroy();
           const currentPlayer = get(stream.voiceConnection, "player");
-          currentPlayer.destroy();
-          stream.streamDispatcher.end();
+          currentPlayer && currentPlayer.destroy();
+          stream.streamDispatcher.end("Reset status");
         }
         stream.set("isPlaying", false);
       }
     } else {
-      return console.log("Reset_status_no_guild.");
+      return this.handleError(new Error("The stream as undefined"));
     }
   }
 
-  public resetChannelStat(stream: MusicStream) {
+  public resetChannelStat(stream: MusicStream): Promise<boolean> {
     stream.set("boundTextChannel", null);
     stream.set("boundVoiceChannel", null);
-    this._streams.delete(stream.id);
+    return Promise.resolve(this._streams.delete(stream.id));
   }
 
   public sendMessage(
     message: Message,
-    str: string
+    content: string
   ): Promise<Message | Message[]> {
-    return message.channel.send(str);
+    return message.channel.send(content);
   }
 
   public get streams(): Map<string, MusicStream> {
     return this._streams;
+  }
+
+  private handleError(error: Error): Promise<null> {
+    const now = new Date();
+    console.error(
+      `=========== ERROR ===========\n===== ${now.toString()} =====\n${error}`
+    );
+    return null;
   }
 }

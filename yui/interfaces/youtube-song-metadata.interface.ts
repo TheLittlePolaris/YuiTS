@@ -25,7 +25,7 @@ interface VideoContentDetails {
   definition: string;
 }
 
-export interface YoutubeSongItemMetadata {
+export interface IYoutubeSongItemMetadata {
   id: string;
   kind: string;
   etag: string;
@@ -33,7 +33,7 @@ export interface YoutubeSongItemMetadata {
   contentDetails?: VideoContentDetails;
 }
 
-export interface YoutubeSearchResultItem {
+export interface IYoutubeSearchResultItem {
   kind: string;
   etag: string;
   id: {
@@ -42,7 +42,7 @@ export interface YoutubeSearchResultItem {
   };
   snippet: VideoSnippet;
 }
-export interface YoutubeSearchResult {
+export interface IYoutubeSearchResult {
   kind: string;
   etag: string;
   nextPageToken: string;
@@ -51,7 +51,7 @@ export interface YoutubeSearchResult {
     totalResults: number;
     resultsPerPage: number;
   };
-  items: YoutubeSearchResultItem[];
+  items: IYoutubeSearchResultItem[];
 }
 
 interface PlaylistVideoSnippet extends VideoSnippet {
@@ -64,11 +64,11 @@ interface PlaylistVideoSnippet extends VideoSnippet {
   };
 }
 
-export interface YoutubePlaylistItemMetadata extends YoutubeSongItemMetadata {
+export interface IYoutubePlaylistItemMetadata extends IYoutubeSongItemMetadata {
   snippet: PlaylistVideoSnippet;
 }
 
-export interface YoutubePlaylist {
+export interface IYoutubePlaylist {
   kind: string;
   nextPageToken: string;
   etag: string;
@@ -76,7 +76,7 @@ export interface YoutubePlaylist {
     totalResults: number;
     resultsPerPage: number;
   };
-  items: YoutubePlaylistItemMetadata[];
+  items: IYoutubePlaylistItemMetadata[];
 }
 /**
  * Youtube song Item content

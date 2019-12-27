@@ -29,7 +29,9 @@
     "tsc": "^1.20150623.0",
     "tsc-watch": "^4.0.0",
     "tslib": "^1.10.0",
-    "typescript": "^3.7.3",
     "ytdl-core": "^1.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^3.7.4"
   }
 }

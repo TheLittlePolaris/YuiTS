@@ -12,7 +12,7 @@ interface EmbedConstructor {
   footer?: string;
 }
 
-export function embedConstructor(
+export function discordRichEmbedConstructor(
   records: EmbedConstructor
 ): Promise<RichEmbed> {
   return new Promise((resolve, reject) => {

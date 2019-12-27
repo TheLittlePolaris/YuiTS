@@ -1,9 +1,9 @@
 import * as getYoutubeID from "get-youtube-id";
 import { isYoutubeLink } from "../music-functions/music-function";
 import {
-  YoutubePlaylistItemMetadata,
-  YoutubePlaylist,
-  YoutubeSearchResult
+  IYoutubePlaylistItemMetadata,
+  IYoutubePlaylist,
+  IYoutubeSearchResult
 } from "../../interfaces/youtube-song-metadata.interface";
 import { youtubeRequestService } from "./request.service";
 
@@ -32,45 +32,47 @@ export async function getPlaylistId(args) {
 
 export function requestVideo(query): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
-    const json: YoutubeSearchResult = await youtubeRequestService(
+    const json: IYoutubeSearchResult = await youtubeRequestService(
       "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=2&q=" +
         encodeURIComponent(query) +
         "&type=video&fields=items(id(kind%2CvideoId)%2Csnippet(channelId%2CchannelTitle%2Ctitle))"
     );
-    resolve(json.items[0].id.videoId);
+    if (!json) reject("Some thing went wrong");
+    resolve((json && json.items[0].id.videoId) || "3uOWvcFLUY0");
   });
 }
 
 export function getInfoIds(
   ids: string
-): Promise<YoutubePlaylistItemMetadata[]> {
+): Promise<IYoutubePlaylistItemMetadata[]> {
   return new Promise(async (resolve, reject) => {
-    const json: YoutubePlaylist = await youtubeRequestService(
+    const json: IYoutubePlaylist = await youtubeRequestService(
       "https://www.googleapis.com/youtube/v3/videos?part=" +
         encodeURIComponent("snippet, contentDetails") +
         "&id=" +
         encodeURIComponent(ids) +
         "&fields=items(contentDetails%2Fduration%2Cid%2Csnippet(channelId%2CchannelTitle%2Cthumbnails%2Fdefault%2Ctitle))"
     );
-    resolve(json.items);
+    resolve((json && json.items) || null);
   });
 }
 
 export function getPlaylistItems(
   playlistId: string,
-  _nextPageToken: string
-): Promise<YoutubePlaylistItemMetadata[]> {
+  _nextPageToken: string = ""
+): Promise<IYoutubePlaylistItemMetadata[]> {
   return new Promise(async (resolve, reject) => {
-    const json: YoutubePlaylist = await youtubeRequestService(
+    const json: IYoutubePlaylist = await youtubeRequestService(
       "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50" +
         _nextPageToken +
         "&playlistId=" +
         playlistId +
         "&fields=items(id%2Ckind%2Csnippet(channelId%2CchannelTitle%2CresourceId(kind%2CvideoId)%2Ctitle))%2CnextPageToken"
     );
+    if (!json) reject("Something went wrong");
     const { nextPageToken } = json;
     const playlistSongs = await processPlaylistItemsData(json).catch(null);
-    let nextPageResults: YoutubePlaylistItemMetadata[] = [];
+    let nextPageResults: IYoutubePlaylistItemMetadata[] = [];
     if (nextPageToken) {
       const pageToken = `&pageToken=${nextPageToken}`;
       nextPageResults = await getPlaylistItems(playlistId, pageToken);
@@ -80,8 +82,8 @@ export function getPlaylistItems(
 }
 
 function processPlaylistItemsData(
-  data: YoutubePlaylist
-): Promise<YoutubePlaylistItemMetadata[]> {
+  data: IYoutubePlaylist
+): Promise<IYoutubePlaylistItemMetadata[]> {
   return new Promise(async (resolve, reject) => {
     const tmpIdsArray: Array<string> = [];
     const [playlist] = await Promise.all(

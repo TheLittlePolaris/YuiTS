@@ -6,22 +6,22 @@ export function youtubeRequestService<T>(url: string): Promise<T> {
       `${url}&key=${process.env.YOUTUBE_API_KEY}`,
       (err: string, response, body: string) => {
         if (err) {
-          handleErrors(err);
-          return resolve(null);
+          handleRequestErrors(err);
+          reject("Something went wrong");
         }
         const json = JSON.parse(body);
         const { error } = json;
         if (error) {
-          handleErrors(error);
-          return resolve(null);
+          handleRequestErrors(error);
+          resolve(null);
         }
-        return resolve(json);
+        resolve(json);
       }
     );
   });
 }
 
-function handleErrors(error: string): void {
+function handleRequestErrors(error: string): void {
   const now = new Date();
   return console.error(
     `=========== ERROR ===========\n
