@@ -120,7 +120,7 @@ export class MusicStream {
    * @param value The value to be set
    * @param data Data of the selected value
    */
-  public set(value: MusicStreamValue, data: any): any {
+  public set<MusicStreamValue, T>(value: MusicStreamValue, data: T): T {
     if (!this[`_${value}`]) this[`_${value}`] = data;
     return this[`_${value}`] || undefined;
   }
