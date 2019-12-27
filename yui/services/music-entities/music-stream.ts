@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { MusicQueue } from "./music-queue";
 import { MusicStreamValue } from "../../interfaces/music-stream.interface";
+import { IVoiceConnection } from "../../interfaces/custom-interface.interface";
 
 export class MusicStream {
   private _id: string;
@@ -17,7 +18,7 @@ export class MusicStream {
   private _isPlaying: boolean = false;
   private _isPaused: boolean = false;
   public _streamDispatcher: StreamDispatcher;
-  public _voiceConnection: VoiceConnection;
+  public _voiceConnection: IVoiceConnection;
   private _tempChannelId: string;
   private _nextPage: string;
   private _hasNextPage: boolean = false;
@@ -81,7 +82,7 @@ export class MusicStream {
     return this._streamDispatcher;
   }
 
-  public get voiceConnection(): VoiceConnection {
+  public get voiceConnection(): IVoiceConnection {
     return this._voiceConnection;
   }
 

@@ -30,6 +30,7 @@ import { discordRichEmbedConstructor } from "./music-functions/music-embed-const
 import ytdl from "ytdl-core";
 import { set, get } from "lodash";
 import constants from "../constants/constants";
+import { IAudioPlayer } from "../interfaces/custom-interface.interface";
 
 export class MusicService {
   private _streams: Map<string, MusicStream> = new Map();
@@ -265,9 +266,11 @@ export class MusicService {
     stream.set("streamDispatcher", streamDispatcher);
     let sent: Message;
     stream.streamDispatcher.on("start", () => {
-      set(stream.voiceConnection, "player.streamingData.pausedTime", 0);
+      // might have been fixed https://github.com/discordjs/discord.js/pull/1745 - OR NOT
+      // set(stream.voiceConnection, "player.streamingData.pausedTime", 0);
       // TODO: CHECK THIS!  set from 'lodash', just a possibility
       // stream.voiceConnection.player.streamingData.pausedTime = 0 // this is unreachable
+      stream.voiceConnection.player.streamingData.pausedTime = 0; // WHY DISCORD, WHYYY?
       if (!stream.isLooping) {
         stream.boundTextChannel
           .send("**` 🎧 Now Playing: " + stream.queue.at(0).title + "`**")
@@ -309,8 +312,10 @@ export class MusicService {
       if (stream.isPlaying) {
         if (stream.streamDispatcher) {
           // stream.voiceConnection.player.destroy();
-          const currentPlayer = get(stream.voiceConnection, "player");
-          currentPlayer && currentPlayer.destroy();
+          // const currentPlayer = stream.voiceConnection.player as IAudioPlayer;
+          // currentPlayer && currentPlayer.destroy();
+          // TODO: test this
+          stream.voiceConnection.player.destroy();
           stream.streamDispatcher.end("Reset status");
         }
         stream.set("isPlaying", false);
