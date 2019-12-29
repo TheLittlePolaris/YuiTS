@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { config } from "dotenv";
 import YuiCore from "./yui-core";
+import { errorLogger } from "./handlers/error.handler";
 config();
 // Work In Progress...
 (async () => {
@@ -8,10 +9,6 @@ config();
     const yui = new YuiCore();
     await yui.start();
   } catch (error) {
-    // console.error("ERROR: " + error);
-    const now = new Date();
-    console.error(
-      `=========== ERROR ===========\n===== ${now.toString()} =====\n${error}`
-    );
+    errorLogger(error, "YUI_START");
   }
 })();

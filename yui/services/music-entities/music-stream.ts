@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { MusicQueue } from "./music-queue";
 import { MusicStreamValue } from "../../interfaces/music-stream.interface";
-import { IVoiceConnection } from "../../interfaces/custom-interface.interface";
+import { IVoiceConnection } from "../../interfaces/custom-interfaces.interface";
 
 export class MusicStream {
   private _id: string;
@@ -121,7 +121,7 @@ export class MusicStream {
    * @param value The value to be set
    * @param data Data of the selected value
    */
-  public set<MusicStreamValue, T>(value: MusicStreamValue, data: T): T {
+  public set<T>(value: MusicStreamValue, data: T): T {
     if (!this[`_${value}`]) this[`_${value}`] = data;
     return this[`_${value}`] || undefined;
   }

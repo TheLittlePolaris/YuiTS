@@ -1,13 +1,14 @@
 {
-  "name": "yui.ts",
+  "name": "yuits",
   "version": "1.0.0",
   "description": "",
-  "main": "yui.ts",
+  "main": "yui/yui.ts",
   "scripts": {
-    "prebuild": "mkdir dist",
+    "prebuild-win": "IF EXIST .\\dist rmdir /Q /S .\\dist && mkdir dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc -p tsconfig.json && node dist/yui.js",
-    "start:test": "tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\""
+    "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\"",
+    "start:test": "npm run prebuild-win && tsc -p tsconfig.json && node dist/yui.js"
   },
   "author": "Polaris",
   "license": "ISC",

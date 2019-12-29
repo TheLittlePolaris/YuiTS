@@ -1,4 +1,5 @@
 import request from "request";
+import { errorLogger } from "../../handlers/error.handler";
 
 export function youtubeRequestService<T>(url: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -10,8 +11,8 @@ export function youtubeRequestService<T>(url: string): Promise<T> {
           reject("Something went wrong");
         }
         const json = JSON.parse(body);
-        const { error } = json;
-        if (error) {
+        const { error, items } = json;
+        if (error || !items) {
           handleRequestErrors(error);
           resolve(null);
         }
@@ -22,10 +23,5 @@ export function youtubeRequestService<T>(url: string): Promise<T> {
 }
 
 function handleRequestErrors(error: string): void {
-  const now = new Date();
-  return console.error(
-    `=========== ERROR ===========\n
-     ===== ${now.toString()} =====\n
-    ${error}`
-  );
+  return errorLogger(error, "REQUEST_SERVICE");
 }

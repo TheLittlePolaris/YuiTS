@@ -6,7 +6,6 @@ export interface IAudioPlayer extends AudioPlayer {
   };
   destroy(): void;
 }
-
 export interface IVoiceConnection extends VoiceConnection {
   player: IAudioPlayer;
 }

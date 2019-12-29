@@ -4,9 +4,8 @@ import {
   VoiceChannel,
   TextChannel,
   StreamDispatcher,
-  VoiceConnection,
-  AudioPlayer,
-  StreamOptions
+  StreamOptions,
+  RichEmbed
 } from "discord.js";
 import { MusicStream } from "./music-entities/music-stream";
 import {
@@ -30,17 +29,23 @@ import { discordRichEmbedConstructor } from "./music-functions/music-embed-const
 import ytdl from "ytdl-core";
 import { set, get } from "lodash";
 import constants from "../constants/constants";
-import { IAudioPlayer } from "../interfaces/custom-interface.interface";
-
+import { IVoiceConnection } from "../interfaces/custom-interfaces.interface";
+import { errorLogger } from "../handlers/error.handler";
 export class MusicService {
-  private _streams: Map<string, MusicStream> = new Map();
+  private _streams: Map<string, MusicStream> = new Map<string, MusicStream>();
 
   public createStream(
     guild: Guild,
     boundVoiceChannel: VoiceChannel,
     boundTextChannel: TextChannel
-  ): Promise<MusicStream> {
+  ): Promise<MusicStream | null> {
     return new Promise((resolve, reject) => {
+      if (!guild || !boundVoiceChannel || !boundTextChannel)
+        reject(
+          new Error(
+            "Guild | boundVoiceChannel | boundTextChannel was not defined."
+          )
+        );
       const existingStream = this._streams.get(guild.id);
       if (!!existingStream) resolve(existingStream);
       const stream = new MusicStream(
@@ -57,16 +62,24 @@ export class MusicService {
     const { id } = message.guild;
     console.log("Enter play function.");
     if (!id) {
-      console.log("Error: Message without guild.");
       this.sendMessage(message, "Something went wrong! Please try again");
-      return;
+      return Promise.resolve(
+        this.handleError(new Error("Id for Guild was undefined."))
+      );
     }
     console.log("message ====", message.id);
+
     const guildStream = await this.createStream(
       message.guild,
       message.member.voiceChannel,
       message.channel as TextChannel
-    );
+    ).catch(this.handleError);
+
+    if (!guildStream)
+      return Promise.resolve(
+        this.handleError(new Error("Guild stream was not created."))
+      );
+
     console.log("Created guild stream === ", guildStream.id);
     if (!guildStream.voiceConnection) {
       console.log("Enter create voice connection.");
@@ -74,6 +87,7 @@ export class MusicService {
         this.handleError
       );
     }
+
     const _arguments: string = args.join(" ");
     console.log("Play query arguments: ", _arguments);
     if (isYoutubeLink(_arguments) && _arguments.indexOf("list=") > -1) {
@@ -88,12 +102,12 @@ export class MusicService {
   public async createVoiceConnection(
     stream: MusicStream,
     message: Message
-  ): Promise<VoiceConnection> {
+  ): Promise<IVoiceConnection> {
     return new Promise(async (resolve, reject) => {
       console.log("creating voice connection ... ");
-      const connection = await message.member.voiceChannel
+      const connection = (await message.member.voiceChannel
         .join()
-        .catch(this.handleError);
+        .catch(this.handleError)) as IVoiceConnection;
       if (!connection) reject("Could not create voice connection");
       stream.set("voiceConnection", connection);
       console.log("Created voice connection. Status == ", connection.status);
@@ -120,7 +134,9 @@ export class MusicService {
           .catch(this.handleError)) as Message;
         // TODO: Implement queue playlist
         const requester = message.member.displayName;
-        const playList = await getPlaylistItems(youtubePlaylistId).catch(null);
+        const playList = await getPlaylistItems(youtubePlaylistId).catch(
+          this.handleError
+        );
         const nAdded = playList && playList.length;
         if (!playList) {
           stream.boundTextChannel.send("Something went wrong!");
@@ -165,16 +181,13 @@ export class MusicService {
     let queue: MusicQueue = stream.queue;
     let tempStatus: string;
     const videoId = await getID(args);
-    // const [itemInfo] = await Promise.all([getInfoIds(videoId)]);
     const itemInfo = await getInfoIds(videoId);
     const pushToQueue = await this.pushToQueue(
       queue,
       itemInfo,
       requester,
       true
-    );
-
-    // const channelId = await getChannelID(queue.last.id);
+    ).catch(this.handleError);
     if (!stream.isPlaying) {
       console.log("play music ");
       stream.set("isPlaying", true);
@@ -209,20 +222,19 @@ export class MusicService {
 
   public pushToQueue(
     queue: MusicQueue,
-    data: IYoutubeSongItemMetadata[],
+    data: IYoutubePlaylistItemMetadata[],
     requester: string,
     atEnd: boolean
   ): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
-      if (!data.length) {
+      if (!data || !data.length) {
         this.handleError(new Error("No data was supplied"));
         reject(false);
       } else {
         const promises = data.map(
           async (_song: IYoutubePlaylistItemMetadata) => {
             if (!_song.id) {
-              this.handleError(new Error("Song id was undefined."));
-              return null;
+              return this.handleError(new Error("Song id was undefined."));
             }
             const song: ISong = {
               id: _song.id,
@@ -247,7 +259,7 @@ export class MusicService {
     });
   }
 
-  public async playMusic(stream: MusicStream) {
+  public async playMusic(stream: MusicStream): Promise<void> {
     let currSong = stream.queue.at(0);
     let qual: string | number = isNaN(currSong.duration) ? 95 : "highestaudio";
     let ytdlStream = ytdl("https://www.youtube.com/watch?v=" + currSong.id, {
@@ -258,31 +270,32 @@ export class MusicService {
       volume: 0.7,
       passes: 2
     };
-    const streamDispatcher: StreamDispatcher = await stream.voiceConnection.playStream(
+    const streamDispatcher: StreamDispatcher = stream.voiceConnection.playStream(
       ytdlStream,
       streamOptions
     );
 
+    if (!streamDispatcher)
+      return this.handleError(new Error("Stream Dispatcher was undefined."));
+
     stream.set("streamDispatcher", streamDispatcher);
     let sent: Message;
-    stream.streamDispatcher.on("start", () => {
+    stream.streamDispatcher.on("start", async () => {
       // might have been fixed https://github.com/discordjs/discord.js/pull/1745 - OR NOT
       // set(stream.voiceConnection, "player.streamingData.pausedTime", 0);
       // TODO: CHECK THIS!  set from 'lodash', just a possibility
       // stream.voiceConnection.player.streamingData.pausedTime = 0 // this is unreachable
-      stream.voiceConnection.player.streamingData.pausedTime = 0; // WHY DISCORD, WHYYY?
+      stream.voiceConnection.player.streamingData.pausedTime = 0; // WHY DISCORD.JS, WHYYY?
       if (!stream.isLooping) {
-        stream.boundTextChannel
+        sent = (await stream.boundTextChannel
           .send("**` 🎧 Now Playing: " + stream.queue.at(0).title + "`**")
-          .then((sentMessage: Message) => {
-            sent = sentMessage;
-          });
+          .catch(this.handleError)) as Message;
       }
     });
 
     stream.streamDispatcher.on("end", reason => {
       if (sent && !stream.isLooping) {
-        sent.delete(50);
+        sent.delete(50).catch(this.handleError);
       }
       const endedSong = stream.queue.shiftSong();
       if (stream.isLooping) {
@@ -298,8 +311,110 @@ export class MusicService {
           // return autoPlaySong(stream, temp.requester);
         }
       }
-      return this.playMusic(stream);
+      return this.playMusic(stream).catch(this.handleError);
     });
+  }
+
+  public async addToNext(
+    message: Message,
+    args?: Array<string>
+  ): Promise<void> {
+    const stream = this._streams.get(message.guild.id);
+    const queue = stream.queue;
+    if (!stream.isPlaying || queue.isEmpty()) {
+      return this.play(message, args);
+    } else {
+      const _arguments = args.join(" ");
+      if (isYoutubeLink(_arguments) && _arguments.indexOf("list=") > -1) {
+        await stream.boundTextChannel.send(
+          "Currently cannot add playlist to next. Use `>play` instead."
+        );
+        return Promise.resolve();
+      }
+      var requester = message.member.displayName;
+      const songId = await getID(_arguments).catch(this.handleError);
+      const song = await getInfoIds(songId).catch(this.handleError);
+      const createdSong = await this.pushToQueue(
+        queue,
+        song,
+        requester,
+        false
+      ).catch(this.handleError);
+      if (createdSong) {
+        const description =
+          "*`Channel`*: **`" +
+          queue.at(1).channelTitle +
+          "`**" +
+          "\n*`Duration`*: **`" +
+          (await timeConverter(queue.at(1).duration)) +
+          "`**" +
+          "\n*`Position in queue`*: **`1`**";
+        const embed = await discordRichEmbedConstructor({
+          title: queue.at(0).title,
+          embedStatus: "♬ Added Next ♬",
+          authorAvatarUrl: message.author.avatarURL,
+          description,
+          thumbnailUrl: queue.at(1).videoThumbnail,
+          appendTimeStamp: true,
+          color: constants.YUI_COLOR_CODE,
+          titleHyperLink: queue.at(1).videoUrl,
+          footer: `Requested by ${requester}`
+        });
+        this.sendMessage(message, embed);
+      }
+    }
+  }
+
+  public async skipSongs(
+    message: Message,
+    args?: Array<string>
+  ): Promise<void> {
+    const stream = this._streams.get(message.guild.id);
+    if (stream.queue.isEmpty()) {
+      await this.sendMessage(message, "**Nothing to skip!**");
+      return Promise.resolve();
+    } else {
+      switch (args.length) {
+        case 0: {
+          if (stream.isLooping) {
+            stream.set("isLooping", false);
+          }
+          if (!!stream.streamDispatcher) {
+            stream.boundTextChannel.send(" :fast_forward: **Skipped!**");
+            return Promise.resolve(stream.streamDispatcher.end());
+          }
+          break;
+        }
+        case 1: {
+          if (!isNaN(args[0] as any)) {
+            let numberOfSongs = Number(args[0]);
+            if (numberOfSongs < 0 || numberOfSongs > stream.queue.length) {
+              await this.sendMessage(
+                message,
+                "Index out of range! Please choose a valid one, use `>queue` for checking."
+              );
+              return Promise.resolve();
+            }
+            stream.queue.spliceSongs(1, numberOfSongs);
+            if (stream.isLooping) {
+              stream.set("isLooping", false);
+            }
+            if (stream.streamDispatcher) {
+              stream.boundTextChannel.send(
+                " :fast_forward: **Skipped " + numberOfSongs + " songs!**"
+              );
+              return Promise.resolve(stream.streamDispatcher.end());
+            }
+          } else {
+            this.sendMessage(message, "Please enter a number!");
+            return Promise.resolve();
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    }
   }
 
   public resetStatus(stream: MusicStream) {
@@ -311,9 +426,6 @@ export class MusicService {
       stream.queue.deleteQueue();
       if (stream.isPlaying) {
         if (stream.streamDispatcher) {
-          // stream.voiceConnection.player.destroy();
-          // const currentPlayer = stream.voiceConnection.player as IAudioPlayer;
-          // currentPlayer && currentPlayer.destroy();
           // TODO: test this
           stream.voiceConnection.player.destroy();
           stream.streamDispatcher.end("Reset status");
@@ -333,20 +445,16 @@ export class MusicService {
 
   public sendMessage(
     message: Message,
-    content: string
+    content: string | RichEmbed
   ): Promise<Message | Message[]> {
-    return message.channel.send(content);
+    return message.channel.send(content).catch(this.handleError);
   }
 
   public get streams(): Map<string, MusicStream> {
     return this._streams;
   }
 
-  private handleError(error: Error | string): Promise<null> {
-    const now = new Date();
-    console.error(
-      `=========== ERROR ===========\n===== ${now.toString()} =====\n${error}`
-    );
-    return null;
+  private handleError(error: Error | string): null {
+    return errorLogger(error, "MUSIC_SERVICE");
   }
 }

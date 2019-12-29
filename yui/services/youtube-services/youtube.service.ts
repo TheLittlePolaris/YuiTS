@@ -6,12 +6,13 @@ import {
   IYoutubeSearchResult
 } from "../../interfaces/youtube-song-metadata.interface";
 import { youtubeRequestService } from "./request.service";
+import { errorLogger } from "../../handlers/error.handler";
 
-export async function getID(str: string): Promise<string> {
-  if (isYoutubeLink(str)) {
-    return Promise.resolve(getYoutubeID.default(str));
+export async function getID(query: string): Promise<string> {
+  if (isYoutubeLink(query)) {
+    return Promise.resolve(getYoutubeID.default(query));
   } else {
-    return await requestVideo(str);
+    return await requestVideo(query);
   }
 }
 
@@ -30,7 +31,7 @@ export async function getPlaylistId(args) {
   }
 }
 
-export function requestVideo(query): Promise<string> {
+export function requestVideo(query: string): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     const json: IYoutubeSearchResult = await youtubeRequestService(
       "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=2&q=" +
@@ -38,7 +39,7 @@ export function requestVideo(query): Promise<string> {
         "&type=video&fields=items(id(kind%2CvideoId)%2Csnippet(channelId%2CchannelTitle%2Ctitle))"
     );
     if (!json) reject("Some thing went wrong");
-    resolve((json && json.items[0].id.videoId) || "3uOWvcFLUY0");
+    resolve(json.items[0].id.videoId || "3uOWvcFLUY0");
   });
 }
 
@@ -69,15 +70,19 @@ export function getPlaylistItems(
         playlistId +
         "&fields=items(id%2Ckind%2Csnippet(channelId%2CchannelTitle%2CresourceId(kind%2CvideoId)%2Ctitle))%2CnextPageToken"
     );
-    if (!json) reject("Something went wrong");
+    if (!json) reject("Request fail. JSON was null.");
     const { nextPageToken } = json;
-    const playlistSongs = await processPlaylistItemsData(json).catch(null);
+    const playlistSongs = await processPlaylistItemsData(json).catch(
+      handleError
+    );
     let nextPageResults: IYoutubePlaylistItemMetadata[] = [];
     if (nextPageToken) {
       const pageToken = `&pageToken=${nextPageToken}`;
-      nextPageResults = await getPlaylistItems(playlistId, pageToken);
+      nextPageResults = await getPlaylistItems(playlistId, pageToken).catch(
+        handleError
+      );
     }
-    resolve([...playlistSongs, ...nextPageResults]);
+    resolve([...playlistSongs, ...(nextPageResults || [])]);
   });
 }
 
@@ -90,10 +95,14 @@ function processPlaylistItemsData(
       data.items.map(song => {
         return tmpIdsArray.push(song.snippet.resourceId.videoId);
       })
-    ).catch(err => Promise.resolve(null));
+    ).catch(handleError);
     if (playlist) {
-      const videos = await getInfoIds(tmpIdsArray.join(",")).catch(null);
+      const videos = await getInfoIds(tmpIdsArray.join(",")).catch(handleError);
       resolve(videos);
     }
   });
+}
+
+function handleError(error: string | Error): null {
+  return errorLogger(error, "YOUTUBE_SERVICE");
 }

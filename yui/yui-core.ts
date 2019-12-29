@@ -10,6 +10,7 @@ import {
 import { MessageHandler } from "./handlers/message.handler";
 import { VoiceStateHandler } from "./handlers/voice-state.handler";
 import constants from "./constants/constants";
+import { errorLogger } from "./handlers/error.handler";
 
 @Discord
 export default class YuiCore {
@@ -37,25 +38,21 @@ export default class YuiCore {
     );
   }
 
-  public start(): void {
-    this.yui.login(process.env.TOKEN);
+  public start(): Promise<void> {
+    this.yui.login(process.env.TOKEN).catch(this.coreHandleError);
     this.yui.on("ready", () => this.onReady());
+    return Promise.resolve();
   }
 
-  @On("ready")
+  @On("ready") // This does not work
   async onReady() {
     if (!this.yui.user) return;
-    const [ready] = await Promise.all([
-      this.yui.user
-        .setActivity("📻 Radio Happy", {
-          url: "https://twitch.tv/onlypolaris",
-          type: "STREAMING"
-        })
-        .catch(err => {
-          console.error("err := " + err);
-          Promise.resolve(null);
-        })
-    ]);
+    const ready = this.yui.user
+      .setActivity("📻 Radio Happy", {
+        url: "https://twitch.tv/onlypolaris",
+        type: "STREAMING"
+      })
+      .catch(this.coreHandleError);
     if (ready) console.log("Yui is ready");
   }
 
@@ -67,12 +64,18 @@ export default class YuiCore {
       .trim()
       .split(/ +/g);
     const command = args.shift().toLowerCase();
-    return this.messageHandler.execute(message, command, args);
+    return this.messageHandler
+      .execute(message, command, args)
+      .catch(this.coreHandleError);
   }
 
   @On("voiceStateUpdate")
   async onVoiceStateUpdate(oldMember: GuildMember, newMember: GuildMember) {
     // TODO: check this
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldMember, newMember);
+  }
+
+  private coreHandleError(error: Error | string): null {
+    return errorLogger(error, "YUI_CORE");
   }
 }
