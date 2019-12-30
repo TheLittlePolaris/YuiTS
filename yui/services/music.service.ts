@@ -11,19 +11,22 @@ import { MusicStream } from "./music-entities/music-stream";
 import {
   isYoutubeLink,
   youtubeTimeConverter,
-  timeConverter
+  timeConverter,
+  RNG
 } from "./music-functions/music-function";
 import {
   getID,
   getInfoIds,
   getPlaylistId,
-  getPlaylistItems
+  getPlaylistItems,
+  getSongsByChannelId
 } from "./youtube-services/youtube.service";
 import { MusicQueue } from "./music-entities/music-queue";
 import { ISong } from "../interfaces/song-metadata.interface";
 import {
   IYoutubeSongItemMetadata,
-  IYoutubePlaylistItemMetadata
+  IYoutubePlaylistItemMetadata,
+  IYoutubeSearchResult
 } from "../interfaces/youtube-song-metadata.interface";
 import { discordRichEmbedConstructor } from "./music-functions/music-embed-constructor";
 import ytdl from "ytdl-core";
@@ -31,6 +34,7 @@ import { set, get } from "lodash";
 import constants from "../constants/constants";
 import { IVoiceConnection } from "../interfaces/custom-interfaces.interface";
 import { errorLogger } from "../handlers/error.handler";
+import { __spreadArrays } from "tslib";
 export class MusicService {
   private _streams: Map<string, MusicStream> = new Map<string, MusicStream>();
 
@@ -306,7 +310,7 @@ export class MusicService {
       if (stream.queue.isEmpty) {
         if (!stream.isAutoPlaying) {
           stream.voiceConnection.speaking = false;
-          return this.resetStatus(stream);
+          return this.resetStreamStatus(stream);
         } else {
           // return autoPlaySong(stream, temp.requester);
         }
@@ -443,40 +447,31 @@ export class MusicService {
   }
 
   async autoPlaySong(stream: MusicStream, requester: string) {
-    const nextPage =
-      stream.nextPage ? `&pageToken=${stream.nextPage}` : ``;
-    // let url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=' + guild.tmp_channelId + nextPage +
-    // '&type=video&fields=items(id%2FvideoId%2Csnippet(channelId%2CchannelTitle%2Cthumbnails%2Fdefault%2Ctitle))%2CnextPageToken&key=' + ytapikey;
-    // request(url, async (err, respond, body) => {
-    //         if (err) {
-    //             autoPlaySong(guild, requester);
-    //             return console.error('request-err:' + err);
-    //         }
-    //         var json = JSON.parse(body);
-    //         if (json.error) {
-    //             autoPlaySong(guild, requester);
-    //             return console.error("json-err:" + json.error);
-    //         }
-    //         await RNG(json.items.length).then(async (rnd) => {
-    //             if (json.items[rnd]) {
-    //                 guild.tmp_nextPage = json.nextPageToken ? json.nextPageToken : "";
-    //                 await getInfoIds(guild.queue, json.items[rnd].id.videoId, requester, true).then(() => {
-    //                     playMusic(guild);
-    //                 }, (error) => {
-    //                     autoPlaySong(guild, requester);
-    //                     return console.error('local-getInfoIds-err:' + error);
-    //                 });
-    //             }
-    //         });
-    //     });
+    stream.set("tempChannelId", stream.queue.last.channelId);
+    const videoInfo = await getSongsByChannelId(
+      stream.tempChannelId,
+      stream.nextPage
+    );
+    const { nextPageToken, items } = videoInfo;
+    stream.set("nextPage", nextPageToken);
+    const rand = await RNG(items.length);
+    const songMetadata = await getInfoIds(items[rand].id.videoId);
+    // const selectedItem = new Array().concat([items[rand]]);
+    const song = await this.pushToQueue(
+      stream.queue,
+      songMetadata,
+      requester,
+      false
+    );
   }
 
-  public resetStatus(stream: MusicStream) {
+  public resetStreamStatus(stream: MusicStream) {
     if (stream && stream.id) {
       stream.set("isAutoPlaying", false);
       stream.set("isQueueLooping", false);
       stream.set("isLooping", false);
       stream.set("isPaused", false);
+      stream.set("nextPage", null);
       stream.queue.deleteQueue();
       if (stream.isPlaying) {
         if (stream.streamDispatcher) {

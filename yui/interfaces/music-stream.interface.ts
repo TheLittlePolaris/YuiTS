@@ -10,7 +10,6 @@ export type MusicStreamValue =
   | "voiceConnection"
   | "tempChannelId"
   | "nextPage"
-  | "hasNextPage"
   | "queue"
   | "boundVoiceChannel"
   | "boundTextChannel"

@@ -75,7 +75,7 @@ export class VoiceStateHandler {
     stream.boundTextChannel.send(
       "**_There's no one around so I'll leave too. Bye~!_**"
     );
-    this.currentMusicService.resetStatus(stream);
+    this.currentMusicService.resetStreamStatus(stream);
     this.currentMusicService.resetChannelStat(stream);
   }
 }

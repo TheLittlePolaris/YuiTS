@@ -63,13 +63,12 @@ export function getPlaylistItems(
   _nextPageToken: string = ""
 ): Promise<IYoutubePlaylistItemMetadata[]> {
   return new Promise(async (resolve, reject) => {
-    const json: IYoutubePlaylist = await youtubeRequestService(
-      "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50" +
-        _nextPageToken +
-        "&playlistId=" +
-        playlistId +
-        "&fields=items(id%2Ckind%2Csnippet(channelId%2CchannelTitle%2CresourceId(kind%2CvideoId)%2Ctitle))%2CnextPageToken"
-    );
+    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50
+      ${_nextPageToken}&playlistId=${playlistId}
+      &fields=${encodeURIComponent(
+        "nextPageToken,items(id,kind,snippet(channelId,channelTitle,resourceId(kind,videoId),title))"
+      )}`;
+    const json: IYoutubePlaylist = await youtubeRequestService(url);
     if (!json) reject("Request fail. JSON was null.");
     const { nextPageToken } = json;
     const playlistSongs = await processPlaylistItemsData(json).catch(
@@ -103,10 +102,19 @@ function processPlaylistItemsData(
   });
 }
 
-async function autoPlaySong(channelId: string, nextPage: string) {
-  // let nextPage = (guild.tmp_nextPage !== "") ? ("&pageToken=" + guild.tmp_nextPage) : "";
-  // let url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=' + guild.tmp_channelId + nextPage +
-  // '&type=video&fields=items(id%2FvideoId%2Csnippet(channelId%2CchannelTitle%2Cthumbnails%2Fdefault%2Ctitle))%2CnextPageToken&';
+export function getSongsByChannelId(
+  channelId: string,
+  nextPage: string
+): Promise<IYoutubeSearchResult> {
+  return new Promise(async (resolve, reject) => {
+    const nextPageToken = nextPage ? `&nextPageToken=${nextPage}` : ``;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=
+      ${channelId}${nextPageToken}&type=video&fields=
+      ${encodeURIComponent("nextPageToken, items(id(videoId))")}`;
+    const json: IYoutubeSearchResult = await youtubeRequestService(url);
+    if (!json) reject("Something went wrong during the process.");
+    resolve(json);
+  });
 }
 
 function handleError(error: string | Error): null {

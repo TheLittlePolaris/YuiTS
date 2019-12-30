@@ -21,7 +21,6 @@ export class MusicStream {
   public _voiceConnection: IVoiceConnection;
   private _tempChannelId: string;
   private _nextPage: string;
-  private _hasNextPage: boolean = false;
   public _queue: MusicQueue;
   public _boundVoiceChannel: VoiceChannel;
   public _boundTextChannel: TextChannel;
@@ -94,10 +93,6 @@ export class MusicStream {
     return this._nextPage;
   }
 
-  public get hasNextPage(): boolean {
-    return this._hasNextPage;
-  }
-
   public get queue(): MusicQueue {
     return this._queue;
   }
@@ -122,7 +117,7 @@ export class MusicStream {
    * @param data Data of the selected value
    */
   public set<T>(value: MusicStreamValue, data: T): T {
-    if (!this[`_${value}`]) this[`_${value}`] = data;
-    return this[`_${value}`] || undefined;
+    this[`_${value}`] = data;
+    return this[`_${value}`];
   }
 }
