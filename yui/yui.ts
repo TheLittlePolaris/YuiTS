@@ -12,4 +12,3 @@ config();
     errorLogger(error, "YUI_START");
   }
 })();
-// test
