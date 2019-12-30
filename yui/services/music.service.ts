@@ -303,7 +303,7 @@ export class MusicService {
       } else if (stream.isQueueLooping) {
         stream.queue.addSong(endedSong);
       }
-      if (stream.queue.isEmpty()) {
+      if (stream.queue.isEmpty) {
         if (!stream.isAutoPlaying) {
           stream.voiceConnection.speaking = false;
           return this.resetStatus(stream);
@@ -321,7 +321,7 @@ export class MusicService {
   ): Promise<void> {
     const stream = this._streams.get(message.guild.id);
     const queue = stream.queue;
-    if (!stream.isPlaying || queue.isEmpty()) {
+    if (!stream.isPlaying || queue.isEmpty) {
       return this.play(message, args);
     } else {
       const _arguments = args.join(" ");
@@ -370,7 +370,7 @@ export class MusicService {
     args?: Array<string>
   ): Promise<void> {
     const stream = this._streams.get(message.guild.id);
-    if (stream.queue.isEmpty()) {
+    if (stream.queue.isEmpty) {
       await this.sendMessage(message, "**Nothing to skip!**");
       return Promise.resolve();
     } else {
@@ -415,6 +415,60 @@ export class MusicService {
           break;
       }
     }
+  }
+
+  public async autoPlay(message: Message): Promise<void> {
+    const stream = this.streams.get(message.guild.id);
+    if (!stream) {
+      this.handleError(new Error("`stream` was undefined."));
+      return Promise.resolve();
+    }
+    if (!stream.isAutoPlaying) {
+      stream.set("isAutoPlaying", true);
+      await this.createVoiceConnection(stream, message).catch(this.handleError);
+      if (stream.queue.isEmpty) {
+        this.sendMessage(
+          message,
+          "Ok, now where do we start? How about you add something first? XD"
+        ).catch(this.handleError);
+      }
+      return Promise.resolve();
+    } else {
+      stream.set("isAutoPlaying", false);
+      this.sendMessage(message, "**`📻 YUI's PABX MODE - OFF! 🎵`**").catch(
+        this.handleError
+      );
+      return Promise.resolve();
+    }
+  }
+
+  async autoPlaySong(stream: MusicStream, requester: string) {
+    const nextPage =
+      stream.nextPage ? `&pageToken=${stream.nextPage}` : ``;
+    // let url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=' + guild.tmp_channelId + nextPage +
+    // '&type=video&fields=items(id%2FvideoId%2Csnippet(channelId%2CchannelTitle%2Cthumbnails%2Fdefault%2Ctitle))%2CnextPageToken&key=' + ytapikey;
+    // request(url, async (err, respond, body) => {
+    //         if (err) {
+    //             autoPlaySong(guild, requester);
+    //             return console.error('request-err:' + err);
+    //         }
+    //         var json = JSON.parse(body);
+    //         if (json.error) {
+    //             autoPlaySong(guild, requester);
+    //             return console.error("json-err:" + json.error);
+    //         }
+    //         await RNG(json.items.length).then(async (rnd) => {
+    //             if (json.items[rnd]) {
+    //                 guild.tmp_nextPage = json.nextPageToken ? json.nextPageToken : "";
+    //                 await getInfoIds(guild.queue, json.items[rnd].id.videoId, requester, true).then(() => {
+    //                     playMusic(guild);
+    //                 }, (error) => {
+    //                     autoPlaySong(guild, requester);
+    //                     return console.error('local-getInfoIds-err:' + error);
+    //                 });
+    //             }
+    //         });
+    //     });
   }
 
   public resetStatus(stream: MusicStream) {

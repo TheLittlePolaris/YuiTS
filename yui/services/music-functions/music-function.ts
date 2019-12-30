@@ -5,7 +5,7 @@ export function isYoutubeLink(link: string): boolean {
 }
 
 export function youtubeTimeConverter(duration: string): Promise<number> {
-  return new Promise(resolve => {
+  return new Promise((resolve, _) => {
     var match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/).slice(1);
     var result =
       (parseInt(match[0], 10) || 0) * 3600 + // hours
@@ -20,7 +20,7 @@ export enum TimeConverterValue {
 }
 
 export function timeConverter(duration: number) {
-  return new Promise(resolve => {
+  return new Promise((resolve, _) => {
     if (duration === 0) {
       return resolve(TimeConverterValue.LIVE);
     }
@@ -35,5 +35,11 @@ export function timeConverter(duration: number) {
       let minutesLeft = totalMinutes % 60;
       return resolve(`${hours}:${minutesLeft}:${seconds}`);
     }
+  });
+}
+
+export function RNG(range): Promise<number> {
+  return new Promise<number>((resolve, _) => {
+    resolve(Math.floor(Math.random() * range));
   });
 }

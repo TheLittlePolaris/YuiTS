@@ -11,7 +11,7 @@ export class MusicQueue {
   /**
    * @returns {boolean} Check of the queue is empty
    */
-  public isEmpty() {
+  public get isEmpty() {
     return this.songs.length === 0;
   }
 

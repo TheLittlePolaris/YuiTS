@@ -103,6 +103,12 @@ function processPlaylistItemsData(
   });
 }
 
+async function autoPlaySong(channelId: string, nextPage: string) {
+  // let nextPage = (guild.tmp_nextPage !== "") ? ("&pageToken=" + guild.tmp_nextPage) : "";
+  // let url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=' + guild.tmp_channelId + nextPage +
+  // '&type=video&fields=items(id%2FvideoId%2Csnippet(channelId%2CchannelTitle%2Cthumbnails%2Fdefault%2Ctitle))%2CnextPageToken&';
+}
+
 function handleError(error: string | Error): null {
   return errorLogger(error, "YOUTUBE_SERVICE");
 }
