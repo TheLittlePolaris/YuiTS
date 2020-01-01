@@ -6,6 +6,7 @@ config();
 // Work In Progress...
 (async () => {
   try {
+    console.log("Yui is starting...");
     const yui = new YuiCore();
     await yui.start();
   } catch (error) {

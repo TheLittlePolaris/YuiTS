@@ -1,18 +1,11 @@
-import "reflect-metadata";
-import "dotenv";
-import { Discord, On, Client } from "@typeit/discord";
-import {
-  Message,
-  Client as DiscordClient,
-  ClientOptions,
-  GuildMember
-} from "discord.js";
+// import { Discord, Client as TypeITClient, On } from "@typeit/discord";
+import { Message, Client, ClientOptions, GuildMember } from "discord.js";
 import { MessageHandler } from "./handlers/message.handler";
 import { VoiceStateHandler } from "./handlers/voice-state.handler";
 import constants from "./constants/constants";
-import { errorLogger } from "./handlers/error.handler";
+import { errorLogger, debugLogger } from "./handlers/error.handler";
 
-@Discord
+// @Discord
 export default class YuiCore {
   private yui: Client;
   private messageHandler: MessageHandler;
@@ -32,21 +25,30 @@ export default class YuiCore {
     };
     this.yui = new Client(clientOptions);
     this.messageHandler = new MessageHandler();
-    // console.log(!!this.messageHandler && this.messageHandler);
     this.voiceStateHandler = new VoiceStateHandler(
       this.messageHandler.musicService || null
     );
+    debugLogger("YuiCore");
   }
 
-  public start(): Promise<void> {
+  public async start(): Promise<void> {
+    console.log("Connecting...");
     this.yui.login(process.env.TOKEN).catch(this.coreHandleError);
     this.yui.on("ready", () => this.onReady());
-    return Promise.resolve();
+    this.yui.on("message", (message: Message) => this.onMessage(message));
+    // this.yui.on("message", this.onMessage.bind(this));
+    // prevent ContextChanging. Context will change if call this.onMessage without binding to the current 'this' context
+    this.yui.on(
+      "voiceStateUpdate",
+      (oldMember: GuildMember, newMember: GuildMember) =>
+        this.onVoiceStateUpdate(oldMember, newMember)
+    );
   }
 
-  @On("ready") // This does not work
+  // @On("ready") // This does not work
   async onReady() {
     if (!this.yui.user) return;
+    console.log("Connected!");
     const ready = this.yui.user
       .setActivity("📻 Radio Happy", {
         url: "https://twitch.tv/onlypolaris",
@@ -56,20 +58,19 @@ export default class YuiCore {
     if (ready) console.log("Yui is ready");
   }
 
-  @On("message")
   async onMessage(message: Message) {
     if (!message.content.startsWith(this.prefix) || message.author.bot) return;
-    var args = message.content
+    const args = message.content
       .slice(this.prefix.length)
       .trim()
       .split(/ +/g);
     const command = args.shift().toLowerCase();
     return this.messageHandler
-      .execute(message, command, args)
+      .execute(this.yui.user, message, command, args)
       .catch(this.coreHandleError);
   }
 
-  @On("voiceStateUpdate")
+  // @On("voiceStateUpdate") // This does not work either
   async onVoiceStateUpdate(oldMember: GuildMember, newMember: GuildMember) {
     // TODO: check this
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldMember, newMember);

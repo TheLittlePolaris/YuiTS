@@ -8,3 +8,7 @@ export function errorLogger(error: Error | string, scope?: string): null {
   );
   return null;
 }
+
+export function debugLogger(scope: string) {
+  console.log(`[${scope}] initiated!`);
+}

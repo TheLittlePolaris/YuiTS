@@ -1,14 +1,15 @@
 import { RichEmbed } from "discord.js";
+import constants from "../../constants/constants";
 
 interface IEmbedConstructor {
-  title: string;
-  embedStatus: string;
-  authorAvatarUrl: string;
+  title?: string;
+  author?: { embedTitle?: string; authorAvatarUrl?: string };
   description: string;
-  color: string;
+  color?: string;
   thumbnailUrl?: string;
   appendTimeStamp?: boolean;
-  titleHyperLink?: string;
+  titleUrl?: string;
+  imageUrl?;
   footer?: string;
 }
 
@@ -17,15 +18,20 @@ export function discordRichEmbedConstructor(
 ): Promise<RichEmbed> {
   return new Promise((resolve, reject) => {
     const embed = new RichEmbed()
-      .setTitle(records.title)
-      .setAuthor(records.embedStatus, records.authorAvatarUrl)
-      .setDescription(records.description)
-      .setColor(records.color);
+      .setColor(records.color || constants.YUI_COLOR_CODE)
+      .setDescription(records.description);
 
+    if (records.title) embed.setTitle(records.title);
+    if (records.author)
+      embed.setAuthor(
+        records.author.embedTitle,
+        records.author.authorAvatarUrl || null
+      );
     if (records.thumbnailUrl) embed.setThumbnail(records.thumbnailUrl);
     if (records.appendTimeStamp) embed.setTimestamp();
-    if (records.titleHyperLink) embed.setURL(records.titleHyperLink);
+    if (records.titleUrl) embed.setURL(records.titleUrl);
     if (records.footer) embed.setFooter(records.footer);
+    if (records.imageUrl) embed.setImage(records.imageUrl);
 
     resolve(embed);
   });

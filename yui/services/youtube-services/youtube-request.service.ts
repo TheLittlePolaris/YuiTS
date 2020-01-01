@@ -5,7 +5,7 @@ export function youtubeRequestService<T>(url: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     request(
       `${url}&key=${process.env.YOUTUBE_API_KEY}`,
-      (err: string, response, body: string) => {
+      (err: string, _, body: string) => {
         if (err) {
           handleRequestErrors(err);
           reject("Something went wrong");

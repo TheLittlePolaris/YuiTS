@@ -12,6 +12,7 @@ export class MusicQueue {
    * @returns {boolean} Check of the queue is empty
    */
   public get isEmpty() {
+    console.log(this.songs);
     return this.songs.length === 0;
   }
 
@@ -75,10 +76,12 @@ export class MusicQueue {
   /**
    * @returns {number} Total duration of the queue
    */
-  public get totalDuration(): number {
-    let totalTime = 0;
-    this.songs.map(song => (totalTime += song.duration));
-    return totalTime;
+  public get totalDuration(): Promise<number> {
+    return new Promise(async (resolve, _) => {
+      let totalTime = 0;
+      await Promise.all(this.songs.map(song => (totalTime += song.duration)));
+      resolve(totalTime);
+    });
   }
   /**
    * @returns number: the amount of songs in the queue

@@ -1,3 +1,5 @@
+import { MusicQueue } from "../music-entities/music-queue";
+
 export function isYoutubeLink(link: string): boolean {
   if (typeof link === "string") {
     return link.indexOf("youtube.com") >= 0 || link.indexOf("youtu.be") >= 0;
@@ -41,5 +43,34 @@ export function timeConverter(duration: number) {
 export function RNG(range): Promise<number> {
   return new Promise<number>((resolve, _) => {
     resolve(Math.floor(Math.random() * range));
+  });
+}
+
+export function createProgressBar(currentProgress: number, total: number) {
+  return new Promise((resolve, _) => {
+    if (isNaN(total)) {
+      resolve("--------------------------------------⦿");
+    } else {
+      let temp = "----------------------------------------";
+      let index = Math.round((currentProgress / total) * 40);
+      resolve(`${temp.substr(0, index)}⦿${temp.substr(index + 1)}`);
+    }
+  });
+}
+
+export function printQueueData(queue: MusicQueue, start: number, end: number) {
+  return new Promise(async resolve => {
+    var result = "";
+    for (let i = start; i < end; i++) {
+      let song = queue.at(i);
+      result +=
+        `#${i}: **${song.title}** - ` +
+        "`(" +
+        (await timeConverter(song.duration)) +
+        ")`\n*Requested by `" +
+        song.requester +
+        "`*\n\n";
+    }
+    resolve(result);
   });
 }

@@ -45,9 +45,9 @@ export class AccessControlerHandler {
               boundVoiceChannel.name +
               "`**"
           );
-        } else {
-          message.reply("**`I'm not in any voice channel.`**");
-        }
+        } else resolve(true);
+      } else {
+        message.reply("**`I'm not in any voice channel.`**");
       }
       return resolve(false);
     });
