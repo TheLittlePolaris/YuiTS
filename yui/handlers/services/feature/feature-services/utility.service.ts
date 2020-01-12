@@ -1,10 +1,10 @@
-import constants from "../../constants/constants";
-import request from "request";
-import { errorLogger } from "../../handlers/error.handler";
-import { TenorApiQueryResult } from "../../interfaces/tenor-query.interface";
+import request from 'request';
+import { errorLogger } from '../../../error.handler';
+import { TenorApiQueryResult } from './interfaces/tenor-query.interface';
+import { ConfigService } from '../../../../env-config/config.service';
 
 export function isMyOwner(userId: string) {
-  return userId === constants.OWNER_ID;
+  return userId === ConfigService.ownerId;
 }
 
 export function tenorRequestService(
@@ -29,5 +29,5 @@ export function tenorRequestService(
 }
 
 function handleRequestErrors(error: string): null {
-  return errorLogger(error, "UTILITY_SERVICE");
+  return errorLogger(error, 'UTILITY_SERVICE');
 }

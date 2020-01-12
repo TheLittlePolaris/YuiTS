@@ -1,4 +1,4 @@
-import { ISong } from "../../interfaces/song-metadata.interface";
+import { ISong } from './interfaces/song-metadata.interface';
 
 export class MusicQueue {
   private songs: Array<ISong> = [];

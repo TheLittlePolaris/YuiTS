@@ -1,4 +1,4 @@
-import { debugLogger } from "../handlers/error.handler";
+import { debugLogger } from "../../error.handler";
 
 export class AdministrationService {
   constructor() {

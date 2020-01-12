@@ -1,6 +1,5 @@
-import { MusicService } from "../services/music.service";
-import { Message, TextChannel } from "discord.js";
-import { MusicStream } from "../services/music-entities/music-stream";
+import { MusicService } from './services/music/music.service';
+import { Message, TextChannel } from 'discord.js';
 
 export class AccessControlerHandler {
   private _musicService: MusicService;
@@ -16,7 +15,7 @@ export class AccessControlerHandler {
       const { channel, guild } = message;
       const { voiceChannel } = message.member;
       if (!voiceChannel) {
-        message.reply("**please join a `__Voice Channel__`!**");
+        message.reply('**please join a `__Voice Channel__`!**');
         return resolve(false);
       }
       const streams = this._musicService.streams;
@@ -24,11 +23,9 @@ export class AccessControlerHandler {
       const boundVoiceChannel = stream && stream.boundVoiceChannel;
       if (!boundVoiceChannel && join) {
         message.channel.send(
-          "**Bound to Text Channel: `" +
-            (channel as TextChannel).name +
-            "` and Voice Channel: `" +
-            voiceChannel.name +
-            "`**!"
+          `**Bound to Text Channel: \`${
+            (channel as TextChannel).name
+          }\` and Voice Channel: \`${voiceChannel.name}\`**!`
         );
         return resolve(true);
       }
@@ -39,15 +36,11 @@ export class AccessControlerHandler {
           voiceChannel.id !== boundVoiceChannel.id
         ) {
           message.reply(
-            "**I'm playing at `" +
-              boundTextChannel.name +
-              "` -- `" +
-              boundVoiceChannel.name +
-              "`**"
+            `**I'm playing at \`${boundTextChannel.name}\` -- \` ${boundVoiceChannel.name}\`**`
           );
         } else resolve(true);
       } else {
-        message.reply("**`I'm not in any voice channel.`**");
+        message.reply(`**\`I'm not in any voice channel.\`**`);
       }
       return resolve(false);
     });

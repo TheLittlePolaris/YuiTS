@@ -1,4 +1,4 @@
-import { AudioPlayer, VoiceConnection } from "discord.js";
+import { AudioPlayer, VoiceConnection } from 'discord.js';
 
 export interface IAudioPlayer extends AudioPlayer {
   streamingData: {

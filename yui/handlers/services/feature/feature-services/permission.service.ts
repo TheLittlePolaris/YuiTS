@@ -1,5 +1,4 @@
-import { Message, PermissionResolvable, GuildMember } from "discord.js";
-import constants from "../../constants/constants";
+import { PermissionResolvable, GuildMember } from "discord.js";
 
 export function memberHasPermission(
   member: GuildMember,

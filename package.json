@@ -1,14 +1,14 @@
 {
   "name": "yuits",
   "version": "1.0.0",
-  "description": "",
+  "description": "YuiBot Typescript version",
   "main": "yui/yui.ts",
   "scripts": {
     "prebuild-win": "IF EXIST .\\dist rmdir /Q /S .\\dist && mkdir dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc -p tsconfig.json && node dist/yui.js",
-    "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\"",
-    "start:test": "npm run prebuild-win && tsc -p tsconfig.json && node dist/yui.js"
+    "start": "tsc -p tsconfig.json && node -r tsconfig-paths/register dist/yui.js",
+    "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node -r tsconfig-paths/register dist/yui.js\"",
+    "start:test": "npm run prebuild-win && tsc -p tsconfig.json && node -r tsconfig-paths/register dist/yui.js"
   },
   "author": "Polaris",
   "license": "ISC",
@@ -33,6 +33,10 @@
     "ytdl-core": "^1.0.3"
   },
   "devDependencies": {
+    "tsconfig-paths": "^3.9.0",
     "typescript": "^3.7.4"
+  },
+  "_moduleAliases": {
+    "@": "dist"
   }
 }

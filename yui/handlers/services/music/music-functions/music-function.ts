@@ -17,25 +17,31 @@ export function youtubeTimeConverter(duration: string): Promise<number> {
   });
 }
 
-export enum TimeConverterValue {
+export enum STREAM_ENUM {
   LIVE = "LIVE"
 }
 
 export function timeConverter(duration: number) {
   return new Promise((resolve, _) => {
     if (duration === 0) {
-      return resolve(TimeConverterValue.LIVE);
+      return resolve(STREAM_ENUM.LIVE);
     }
     let totalMinutes = Math.floor(duration / 60);
     let seconds =
       duration % 60 >= 10 ? `${duration % 60}` : `0${duration % 60}`;
     if (totalMinutes < 60) {
-      return resolve(`${totalMinutes}:${seconds}`);
+      return resolve(
+        `${totalMinutes >= 10 ? totalMinutes : `0${totalMinutes}`}:${seconds}`
+      );
     } else {
       //videos with duration exceed 1 hour
       let hours = Math.floor(totalMinutes / 60);
       let minutesLeft = totalMinutes % 60;
-      return resolve(`${hours}:${minutesLeft}:${seconds}`);
+      return resolve(
+        `${hours >= 10 ? hours : `0${hours}`}:${
+          minutesLeft >= 10 ? minutesLeft : `0${minutesLeft}`
+        }:${seconds}`
+      );
     }
   });
 }
@@ -52,7 +58,7 @@ export function createProgressBar(currentProgress: number, total: number) {
       resolve("--------------------------------------⦿");
     } else {
       let temp = "----------------------------------------";
-      let index = Math.round((currentProgress / total) * 40);
+      const index = Math.round((currentProgress / total) * 40);
       resolve(`${temp.substr(0, index)}⦿${temp.substr(index + 1)}`);
     }
   });
@@ -61,15 +67,11 @@ export function createProgressBar(currentProgress: number, total: number) {
 export function printQueueData(queue: MusicQueue, start: number, end: number) {
   return new Promise(async resolve => {
     var result = "";
-    for (let i = start; i < end; i++) {
-      let song = queue.at(i);
-      result +=
-        `#${i}: **${song.title}** - ` +
-        "`(" +
-        (await timeConverter(song.duration)) +
-        ")`\n*Requested by `" +
-        song.requester +
-        "`*\n\n";
+    for (let i = start; i <= end; i++) {
+      const song = queue.at(i);
+      result += `#${i}: **${song.title}** - \`(${await timeConverter(
+        song.duration
+      )})\`\n*Requested by \` ${song.requester}\`*\n\n"`;
     }
     resolve(result);
   });

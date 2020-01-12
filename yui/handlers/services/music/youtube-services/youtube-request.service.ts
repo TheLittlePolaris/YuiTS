@@ -1,5 +1,5 @@
 import request from "request";
-import { errorLogger } from "../../handlers/error.handler";
+import { errorLogger } from "../../../error.handler";
 
 export function youtubeRequestService<T>(url: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {

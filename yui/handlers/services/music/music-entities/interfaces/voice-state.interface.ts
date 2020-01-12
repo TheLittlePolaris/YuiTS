@@ -1,4 +1,4 @@
-import { MusicStream } from "../services/music-entities/music-stream";
+import { MusicStream } from "../music-stream";
 
 export interface VoiceStateAction {
   stream: MusicStream;

@@ -6,8 +6,8 @@ import {
   VoiceConnection
 } from "discord.js";
 import { MusicQueue } from "./music-queue";
-import { MusicStreamValue } from "../../interfaces/music-stream.interface";
-import { IVoiceConnection } from "../../interfaces/custom-interfaces.interface";
+import { MusicStreamValue } from "./interfaces/music-stream.interface";
+import { IVoiceConnection } from "@/interfaces/custom-interfaces.interface";
 
 export class MusicStream {
   private _id: string;

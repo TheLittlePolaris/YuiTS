@@ -1,19 +1,25 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2017",
+    "target": "ES2017",
+    "lib": ["ES2017", "esnext.asynciterable", "ES2015"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noImplicitAny": false,
     "sourceMap": true,
-    "outDir": "dist",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "declaration": true,
-    "importHelpers": true,
+    "pretty": true,
+    "allowJs": false,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es2017", "esnext.asynciterable", "DOM"],
-    "moduleResolution": "node"
+    // "rootDir": ".",
+    "outDir": "dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "paths": {
+      "@/*": ["./yui/*"] // TODO: Check why this does not work.
+    }
   },
-  "exclude": ["node_modules", "tests", "dist"]
+  "exclude": ["node_modules", "dist"]
 }

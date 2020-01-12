@@ -4,9 +4,9 @@ import {
   IYoutubePlaylistItemMetadata,
   IYoutubePlaylist,
   IYoutubeSearchResult
-} from "../../interfaces/youtube-song-metadata.interface";
+} from "../music-entities/interfaces/youtube-song-metadata.interface";
 import { youtubeRequestService } from "./youtube-request.service";
-import { errorLogger } from "../../handlers/error.handler";
+import { errorLogger } from "../../../error.handler";
 
 export async function getID(query: string): Promise<string> {
   if (isYoutubeLink(query)) {

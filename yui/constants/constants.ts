@@ -1,6 +1,3 @@
-export default {
-  PREFIX: ">",
-  YUI_COLOR_CODE: "FFA000",
-  OWNER_ID: "390348450690236416",
-  YUI_ID: "390866288576036864"
-};
+export enum Constants {
+  YUI_COLOR_CODE = "FFA000"
+}

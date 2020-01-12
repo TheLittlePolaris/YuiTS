@@ -1,6 +1,6 @@
-import { debugLogger, errorLogger } from "../handlers/error.handler";
+import { debugLogger, errorLogger } from "../../error.handler";
 import { Message, ClientUser, PermissionResolvable } from "discord.js";
-import { discordRichEmbedConstructor } from "./music-functions/music-embed-constructor";
+import { discordRichEmbedConstructor } from "../music/music-functions/music-embed-constructor";
 import {
   isMyOwner,
   tenorRequestService
@@ -9,8 +9,8 @@ import {
   memberHasPermission,
   yuiHasPermission
 } from "./feature-services/permission.service";
-import constants from "../constants/constants";
-import { RNG } from "./music-functions/music-function";
+import { RNG } from "../music/music-functions/music-function";
+import { ConfigService } from "../../../env-config/config.service";
 
 export class FeatureService {
   constructor() {
@@ -70,7 +70,7 @@ export class FeatureService {
 
   public async say(message: Message, args: Array<string>): Promise<void> {
     const requiredPermissions: PermissionResolvable = ["MANAGE_MESSAGES"];
-    const yui = message.guild.members.get(constants.YUI_ID);
+    const yui = message.guild.members.get(ConfigService.yuiId);
     if (
       yuiHasPermission(yui, requiredPermissions) &&
       (isMyOwner(message.author.id) ||

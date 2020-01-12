@@ -1,26 +1,26 @@
 // import { Discord, Client as TypeITClient, On } from "@typeit/discord";
-import { Message, Client, ClientOptions, GuildMember } from "discord.js";
-import { MessageHandler } from "./handlers/message.handler";
-import { VoiceStateHandler } from "./handlers/voice-state.handler";
-import constants from "./constants/constants";
-import { errorLogger, debugLogger } from "./handlers/error.handler";
+import { Message, Client, ClientOptions, GuildMember } from 'discord.js';
+import { MessageHandler } from './handlers/message.handler';
+import { VoiceStateHandler } from './handlers/voice-state.handler';
+import { errorLogger, debugLogger } from './handlers/error.handler';
+import { ConfigService } from './env-config/config.service';
 
 // @Discord
 export default class YuiCore {
   private yui: Client;
   private messageHandler: MessageHandler;
   private voiceStateHandler: VoiceStateHandler;
-  private prefix = constants.PREFIX;
+  private prefix = ConfigService.prefix;
 
   constructor() {
     const clientOptions: ClientOptions = {
       disableEveryone: true,
       disabledEvents: [
-        "TYPING_START",
-        "MESSAGE_REACTION_ADD",
-        "RELATIONSHIP_ADD",
-        "RELATIONSHIP_REMOVE",
-        "MESSAGE_REACTION_REMOVE"
+        'TYPING_START',
+        'MESSAGE_REACTION_ADD',
+        'RELATIONSHIP_ADD',
+        'RELATIONSHIP_REMOVE',
+        'MESSAGE_REACTION_REMOVE'
       ]
     };
     this.yui = new Client(clientOptions);
@@ -28,18 +28,20 @@ export default class YuiCore {
     this.voiceStateHandler = new VoiceStateHandler(
       this.messageHandler.musicService || null
     );
-    debugLogger("YuiCore");
+    debugLogger('YuiCore');
   }
 
   public async start(): Promise<void> {
-    console.log("Connecting...");
-    this.yui.login(process.env.TOKEN).catch(this.coreHandleError);
-    this.yui.on("ready", () => this.onReady());
-    this.yui.on("message", (message: Message) => this.onMessage(message));
+    console.log('Connecting...');
+    this.yui
+      .login(ConfigService.envConfig['TOKEN'])
+      .catch(this.coreHandleError);
+    this.yui.on('ready', () => this.onReady());
+    this.yui.on('message', (message: Message) => this.onMessage(message));
     // this.yui.on("message", this.onMessage.bind(this));
     // prevent ContextChanging. Context will change if call this.onMessage without binding to the current 'this' context
     this.yui.on(
-      "voiceStateUpdate",
+      'voiceStateUpdate',
       (oldMember: GuildMember, newMember: GuildMember) =>
         this.onVoiceStateUpdate(oldMember, newMember)
     );
@@ -48,14 +50,14 @@ export default class YuiCore {
   // @On("ready") // This does not work
   async onReady() {
     if (!this.yui.user) return;
-    console.log("Connected!");
+    console.log('Connected!');
     const ready = this.yui.user
-      .setActivity("📻 Radio Happy", {
-        url: "https://twitch.tv/onlypolaris",
-        type: "STREAMING"
+      .setActivity('📻 Radio Happy', {
+        url: 'https://twitch.tv/onlypolaris',
+        type: 'STREAMING'
       })
       .catch(this.coreHandleError);
-    if (ready) console.log("Yui is ready");
+    if (ready) console.log('Yui is ready');
   }
 
   async onMessage(message: Message) {
@@ -77,6 +79,6 @@ export default class YuiCore {
   }
 
   private coreHandleError(error: Error | string): null {
-    return errorLogger(error, "YUI_CORE");
+    return errorLogger(error, 'YUI_CORE');
   }
 }

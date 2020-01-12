@@ -1,5 +1,5 @@
 import { RichEmbed } from "discord.js";
-import constants from "../../constants/constants";
+import { Constants } from "../../../../constants/constants";
 
 interface IEmbedConstructor {
   title?: string;
@@ -18,7 +18,7 @@ export function discordRichEmbedConstructor(
 ): Promise<RichEmbed> {
   return new Promise((resolve, reject) => {
     const embed = new RichEmbed()
-      .setColor(records.color || constants.YUI_COLOR_CODE)
+      .setColor(records.color || Constants.YUI_COLOR_CODE)
       .setDescription(records.description);
 
     if (records.title) embed.setTitle(records.title);
