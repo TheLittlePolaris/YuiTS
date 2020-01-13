@@ -17,7 +17,7 @@
     "baseUrl": ".",
     "incremental": true,
     "paths": {
-      "@/*": ["./yui/*"] // TODO: Check why this does not work.
+      "@/*": ["./yui/*"]
     }
   },
   "include": ["./yui/**/*"],

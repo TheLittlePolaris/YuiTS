@@ -3,8 +3,9 @@ import 'reflect-metadata';
 import YuiCore from './yui-core';
 import { errorLogger } from './handlers/error.handler';
 import { ConfigService } from './config-services/config.service';
+
 // Work In Progress...
-// FIXME: Cannot config global import path
+
 (async () => {
   try {
     const config = new ConfigService();
