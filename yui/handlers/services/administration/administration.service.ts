@@ -9,8 +9,8 @@ import {
   ADMIN_ACTION,
   ADMIN_ACTION_TYPE,
   AdminCommands
-} from './interfaces/administration.interface';
-import { ConfigService } from '@/env-config/config.service';
+} from './admin-interfaces/administration.interface';
+import { ConfigService } from '@/config-services/config.service';
 import { executeCommand } from './administration-services/action.service';
 
 export class AdministrationService {

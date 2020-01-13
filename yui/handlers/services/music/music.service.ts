@@ -17,7 +17,7 @@ import {
   printQueueData,
   createProgressBar,
   youtubeTimeConverter
-} from './music-functions/music-function';
+} from './music-utilities/music-function';
 import {
   getID,
   getInfoIds,
@@ -29,7 +29,7 @@ import {
 import { MusicQueue } from './music-entities/music-queue';
 import { ISong } from './music-entities/interfaces/song-metadata.interface';
 import { IYoutubePlaylistItemMetadata } from './music-entities/interfaces/youtube-song-metadata.interface';
-import { discordRichEmbedConstructor } from './music-functions/music-embed-constructor';
+import { discordRichEmbedConstructor } from './music-utilities/music-embed-constructor';
 import ytdl from 'ytdl-core';
 import { Constants } from '@/constants/constants';
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface';

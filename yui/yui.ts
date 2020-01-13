@@ -2,7 +2,7 @@ import 'module-alias/register';
 import 'reflect-metadata';
 import YuiCore from './yui-core';
 import { errorLogger } from './handlers/error.handler';
-import { ConfigService } from './env-config/config.service';
+import { ConfigService } from './config-services/config.service';
 // Work In Progress...
 // FIXME: Cannot config global import path
 (async () => {

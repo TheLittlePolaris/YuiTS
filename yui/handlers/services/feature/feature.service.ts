@@ -1,6 +1,6 @@
 import { debugLogger, errorLogger } from '@/handlers/error.handler';
 import { Message, ClientUser, PermissionResolvable } from 'discord.js';
-import { discordRichEmbedConstructor } from '../music/music-functions/music-embed-constructor';
+import { discordRichEmbedConstructor } from '../music/music-utilities/music-embed-constructor';
 import {
   isMyOwner,
   tenorRequestService
@@ -9,8 +9,8 @@ import {
   memberHasPermission,
   yuiHasPermission
 } from '../administration/administration-services/permission.service';
-import { RNG } from '../music/music-functions/music-function';
-import { ConfigService } from '@/env-config/config.service';
+import { RNG } from '../music/music-utilities/music-function';
+import { ConfigService } from '@/config-services/config.service';
 
 export class FeatureService {
   constructor() {

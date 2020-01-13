@@ -3,7 +3,7 @@ import { Message, Client, ClientOptions, GuildMember } from 'discord.js';
 import { MessageHandler } from './handlers/message.handler';
 import { VoiceStateHandler } from './handlers/voice-state.handler';
 import { errorLogger, debugLogger } from './handlers/error.handler';
-import { ConfigService } from './env-config/config.service';
+import { ConfigService } from './config-services/config.service';
 
 // @Discord
 export default class YuiCore {

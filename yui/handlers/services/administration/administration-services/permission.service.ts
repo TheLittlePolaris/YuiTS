@@ -2,7 +2,7 @@ import { PermissionResolvable, GuildMember, Message } from 'discord.js';
 import {
   AdminCommands,
   ADMIN_ACTION_TYPE
-} from '../interfaces/administration.interface';
+} from '../admin-interfaces/administration.interface';
 
 export function memberHasPermission(
   member: GuildMember,

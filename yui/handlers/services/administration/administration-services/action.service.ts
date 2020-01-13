@@ -1,4 +1,4 @@
-import { ADMIN_ACTION_TYPE } from '../interfaces/administration.interface';
+import { ADMIN_ACTION_TYPE } from '../admin-interfaces/administration.interface';
 import { GuildMember } from 'discord.js';
 
 export function executeCommand(
