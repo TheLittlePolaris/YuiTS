@@ -1,9 +1,9 @@
 // import { Discord, Client as TypeITClient, On } from "@typeit/discord";
 import { Message, Client, ClientOptions, GuildMember } from 'discord.js';
-import { MessageHandler } from './handlers/message.handler';
-import { VoiceStateHandler } from './handlers/voice-state.handler';
-import { errorLogger, debugLogger } from './handlers/error.handler';
-import { ConfigService } from './config-services/config.service';
+import { MessageHandler } from '@/handlers/message.handler';
+import { VoiceStateHandler } from '@/handlers/voice-state.handler';
+import { errorLogger, debugLogger } from '@/handlers/error.handler';
+import { ConfigService } from '@/config-services/config.service';
 
 // @Discord
 export default class YuiCore {
