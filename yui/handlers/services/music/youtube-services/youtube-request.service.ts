@@ -1,6 +1,6 @@
 import request from 'request';
-import { errorLogger } from '../../../error.handler';
-import { ConfigService } from '../../../../env-config/config.service';
+import { errorLogger } from '@/handlers/error.handler';
+import { ConfigService } from '@/env-config/config.service';
 
 export function youtubeRequestService<T>(url: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {

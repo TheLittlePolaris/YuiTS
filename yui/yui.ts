@@ -1,3 +1,4 @@
+import 'module-alias/register';
 import 'reflect-metadata';
 import YuiCore from './yui-core';
 import { errorLogger } from './handlers/error.handler';

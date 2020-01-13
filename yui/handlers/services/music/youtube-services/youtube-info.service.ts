@@ -6,7 +6,7 @@ import {
   IYoutubeSearchResult
 } from "../music-entities/interfaces/youtube-song-metadata.interface";
 import { youtubeRequestService } from "./youtube-request.service";
-import { errorLogger } from "../../../error.handler";
+import { errorLogger } from "@/handlers/error.handler";
 
 export async function getID(query: string): Promise<string> {
   if (isYoutubeLink(query)) {

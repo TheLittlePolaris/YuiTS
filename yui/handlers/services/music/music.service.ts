@@ -31,9 +31,9 @@ import { ISong } from './music-entities/interfaces/song-metadata.interface';
 import { IYoutubePlaylistItemMetadata } from './music-entities/interfaces/youtube-song-metadata.interface';
 import { discordRichEmbedConstructor } from './music-functions/music-embed-constructor';
 import ytdl from 'ytdl-core';
-import { Constants } from '../../../constants/constants';
+import { Constants } from '@/constants/constants';
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface';
-import { errorLogger, debugLogger } from '../../error.handler';
+import { errorLogger, debugLogger } from '@/handlers/error.handler';
 export class MusicService {
   private _streams: Map<string, MusicStream>;
   constructor() {

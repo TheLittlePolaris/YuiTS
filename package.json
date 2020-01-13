@@ -6,9 +6,9 @@
   "scripts": {
     "prebuild-win": "IF EXIST .\\dist rmdir /Q /S .\\dist && mkdir dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc -p tsconfig.json && node -r tsconfig-paths/register dist/yui.js",
-    "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node -r tsconfig-paths/register dist/yui.js\"",
-    "start:test": "npm run prebuild-win && tsc -p tsconfig.json && node -r tsconfig-paths/register dist/yui.js"
+    "start": "tsc -p tsconfig.json && node dist/yui.js",
+    "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\"",
+    "start:test": "npm run prebuild-win && tsc -p tsconfig.json && node dist/yui.js"
   },
   "author": "Polaris",
   "license": "ISC",
@@ -22,6 +22,7 @@
     "fs": "0.0.1-security",
     "get-youtube-id": "^1.0.1",
     "lodash": "^4.17.15",
+    "module-alias": "^2.2.2",
     "node-opus": "^0.3.3",
     "opusscript": "0.0.7",
     "path": "^0.12.7",
