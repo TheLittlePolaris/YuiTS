@@ -1,5 +1,5 @@
-import { MusicService } from './services/music/music.service';
 import { GuildMember } from 'discord.js';
+import { MusicService } from './services/music/music.service';
 import { VoiceStateAction } from './services/music/music-entities/interfaces/voice-state.interface';
 import { MusicStream } from './services/music/music-entities/music-stream';
 import { debugLogger } from './error.handler';

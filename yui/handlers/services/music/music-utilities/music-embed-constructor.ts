@@ -1,5 +1,5 @@
 import { RichEmbed } from "discord.js";
-import { Constants } from "../../../../constants/constants";
+import { Constants } from "@/constants/constants";
 
 interface IEmbedConstructor {
   title?: string;

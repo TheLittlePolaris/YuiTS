@@ -13,13 +13,13 @@
     "pretty": true,
     "allowJs": false,
     "forceConsistentCasingInFileNames": true,
-    // "rootDir": ".",
     "outDir": "dist",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "incremental": true,
     "paths": {
-      "@/*": ["./yui/*"] // TODO: Check why this does not work.
+      "@/*": ["./yui/*"]
     }
   },
+  "include": ["./yui/**/*"],
   "exclude": ["node_modules", "dist"]
 }

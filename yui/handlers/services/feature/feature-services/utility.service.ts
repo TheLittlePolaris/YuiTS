@@ -1,7 +1,7 @@
 import request from 'request';
-import { errorLogger } from '../../../error.handler';
-import { TenorApiQueryResult } from './interfaces/tenor-query.interface';
-import { ConfigService } from '../../../../env-config/config.service';
+import { errorLogger } from '@/handlers/error.handler';
+import { TenorApiQueryResult } from '../feature-interfaces/tenor-query.interface';
+import { ConfigService } from '@/config-services/config.service';
 
 export function isMyOwner(userId: string) {
   return userId === ConfigService.ownerId;
