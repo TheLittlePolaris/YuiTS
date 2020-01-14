@@ -5,7 +5,7 @@ export interface EnvConfig {
   [key: string]: string;
 }
 
-export class ConfigService {
+export abstract class ConfigService {
   public static envConfig: EnvConfig;
   constructor() {
     // This loads process.env values

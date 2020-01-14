@@ -6,7 +6,7 @@ import { ConfigService } from './env-config/config.service';
 // FIXME: Cannot config global import path
 (async () => {
   try {
-    const config = new ConfigService();
+    ConfigService;
     console.log('Yui is starting...');
     const yui = new YuiCore();
     await yui.start();
