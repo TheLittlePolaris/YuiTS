@@ -74,7 +74,7 @@ export class AdministrationService {
       );
       return Promise.resolve();
     }
-    const res = executeCommand(subCommand, targetMember); // TODO: implements this
+    await executeCommand(subCommand, targetMember, message, args); // TODO: test this
     return Promise.resolve();
   }
 
