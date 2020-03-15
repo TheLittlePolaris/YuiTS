@@ -1,6 +1,5 @@
 import { config } from 'dotenv'
 import { debugLogger } from '@/handlers/error.handler'
-
 ;(async () => {
   interface EnvConfig {
     [key: string]: string

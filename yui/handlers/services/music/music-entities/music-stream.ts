@@ -1,4 +1,4 @@
-import { Guild, VoiceChannel, TextChannel, StreamDispatcher } from 'discord.js'
+import type { Guild, VoiceChannel, TextChannel, StreamDispatcher } from 'discord.js'
 import { MusicQueue } from './music-queue'
 import { MusicStreamValue } from './interfaces/music-stream.interface'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'

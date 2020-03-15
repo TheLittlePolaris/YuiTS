@@ -1,5 +1,5 @@
 import { debugLogger, errorLogger } from '@/handlers/error.handler';
-import { Message, ClientUser, PermissionResolvable } from 'discord.js';
+import type { Message, ClientUser, PermissionResolvable } from 'discord.js';
 import { discordRichEmbedConstructor } from '../music/music-utilities/music-embed-constructor';
 import {
   isMyOwner,

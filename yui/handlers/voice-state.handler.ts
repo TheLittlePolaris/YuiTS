@@ -1,7 +1,7 @@
-import { GuildMember } from 'discord.js'
-import { MusicService } from './services/music/music.service'
-import { VoiceStateAction } from './services/music/music-entities/interfaces/voice-state.interface'
-import { MusicStream } from './services/music/music-entities/music-stream'
+import type { GuildMember } from 'discord.js'
+import type { MusicService } from './services/music/music.service'
+import type { VoiceStateAction } from './services/music/music-entities/interfaces/voice-state.interface'
+import type { MusicStream } from './services/music/music-entities/music-stream'
 import { debugLogger } from './error.handler'
 
 export class VoiceStateHandler {

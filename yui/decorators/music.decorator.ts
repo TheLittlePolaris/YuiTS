@@ -1,6 +1,6 @@
-import { TFunction, CONSTANTS } from '@/constants/constants'
-import { MusicStream } from '@/handlers/services/music/music-entities/music-stream'
-import { Message, TextChannel } from 'discord.js'
+import type { TFunction } from '@/constants/constants'
+import type { MusicStream } from '@/handlers/services/music/music-entities/music-stream'
+import type { Message, TextChannel } from 'discord.js'
 
 class AccessControllerStreams {
   public static streams: Map<string, MusicStream>
@@ -8,6 +8,7 @@ class AccessControllerStreams {
 }
 
 export const MusicServiceInitiator = () => {
+  console.log('======= [ MUSIC SERVICE DECORATOR ] =======')
   return <T extends TFunction>(superClass: T) => {
     AccessControllerStreams.streams = new Map<string, MusicStream>()
     return class extends superClass {
@@ -23,6 +24,9 @@ export const AccessController = (
   }
 ) => {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+    console.log(
+      `===== [ ACCESS CONTROLLER - Override: ${propertyKey} ] =====`
+    )
     const originalMethod = descriptor.value!
     descriptor.value = function(...args: any[]) {
       const streams = AccessControllerStreams.streams
@@ -40,10 +44,10 @@ export const AccessController = (
 
       if (!streams) return
       const stream = streams.has(guild.id) ? streams.get(guild.id) : null
-      console.log(stream, ' <====== FOUND STREAMMMMMMMMM')
+      // console.log(stream, ' <====== FOUND STREAMMMMMMMMM')
       const boundVoiceChannel = stream?.boundVoiceChannel
       args = [...args, stream]
-      console.log(args, ' <===== args')
+      // console.log(args, ' <===== args')
       if (!boundVoiceChannel && join) {
         if (!silent) {
           message.channel.send(

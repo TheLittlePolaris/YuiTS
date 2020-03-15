@@ -1,6 +1,6 @@
-import { Message, Client, GuildMember } from 'discord.js'
-import { MessageHandler } from '@/handlers/message.handler'
-import { VoiceStateHandler } from '@/handlers/voice-state.handler'
+import type { Message, Client, GuildMember } from 'discord.js'
+import type { MessageHandler } from '@/handlers/message.handler'
+import type { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { errorLogger, debugLogger } from '@/handlers/error.handler'
 import { Yui } from './decorators/yui.decorator'
 
@@ -43,13 +43,13 @@ export default class YuiCore {
   async onReady() {
     if (!this.yui.user) return
     console.log('Connected!')
-    const ready = this.yui?.user
+     await Promise.all([this.yui?.user
       ?.setActivity('📻 Radio Happy', {
         url: 'https://twitch.tv/onlypolaris',
         type: 'STREAMING'
-      })
+      })])
       .catch(this.coreHandleError)
-    if (ready) console.log('Yui is ready')
+    console.log('Yui is online')
   }
 
   async onMessage(message: Message) {

@@ -1,4 +1,4 @@
-import { PermissionResolvable, GuildMember, Message } from 'discord.js';
+import type { GuildMember } from 'discord.js';
 import {
   AdminCommands,
   ADMIN_ACTION_TYPE

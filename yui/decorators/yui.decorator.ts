@@ -13,7 +13,7 @@ export const Yui = ({
   token: string
   options: ClientOptions
 }) => {
-  console.log('======= YUI DECORATOR INITIALIZING =======')
+  console.log('======= [ YUI DECORATOR ] =======')
   return <T extends TFunction>(constructor: T) => {
     return class extends constructor {
       prefix = prefix

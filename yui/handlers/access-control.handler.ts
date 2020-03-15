@@ -1,5 +1,5 @@
-import { MusicService } from './services/music/music.service'
-import { Message, TextChannel } from 'discord.js'
+import type { MusicService } from './services/music/music.service'
+import type { Message, TextChannel } from 'discord.js'
 import { debugLogger } from './error.handler'
 
 export class AccessControlerHandler {

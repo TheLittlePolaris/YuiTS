@@ -1,9 +1,9 @@
 import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
-import { Message, ClientUser } from 'discord.js'
-import { MusicService } from './services/music/music.service'
+import type { Message, ClientUser } from 'discord.js'
+import type { MusicService } from './services/music/music.service'
+import type { FeatureService } from './services/feature/feature.service'
+import type { AdministrationService } from './services/administration/administration.service'
 import { debugLogger } from './error.handler'
-import { FeatureService } from './services/feature/feature.service'
-import { AdministrationService } from './services/administration/administration.service'
 
 @MessageHandlerInitiator()
 export class MessageHandler {

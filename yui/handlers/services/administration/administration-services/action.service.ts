@@ -1,5 +1,5 @@
 import { ADMIN_ACTION_TYPE } from '../admin-interfaces/administration.interface';
-import { GuildMember, Message, Role } from 'discord.js';
+import type { GuildMember, Message, Role } from 'discord.js';
 import { errorLogger } from '@/handlers/error.handler';
 
 export function executeCommand(

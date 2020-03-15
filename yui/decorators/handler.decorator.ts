@@ -5,6 +5,7 @@ import { TFunction } from '@/constants/constants'
 // import { AccessControlerHandler } from '@/handlers/access-control.handler'
 
 export const MessageHandlerInitiator = () => {
+  console.log('======= [ MESSAGE HANDLER DECORATOR ] =======')
   return <T extends TFunction>(superClass: T) => {
     return class extends superClass {
       _musicService = new MusicService()

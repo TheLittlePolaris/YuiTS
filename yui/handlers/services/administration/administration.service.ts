@@ -1,5 +1,5 @@
 import { debugLogger, errorLogger } from '@/handlers/error.handler'
-import { Message, RichEmbed } from 'discord.js'
+import type { Message, RichEmbed } from 'discord.js'
 import { isMyOwner } from '../feature/feature-services/utility.service'
 import {
   memberHasPermission,
