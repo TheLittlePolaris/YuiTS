@@ -119,8 +119,9 @@ export function getSongsByChannelId(
 
 export function searchByQuery(query: string): Promise<IYoutubeSearchResult> {
   return new Promise(async (resolve, reject) => {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10
-    &q=${encodeURIComponent(query)}&type=video
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(
+      query
+    )}&type=video
     &fields=items(id%2Ckind%2Csnippet(channelId%2CchannelTitle%2Ctitle))`;
     const json: IYoutubeSearchResult = await youtubeRequestService(url);
     if (!json) reject('Something went wrong during the process.');

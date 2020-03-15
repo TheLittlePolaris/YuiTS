@@ -10,7 +10,6 @@ import {
   yuiHasPermission
 } from '../administration/administration-services/permission.service';
 import { RNG } from '../music/music-utilities/music-function';
-import { ConfigService } from '@/config-services/config.service';
 
 export class FeatureService {
   constructor() {
@@ -69,7 +68,7 @@ export class FeatureService {
   }
 
   public async say(message: Message, args: Array<string>): Promise<void> {
-    const yui = message.guild.members.get(ConfigService.yuiId);
+    const yui = message.guild.members.get(global?.config?.yuiId);
     const yuiPermission = await yuiHasPermission(yui, 'say');
     if (yuiPermission) {
       const _arguments = args.join(' ');

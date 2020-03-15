@@ -1,10 +1,9 @@
 import request from 'request';
 import { errorLogger } from '@/handlers/error.handler';
 import { TenorApiQueryResult } from '../feature-interfaces/tenor-query.interface';
-import { ConfigService } from '@/config-services/config.service';
 
 export function isMyOwner(userId: string) {
-  return userId === ConfigService.ownerId;
+  return userId === global?.config?.ownerId;
 }
 
 export function tenorRequestService(
@@ -14,8 +13,8 @@ export function tenorRequestService(
     request(
       `https://api.tenor.com/v1/search?q=${encodeURIComponent(
         `anime ${query}`
-      )}&key=${ConfigService.tenorKey}&limit=10&media_filter=basic&anon_id=${
-        ConfigService.tenorKey
+      )}&key=${global?.config?.tenorKey}&limit=10&media_filter=basic&anon_id=${
+        global?.config?.tenorKey
       }`,
       (err: string, _, body: string) => {
         if (err) return reject(err);

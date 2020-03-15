@@ -3,5 +3,6 @@
   "useTabs": false,
   "jsxSingleQuote": true,
   "endOfLine": "crlf",
-  "singleQuote": true
+  "singleQuote": true,
+  "semi": false
 }

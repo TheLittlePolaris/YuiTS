@@ -17,7 +17,8 @@
     "baseUrl": ".",
     "incremental": true,
     "paths": {
-      "@/*": ["./yui/*"]
+      "@/*": ["./yui/*"],
+      "config-service/*": ["./yui/config-services/*"]
     }
   },
   "include": ["./yui/**/*"],

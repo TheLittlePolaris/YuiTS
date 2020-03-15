@@ -14,7 +14,7 @@ export type ADMIN_ACTION_TYPE =
   | 'unmute'
   | 'setnickname'
   | 'addrole'
-  | 'removerole';
+  | 'removerole'
 
 export const AdminCommands = [
   'kick',
@@ -24,4 +24,4 @@ export const AdminCommands = [
   'setnickname',
   'addrole',
   'removerole'
-];
+]

@@ -13,7 +13,7 @@
   "author": "Polaris",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/uws": "^11.149.1",
+    "@discordjs/opus": "^0.1.0",
     "@typeit/discord": "^1.0.3",
     "@types/node": "^12.12.17",
     "discord.js": "^11.5.1",
@@ -23,7 +23,6 @@
     "get-youtube-id": "^1.0.1",
     "lodash": "^4.17.15",
     "module-alias": "^2.2.2",
-    "node-opus": "^0.3.3",
     "opusscript": "0.0.7",
     "path": "^0.12.7",
     "reflect-metadata": "^0.1.13",
@@ -38,6 +37,7 @@
     "typescript": "^3.7.4"
   },
   "_moduleAliases": {
-    "@": "dist"
+    "@": "dist",
+    "config-service": "dist/config-services"
   }
 }

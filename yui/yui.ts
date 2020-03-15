@@ -1,19 +1,18 @@
-import 'module-alias/register';
-import 'reflect-metadata';
+import 'module-alias/register'
+import 'reflect-metadata'
+import 'config-service'
 
-import YuiCore from '@/yui-core';
-import { errorLogger } from '@/handlers/error.handler';
-import { ConfigService } from '@/config-services/config.service';
+import { errorLogger } from '@/handlers/error.handler'
+import YuiCore from '@/yui-core'
 
 // Work In Progress...
-
-(async () => {
+;(async () => {
+  console.log('Starting...')
   try {
-    ConfigService;
-    console.log('Yui is starting...');
-    const yui = new YuiCore();
-    await yui.start();
+    console.log('Yui is starting...')
+    const yui = new YuiCore()
+    await yui.start()
   } catch (error) {
-    errorLogger(error, 'YUI_START');
+    errorLogger(error, 'YUI_START')
   }
-})();
+})()
