@@ -1,6 +1,7 @@
-import { ADMIN_ACTION_TYPE } from '../admin-interfaces/administration.interface';
-import type { GuildMember, Message, Role } from 'discord.js';
-import { errorLogger } from '@/handlers/error.handler';
+import { ADMIN_ACTION_TYPE } from '../admin-interfaces/administration.interface'
+import { GuildMember, Message, Role } from 'discord.js'
+import { errorLogger } from '@/handlers/error.handler'
+import { CheckMemberPermissions } from '@/decorators/permission.decorator'
 
 export function executeCommand(
   command: ADMIN_ACTION_TYPE,
@@ -12,118 +13,118 @@ export function executeCommand(
     switch (command) {
       case 'kick': {
         const reason =
-          (_arguments && _arguments.length && _arguments.join(' ')) || null;
-        const result = await kick(member, reason);
+          (_arguments && _arguments.length && _arguments.join(' ')) || null
+        const result = await kick(member, reason)
         result
           ? message.channel.send(
               `\`${member.user.username}\` has been kicked by \`${
                 message.member.displayName
               }\`${reason ? ` for reason ${reason}` : ``}`
             )
-          : message.author.send(`Unable to kick the member.`);
-        return result;
+          : message.author.send(`Unable to kick the member.`)
+        return result
       }
       case 'ban': {
         const reason =
-          (_arguments && _arguments.length && _arguments.join(' ')) || null;
-        const result = await ban(member, reason);
+          (_arguments && _arguments.length && _arguments.join(' ')) || null
+        const result = await ban(member, reason)
         result
           ? message.channel.send(
               `\`${member.user.username}\` has been banned by \`${
                 message.member.displayName
               }\`${reason ? ` for reason ${reason}` : ``}`
             )
-          : message.author.send(`Unable to ban the member.`);
-        return result;
+          : message.author.send(`Unable to ban the member.`)
+        return result
       }
       case 'mute': {
-        const reason = (_arguments && _arguments.join('')) || '';
-        const result = await mute(member, reason);
+        const reason = (_arguments && _arguments.join('')) || ''
+        const result = await mute(member, reason)
         result
           ? message.channel.send(
               `\`${member.user.username}\` has been mute by \`${
                 message.member.displayName
               }\`${reason ? ` for reason ${reason}` : ``}`
             )
-          : message.author.send(`Unable to mute the member.`);
+          : message.author.send(`Unable to mute the member.`)
 
-        return result;
+        return result
       }
       case 'unmute': {
-        const reason = (_arguments && _arguments.join('')) || null;
-        const result = await unmute(member, reason);
+        const reason = (_arguments && _arguments.join('')) || null
+        const result = await unmute(member, reason)
         result
           ? message.channel.send(
               `\`${member.user.username}\` has been unmute by \`${
                 message.member.displayName
               }\`${reason ? ` for reason ${reason}` : ``}`
             )
-          : message.author.send(`Unable to unmute the member.`);
+          : message.author.send(`Unable to unmute the member.`)
 
-        return result;
+        return result
       }
       case 'addrole': {
-        if (!_arguments || !_arguments.length) return resolve(false);
-        const [role, reason] = [_arguments.shift(), _arguments.join(' ')];
-        const serverRole = message.guild.roles.find('name', role);
+        if (!_arguments || !_arguments.length) return resolve(false)
+        const [role, reason] = [_arguments.shift(), _arguments.join(' ')]
+        const serverRole = message.guild.roles.find('name', role)
         if (!role || !serverRole) {
-          message.channel.send(`Role \`${role}\` does not exists.`);
-          return Promise.resolve(false);
+          message.channel.send(`Role \`${role}\` does not exists.`)
+          return Promise.resolve(false)
         }
-        const result = await addRole(member, serverRole.name, reason);
+        const result = await addRole(member, serverRole.name, reason)
         result
           ? message.channel.send(
               `Added role \`${serverRole.name}\` to ${member.displayName}`
             )
-          : message.author.send(`Unable to add role to the member.`);
-        return result;
+          : message.author.send(`Unable to add role to the member.`)
+        return result
       }
       case 'removerole': {
-        if (!_arguments || !_arguments.length) return resolve(false);
-        const [role, reason] = [_arguments.shift(), _arguments.join(' ')];
-        const serverRole = message.guild.roles.find('name', role);
+        if (!_arguments || !_arguments.length) return resolve(false)
+        const [role, reason] = [_arguments.shift(), _arguments.join(' ')]
+        const serverRole = message.guild.roles.find('name', role)
         if (!role || !serverRole) {
-          message.channel.send(`Role \`${role}\` does not exists.`);
-          return Promise.resolve(false);
+          message.channel.send(`Role \`${role}\` does not exists.`)
+          return Promise.resolve(false)
         }
-        const result = await removeRole(member, serverRole.name, reason);
+        const result = await removeRole(member, serverRole.name, reason)
         result
           ? message.channel.send(
               `Removed role \`${serverRole.name}\` from ${member.displayName}`
             )
-          : message.author.send(`Unable to remove role from the member.`);
-        return result;
+          : message.author.send(`Unable to remove role from the member.`)
+        return result
       }
       case 'setnickname': {
-        if (!_arguments || !_arguments.length) return resolve(false);
-        const oldNickname = member.displayName || member.user.username;
-        const nickname = _arguments.join(' ');
-        const result = await setNickname(member, nickname);
+        if (!_arguments || !_arguments.length) return resolve(false)
+        const oldNickname = member.displayName || member.user.username
+        const nickname = _arguments.join(' ')
+        const result = await setNickname(member, nickname)
         result
           ? message.channel.send(
               `\`${oldNickname}'s\` nickname has been set to \`${nickname}\` by ${message.member.displayName}`
             )
-          : message.author.send(`Unable to set the member's nickname.`);
-        return result;
+          : message.author.send(`Unable to set the member's nickname.`)
+        return result
       }
     }
-  });
+  })
 }
 
 function kick(member: GuildMember, reason?: string): Promise<boolean> {
   return new Promise<boolean>(async (resolve, _) => {
-    const kicked = await member.kick(reason).catch(handleError);
-    if (!kicked) return resolve(false);
-    return resolve(!!kicked);
-  });
+    const kicked = await member.kick(reason).catch(handleError)
+    if (!kicked) return resolve(false)
+    return resolve(!!kicked)
+  })
 }
 
 function ban(member: GuildMember, reason?: string): Promise<boolean> {
   return new Promise<boolean>(async (resolve, _) => {
-    const banned = await member.ban(reason).catch(handleError);
-    if (!banned) return resolve(false);
-    return resolve(!!banned);
-  });
+    const banned = await member.ban(reason).catch(handleError)
+    if (!banned) return resolve(false)
+    return resolve(!!banned)
+  })
 }
 function addRole(
   member: GuildMember,
@@ -131,10 +132,10 @@ function addRole(
   reason?: string
 ): Promise<boolean> {
   return new Promise<boolean>(async (resolve, _) => {
-    const roleAdded = await member.addRole(role, reason).catch(handleError);
-    if (!roleAdded) return resolve(false);
-    return resolve(!!roleAdded);
-  });
+    const roleAdded = await member.addRole(role, reason).catch(handleError)
+    if (!roleAdded) return resolve(false)
+    return resolve(!!roleAdded)
+  })
 }
 function removeRole(
   member: GuildMember,
@@ -142,26 +143,25 @@ function removeRole(
   reason?: string
 ): Promise<boolean> {
   return new Promise<boolean>(async (resolve, _) => {
-    const roleRemoved = await member
-      .removeRole(role, reason)
-      .catch(handleError);
-    if (!roleRemoved) return resolve(false);
-    return resolve(!!roleRemoved);
-  });
+    const roleRemoved = await member.removeRole(role, reason).catch(handleError)
+    if (!roleRemoved) return resolve(false)
+    return resolve(!!roleRemoved)
+  })
 }
+
 function mute(member: GuildMember, reason?: string): Promise<boolean> {
   return new Promise<boolean>(async (resolve, _) => {
-    const muted = await member.setMute(true, reason).catch(handleError);
-    if (!muted) return resolve(false);
-    return resolve(!!muted);
-  });
+    const muted = await member.setMute(true, reason).catch(handleError)
+    if (!muted) return resolve(false)
+    return resolve(!!muted)
+  })
 }
 function unmute(member: GuildMember, reason?: string): Promise<boolean> {
   return new Promise<boolean>(async (resolve, _) => {
-    const unmuted = await member.setMute(false, reason).catch(handleError);
-    if (!unmuted) return resolve(false);
-    return resolve(!!unmuted);
-  });
+    const unmuted = await member.setMute(false, reason).catch(handleError)
+    if (!unmuted) return resolve(false)
+    return resolve(!!unmuted)
+  })
 }
 
 function setNickname(
@@ -170,12 +170,46 @@ function setNickname(
   reason?: string
 ): Promise<boolean> {
   return new Promise((resolve, _) => {
-    const nicknameSet = member.setNickname(nickname).catch(null);
-    if (!nickname) resolve(false);
-    return resolve(!!nicknameSet);
-  });
+    const nicknameSet = member.setNickname(nickname).catch(null)
+    if (!nickname) resolve(false)
+    return resolve(!!nicknameSet)
+  })
 }
 
 function handleError(error: Error | string): null {
-  return errorLogger(error, 'ADMIN_ACTION_SERVICE');
+  return errorLogger(error, 'ADMIN_ACTION_SERVICE')
+}
+
+export class AdminActionCommand {
+  constructor() {}
+
+  async kick(member: GuildMember, reason?: string) {
+    return await member.kick(reason).catch(this.handleError)
+  }
+
+  async ban(member: GuildMember, reason?: string) {
+    return await member.ban(reason).catch(handleError)
+  }
+
+  async addRole(member: GuildMember, role: Role | string, reason?: string) {
+    return await member.addRole(role, reason).catch(handleError)
+  }
+
+  async removeRole(member: GuildMember, role: Role | string, reason?: string) {
+    return await member.removeRole(role, reason).catch(handleError)
+  }
+  async mute(member: GuildMember, reason?: string) {
+    return await member.setMute(true, reason).catch(handleError)
+  }
+  async unmute(member: GuildMember, reason?: string) {
+    return await member.setMute(false, reason).catch(handleError)
+  }
+
+  async setNickname(member: GuildMember, nickname: string, reason?: string) {
+    return await member.setNickname(nickname).catch(null)
+  }
+
+  handleError(error: Error | string): null {
+    return errorLogger(error, 'ADMIN_ACTION_SERVICE')
+  }
 }
