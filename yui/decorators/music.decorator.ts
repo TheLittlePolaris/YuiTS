@@ -11,7 +11,7 @@ const REFLECT_KEY = {
   STREAM_KEY: Symbol(REFLECT_SYMBOL_KEY.STREAM)
 }
 
-class AccessControllerStreams {
+class MusicGlobalStreams {
   public static streams: Map<string, MusicStream>
   constructor() {}
 }
@@ -19,9 +19,9 @@ class AccessControllerStreams {
 export const MusicServiceInitiator = () => {
   console.log('======= [ MUSIC SERVICE DECORATOR ] =======')
   return <T extends TFunction>(superClass: T) => {
-    AccessControllerStreams.streams = new Map<string, MusicStream>()
+    MusicGlobalStreams.streams = new Map<string, MusicStream>()
     return class extends superClass {
-      _streams = AccessControllerStreams.streams
+      _streams = MusicGlobalStreams.streams
     }
   }
 }
@@ -38,7 +38,7 @@ export const AccessController = (
     )
     const originalMethod = descriptor.value!
     descriptor.value = function(...args: any[]) {
-      const streams = AccessControllerStreams.streams
+      const streams = MusicGlobalStreams.streams
       const [message] = args
       const {
         channel,
