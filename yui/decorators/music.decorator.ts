@@ -3,11 +3,13 @@ import type { MusicStream } from '@/handlers/services/music/music-entities/music
 import { Message, TextChannel } from 'discord.js'
 
 
-enum REFLECT_SYMBOL {
+enum REFLECT_SYMBOL_KEY {
   STREAM = 'STREAM'
 }
 
-const streamKey = Symbol(REFLECT_SYMBOL.STREAM)
+const REFLECT_KEY = {
+  STREAM_KEY: Symbol(REFLECT_SYMBOL_KEY.STREAM)
+}
 
 class AccessControllerStreams {
   public static streams: Map<string, MusicStream>
@@ -53,7 +55,7 @@ export const AccessController = (
       const stream = streams.has(guild.id) ? streams.get(guild.id) : null
       // console.log(stream, ' <====== FOUND STREAMMMMMMMMM')
 
-      const streamParamIndex: number = Reflect.getMetadata(streamKey, target, propertyKey);
+      const streamParamIndex: number = Reflect.getMetadata(REFLECT_KEY.STREAM_KEY, target, propertyKey);
       if(streamParamIndex) args[streamParamIndex] = stream
 
       const boundVoiceChannel = stream?.boundVoiceChannel
@@ -92,7 +94,7 @@ export const AccessController = (
 
 export const GuildStream = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(streamKey, paramIndex, target, propertyKey)
+    Reflect.defineMetadata(REFLECT_KEY.STREAM_KEY, paramIndex, target, propertyKey)
   }
 }
 
