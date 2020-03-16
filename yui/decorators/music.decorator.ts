@@ -1,6 +1,13 @@
 import type { TFunction } from '@/constants/constants'
 import type { MusicStream } from '@/handlers/services/music/music-entities/music-stream'
-import type { Message, TextChannel } from 'discord.js'
+import { Message, TextChannel } from 'discord.js'
+
+
+enum REFLECT_SYMBOL {
+  STREAM = 'STREAM'
+}
+
+const streamKey = Symbol(REFLECT_SYMBOL.STREAM)
 
 class AccessControllerStreams {
   public static streams: Map<string, MusicStream>
@@ -45,8 +52,11 @@ export const AccessController = (
       if (!streams) return
       const stream = streams.has(guild.id) ? streams.get(guild.id) : null
       // console.log(stream, ' <====== FOUND STREAMMMMMMMMM')
+
+      const streamParamIndex: number = Reflect.getMetadata(streamKey, target, propertyKey);
+      if(streamParamIndex) args[streamParamIndex] = stream
+
       const boundVoiceChannel = stream?.boundVoiceChannel
-      args = [...args, stream]
       // console.log(args, ' <===== args')
       if (!boundVoiceChannel && join) {
         if (!silent) {
@@ -77,6 +87,12 @@ export const AccessController = (
       }
       return originalMethod.apply(this, args) // just in case
     }
+  }
+}
+
+export const GuildStream = () => {
+  return (target: any, propertyKey: string, paramIndex: number) => {
+    Reflect.defineMetadata(streamKey, paramIndex, target, propertyKey)
   }
 }
 

@@ -1,5 +1,5 @@
 import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
-import type { Message, ClientUser } from 'discord.js'
+import { Message, ClientUser } from 'discord.js'
 import type { MusicService } from './services/music/music.service'
 import type { FeatureService } from './services/feature/feature.service'
 import type { AdministrationService } from './services/administration/administration.service'

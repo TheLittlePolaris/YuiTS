@@ -1,4 +1,4 @@
-import type {
+import {
   Message,
   Guild,
   VoiceChannel,
@@ -37,7 +37,8 @@ import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import { errorLogger, debugLogger } from '@/handlers/error.handler'
 import {
   MusicServiceInitiator,
-  AccessController
+  AccessController,
+  GuildStream
 } from '@/decorators/music.decorator'
 
 // TODO: NEED TO FIX SOME LOGIC
@@ -75,7 +76,7 @@ export class MusicService {
   public async play(
     message: Message,
     args?: Array<string>,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ): Promise<void> {
     const { id } = message.guild
     // console.log(stream, ' <====== STREAM IN COMPONENT')
@@ -351,7 +352,7 @@ export class MusicService {
   public async addToNext(
     message: Message,
     args?: Array<string>,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ): Promise<void> {
     if (!stream) return this.play(message, args)
     const queue = stream.queue
@@ -402,7 +403,7 @@ export class MusicService {
   public async skipSongs(
     message: Message,
     args?: Array<string>,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ): Promise<void> {
     stream = stream || this._streams.get(message.guild.id)
     if (stream.queue.isEmpty) {
@@ -455,7 +456,10 @@ export class MusicService {
   }
 
   @AccessController({ join: true })
-  public async autoPlay(message: Message, stream?: MusicStream): Promise<void> {
+  public async autoPlay(
+    message: Message,
+    @GuildStream() stream?: MusicStream
+  ): Promise<void> {
     stream = stream || this.streams.get(message.guild.id)
     if (!stream) {
       const {
@@ -514,7 +518,7 @@ export class MusicService {
   public async getNowPlayingData(
     message: Message,
     clientUser: ClientUser,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ) {
     const { guild } = message
 
@@ -550,7 +554,7 @@ export class MusicService {
   public async printQueue(
     message: Message,
     args: Array<string>,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ): Promise<void> {
     stream = stream || this._streams.get(message.guild.id)
     if (stream?.queue?.isEmpty) {
@@ -591,7 +595,7 @@ export class MusicService {
         stream.isQueueLooping
           ? STREAM_STATUS.QUEUE_LOOPING
           : await timeConverter(await stream.queue.totalDuration)
-      }\ -- Tab: \`1/${tabs}\``
+      }\` -- Tab: \`1/${tabs}\``
       this.sendMessage(
         message,
         await discordRichEmbedConstructor({
@@ -623,7 +627,7 @@ export class MusicService {
   public async removeSongs(
     message: Message,
     args?: Array<string>,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ): Promise<void> {
     stream = stream || this._streams.get(message.guild.id)
     switch (args.length) {
@@ -702,8 +706,7 @@ export class MusicService {
   @AccessController({ join: true })
   public async searchSong(
     message: Message,
-    args?: Array<string>,
-    stream?: MusicStream
+    args?: Array<string>
   ): Promise<void> {
     const _arguments = args?.join(' ')
     const result = await searchByQuery(_arguments).catch(this.handleError)
@@ -757,7 +760,10 @@ export class MusicService {
   }
 
   @AccessController()
-  public async shuffleQueue(message: Message, stream?: MusicStream) {
+  public async shuffleQueue(
+    message: Message,
+    @GuildStream() stream?: MusicStream
+  ) {
     const { guild } = message
     if (!guild) {
       this.handleError(new Error('`Guild` was undefined'))
@@ -777,7 +783,7 @@ export class MusicService {
 
   public async clearQueue(
     message: Message,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ): Promise<void> {
     stream = stream || this._streams.get(message.guild.id)
     if (!stream.queue.isEmpty) {
@@ -793,7 +799,7 @@ export class MusicService {
   public async loopSettings(
     message: Message,
     args: Array<string>,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ): Promise<void> {
     const { guild } = message
     if (!guild) {
@@ -839,7 +845,7 @@ export class MusicService {
   public async musicController(
     message: Message,
     isPause: boolean,
-    stream?: MusicStream
+    @GuildStream() stream?: MusicStream
   ) {
     const { guild } = message
     if (!guild) {
