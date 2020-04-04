@@ -1,5 +1,6 @@
 import { config } from 'dotenv'
-import { debugLogger } from '@/handlers/error.handler'
+import { debugLogger } from '@/handlers/log.handler'
+import { LOG_SCOPE } from '@/constants/constants'
 ;(async () => {
   interface EnvConfig {
     [key: string]: string
@@ -15,7 +16,7 @@ import { debugLogger } from '@/handlers/error.handler'
         throw new Error(`CANNOT READ CONFIG ENVIRONMENT: ${error}`)
       }
 
-      debugLogger('ConfigService')
+      debugLogger(LOG_SCOPE.CONFIG_SERVICE)
     }
 
     public static init() {

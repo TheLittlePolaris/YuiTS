@@ -2,13 +2,14 @@ import type { GuildMember } from 'discord.js'
 import type { MusicService } from './services/music/music.service'
 import type { VoiceStateAction } from './services/music/music-entities/interfaces/voice-state.interface'
 import type { MusicStream } from './services/music/music-entities/music-stream'
-import { debugLogger } from './error.handler'
+import { debugLogger } from './log.handler'
+import { LOG_SCOPE } from '@/constants/constants'
 
 export class VoiceStateHandler {
   private currentMusicService: MusicService
   constructor(musicService: MusicService) {
     this.currentMusicService = musicService
-    debugLogger('VoiceStateHandler')
+    debugLogger(LOG_SCOPE.VOICE_STATE_HANDLER)
   }
 
   public checkOnVoiceStateUpdate(oldMem: GuildMember, newMem: GuildMember) {

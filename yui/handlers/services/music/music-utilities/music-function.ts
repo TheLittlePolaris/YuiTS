@@ -72,7 +72,7 @@ export function printQueueList(queue: MusicQueue, start: number, end: number) {
       const song = queue.at(i)
       result += `#${i}: **${song.title}** - \`(${await timeConverter(
         song.duration
-      )})\n*\`Requested by \` ${song.requester}\`*\n\n`
+      )})\n\`*Requested by \`${song.requester}\`*\n\n`
     }
     resolve(result)
   })

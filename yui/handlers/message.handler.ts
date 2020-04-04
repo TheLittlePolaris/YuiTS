@@ -1,9 +1,10 @@
 import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
 import { Message, ClientUser } from 'discord.js'
-import type { MusicService } from './services/music/music.service'
-import type { FeatureService } from './services/feature/feature.service'
-import type { AdministrationService } from './services/administration/administration.service'
-import { debugLogger } from './error.handler'
+import { MusicService } from './services/music/music.service'
+import { FeatureService } from './services/feature/feature.service'
+import { AdministrationService } from './services/administration/administration.service'
+import { debugLogger, errorLogger } from './log.handler'
+import { LOG_SCOPE } from '@/constants/constants'
 
 @MessageHandlerInitiator()
 export class MessageHandler {
@@ -11,7 +12,7 @@ export class MessageHandler {
   private _featureService: FeatureService
   private _administrationService: AdministrationService
   constructor() {
-    debugLogger('MessageHandler')
+    debugLogger(LOG_SCOPE.MESSAGE_HANDLER)
   }
 
   public async execute(
@@ -44,7 +45,7 @@ export class MessageHandler {
 
       case 'np':
       case 'nowplaying':
-        return await this.musicService.getNowPlayingData(message, clientUser)
+        return await this.musicService.getNowPlayingData(message)
 
       case 'queue':
       case 'q':
@@ -89,12 +90,16 @@ export class MessageHandler {
         return this._featureService.tenorGif(message, args)
       }
       case 'admin': {
-        const deletedMessage = await message.delete()
-        if (!deletedMessage)
+        const deletedMessage = await message.delete().catch((error) => {
+          errorLogger(new Error(error), LOG_SCOPE.MESSAGE_HANDLER)
           message.author.send(
             `Something went wrong, i couldn't delete the message`
           )
-        return
+        })
+        if (!deletedMessage) {
+          return
+        }
+        return await this._administrationService.executeCommand(message, args)
       }
       case 'test': {
         console.log('command ==== ', command)

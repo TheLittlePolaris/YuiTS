@@ -1,84 +1,32 @@
-import { debugLogger, errorLogger } from '@/handlers/error.handler'
-import type { Message, RichEmbed } from 'discord.js'
-import { isMyOwner } from '../feature/feature-services/utility.service'
+import { debugLogger, errorLogger } from '@/handlers/log.handler'
+import { Message, RichEmbed } from 'discord.js'
+import { ADMIN_ACTION_TYPE } from './admin-interfaces/administration.interface'
+import { AdminstrationActionCommands } from './administration-actions/action.service'
 import {
-  memberHasPermission,
-  yuiHasPermission
-} from './administration-services/permission.service'
-import {
-  ADMIN_ACTION_TYPE,
-  AdminCommands
-} from './admin-interfaces/administration.interface'
-import { executeCommand, AdminActionCommand } from './administration-services/action.service'
+  Command,
+  CommandExecutor,
+  AdministrationServiceInitiator,
+  ValidatePermissions,
+} from '@/decorators/permission.decorator'
+import { LOG_SCOPE } from '@/constants/constants'
 
-// TODO: ADD A DECORATOR HEREEE
+@AdministrationServiceInitiator(() => AdminstrationActionCommands)
 export class AdministrationService {
-
-  _adminActionCommands: AdminActionCommand
+  public _adminActionCommands: AdminstrationActionCommands
 
   constructor() {
     debugLogger('AdministrationService')
   }
 
-  // public async execAdminCommand(
-  //   message: Message,
-  //   args: Array<string>
-  // ): Promise<void> {
-  //   if (!args.length) {
-  //     this.sendMessage(
-  //       message,
-  //       `**You must specify which action to be executed.**`
-  //     )
-  //   }
-  //   const subCommand: ADMIN_ACTION_TYPE = (AdminCommands.includes(args[0]) &&
-  //     args[0]) as ADMIN_ACTION_TYPE
-  //   if (!subCommand) {
-  //     this.sendMessage(
-  //       message,
-  //       `**You must specify which action to be executed.**`
-  //     )
-  //     return Promise.resolve()
-  //   }
-  //   const yui = message.guild.members.get(global?.config?.yuiId)
-  //   const yuiPermission = await yuiHasPermission(yui, subCommand)
-  //   const memberPermission = await memberHasPermission(
-  //     message.member,
-  //     subCommand
-  //   )
-  //   if (!memberPermission && !isMyOwner(message.author.id)) {
-  //     {
-  //       this.sendMessage(
-  //         message,
-  //         '**You are not authorized to use this command.**'
-  //       )
-  //       return Promise.resolve()
-  //     }
-  //   }
-  //   if (!yuiPermission) {
-  //     {
-  //       this.sendMessage(
-  //         message,
-  //         `**I don't have anough permission to execute this command.**`
-  //       )
-  //       return Promise.resolve()
-  //     }
-  //   }
-  //   const targetMember = message.mentions.members.first()
-  //   if (!targetMember) {
-  //     this.sendMessage(message, '**Please specify a member for the action.**')
-  //     return Promise.resolve()
-  //   }
-  //   const testFormat = args.shift()
-  //   if (!testFormat || String(testFormat) !== targetMember.toString()) {
-  //     this.sendMessage(
-  //       message,
-  //       `**Wrong format, please take a look at \`>help\` and then try again.**`
-  //     )
-  //     return Promise.resolve()
-  //   }
-  //   await executeCommand(subCommand, targetMember, message, args) // TODO: test this
-  //   return Promise.resolve()
-  // }
+  @CommandExecutor()
+  @ValidatePermissions()
+  public async executeCommand(
+    message: Message,
+    args: Array<string>,
+    @Command() command?: ADMIN_ACTION_TYPE
+  ) {
+    return await this._adminActionCommands[command](message, args)
+  }
 
   public sendMessage(
     message: Message,
@@ -88,6 +36,6 @@ export class AdministrationService {
   }
 
   private handleError(error: Error | string): null {
-    return errorLogger(error, 'ADMINISTRATION_SERVICE')
+    return errorLogger(error, LOG_SCOPE.ADMIN_SERVICE)
   }
 }

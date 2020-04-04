@@ -1,134 +1,132 @@
-import * as getYoutubeID from 'get-youtube-id';
-import { isYoutubeLink } from '../music-utilities/music-function';
-import {
-  IYoutubePlaylistItemMetadata,
-  IYoutubePlaylist,
-  IYoutubeSearchResult
-} from '../music-entities/interfaces/youtube-song-metadata.interface';
-import { youtubeRequestService } from './youtube-request.service';
-import { errorLogger } from '@/handlers/error.handler';
+import * as getYoutubeID from 'get-youtube-id'
+import { isYoutubeLink } from '../music-utilities/music-function'
+import { errorLogger } from '@/handlers/log.handler'
+import { YoutubeRequestService } from './youtube-request.service'
+import { youtube_v3 } from 'googleapis'
 
-export async function getID(query: string): Promise<string> {
-  if (isYoutubeLink(query)) {
-    return Promise.resolve(getYoutubeID.default(query));
-  } else {
-    return await requestVideo(query);
+export abstract class YoutubeInfoService {
+  public static async getID(query: string): Promise<string> {
+    if (isYoutubeLink(query)) {
+      return Promise.resolve(getYoutubeID.default(query))
+    } else {
+      return await this.requestVideo(query)
+    }
   }
-}
 
-function getPlaylistID(url: string): Promise<string> {
-  return new Promise((resolve, _) => {
-    const isPlaylist: string = url.match(/[&|\?]list=([a-zA-Z0-9_-]+)/i)[1];
-    resolve(isPlaylist);
-  });
-}
-
-export async function getPlaylistId(args) {
-  if (!isYoutubeLink(args)) {
-    throw new Error('Argument is not a youtube link.');
-  } else {
-    return await getPlaylistID(args);
+  public static getPlaylistID(url: string): Promise<string> {
+    return new Promise((resolve, _) => {
+      const isPlaylist: string = url.match(/[&|\?]list=([a-zA-Z0-9_-]+)/i)[1]
+      resolve(isPlaylist)
+    })
   }
-}
 
-export function requestVideo(query: string): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
-    const json: IYoutubeSearchResult = await youtubeRequestService(
-      'https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=' +
-        encodeURIComponent(query) +
-        '&type=video&fields=items(id(kind%2CvideoId)%2Csnippet(channelId%2CchannelTitle%2Ctitle))'
-    );
-    if (!json) reject('Some thing went wrong');
-    resolve(json.items[0].id.videoId || '3uOWvcFLUY0');
-  });
-}
+  public static async getPlaylistId(args) {
+    if (!isYoutubeLink(args)) {
+      throw new Error('Argument is not a youtube link.')
+    } else {
+      return await this.getPlaylistID(args)
+    }
+  }
 
-export function getInfoIds(
-  ids: string
-): Promise<IYoutubePlaylistItemMetadata[]> {
-  return new Promise(async (resolve, reject) => {
-    const json: IYoutubePlaylist = await youtubeRequestService(
-      'https://www.googleapis.com/youtube/v3/videos?part=' +
-        encodeURIComponent('snippet, contentDetails') +
-        '&id=' +
-        encodeURIComponent(ids) +
-        '&fields=items(contentDetails%2Fduration%2Cid%2Csnippet(channelId%2CchannelTitle%2Cthumbnails%2Fdefault%2Ctitle))'
-    );
-    resolve((json && json.items) || null);
-  });
-}
+  public static async requestVideo(query: string): Promise<string> {
+    const data: youtube_v3.Schema$SearchListResponse = await YoutubeRequestService.googleYoutubeApiSearch(
+      {
+        part: 'snippet',
+        maxResults: 10,
+        q: query,
+        type: 'video',
+        fields: 'items(id(kind,videoId),snippet(channelId,channelTitle,title))',
+      }
+    )
+    if (!data) throw Error('Something went wrong during request')
 
-export function getPlaylistItems(
-  playlistId: string,
-  _nextPageToken: string = ''
-): Promise<IYoutubePlaylistItemMetadata[]> {
-  return new Promise(async (resolve, reject) => {
-    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50
-      ${_nextPageToken}&playlistId=${playlistId}
-      &fields=${encodeURIComponent(
-        'nextPageToken,items(id,kind,snippet(channelId,channelTitle,resourceId(kind,videoId),title))'
-      )}`;
-    const json: IYoutubePlaylist = await youtubeRequestService(url);
-    if (!json) reject('Request fail. JSON was null.');
-    const { nextPageToken } = json;
-    const playlistSongs = await processPlaylistItemsData(json).catch(
-      handleError
-    );
-    let nextPageResults: IYoutubePlaylistItemMetadata[] = [];
+    return data?.items[0]?.id?.videoId || '3uOWvcFLUY0' // default
+  }
+
+  public static async getInfoIds(ids: string) {
+    const data = await YoutubeRequestService.googleYoutubeApiVideos({
+      part: 'snippet, contentDetails',
+      id: ids,
+      fields:
+        'items(contentDetails/duration,id,snippet(channelId,channelTitle,thumbnails/default,title))',
+    })
+
+    return data.items
+  }
+
+  public static async getPlaylistItems(
+    playlistId: string,
+    _nextPageToken?: string
+  ): Promise<youtube_v3.Schema$Video[]> {
+    const data = await YoutubeRequestService.googleYoutubeApiPlaylistItems({
+      part: 'snippet',
+      playlistId,
+      fields:
+        'nextPageToken,items(id,kind,snippet(channelId,channelTitle,resourceId(kind,videoId),title))',
+      ...(_nextPageToken ? { pageToken: _nextPageToken } : {}),
+    })
+    if (!data) return []
+    const { nextPageToken } = data
+    const playlistSongs = await this.processPlaylistItemsData(data).catch(
+      this.handleError
+    )
+    let nextPageResults = []
     if (nextPageToken) {
-      const pageToken = `&pageToken=${nextPageToken}`;
-      nextPageResults = await getPlaylistItems(playlistId, pageToken).catch(
-        handleError
-      );
+      const pageToken = `&pageToken=${nextPageToken}`
+      nextPageResults = await this.getPlaylistItems(
+        playlistId,
+        nextPageToken
+      ).catch(this.handleError)
     }
-    resolve([...playlistSongs, ...(nextPageResults || [])]);
-  });
-}
+    return [...playlistSongs, ...(nextPageResults || [])]
+  }
 
-function processPlaylistItemsData(
-  data: IYoutubePlaylist
-): Promise<IYoutubePlaylistItemMetadata[]> {
-  return new Promise(async (resolve, _) => {
-    const tmpIdsArray: Array<string> = [];
-    const [playlist] = await Promise.all(
-      data.items.map(song => {
-        return tmpIdsArray.push(song.snippet.resourceId.videoId);
-      })
-    ).catch(handleError);
-    if (playlist) {
-      const videos = await getInfoIds(tmpIdsArray.join(',')).catch(handleError);
-      resolve(videos);
-    }
-  });
-}
+  static processPlaylistItemsData(
+    data: youtube_v3.Schema$PlaylistItemListResponse
+  ): Promise<youtube_v3.Schema$Video[]> {
+    return new Promise(async (resolve, _) => {
+      const tmpIdsArray: Array<string> = []
+      await Promise.all(
+        data.items.map((song) => {
+          return tmpIdsArray.push(song.snippet.resourceId.videoId)
+        })
+      ).catch(this.handleError)
 
-export function getSongsByChannelId(
-  channelId: string,
-  nextPage: string
-): Promise<IYoutubeSearchResult> {
-  return new Promise(async (resolve, reject) => {
-    const nextPageToken = nextPage ? `&nextPageToken=${nextPage}` : ``;
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=
-      ${channelId}${nextPageToken}&type=video&fields=
-      ${encodeURIComponent('nextPageToken, items(id(videoId))')}`;
-    const json: IYoutubeSearchResult = await youtubeRequestService(url);
-    if (!json) reject('Something went wrong during the process.');
-    resolve(json);
-  });
-}
+      const videos = await this.getInfoIds(tmpIdsArray.join(',')).catch(
+        this.handleError
+      )
+      resolve(videos)
+    })
+  }
 
-export function searchByQuery(query: string): Promise<IYoutubeSearchResult> {
-  return new Promise(async (resolve, reject) => {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(
-      query
-    )}&type=video
-    &fields=items(id%2Ckind%2Csnippet(channelId%2CchannelTitle%2Ctitle))`;
-    const json: IYoutubeSearchResult = await youtubeRequestService(url);
-    if (!json) reject('Something went wrong during the process.');
-    resolve(json);
-  });
-}
+  public static async getSongsByChannelId(
+    channelId: string,
+    pageToken?: string
+  ): Promise<youtube_v3.Schema$SearchListResponse> {
+    const data = await YoutubeRequestService.googleYoutubeApiSearch({
+      part: 'snippet',
+      channelId,
+      type: 'video',
+      fields: 'nextPageToken,items(id(videoId))',
+      ...(pageToken ? { pageToken } : {}),
+    })
+    return data
+  }
 
-function handleError(error: string | Error): null {
-  return errorLogger(error, 'YOUTUBE_SERVICE');
+  public static async searchByQuery(
+    query: string
+  ): Promise<youtube_v3.Schema$SearchListResponse> {
+    const data = await YoutubeRequestService.googleYoutubeApiSearch({
+      part: 'snippet',
+      maxResults: 10,
+      q: query,
+      type: 'video',
+      fields: 'items(id,kind,snippet(channelId,channelTitle,title))',
+    })
+    return data
+  }
+
+  static handleError(error: string | Error): null {
+    return errorLogger(error, 'YOUTUBE_SERVICE')
+  }
 }

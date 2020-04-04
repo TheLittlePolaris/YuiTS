@@ -1,9 +1,9 @@
-import request from 'request';
-import { errorLogger } from '@/handlers/error.handler';
-import { TenorApiQueryResult } from '../feature-interfaces/tenor-query.interface';
+import request from 'request'
+import { errorLogger } from '@/handlers/log.handler'
+import { TenorApiQueryResult } from '../feature-interfaces/tenor-query.interface'
 
 export function isMyOwner(userId: string) {
-  return userId === global?.config?.ownerId;
+  return userId === global?.config?.ownerId
 }
 
 export function tenorRequestService(
@@ -17,16 +17,16 @@ export function tenorRequestService(
         global?.config?.tenorKey
       }`,
       (err: string, _, body: string) => {
-        if (err) return reject(err);
-        const json = JSON.parse(body);
-        const { error } = json;
-        if (error) reject(handleRequestErrors(error));
-        resolve(json);
+        if (err) return reject(err)
+        const json = JSON.parse(body)
+        const { error } = json
+        if (error) reject(handleRequestErrors(error))
+        resolve(json)
       }
-    );
-  });
+    )
+  })
 }
 
 function handleRequestErrors(error: string): null {
-  return errorLogger(error, 'UTILITY_SERVICE');
+  return errorLogger(error, 'UTILITY_SERVICE')
 }

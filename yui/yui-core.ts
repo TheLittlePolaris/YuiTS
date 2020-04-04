@@ -1,8 +1,9 @@
-import type { Message, Client, GuildMember } from 'discord.js'
+import { Message, Client, GuildMember } from 'discord.js'
 import type { MessageHandler } from '@/handlers/message.handler'
 import type { VoiceStateHandler } from '@/handlers/voice-state.handler'
-import { errorLogger, debugLogger } from '@/handlers/error.handler'
-import { Yui } from './decorators/yui.decorator'
+import { errorLogger, debugLogger, infoLogger } from '@/handlers/log.handler'
+import { Yui, On } from './decorators/yui.decorator'
+import { LOG_SCOPE } from './constants/constants'
 
 @Yui({
   prefix: global?.config?.prefix,
@@ -14,25 +15,28 @@ import { Yui } from './decorators/yui.decorator'
       'MESSAGE_REACTION_ADD',
       'RELATIONSHIP_ADD',
       'RELATIONSHIP_REMOVE',
-      'MESSAGE_REACTION_REMOVE'
-    ]
-  }
+      'MESSAGE_REACTION_REMOVE',
+    ],
+  },
 })
 export default class YuiCore {
   private yui: Client
   private messageHandler: MessageHandler
   private voiceStateHandler: VoiceStateHandler
   constructor() {
-    debugLogger('YuiCore')
+    debugLogger(LOG_SCOPE.YUI_CORE)
   }
 
   public async start(): Promise<void> {
-    console.log('Connecting...')
-    this.yui.login(this['token']).catch(this.coreHandleError)
+    infoLogger(LOG_SCOPE.YUI_CORE, 'Connecting...')
+
+    this.yui
+      .login(this['token'])
+      .catch((err) => this.handleError(new Error(err)))
+
     this.yui.on('ready', () => this.onReady())
     this.yui.on('message', (message: Message) => this.onMessage(message))
     // this.yui.on("message", this.onMessage.bind(this));
-    // prevent ContextChanging. Context will change if call this.onMessage without binding to the current 'this' context
     this.yui.on(
       'voiceStateUpdate',
       (oldMember: GuildMember, newMember: GuildMember) =>
@@ -40,18 +44,20 @@ export default class YuiCore {
     )
   }
 
+  @On('ready')
   async onReady() {
     if (!this.yui.user) return
-    console.log('Connected!')
-     await Promise.all([this.yui?.user
-      ?.setActivity('📻 Radio Happy', {
+    infoLogger(LOG_SCOPE.YUI_CORE, 'Connected!')
+    await Promise.all([
+      this.yui?.user?.setActivity('📻 Radio Happy', {
         url: 'https://twitch.tv/onlypolaris',
-        type: 'STREAMING'
-      })])
-      .catch(this.coreHandleError)
-    console.log('Yui is online')
+        type: 'STREAMING',
+      }),
+    ]).catch((err) => this.handleError(new Error(err)))
+    infoLogger(LOG_SCOPE.YUI_CORE, 'Yui is online')
   }
 
+  @On('message')
   async onMessage(message: Message) {
     if (!message.content?.startsWith(this['prefix']) || message.author.bot)
       return
@@ -66,16 +72,17 @@ export default class YuiCore {
     try {
       return this.messageHandler.execute(this.yui.user, message, command, args)
     } catch (err) {
-      this.coreHandleError(err)
+      this.handleError(err)
     }
   }
 
+  @On('voiceStateUpdate')
   async onVoiceStateUpdate(oldMember: GuildMember, newMember: GuildMember) {
-    // TODO: check this
+    // TODO: Fix this
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldMember, newMember)
   }
 
-  private coreHandleError(error: Error | string): null {
-    return errorLogger(error, 'YUI_CORE')
+  private handleError(error: Error | string): null {
+    return errorLogger(error, LOG_SCOPE.YUI_CORE)
   }
 }

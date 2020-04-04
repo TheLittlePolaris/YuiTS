@@ -1,27 +1,28 @@
 import type { TFunction } from '@/constants/constants'
 import type { MusicStream } from '@/handlers/services/music/music-entities/music-stream'
 import { Message, TextChannel } from 'discord.js'
+import { decoratorLogger } from '@/handlers/log.handler'
 
-
-enum REFLECT_SYMBOL_KEY {
-  STREAM = 'STREAM'
+enum REFLECT_MUSIC_SYMBOLS {
+  STREAM = 'STREAM',
+  CLIENT = 'CLIENT',
 }
 
-const REFLECT_KEY = {
-  STREAM_KEY: Symbol(REFLECT_SYMBOL_KEY.STREAM)
+const REFLECT_MUSIC_KEYS = {
+  STREAM_KEY: Symbol(REFLECT_MUSIC_SYMBOLS.STREAM),
+  CLIENT_KEY: Symbol(REFLECT_MUSIC_SYMBOLS.CLIENT),
 }
 
-class MusicGlobalStreams {
+abstract class GlobalMusicStreams {
   public static streams: Map<string, MusicStream>
-  constructor() {}
 }
 
 export const MusicServiceInitiator = () => {
-  console.log('======= [ MUSIC SERVICE DECORATOR ] =======')
   return <T extends TFunction>(superClass: T) => {
-    MusicGlobalStreams.streams = new Map<string, MusicStream>()
+    decoratorLogger(superClass['name'], 'Class', 'Initiator')
+    GlobalMusicStreams.streams = new Map<string, MusicStream>()
     return class extends superClass {
-      _streams = MusicGlobalStreams.streams
+      _streams = GlobalMusicStreams.streams
     }
   }
 }
@@ -29,21 +30,19 @@ export const MusicServiceInitiator = () => {
 export const AccessController = (
   { join, silent }: { join?: boolean; silent?: boolean } = {
     join: false,
-    silent: false
+    silent: false,
   }
 ) => {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    console.log(
-      `===== [ ACCESS CONTROLLER - Override: ${propertyKey} ] =====`
-    )
+    decoratorLogger('AccessController - Method', 'MusicService', propertyKey)
     const originalMethod = descriptor.value!
-    descriptor.value = function(...args: any[]) {
-      const streams = MusicGlobalStreams.streams
-      const [message] = args
+    descriptor.value = function (...args: any[]) {
+      const streams = GlobalMusicStreams.streams
+      const [message] = args as [Message]
       const {
         channel,
         guild,
-        member: { voiceChannel }
+        member: { voiceChannel },
       } = message as Message
 
       if (!voiceChannel) {
@@ -55,8 +54,22 @@ export const AccessController = (
       const stream = streams.has(guild.id) ? streams.get(guild.id) : null
       // console.log(stream, ' <====== FOUND STREAMMMMMMMMM')
 
-      const streamParamIndex: number = Reflect.getMetadata(REFLECT_KEY.STREAM_KEY, target, propertyKey);
-      if(streamParamIndex) args[streamParamIndex] = stream
+      const streamParamIndex: number = Reflect.getMetadata(
+        REFLECT_MUSIC_KEYS.STREAM_KEY,
+        target,
+        propertyKey
+      )
+      if (streamParamIndex !== undefined) args[streamParamIndex] = stream
+
+      const clientUserIndex: number = Reflect.getMetadata(
+        REFLECT_MUSIC_KEYS.CLIENT_KEY,
+        target,
+        propertyKey
+      )
+      if (clientUserIndex !== undefined) {
+        const client = message.guild.members.get(global.config.yuiId).user
+        args[clientUserIndex] = client
+      }
 
       const boundVoiceChannel = stream?.boundVoiceChannel
       // console.log(args, ' <===== args')
@@ -79,6 +92,8 @@ export const AccessController = (
           message.reply(
             `**I'm playing at \`${boundTextChannel.name}\` -- \` ${boundVoiceChannel.name}\`**`
           )
+
+          return
         } else {
           // final condition => All pass
           return originalMethod.apply(this, args)
@@ -87,14 +102,29 @@ export const AccessController = (
         message.reply(`**\`I'm not in any voice channel.\`**`)
         return
       }
-      return originalMethod.apply(this, args) // just in case
     }
   }
 }
 
 export const GuildStream = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(REFLECT_KEY.STREAM_KEY, paramIndex, target, propertyKey)
+    Reflect.defineMetadata(
+      REFLECT_MUSIC_KEYS.STREAM_KEY,
+      paramIndex,
+      target,
+      propertyKey
+    )
+  }
+}
+
+export const DiscordClient = () => {
+  return (target: any, propertyKey: string, paramIndex: number) => {
+    Reflect.defineMetadata(
+      REFLECT_MUSIC_KEYS.CLIENT_KEY,
+      paramIndex,
+      target,
+      propertyKey
+    )
   }
 }
 

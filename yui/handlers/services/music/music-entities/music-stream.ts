@@ -1,8 +1,13 @@
-import type { Guild, VoiceChannel, TextChannel, StreamDispatcher } from 'discord.js'
+import type {
+  Guild,
+  VoiceChannel,
+  TextChannel,
+  StreamDispatcher,
+} from 'discord.js'
 import { MusicQueue } from './music-queue'
 import { MusicStreamValue } from './interfaces/music-stream.interface'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
-import { debugLogger } from '@/handlers/error.handler'
+import { debugLogger } from '@/handlers/log.handler'
 
 export class MusicStream {
   private _id: string
@@ -37,7 +42,7 @@ export class MusicStream {
     this._boundVoiceChannel = boundVoiceChannel
     this._boundTextChannel = boundTextChannel
     this._queue = new MusicQueue()
-    debugLogger('Music Stream')
+    debugLogger(`MusicStream - Guild => ${this._name}`)
   }
 
   /**

@@ -17,5 +17,6 @@ declare namespace NodeJS {
       tenorKey: string
       tenorAnonymousId: string
     }
+    youtube: any
   }
 }

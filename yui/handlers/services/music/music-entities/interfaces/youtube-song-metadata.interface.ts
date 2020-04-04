@@ -1,84 +1,15 @@
-interface VideoThumbnail {
-  url: string;
-  width: string;
-  height: string;
-}
+import { youtube_v3 } from 'googleapis'
 
-interface VideoSnippet {
-  title: string;
-  channelId: string;
-  channelTitle: string;
-  thumbnails: {
-    default: VideoThumbnail;
-    medium: VideoThumbnail;
-    high: VideoThumbnail;
-    standsart: VideoThumbnail;
-    maxres: VideoThumbnail;
-  };
-  description: string;
-  publishedAt: string;
-  tags: string[];
-}
+export interface IYoutubeSearchResult
+  extends youtube_v3.Schema$SearchListResponse {}
 
-interface VideoContentDetails {
-  duration: string;
-  definition: string;
-}
+export interface IYoutubeVideosResult
+  extends youtube_v3.Schema$VideoListResponse {}
 
-export interface IYoutubeSongItemMetadata {
-  id: string;
-  kind: string;
-  etag: string;
-  snippet: VideoSnippet;
-  contentDetails?: VideoContentDetails;
-}
+export interface IYoutubePlaylistResult
+  extends youtube_v3.Schema$PlaylistItemListResponse {}
 
-export interface IYoutubeSearchResultItem {
-  kind: string;
-  etag: string;
-  id: {
-    kind: string;
-    videoId: string;
-  };
-  snippet: VideoSnippet;
-}
-export interface IYoutubeSearchResult {
-  kind: string;
-  etag: string;
-  nextPageToken: string;
-  regionCode: string;
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
-  items: IYoutubeSearchResultItem[];
-}
-
-interface PlaylistVideoSnippet extends VideoSnippet {
-  id: string;
-  playlistId: string;
-  position: number;
-  resourceId: {
-    kind: string;
-    videoId: string;
-  };
-}
-
-export interface IYoutubePlaylistItemMetadata extends IYoutubeSongItemMetadata {
-  snippet: PlaylistVideoSnippet;
-}
-
-export interface IYoutubePlaylist {
-  kind: string;
-  nextPageToken: string;
-  etag: string;
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
-  items: IYoutubePlaylistItemMetadata[];
-}
-
+export interface IYoutubePlaylistItem extends youtube_v3.Schema$Video {}
 /**
  * Youtube song Item content
  * {
