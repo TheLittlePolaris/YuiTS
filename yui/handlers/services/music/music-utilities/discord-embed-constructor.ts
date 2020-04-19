@@ -1,10 +1,11 @@
-import { RichEmbed } from 'discord.js'
+import { MessageEmbed, EmbedFieldData } from 'discord.js'
 import { Constants } from '@/constants/constants'
 
 interface IEmbedConstructor {
   title?: string
   author?: { embedTitle?: string; authorAvatarUrl?: string }
   description: string
+  fields?: EmbedFieldData[] | EmbedFieldData[][]
   color?: string
   thumbnailUrl?: string
   appendTimeStamp?: boolean
@@ -15,9 +16,9 @@ interface IEmbedConstructor {
 
 export function discordRichEmbedConstructor(
   records: IEmbedConstructor
-): Promise<RichEmbed> {
+): Promise<MessageEmbed> {
   return new Promise((resolve, reject) => {
-    const embed = new RichEmbed()
+    const embed = new MessageEmbed()
       .setColor(records.color || Constants.YUI_COLOR_CODE)
       .setDescription(records.description)
 
@@ -27,11 +28,14 @@ export function discordRichEmbedConstructor(
         records.author.embedTitle,
         records.author.authorAvatarUrl || null
       )
+
+    if (records?.fields?.length) embed.addFields(...records.fields)
     if (records.thumbnailUrl) embed.setThumbnail(records.thumbnailUrl)
     if (records.appendTimeStamp) embed.setTimestamp()
     if (records.titleUrl) embed.setURL(records.titleUrl)
     if (records.footer) embed.setFooter(records.footer)
     if (records.imageUrl) embed.setImage(records.imageUrl)
+
     resolve(embed)
   })
 }

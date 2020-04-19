@@ -1,8 +1,10 @@
 import 'module-alias/register'
+import 'source-map-support/register'
 import 'reflect-metadata'
 import 'config-service'
 
 import { errorLogger, infoLogger } from '@/handlers/log.handler'
+
 import YuiCore from '@/yui-core'
 
 // Work In Progress...

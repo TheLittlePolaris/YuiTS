@@ -49,7 +49,7 @@ export class AdminstrationActionCommands {
     @Reason() reason?: string
   ) {
     const bans = await Promise.all([
-      targets.map((target) => target.ban(reason)),
+      targets.map((target) => target.ban({ reason })),
     ]).catch(this.handleError)
 
     !!bans.length
@@ -74,8 +74,8 @@ export class AdminstrationActionCommands {
   ) {
     const addedRole = await Promise.all(
       targets.map((target) =>
-        target
-          .addRoles(roles, reason)
+        target.roles
+          .add(roles, reason)
           .catch((err) => this.handleError(new Error(err)))
       )
     ).catch((error) => this.handleError(new Error(error)))
@@ -104,8 +104,8 @@ export class AdminstrationActionCommands {
   ) {
     const removedRoles = await Promise.all(
       targets.map((target) =>
-        target
-          .removeRoles(roles, reason)
+        target.roles
+          .remove(roles, reason)
           .catch((err) => this.handleError(new Error(err)))
       )
     ).catch(this.handleError)
@@ -134,7 +134,7 @@ export class AdminstrationActionCommands {
     @Reason() reason?: string
   ) {
     const muted = await Promise.all([
-      targets.map((target) => target.setMute(true, reason)),
+      targets.map((target) => target.voice.setMute(true, reason)),
     ]).catch(this.handleError)
     !!muted.length
       ? message.channel.send(
@@ -158,7 +158,7 @@ export class AdminstrationActionCommands {
     @Reason() reason?: string
   ) {
     const unmuted = await Promise.all([
-      targets.map((target) => target.setMute(false, reason)),
+      targets.map((target) => target.voice.setMute(false, reason)),
     ]).catch(this.handleError)
     !!unmuted.length
       ? message.channel.send(

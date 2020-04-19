@@ -14,7 +14,7 @@ export function tenorRequestService(
       `https://api.tenor.com/v1/search?q=${encodeURIComponent(
         `anime ${query}`
       )}&key=${global?.config?.tenorKey}&limit=10&media_filter=basic&anon_id=${
-        global?.config?.tenorKey
+        global?.config?.tenorAnonymousId
       }`,
       (err: string, _, body: string) => {
         if (err) return reject(err)

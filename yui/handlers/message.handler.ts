@@ -16,7 +16,6 @@ export class MessageHandler {
   }
 
   public async execute(
-    clientUser: ClientUser,
     message: Message,
     command: string,
     args?: Array<string>
@@ -81,12 +80,20 @@ export class MessageHandler {
 
       //end of music command batch
       case 'ping': {
-        return this._featureService.getPing(message, clientUser.client.pings)
+        return this._featureService.getPing(message)
       }
       case 'say': {
         return this._featureService.say(message, args)
       }
+      case 'holostat': {
+        return this._featureService.getHoloStat(message, args)
+      }
       case 'tenor': {
+        try {
+          await message.delete()
+        } catch (err) {
+          message.author.send(`Sorry i couldn't delete the message`)
+        }
         return this._featureService.tenorGif(message, args)
       }
       case 'admin': {
@@ -107,7 +114,7 @@ export class MessageHandler {
         break
       }
       case 'help': {
-        return this._featureService.help(message, clientUser)
+        return this._featureService.help(message)
       }
       // case 'translate': {
       //   return utilCommands.translate(args, message, bot)

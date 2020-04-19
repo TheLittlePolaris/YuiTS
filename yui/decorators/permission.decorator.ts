@@ -1,6 +1,6 @@
 import { GuildMember, Message, Role } from 'discord.js'
 import {
-  AdminCommands,
+  ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
 import { TFunction, LOG_SCOPE } from '@/constants/constants'
@@ -47,69 +47,73 @@ export const ValidatePermissions = () => {
     )
     const originalDescriptor = descriptor.value!
 
-    descriptor.value = function (..._args: any[]) {
+    descriptor.value = async function (..._args: any[]) {
       const [message, args, command] = _args as [Message, Array<string>, string]
       const [yui, actionMember] = [
-        message.guild.members.find(
-          (member) => member.id === global.config.yuiId
-        ),
+        await message.guild.members.fetch(global.config.yuiId),
         message.member,
       ]
-      if (!command || !AdminCommands.includes(command)) return
+      if (!command || !ADMIN_COMMANDS.includes(command)) return
+
       const isOwner: boolean = message.author.id === global.config.ownerId
 
       let yuiPermission, memberPermission: boolean
       switch (command as ADMIN_ACTION_TYPE) {
         case 'kick': {
-          yuiPermission = yui.hasPermission(['KICK_MEMBERS'], false, true, true)
-          memberPermission = actionMember.hasPermission(
-            ['KICK_MEMBERS'],
-            false,
-            true,
-            true
-          )
+          yuiPermission = yui.hasPermission(['KICK_MEMBERS'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+          memberPermission = actionMember.hasPermission(['KICK_MEMBERS'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
           break
         }
         case 'ban': {
-          yuiPermission = yui.hasPermission(['BAN_MEMBERS'], false, true, true)
-          memberPermission = actionMember.hasPermission(
-            ['BAN_MEMBERS'],
-            false,
-            true,
-            true
-          )
+          yuiPermission = yui.hasPermission(['BAN_MEMBERS'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+          memberPermission = actionMember.hasPermission(['BAN_MEMBERS'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
           break
         }
         case 'addrole':
         case 'removerole': {
-          memberPermission = actionMember.hasPermission(
-            ['MANAGE_ROLES'],
-            false,
-            true,
-            true
-          )
-          yuiPermission = yui.hasPermission(['MANAGE_ROLES'], false, true, true)
+          memberPermission = actionMember.hasPermission(['MANAGE_ROLES'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+          yuiPermission = yui.hasPermission(['MANAGE_ROLES'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
           break
         }
         case 'mute':
         case 'unmute': {
-          memberPermission = actionMember.hasPermission(
-            ['MUTE_MEMBERS'],
-            false,
-            true,
-            true
-          )
-          yuiPermission = yui.hasPermission(['MUTE_MEMBERS'], false, true, true)
+          memberPermission = actionMember.hasPermission(['MUTE_MEMBERS'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+          yuiPermission = yui.hasPermission(['MUTE_MEMBERS'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
           break
         }
         case 'setnickname': {
-          memberPermission = actionMember.hasPermission(
-            ['MANAGE_NICKNAMES'],
-            false,
-            true,
-            true
-          )
-          yuiPermission = yui.hasPermission(['MUTE_MEMBERS'], false, true, true)
+          memberPermission = actionMember.hasPermission(['MANAGE_NICKNAMES'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+          yuiPermission = yui.hasPermission(['MUTE_MEMBERS'], {
+            checkAdmin: true,
+            checkOwner: true,
+          })
           break
         }
         default:
@@ -141,7 +145,7 @@ export const CommandExecutor = () => {
         message.author.send(`**You must specify which action to be executed.**`)
         return
       }
-      if (!AdminCommands.includes(args[0])) return
+      if (!ADMIN_COMMANDS.includes(args[0])) return
       const subCommand: ADMIN_ACTION_TYPE = <ADMIN_ACTION_TYPE>args.shift()
 
       const commandIndex = Reflect.getMetadata(
@@ -151,6 +155,7 @@ export const CommandExecutor = () => {
       )
 
       if (commandIndex) _args[commandIndex] = subCommand
+
       return originalDescriptor.apply(this, _args)
     }
   }
@@ -165,7 +170,7 @@ export const ValidateCommand = () => {
     )
     const originalDescriptor = descriptor.value!
 
-    descriptor.value = function (..._args: any[]) {
+    descriptor.value = async function (..._args: any[]) {
       console.log('RUN validate command')
       const [message, args] = _args as [Message, Array<string>]
 
@@ -173,7 +178,7 @@ export const ValidateCommand = () => {
         message.author.send(`**You must specify which action to be executed.**`)
         return
       }
-      if (!AdminCommands.includes(propertyKey)) return
+      if (!ADMIN_COMMANDS.includes(propertyKey)) return
       const subCommand: ADMIN_ACTION_TYPE = <ADMIN_ACTION_TYPE>propertyKey
 
       const executor: GuildMember = message.member
@@ -218,25 +223,16 @@ export const ValidateCommand = () => {
       _args[targetsIndex] = mentionedMembers
 
       if (['addrole', 'removerole'].includes(subCommand)) {
-        console.log(reason, ' <====== REASON ARGSSSSSSSS')
-        const serverRoles = message.guild.roles.array()
+        const serverRoles = await (
+          await message.guild.roles.fetch()
+        ).cache.array()
         const selectedRoles: Role[] = serverRoles
           .map((role) => {
-            // console.log('==============================================')
             const test = reason.filter((arg) => {
-              // console.log(
-              //   `Role: ${role.id} ------ ${role.name}  ===== ARGS: ${arg}`
-              // )
               const idTest = new RegExp(role.id, 'i').test(arg)
-              // console.log(idTest, ' ================ ID TESTTTTTTTTTTTTT')
               const nameTest = new RegExp(role.name, 'i').test(arg)
-              // console.log(
-              //   nameTest,
-              //   ' <========================   NAME TESTTTTTTTTTTTTTT '
-              // )
               return idTest || nameTest
             })
-            // console.log(test, ' <====== ROLE TEST RESULTTTTTTTTT')
             return !!test.length && role
           })
           .filter(Boolean)
@@ -245,8 +241,6 @@ export const ValidateCommand = () => {
           message.author.send('**Please mention a role or type a role name**')
           return
         }
-
-        // console.log(selectedRoles.length)
 
         const updatedReason = reason.filter((arg) => {
           const test = selectedRoles.filter((role) => {

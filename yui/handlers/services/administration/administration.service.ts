@@ -1,5 +1,5 @@
 import { debugLogger, errorLogger } from '@/handlers/log.handler'
-import { Message, RichEmbed } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 import { ADMIN_ACTION_TYPE } from './admin-interfaces/administration.interface'
 import { AdminstrationActionCommands } from './administration-actions/action.service'
 import {
@@ -30,9 +30,11 @@ export class AdministrationService {
 
   public sendMessage(
     message: Message,
-    content: string | RichEmbed
+    content: string | MessageEmbed
   ): Promise<Message | Message[]> {
-    return message.author.send(content).catch(this.handleError)
+    return message.author
+      .send(content)
+      .catch((err) => this.handleError(new Error(err)))
   }
 
   private handleError(error: Error | string): null {

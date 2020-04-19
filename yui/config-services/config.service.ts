@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import { debugLogger } from '@/handlers/log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
+import { google } from 'googleapis'
 ;(async () => {
   interface EnvConfig {
     [key: string]: string
@@ -50,9 +51,39 @@ import { LOG_SCOPE } from '@/constants/constants'
     public static get prefix(): string {
       return this.envConfig['PREFIX']
     }
+
+    // TODO: Use oauth2.0
+    public static get youtubeClientId(): string {
+      return this.envConfig['YOUTUBE_CLIENT_ID']
+    }
+
+    public static get youtubeClientSecret(): string {
+      return this.envConfig['YOUTUBE_CLIENT_SECRET']
+    }
   }
 
   new ConfigService()
 
   global['config'] = ConfigService
 })()
+
+// TODO: Implement google oauth2 workflow
+// const initGoogleAuth2Client = () => {
+//   const googleAuthClient = new google.auth.OAuth2(
+//     global.config.youtubeClientId,
+//     global.config.youtubeClientSecret
+//   )
+
+//   const url = googleAuthClient.generateAuthUrl({
+//     scope: [
+//       'https://www.googleapis.com/auth/youtube',
+//       'https://www.googleapis.com/auth/youtube.force-ssl',
+//       'https://www.googleapis.com/auth/youtube.readonly',
+//       'https://www.googleapis.com/auth/youtubepartner',
+//       'https://www.googleapis.com/auth/youtubepartner-channel-audit',
+//     ],
+//   })
+//   google.options({
+//     auth: googleAuthClient,
+//   })
+// }
