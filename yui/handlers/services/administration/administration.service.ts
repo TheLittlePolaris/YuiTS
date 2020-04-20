@@ -10,9 +10,9 @@ import {
 } from '@/decorators/permission.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 
-@AdministrationServiceInitiator(() => AdminstrationActionCommands)
+@AdministrationServiceInitiator()
 export class AdministrationService {
-  public _adminActionCommands: AdminstrationActionCommands
+  private _adminActionCommands: AdminstrationActionCommands
 
   constructor() {
     debugLogger('AdministrationService')

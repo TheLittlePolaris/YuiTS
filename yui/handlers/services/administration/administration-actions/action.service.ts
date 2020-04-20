@@ -7,9 +7,11 @@ import {
   GuildRoles,
   NickName,
   Executor,
-} from '@/decorators/permission.decorator'
+} from '@/decorators/admin-action.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
+import { AdminActionInitiator } from '@/decorators/admin-action.decorator'
 
+@AdminActionInitiator()
 export class AdminstrationActionCommands {
   constructor() {
     debugLogger(LOG_SCOPE.ADMIN_ACTION_COMMAND)
