@@ -1,6 +1,6 @@
 # YuiTS
 
-![](https://img.shields.io/badge/YuiTS-blue) ![](https://img.shields.io/badge/Typescript-v3.8-blue) ![](https://img.shields.io/badge/Typescript-strict%F0%9F%92%AA-blue) ![](https://img.shields.io/badge/discord.js-v12.2-blue) ![](https://img.shields.io/badge/googleapis-v48.0.0-red) ![](https://img.shields.io/badge/node-%3E=12.0.0-brightgreen) ![](https://img.shields.io/badge/code%20style-prettier-ff69b4)
+![](https://img.shields.io/badge/YuiTS-blue) ![](https://img.shields.io/badge/Typescript-v3.8-blue) ![](https://img.shields.io/badge/Typescript-strict%F0%9F%92%AA-blue) ![](https://img.shields.io/badge/discord.js-v12.2-blue) ![](https://img.shields.io/badge/googleapis-v48.0.0-red) ![](https://img.shields.io/badge/ffmpeg static-v4.1.1-blueviolet) ![](https://img.shields.io/badge/ffmpeg binaries-v4.0.0-blueviolet) ![](https://img.shields.io/badge/dotenv-v8.2-blueviolet) ![](https://img.shields.io/badge/node-%3E=12.0.0-brightgreen) ![](https://img.shields.io/badge/code%20style-prettier-ff69b4)
 
 Yui but in TypeScript
 
