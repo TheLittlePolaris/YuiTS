@@ -1,4 +1,4 @@
-import { Message, Client, GuildMember } from 'discord.js'
+import { Message, Client, GuildMember, VoiceState } from 'discord.js'
 import type { MessageHandler } from '@/handlers/message.handler'
 import type { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { errorLogger, debugLogger, infoLogger } from '@/handlers/log.handler'
@@ -9,14 +9,7 @@ import { LOG_SCOPE } from './constants/constants'
   prefix: global?.config?.prefix,
   token: global?.config?.token,
   options: {
-    disableEveryone: true,
-    disabledEvents: [
-      'TYPING_START',
-      'MESSAGE_REACTION_ADD',
-      'RELATIONSHIP_ADD',
-      'RELATIONSHIP_REMOVE',
-      'MESSAGE_REACTION_REMOVE',
-    ],
+    disableMentions: 'everyone',
   },
 })
 export default class YuiCore {
@@ -39,12 +32,11 @@ export default class YuiCore {
     // this.yui.on("message", this.onMessage.bind(this));
     this.yui.on(
       'voiceStateUpdate',
-      (oldMember: GuildMember, newMember: GuildMember) =>
+      (oldMember: VoiceState, newMember: VoiceState) =>
         this.onVoiceStateUpdate(oldMember, newMember)
     )
   }
 
-  @On('ready')
   async onReady() {
     if (!this.yui.user) return
     infoLogger(LOG_SCOPE.YUI_CORE, 'Connected!')
@@ -57,7 +49,6 @@ export default class YuiCore {
     infoLogger(LOG_SCOPE.YUI_CORE, 'Yui is online')
   }
 
-  @On('message')
   async onMessage(message: Message) {
     if (!message.content?.startsWith(this['prefix']) || message.author.bot)
       return
@@ -70,16 +61,17 @@ export default class YuiCore {
     const command = args.shift().toLowerCase()
 
     try {
-      return this.messageHandler.execute(this.yui.user, message, command, args)
+      return this.messageHandler.execute(message, command, args)
     } catch (err) {
-      this.handleError(err)
+      this.handleError(new Error(err))
     }
   }
 
-  @On('voiceStateUpdate')
-  async onVoiceStateUpdate(oldMember: GuildMember, newMember: GuildMember) {
-    // TODO: Fix this
-    this.voiceStateHandler.checkOnVoiceStateUpdate(oldMember, newMember)
+  async onVoiceStateUpdate(
+    oldVoiceState: VoiceState,
+    newVoiceState: VoiceState
+  ) {
+    this.voiceStateHandler.checkOnVoiceStateUpdate(oldVoiceState, newVoiceState)
   }
 
   private handleError(error: Error | string): null {

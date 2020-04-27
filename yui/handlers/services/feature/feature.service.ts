@@ -1,22 +1,49 @@
 import { debugLogger, errorLogger } from '@/handlers/log.handler'
-import type { Message, ClientUser, PermissionResolvable } from 'discord.js'
-import { discordRichEmbedConstructor } from '../music/music-utilities/music-embed-constructor'
+import {
+  Message,
+  GuildMember,
+  EmbedFieldData,
+  MessageEmbedOptions,
+} from 'discord.js'
+import { discordRichEmbedConstructor } from '../music/music-utilities/discord-embed-constructor'
 import {
   isMyOwner,
   tenorRequestService,
+  subscriberCountFormatter,
 } from './feature-services/utility.service'
-// import {
-//   memberHasPermission,
-//   yuiHasPermission
-// } from '../administration/administration-actions/permission.service';
 import { RNG } from '../music/music-utilities/music-function'
+import {
+  FeatureServiceInitiator,
+  CurrentGuildMember,
+  ValidateFeaturePermission,
+  MentionedUsers,
+  UserAction,
+  RequestParams,
+} from '@/decorators/features.decorator'
+import { ValidatePermissions } from '@/decorators/permission.decorator'
+import { HoloStatRequestService } from './feature-services/holo-stat/holo-stat-request.service'
+import { Constants, HOLOSTAT_REGION } from '@/constants/constants'
+import {
+  HoloStatCommandValidator,
+  Region,
+  Detail,
+} from '@/decorators/feature-holostat.decorator'
+import { HoloStatService } from './feature-services/holo-stat/holo-stat.service'
 
+@FeatureServiceInitiator()
 export class FeatureService {
+  private _holoStatService: HoloStatService
   constructor() {
     debugLogger('FeatureService')
   }
 
-  public async getPing(message: Message, pings: number[]): Promise<void> {
+  @ValidateFeaturePermission()
+  public async getPing(
+    message: Message,
+    @CurrentGuildMember() yui?: GuildMember
+  ) {
+    const ping = yui.client.ws.ping
+
     const sentMessage = (await message.channel
       .send('**`Pinging... `**')
       .catch(null)) as Message
@@ -26,12 +53,14 @@ export class FeatureService {
       title: 'Status',
       description: `:revolving_hearts: **: \`${
         timeEnd - timeStart
-      }ms\`**\n:heartpulse: **: \`${pings[0]}ms\`**`,
+      }ms\`**\n:heartpulse: **: \`${ping}ms\`**`,
     })
+
     if (!!sentMessage) sentMessage.edit(embed)
-    return Promise.resolve()
   }
-  public async help(message: Message, clientUser: ClientUser): Promise<void> {
+
+  @ValidateFeaturePermission()
+  public async help(message: Message, @CurrentGuildMember() yui?: GuildMember) {
     let commands =
       '**__Music:__**\n`play | p`: add to end\n' +
       '`pnext | pn`: add to next\n' +
@@ -50,63 +79,92 @@ export class FeatureService {
       '`remove <index> <?range>`: remove a/some song(s)\n' +
       '`stop`: clear queue and stop playing\n\n' +
       '**__Ultilities:__**\n' +
-      '`admin <kick/ban/mute/unmute/setnickname/addrole/removerole> <@mention> <?reason>`: admin commands\n' +
+      '`admin <kick/ban/mute/unmute/setnickname/addrole/removerole> <@mentions> <?reason>`: admin commands\n' +
       '`tenor`: tenor GIFs, random limit: 5\n' +
       "`ping`: connection's status\n" +
-      '`say`(limit to admin/owner): repeat what you say\n\n'
+      '`say`: repeat what you say\n\n'
+
     const embed = await discordRichEmbedConstructor({
       author: {
-        embedTitle: clientUser.username,
-        authorAvatarUrl: clientUser.avatarURL,
+        embedTitle: yui.user.username,
+        authorAvatarUrl: yui.user.avatarURL(),
       },
       description: commands,
       title: 'Command List',
-      footer:
-        'Note: <>: obligatory param | <?> optional param | Permission: `BAN_MEMBERS` or above',
+      footer: 'Note: <>: required param | <?>: optional param',
     })
+
     message.channel.send(embed)
-    return Promise.resolve()
   }
 
-  public async say(message: Message, args: Array<string>): Promise<void> {
-    const yui = message.guild.members.get(global?.config?.yuiId)
-    // TODO:
-    // const yuiPermission = await yuiHasPermission(yui, 'say');
-    // if (yuiPermission) {
-    //   const _arguments = args.join(' ');
-    //   const deleted = await message.delete(0);
-    //   const embed = discordRichEmbedConstructor({
-    //     description: _arguments
-    //   });
-    //   message.channel.send(embed);
-    //   return Promise.resolve();
-    // } else {
-    //   message.reply(`sorry, I don't have manange messages permisssion.`);
-    // }
-    return Promise.resolve()
+  @ValidateFeaturePermission()
+  public async say(
+    message: Message,
+    args: Array<string>,
+    @CurrentGuildMember() yui?: GuildMember
+  ): Promise<void> {
+    const embed = await discordRichEmbedConstructor({
+      description: `**${args.join(' ')}**`,
+    })
+
+    message.channel.send(embed)
   }
 
-  public async tenorGif(message: Message, args: Array<string>) {
-    const deleted = await message.delete()
-    const num = await RNG(10)
-    // console.log(deleted.mentions.members.first());
-    const mentionFirst = deleted.mentions.members.first()
-    const mentionUser = mentionFirst && mentionFirst.displayName
-    const mentioned = mentionUser && args.splice(args.indexOf(mentionUser), 1)
-    const _arguments = args.join(' ')
-    const result = await tenorRequestService(_arguments).catch(this.handleError)
-    const description = mentionUser
-      ? `${
-          deleted.member.displayName
-        } ${_arguments.toUpperCase()} ${mentionUser}`
-      : `${deleted.member.displayName} ${_arguments.toUpperCase()}`
-    // console.log(result.results[num].media[0].gif);
+  @ValidateFeaturePermission()
+  public async tenorGif(
+    message: Message,
+    args: Array<string>,
+    @MentionedUsers() users?: GuildMember[],
+    @UserAction() action?: string,
+    @RequestParams() params?: string
+  ) {
+    const num = await RNG(5)
+    const result = await tenorRequestService(
+      `${action} ${params ? params : ``}`
+    ).catch((error) => this.handleError(new Error(error)))
+
+    let mentionString
+    if (users?.length) {
+      switch (users.length) {
+        case 0:
+          break
+        case 1:
+          mentionString = users[0]
+          break
+        default:
+          const last = users.pop()
+          mentionString = `${
+            users.length > 1 ? users.join(', ') : users[0]
+          } and ${last}`
+          break
+      }
+    }
+
+    const description = !users?.length
+      ? `${message.member} ${action}`
+      : `${message.member} ${action} ${mentionString}`
+
     message.channel.send(
       await discordRichEmbedConstructor({
         description,
         imageUrl: result.results[num].media[0].gif.url,
       })
     )
+  }
+
+  @ValidateFeaturePermission()
+  @HoloStatCommandValidator()
+  async getHoloStat(
+    message: Message,
+    args: Array<string>,
+    @CurrentGuildMember() yui?: GuildMember,
+    @Region() region?: 'jp' | 'id',
+    @Detail() detail?: boolean
+  ) {
+    if (region && !detail)
+      return this._holoStatService.holoStatStatistics(message, region, yui)
+
+    if (detail) return this._holoStatService.holoStatSelectList(message, region)
   }
 
   private handleError(error: Error | string): null {

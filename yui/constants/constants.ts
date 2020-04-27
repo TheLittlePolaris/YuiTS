@@ -25,4 +25,33 @@ export enum LOG_SCOPE {
   REQUEST_SERVIE = 'RequestService',
   DECORATOR = 'Decorator',
   ADMIN_ACTION_COMMAND = 'AdminActionCommand',
+  HOLOSTAT_SERVICE = 'HolostatService',
+  HOLOSTAT_REQUEST_SERVICE = 'HolostatRequestService',
+}
+
+export const HOLOSTAT_SUB_COMMANDS = [
+  'jp',
+  'japan',
+  'id',
+  'indonesia',
+  'detail',
+]
+
+export type HOLOSTAT_REGION = 'jp' | 'japan' | 'id' | 'indonesia' | 'detail' //exception
+
+export const DISCORD_REACTION = {
+  NUMBERS: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'],
+  FORWARD: '▶',
+  BACKWARD: '◀',
+}
+
+export const hololiveReactionList = {
+  '1️⃣': {
+    name: 'Japan',
+    code: 'jp',
+  },
+  '2️⃣': {
+    name: 'Indonesia',
+    code: 'id',
+  },
 }

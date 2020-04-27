@@ -1,10 +1,16 @@
 import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
-import { Message, ClientUser } from 'discord.js'
+import {
+  Message,
+  ClientUser,
+  MessageReaction,
+  User,
+  CollectorFilter,
+} from 'discord.js'
 import { MusicService } from './services/music/music.service'
 import { FeatureService } from './services/feature/feature.service'
 import { AdministrationService } from './services/administration/administration.service'
 import { debugLogger, errorLogger } from './log.handler'
-import { LOG_SCOPE } from '@/constants/constants'
+import { LOG_SCOPE, DISCORD_REACTION } from '@/constants/constants'
 
 @MessageHandlerInitiator()
 export class MessageHandler {
@@ -16,7 +22,6 @@ export class MessageHandler {
   }
 
   public async execute(
-    clientUser: ClientUser,
     message: Message,
     command: string,
     args?: Array<string>
@@ -79,22 +84,39 @@ export class MessageHandler {
       case 'ap':
         return await this._musicService.autoPlay(message)
 
+      case 'volume':
+        return await this._musicService.setVolume(message, args)
+
       //end of music command batch
       case 'ping': {
-        return this._featureService.getPing(message, clientUser.client.pings)
+        return this._featureService.getPing(message)
       }
       case 'say': {
+        await message.delete().catch((error) => {
+          message.author.send(
+            `Something went wrong, i couldn't delete the message`
+          )
+          this.handleError(new Error(error))
+        })
         return this._featureService.say(message, args)
       }
+      case 'holostat': {
+        return this._featureService.getHoloStat(message, args)
+      }
       case 'tenor': {
+        try {
+          await message.delete()
+        } catch (err) {
+          message.author.send(`Sorry i couldn't delete the message`)
+        }
         return this._featureService.tenorGif(message, args)
       }
       case 'admin': {
         const deletedMessage = await message.delete().catch((error) => {
-          errorLogger(new Error(error), LOG_SCOPE.MESSAGE_HANDLER)
           message.author.send(
             `Something went wrong, i couldn't delete the message`
           )
+          this.handleError(new Error(error))
         })
         if (!deletedMessage) {
           return
@@ -102,16 +124,12 @@ export class MessageHandler {
         return await this._administrationService.executeCommand(message, args)
       }
       case 'test': {
-        console.log('command ==== ', command)
-        // console.log(clientUser);
+        console.log('test')
         break
       }
       case 'help': {
-        return this._featureService.help(message, clientUser)
+        return this._featureService.help(message)
       }
-      // case 'translate': {
-      //   return utilCommands.translate(args, message, bot)
-      // }
       default: {
         message.channel.send(
           'What do you mean by `>' +
@@ -133,5 +151,9 @@ export class MessageHandler {
 
   public get admintrationService(): AdministrationService {
     return this._administrationService
+  }
+
+  handleError(error: Error | string) {
+    return errorLogger(error, LOG_SCOPE.MESSAGE_HANDLER)
   }
 }

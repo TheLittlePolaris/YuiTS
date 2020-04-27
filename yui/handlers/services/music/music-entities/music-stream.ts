@@ -3,6 +3,8 @@ import type {
   VoiceChannel,
   TextChannel,
   StreamDispatcher,
+  VoiceBroadcast,
+  BroadcastDispatcher,
 } from 'discord.js'
 import { MusicQueue } from './music-queue'
 import { MusicStreamValue } from './interfaces/music-stream.interface'
@@ -18,6 +20,8 @@ export class MusicStream {
   private _isPlaying: boolean = false
   private _isPaused: boolean = false
   public _streamDispatcher: StreamDispatcher
+  public _broadcastDispatcher: BroadcastDispatcher
+  public _voiceBroadcast: VoiceBroadcast
   public _voiceConnection: IVoiceConnection
   private _tempChannelId: string
   private _nextPage: string
@@ -80,6 +84,14 @@ export class MusicStream {
 
   public get streamDispatcher(): StreamDispatcher {
     return this._streamDispatcher
+  }
+
+  public get broadcastDispatcher(): BroadcastDispatcher {
+    return this._broadcastDispatcher
+  }
+
+  public get voiceBroadcast(): VoiceBroadcast {
+    return this._voiceBroadcast
   }
 
   public get voiceConnection(): IVoiceConnection {
