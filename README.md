@@ -8,10 +8,6 @@ Yui but in TypeScript
 
 **WORK IN PROGRESS!**
 
-> Implements Typescript 3.8
-
-> Implements Decorators
-
 **How to use ?**
 > Create a .env file with `TOKEN`, `PREFIX` and `YOUTUBE_API_KEY`
 
