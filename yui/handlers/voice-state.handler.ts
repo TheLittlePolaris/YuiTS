@@ -1,10 +1,12 @@
-import type { GuildMember, VoiceState } from 'discord.js'
-import type { MusicService } from './services/music/music.service'
-import type { VoiceStateAction } from './services/music/music-entities/interfaces/voice-state.interface'
-import type { MusicStream } from './services/music/music-entities/music-stream'
-import { debugLogger } from './log.handler'
+import { GuildMember, VoiceState } from 'discord.js'
+import { MusicService } from './services/music/music.service'
+import { VoiceStateAction } from './services/music/music-entities/interfaces/voice-state.interface'
+import { MusicStream } from './services/music/music-entities/music-stream'
+import { debugLogger, errorLogger } from './log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
+import { VoiceStateInitiator } from '@/decorators/voice-state.decorator'
 
+@VoiceStateInitiator()
 export class VoiceStateHandler {
   private currentMusicService: MusicService
   constructor(musicService: MusicService) {
@@ -16,63 +18,68 @@ export class VoiceStateHandler {
     oldVoiceState: VoiceState,
     newVoiceState: VoiceState
   ) {
-    // if (!oldVoiceState && !newVoiceState) return
-    // let voiceStateCheck = this.checkOnLeave(oldVoiceState, newVoiceState)
-    // switch (voiceStateCheck.action) {
-    //   case 'clear': {
-    //     if (voiceStateCheck.stream && voiceStateCheck.stream.leaveOnTimeOut) {
-    //       clearTimeout(voiceStateCheck.stream.leaveOnTimeOut)
-    //       voiceStateCheck.stream.set('leaveOnTimeout', null)
-    //     }
-    //     break
-    //   }
-    //   case 'leave': {
-    //     if (oldVoiceState.voiceChannel.members.size === 1) {
-    //       const timeout = setTimeout(() => {
-    //         this.leaveOnTimeout(voiceStateCheck.stream)
-    //       }, 30000)
-    //       voiceStateCheck.stream.set('leaveOnTimeout', timeout)
-    //     }
-    //     break
-    //   }
-    //   default:
-    //   case 'ignore': {
-    //     break
-    //   }
-    // }
+    try {
+      if (!oldVoiceState && !newVoiceState) return
+
+      const voiceStateCheck = this.checkOnLeave(oldVoiceState, newVoiceState)
+
+      switch (voiceStateCheck?.action) {
+        case 'clear': {
+          if (voiceStateCheck?.stream?.leaveOnTimeOut) {
+            clearTimeout(voiceStateCheck?.stream?.leaveOnTimeOut)
+            voiceStateCheck.stream.set('leaveOnTimeout', null)
+          }
+          break
+        }
+        case 'leave': {
+          const timeout = setTimeout(() => {
+            this.leaveOnTimeout(voiceStateCheck?.stream)
+          }, 5000)
+          voiceStateCheck.stream.set('leaveOnTimeout', timeout)
+
+          break
+        }
+        default:
+        case 'ignore': {
+          break
+        }
+      }
+    } catch (err) {
+      errorLogger(new Error(err))
+    }
   }
 
-  // public checkOnLeave(
-  //   oldMember: GuildMember,
-  //   newMember: GuildMember
-  // ): VoiceStateAction {
-  //   let stream = this.currentMusicService.streams.get(oldMember.guild.id)
-  //   let boundVoiceChannel = stream ? stream.boundVoiceChannel : undefined
-  //   if (boundVoiceChannel) {
-  //     let oldMemberStatus = oldMember.voiceChannel
-  //     let newMemberStatus = newMember.voiceChannel
-  //     if (newMemberStatus === boundVoiceChannel) {
-  //       const action: VoiceStateAction = { stream, action: 'clear' }
-  //       return action
-  //     } else if (!oldMemberStatus || oldMemberStatus !== boundVoiceChannel) {
-  //       const action: VoiceStateAction = { stream, action: 'ignore' }
-  //       return action
-  //     } else if (!newMemberStatus || newMemberStatus !== boundVoiceChannel) {
-  //       const action: VoiceStateAction = { stream, action: 'leave' }
-  //       return action
-  //     }
-  //   } else {
-  //     const action: VoiceStateAction = { stream, action: 'ignore' }
-  //     return action
-  //   }
-  // }
+  public checkOnLeave(
+    oldState: VoiceState,
+    newState: VoiceState
+  ): VoiceStateAction {
+    const stream = this.currentMusicService?.streams.get(oldState?.guild?.id)
+    const boundVoiceChannel = stream?.boundVoiceChannel
+    if (boundVoiceChannel) {
+      const oldStateChannel = oldState?.channel
+      const newStateChannel = newState?.channel
+      if (newStateChannel === boundVoiceChannel) {
+        return { stream, action: 'clear' }
+      } else if (
+        (!newStateChannel || newStateChannel !== boundVoiceChannel) &&
+        oldStateChannel.members.size === 1 // just yui left
+      ) {
+        return { stream, action: 'leave' }
+      }
+    }
+    return { stream, action: 'ignore' }
+  }
 
   public leaveOnTimeout(stream: MusicStream) {
-    stream.boundVoiceChannel.leave()
-    stream.boundTextChannel.send(
-      "**_There's no one around so I'll leave too. Bye~!_**"
-    )
-    this.currentMusicService.resetStreamStatus(stream)
-    this.currentMusicService.deleteStream(stream)
+    try {
+      stream.boundVoiceChannel.leave()
+      stream.boundTextChannel.send(
+        "**_There's no one around so I'll leave too. Bye~!_**"
+      )
+      this.currentMusicService.resetStreamStatus(stream)
+      this.currentMusicService.deleteStream(stream)
+    } catch (err) {
+      errorLogger(new Error(err))
+    }
   }
 }

@@ -9,6 +9,7 @@ import { discordRichEmbedConstructor } from '../music/music-utilities/discord-em
 import {
   isMyOwner,
   tenorRequestService,
+  subscriberCountFormatter,
 } from './feature-services/utility.service'
 import { RNG } from '../music/music-utilities/music-function'
 import {
@@ -20,11 +21,18 @@ import {
   RequestParams,
 } from '@/decorators/features.decorator'
 import { ValidatePermissions } from '@/decorators/permission.decorator'
-import { HoloStatService } from './feature-services/holo-stat.service'
-import { Constants } from '@/constants/constants'
+import { HoloStatRequestService } from './feature-services/holo-stat/holo-stat-request.service'
+import { Constants, HOLOSTAT_REGION } from '@/constants/constants'
+import {
+  HoloStatCommandValidator,
+  Region,
+  Detail,
+} from '@/decorators/feature-holostat.decorator'
+import { HoloStatService } from './feature-services/holo-stat/holo-stat.service'
 
 @FeatureServiceInitiator()
 export class FeatureService {
+  private _holoStatService: HoloStatService
   constructor() {
     debugLogger('FeatureService')
   }
@@ -97,10 +105,6 @@ export class FeatureService {
   ): Promise<void> {
     const embed = await discordRichEmbedConstructor({
       description: `**${args.join(' ')}**`,
-      author: {
-        authorAvatarUrl: message.member.user.avatarURL(),
-        embedTitle: message.member.displayName,
-      },
     })
 
     message.channel.send(embed)
@@ -149,104 +153,18 @@ export class FeatureService {
   }
 
   @ValidateFeaturePermission()
+  @HoloStatCommandValidator()
   async getHoloStat(
     message: Message,
     args: Array<string>,
-    @CurrentGuildMember() yui?: GuildMember
+    @CurrentGuildMember() yui?: GuildMember,
+    @Region() region?: 'jp' | 'id',
+    @Detail() detail?: boolean
   ) {
-    let region = args?.length > 0 ? args[0].toLocaleLowerCase() : 'jp'
+    if (region && !detail)
+      return this._holoStatService.holoStatStatistics(message, region, yui)
 
-    if (!['jp', 'jap', 'japan', 'id', 'indo', 'indonesia'].includes(region)) {
-      return await message.channel
-        .send(
-          `**Please enter a valid region! Available regions are: \`'jp', 'id'\`**`
-        )
-        .catch((err) => this.handleError(new Error(err)))
-    } else {
-      switch (region) {
-        case 'id':
-        case 'indo':
-        case 'indonesia':
-          region = 'id'
-          break
-        case 'jp':
-        case 'jap':
-        case 'japan':
-        default:
-          region = 'jp'
-          break
-      }
-    }
-
-    const waitingMessage = (await message.channel.send(
-      ':hourglass_flowing_sand: **_Hold on while i go grab some data!_**'
-    )) as Message
-
-    const holoStatData = await HoloStatService.getChannelFeatures(
-      region as 'id' | 'jp'
-    ).catch((error) => this.handleError(new Error(error)))
-
-    const subscriberCountFormatter = (number: number | string) => {
-      number = typeof number === 'string' ? Number(number) : number
-      let result: string
-
-      if (number > 0 && number <= 999) result = `${number}`
-      else if (number > 999 && number <= 999999)
-        result = `${(number / 1000).toFixed(2)}K`
-      else if (number > 999999 && number <= 999999999)
-        result = `${(number / 1000000).toFixed(2)}M`
-      else result = `${number}`
-
-      return result.includes('.00') ? result.replace('.00', '') : result
-    }
-
-    const fieldsData: EmbedFieldData[] = holoStatData.map((item) => {
-      const fieldName = `${item.snippet.title}`
-      const fieldData = `Channel: [${
-        item.snippet.title
-      }](https://www.youtube.com/channel/${
-        item.id
-      })\nSubscribers: ${subscriberCountFormatter(
-        item.statistics.subscriberCount
-      )}\nViews: ${item.statistics.viewCount}\nVideos: ${
-        item.statistics.videoCount
-      }`
-      return { name: fieldName, value: fieldData, inline: true }
-    })
-
-    if (fieldsData)
-      waitingMessage.delete().catch((err) => this.handleError(new Error(err)))
-
-    const limit = 12
-    const hasPaging = fieldsData.length > limit
-    const sendPartial = async (index: number) => {
-      const currentPartLimit =
-        index + limit >= fieldsData.length ? fieldsData.length : index + limit
-
-      const sendingEmbed = await discordRichEmbedConstructor({
-        author: {
-          embedTitle: yui.displayName,
-          authorAvatarUrl: yui.user.avatarURL(),
-        },
-        description: `Hololive ${
-          region === 'id' ? 'Indonesia' : 'Japan'
-        } members channel status${
-          hasPaging ? ` page ${index / limit + 1}` : ``
-        }`,
-        fields: fieldsData.slice(index, currentPartLimit),
-      })
-
-      message.channel
-        .send({ embed: sendingEmbed })
-        .catch((err) => this.handleError(new Error(err)))
-
-      if (!(currentPartLimit >= fieldsData.length))
-        sendPartial(currentPartLimit)
-
-      return
-    }
-
-    sendPartial(0)
+    if (detail) return this._holoStatService.holoStatSelectList(message, region)
   }
 
   private handleError(error: Error | string): null {

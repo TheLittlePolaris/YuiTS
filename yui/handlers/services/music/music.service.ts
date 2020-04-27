@@ -6,6 +6,8 @@ import {
   MessageCollectorOptions,
   GuildMember,
   Client,
+  StreamDispatcher,
+  BroadcastDispatcher,
 } from 'discord.js'
 import { MusicStream } from './music-entities/music-stream'
 import {
@@ -15,11 +17,13 @@ import {
   printQueueList,
   createProgressBar,
   youtubeTimeConverter,
+  STREAM_STATUS,
 } from './music-utilities/music-function'
 import { MusicQueue } from './music-entities/music-queue'
 import { ISong } from './music-entities/interfaces/song-metadata.interface'
 import { discordRichEmbedConstructor } from './music-utilities/discord-embed-constructor'
 import ytdl from 'ytdl-core'
+// import discordYtdl from 'ytdl-core-discord'
 import { Constants } from '@/constants/constants'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import { errorLogger, debugLogger } from '@/handlers/log.handler'
@@ -31,6 +35,7 @@ import {
 } from '@/decorators/music.decorator'
 import { YoutubeInfoService } from './youtube-services/youtube-info.service'
 import { IYoutubePlaylistItem } from './music-entities/interfaces/youtube-song-metadata.interface'
+import { Readable } from 'stream'
 
 // TODO: NEED TO FIX SOME LOGIC
 
@@ -66,12 +71,33 @@ export class MusicService {
       )
       const connection = (await this.createVoiceConnection(
         message,
-        stream
+        stream,
+        client
       ).catch((err) => this.handleError(new Error(err)))) as IVoiceConnection
 
       if (!connection) reject('Could not create voice connection')
 
       this._streams.set(guild.id, stream)
+
+      const onConnectionError = (error) => {
+        if (stream?.isPlaying) {
+          if (stream.streamDispatcher) stream.streamDispatcher.end()
+          if (!stream.queue?.isEmpty) {
+            stream.boundTextChannel.send(
+              `**I'm sorry, my connection failed during the process. Moving on**`
+            )
+          } else {
+            this.resetStreamStatus(stream)
+          }
+        } else {
+          stream?.boundTextChannel.send(
+            `**I'm sorry, my connection failed. Please try joining me in again**`
+          )
+        }
+      }
+
+      stream.voiceConnection.on('error', (error) => onConnectionError(error))
+      stream.voiceConnection.on('failed', (error) => onConnectionError(error))
 
       await sentMessage
         .delete()
@@ -83,7 +109,8 @@ export class MusicService {
 
   async createVoiceConnection(
     message: Message,
-    stream: MusicStream
+    stream: MusicStream,
+    client: Client
   ): Promise<IVoiceConnection> {
     const voiceChannel = message?.member?.voice?.channel
     if (!voiceChannel) throw new Error('Voice channel not found')
@@ -94,6 +121,7 @@ export class MusicService {
     if (!connection) throw new Error('Could not join the voice channel')
 
     stream.set('voiceConnection', connection)
+    // stream.set('voiceBroadcast', message.client.voice.createBroadcast())
 
     return connection
   }
@@ -103,11 +131,11 @@ export class MusicService {
     message: Message,
     args?: Array<string>,
     @GuildStream() stream?: MusicStream,
-    @CurrentGuildMember() client?: GuildMember
+    @CurrentGuildMember() member?: GuildMember
   ): Promise<void> {
     stream =
       stream ??
-      (await this.createStream(message, client.client).catch((err) =>
+      (await this.createStream(message, member.client).catch((err) =>
         this.handleError(new Error(err))
       ))
     if (!stream) {
@@ -128,17 +156,18 @@ export class MusicService {
   @AccessController({ join: true })
   public async joinVoiceChannel(
     message: Message,
-    @CurrentGuildMember() client?: GuildMember
+    @CurrentGuildMember() member?: GuildMember
   ): Promise<void> {
-    const connection = this.createStream(message, client.client).catch((err) =>
-      this.handleError(new Error(err))
-    )
+    const connection = await this.createStream(
+      message,
+      member.client
+    ).catch((err) => this.handleError(new Error(err)))
     if (connection)
       message.channel.send(' :loudspeaker: Kawaii **Yui-chan** is here~! xD')
     else {
       try {
         const stream = this._streams.get(message?.guild?.id)
-        if (stream) this._streams.delete(stream.id)
+        if (stream) this.leaveVoiceChannel(message, true)
       } catch (err) {
         this.handleError(new Error(err))
       }
@@ -159,9 +188,11 @@ export class MusicService {
       ).catch((err) => this.handleError(new Error(err)))
 
       if (!!youtubePlaylistId) {
-        const sentMessage: Message = (await stream.boundTextChannel.send(
-          ':hourglass_flowing_sand: **_Loading playlist, please wait..._**'
-        )) as Message
+        const sentMessage: Message = (await stream.boundTextChannel
+          .send(
+            ':hourglass_flowing_sand: **_Loading playlist, please wait..._**'
+          )
+          .catch((err) => this.handleError(new Error(err)))) as Message
         const requester = message.member.displayName
         const playList = await YoutubeInfoService.getPlaylistItems(
           youtubePlaylistId
@@ -199,7 +230,7 @@ export class MusicService {
     } catch (error) {
       stream.boundTextChannel
         .send("Sorry, something went wrong and i couldn't get the playlist.")
-        .catch((err) => this.handleError(new Error()))
+        .catch((err) => this.handleError(new Error(err)))
       return this.handleError(error as Error)
     }
   }
@@ -286,70 +317,115 @@ export class MusicService {
   }
 
   async playMusic(stream: MusicStream): Promise<void> {
-    const currSong = stream.queue.at(0)
-    const ytdlStream = ytdl(`https://www.youtube.com/watch?v=${currSong.id}`, {
-      // TODO: live stream
-      quality: 'highestaudio',
-      filter: 'audioonly',
-      highWaterMark: 1 << 25,
-    })
-    const streamOptions: StreamOptions = {
-      volume: 0.7,
-      highWaterMark: 50,
-    }
-    const streamDispatcher = stream.voiceConnection.play(
-      ytdlStream,
-      streamOptions
-    )
-    stream.set('streamDispatcher', streamDispatcher)
+    try {
+      const currSong = stream.queue.at(0)
 
-    let sent: Message
-    stream.streamDispatcher.on('start', async () => {
-      stream.voiceConnection.player.streamingData.pausedTime = 0
-      if (!stream.isLooping) {
-        sent = (await stream.boundTextChannel
-          .send('**` 🎧 Now Playing: ' + stream.queue.at(0).title + '`**')
-          .catch((err) => this.handleError(new Error(err)))) as Message
-      }
-    })
-
-    const onStreamEnd = ({
-      error,
-      reason,
-    }: {
-      error?: string | Error
-      reason?: string
-    }) => {
-      if (error) {
-        this.handleError(new Error(error as string))
+      const downloadOptions: ytdl.downloadOptions = {
+        quality: 'highestaudio',
+        filter: 'audioonly',
+        highWaterMark: 1 << 25,
+        liveBuffer: 40000,
       }
 
-      if (sent && !stream.isLooping) {
-        sent
-          .delete({ timeout: 50 })
-          .catch((err) => this.handleError(new Error(err)))
+      const ytdlStream = ytdl(
+        `https://www.youtube.com/watch?v=${currSong.id}`,
+        downloadOptions
+      )
+
+      const streamOptions: StreamOptions = {
+        volume: 0.7,
+        highWaterMark: 50,
       }
 
-      const endedSong = stream.queue.shiftSong()
-      if (stream.isLooping) {
-        stream.queue.unshiftSong(endedSong)
-      } else if (stream.isQueueLooping) {
-        stream.queue.addSong(endedSong)
-      }
+      // const streamDispatcher = this.playStream(stream, ytdlStream, streamOptions)
 
-      if (stream.queue.isEmpty) {
-        if (!stream.isAutoPlaying) {
-          delete stream._streamDispatcher
-          return this.resetStreamStatus(stream)
-        } else {
-          return this.autoPlaySong(stream, endedSong)
+      const streamDispatcher = this.playStream(
+        stream,
+        ytdlStream,
+        streamOptions
+      )
+
+      let sent: Message
+      stream.streamDispatcher.on('start', async () => {
+        stream.voiceConnection.player.streamingData.pausedTime = 0
+        if (!stream.isLooping) {
+          sent = (await stream.boundTextChannel
+            .send('**` 🎧 Now Playing: ' + stream.queue.at(0).title + '`**')
+            .catch((err) => this.handleError(new Error(err)))) as Message
         }
-      }
-      return this.playMusic(stream)
-    }
+      })
 
-    stream.streamDispatcher.on('finish', (reason) => onStreamEnd({ reason }))
-    stream.streamDispatcher.on('error', (error) => onStreamEnd({ error }))
+      const onStreamEnd = ({
+        error,
+        reason,
+      }: {
+        error?: string | Error
+        reason?: string
+      }) => {
+        // destroy ongoing stream (if there is)
+        ytdlStream.destroy()
+
+        if (error) {
+          this.handleError(new Error(error as string))
+        }
+
+        if (sent && !stream.isLooping) {
+          sent
+            .delete({ timeout: 50 })
+            .catch((err) => this.handleError(new Error(err)))
+        }
+
+        const endedSong = stream.queue.shiftSong()
+        if (stream.isLooping) {
+          stream.queue.unshiftSong(endedSong)
+        } else if (stream.isQueueLooping) {
+          stream.queue.addSong(endedSong)
+        }
+
+        if (stream.queue.isEmpty) {
+          if (!stream.isAutoPlaying) {
+            delete stream._streamDispatcher
+            return this.resetStreamStatus(stream)
+          } else {
+            return this.autoPlaySong(stream, endedSong)
+          }
+        }
+
+        return this.playMusic(stream)
+      }
+
+      // ytdl error ?
+      // ytdlStream.on('error', (error) => onStreamEnd({ error }))
+
+      // stream dispatcher error
+      stream.streamDispatcher.on('finish', (reason) => onStreamEnd({ reason }))
+      stream.streamDispatcher.on('error', (error) => onStreamEnd({ error }))
+    } catch (err) {
+      this.handleError(new Error(err))
+    }
+  }
+
+  // private playBroadcast(
+  //   stream: MusicStream,
+  //   input: Readable | string,
+  //   options: StreamOptions
+  // ): BroadcastDispatcher {
+
+  //   const broadcast = stream.voiceBroadcast.play(input, options)
+  //   const streamDispatcher = stream.voiceConnection.play(stream.voiceBroadcast)
+  //   stream.set('streamDispatcher', streamDispatcher)
+  //   stream.set('broadcastDispatcher', broadcast)
+  //   return broadcast
+  // }
+
+  private playStream(
+    stream: MusicStream,
+    input: Readable | string,
+    options: StreamOptions
+  ): StreamDispatcher {
+    const streamDispatcher = stream.voiceConnection.play(input, options)
+    stream.set('streamDispatcher', streamDispatcher)
+    return streamDispatcher
   }
 
   @AccessController({ join: true, silent: true })
@@ -424,8 +500,6 @@ export class MusicService {
             stream.set('isLooping', false)
           }
           if (!!stream.streamDispatcher) {
-            console.log(stream.streamDispatcher)
-
             stream.boundTextChannel.send(' :fast_forward: **Skipped!**')
             stream.streamDispatcher.end()
             return
@@ -465,22 +539,52 @@ export class MusicService {
     }
   }
 
+  @AccessController({ join: false, silent: true })
+  public async setVolume(
+    message: Message,
+    args: Array<string>,
+    @GuildStream() stream?: MusicStream
+  ) {
+    if (!args?.length) {
+      message.channel.send('**Please enter a value!**')
+    }
+
+    const newVolume = Number(args[0])
+
+    if (!Number.isNaN(newVolume) && newVolume < 0 && newVolume > 100) {
+      message.channel
+        .send('**Please enter a valid number! (0 <= volume <= 100)**')
+        .catch((err) => this.handleError(new Error(err)))
+    }
+
+    const currentVolume = stream.streamDispatcher.volume
+
+    stream.streamDispatcher.setVolume(newVolume / 100)
+
+    message.channel
+      .send(
+        `**Volume ${
+          currentVolume < newVolume ? `incleased` : `decreased`
+        } from ${currentVolume * 100} to ${newVolume}**`
+      )
+      .catch((err) => this.handleError(new Error(err)))
+  }
+
   @AccessController({ join: true })
   public async autoPlay(
     message: Message,
     @GuildStream() stream?: MusicStream,
-    @CurrentGuildMember() client?: GuildMember
+    @CurrentGuildMember() member?: GuildMember
   ): Promise<void> {
-    console.log(stream)
-    stream = stream!
     if (!stream) {
-      stream = await this.createStream(message, client.client)
+      stream = await this.createStream(message, member.client)
     }
     if (!stream?.isAutoPlaying) {
       stream.set('isAutoPlaying', true)
-      this.sendMessage(message, "**`📻 YUI's PABX MODE - ON! 🎵`**").catch(
-        this.handleError
-      )
+      this.sendMessage(
+        message,
+        "**`📻 YUI's PABX MODE - ON! 🎵`**"
+      ).catch((err) => this.handleError(new Error(err)))
       if (stream?.queue?.isEmpty) {
         this.sendMessage(
           message,
@@ -490,9 +594,10 @@ export class MusicService {
       return
     } else {
       stream.set('isAutoPlaying', false)
-      this.sendMessage(message, "**`📻 YUI's PABX MODE - OFF! 🎵`**").catch(
-        this.handleError
-      )
+      this.sendMessage(
+        message,
+        "**`📻 YUI's PABX MODE - OFF! 🎵`**"
+      ).catch((err) => this.handleError(new Error(err)))
       return
     }
   }
@@ -519,15 +624,17 @@ export class MusicService {
   public async getNowPlayingData(
     message: Message,
     @GuildStream() stream?: MusicStream,
-    @CurrentGuildMember() client?: GuildMember
+    @CurrentGuildMember() member?: GuildMember
   ) {
     stream = stream!
     if (stream.queue.isEmpty) {
       return this.sendMessage(message, `**Nothing is playing!**`)
     }
-    let currSong = stream.queue.at(0)
-    let streamingTime = Math.round(stream.streamDispatcher.streamTime / 1000)
-    let content = `**\`${await timeConverter(
+    const currSong = stream.queue.at(0)
+    const streamingTime = Math.round(
+      (stream?.streamDispatcher?.streamTime || 0) / 1000
+    )
+    const content = `**\`${await timeConverter(
       streamingTime
     )}\`𝗹${await createProgressBar(
       streamingTime,
@@ -539,7 +646,7 @@ export class MusicService {
       title: currSong.title,
       author: {
         embedTitle: '♫ Now Playing ♫',
-        authorAvatarUrl: client.user.avatarURL(),
+        authorAvatarUrl: member.user.avatarURL(),
       },
       description: content,
       thumbnailUrl: currSong.videoThumbnail,
@@ -624,8 +731,8 @@ export class MusicService {
   }
 
   async getQueueLength(stream: MusicStream) {
-    if (stream.isLooping) return `Looping`
-    if (stream.isQueueLooping) return 'Queue Looping'
+    if (stream.isLooping) return STREAM_STATUS.LOOPING
+    if (stream.isQueueLooping) return STREAM_STATUS.QUEUE_LOOPING
     return await timeConverter(await stream.queue.totalDuration)
   }
 
@@ -772,7 +879,6 @@ export class MusicService {
       }
     })
     collector.on('end', (collected) => {
-      collector.stop()
       if (sentContent)
         sentContent.delete().catch((err) => this.handleError(new Error(err)))
       if (collected.size < 1)
@@ -904,7 +1010,7 @@ export class MusicService {
       stream.queue.deleteQueue()
       if (stream.isPlaying) {
         if (stream.streamDispatcher) {
-          stream.streamDispatcher.end()
+          stream.streamDispatcher.destroy()
         }
         stream.set('isPlaying', false)
       }
@@ -935,7 +1041,10 @@ export class MusicService {
   }
 
   @AccessController({ silent: true })
-  public async leaveVoiceChannel(message: Message): Promise<void> {
+  public async leaveVoiceChannel(
+    message: Message,
+    isError: boolean = false
+  ): Promise<void> {
     const { guild } = message
     if (!guild?.id)
       return this.handleError(
@@ -952,9 +1061,10 @@ export class MusicService {
     this.resetStreamStatus(stream)
     this.deleteStream(stream)
 
-    this.sendMessage(message, '**_Bye bye~! Matta nee~!_**').catch((err) =>
-      this.handleError(new Error(err))
-    )
+    if (!isError)
+      this.sendMessage(message, '**_Bye bye~! Matta nee~!_**').catch((err) =>
+        this.handleError(new Error(err))
+      )
   }
 
   public sendMessage(

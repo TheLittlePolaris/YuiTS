@@ -44,7 +44,7 @@ export const AccessController = (
       const voiceChannel = member.voice.channel
 
       if (!voiceChannel) {
-        message.reply('**please join a `__Voice Channel__`!**')
+        message.reply('**please join a __`Voice Channel`__!**')
         return
       }
 

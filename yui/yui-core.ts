@@ -37,7 +37,6 @@ export default class YuiCore {
     )
   }
 
-  @On('ready')
   async onReady() {
     if (!this.yui.user) return
     infoLogger(LOG_SCOPE.YUI_CORE, 'Connected!')
@@ -50,7 +49,6 @@ export default class YuiCore {
     infoLogger(LOG_SCOPE.YUI_CORE, 'Yui is online')
   }
 
-  @On('message')
   async onMessage(message: Message) {
     if (!message.content?.startsWith(this['prefix']) || message.author.bot)
       return
@@ -65,16 +63,14 @@ export default class YuiCore {
     try {
       return this.messageHandler.execute(message, command, args)
     } catch (err) {
-      this.handleError(err)
+      this.handleError(new Error(err))
     }
   }
 
-  @On('voiceStateUpdate')
   async onVoiceStateUpdate(
     oldVoiceState: VoiceState,
     newVoiceState: VoiceState
   ) {
-    // TODO: Fix this
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldVoiceState, newVoiceState)
   }
 
