@@ -132,7 +132,6 @@ export function CommandExecutor() {
     )
     const originalDescriptor = descriptor.value!
     descriptor.value = function (..._args: any[]) {
-      console.log('command executor validator')
       const [message, args] = _args as [Message, Array<string>]
 
       if (!args.length) {

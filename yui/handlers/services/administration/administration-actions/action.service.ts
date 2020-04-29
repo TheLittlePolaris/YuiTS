@@ -27,17 +27,21 @@ export class AdminstrationActionCommands {
   ) {
     const kicks = await Promise.all([
       targets.map((target) => target.kick()),
-    ]).catch(this.handleError)
+    ]).catch((err) => this.handleError(new Error(err)))
 
     !!kicks.length
-      ? message.channel.send(
-          `\`${targets[0].user.username}${
-            targets.length > 1 ? ` and ${targets.length - 1} others` : ``
-          }\` has been kicked by \`${executor.displayName}\`${
-            reason ? ` for reason ${reason}` : ``
-          }`
-        )
-      : message.author.send(`Unable to kick the member.`)
+      ? message.channel
+          .send(
+            `\`${targets[0].user.username}${
+              targets.length > 1 ? ` and ${targets.length - 1} others` : ``
+            }\` has been kicked by \`${executor.displayName}\`${
+              reason ? ` for reason ${reason}` : ``
+            }`
+          )
+          .catch((err) => this.handleError(new Error(err)))
+      : message.author
+          .send(`Unable to kick the member.`)
+          .catch((err) => this.handleError(new Error(err)))
 
     return
   }
@@ -52,17 +56,21 @@ export class AdminstrationActionCommands {
   ) {
     const bans = await Promise.all([
       targets.map((target) => target.ban({ reason })),
-    ]).catch(this.handleError)
+    ]).catch((err) => this.handleError(new Error(err)))
 
     !!bans.length
-      ? message.channel.send(
-          `\`${targets[0].user.username}${
-            targets.length > 1 ? ` and ${targets.length - 1} others` : ``
-          }\` has been banned by \`${executor.displayName}\`${
-            reason ? ` for reason ${reason}` : ``
-          }`
-        )
-      : message.author.send(`Unable to ban the member.`)
+      ? message.channel
+          .send(
+            `\`${targets[0].user.username}${
+              targets.length > 1 ? ` and ${targets.length - 1} others` : ``
+            }\` has been banned by \`${executor.displayName}\`${
+              reason ? ` for reason ${reason}` : ``
+            }`
+          )
+          .catch((err) => this.handleError(new Error(err)))
+      : message.author
+          .send(`Unable to ban the member.`)
+          .catch((err) => this.handleError(new Error(err)))
     return
   }
 
@@ -110,7 +118,7 @@ export class AdminstrationActionCommands {
           .remove(roles, reason)
           .catch((err) => this.handleError(new Error(err)))
       )
-    ).catch(this.handleError)
+    ).catch((err) => this.handleError(new Error(err)))
 
     const roleNames = roles.map((role) => role.name)
 
@@ -136,8 +144,12 @@ export class AdminstrationActionCommands {
     @Reason() reason?: string
   ) {
     const muted = await Promise.all([
-      targets.map((target) => target.voice.setMute(true, reason)),
-    ]).catch(this.handleError)
+      targets.map((target) =>
+        target.voice
+          .setMute(true, reason)
+          .catch((err) => this.handleError(new Error(err)))
+      ),
+    ]).catch((err) => this.handleError(new Error(err)))
     !!muted.length
       ? message.channel.send(
           `\`${targets[0].displayName} ${
@@ -160,8 +172,12 @@ export class AdminstrationActionCommands {
     @Reason() reason?: string
   ) {
     const unmuted = await Promise.all([
-      targets.map((target) => target.voice.setMute(false, reason)),
-    ]).catch(this.handleError)
+      targets.map((target) =>
+        target.voice
+          .setMute(false, reason)
+          .catch((err) => this.handleError(new Error(err)))
+      ),
+    ]).catch((err) => this.handleError(new Error(err)))
     !!unmuted.length
       ? message.channel.send(
           `\`${targets[0].displayName} ${
@@ -185,17 +201,25 @@ export class AdminstrationActionCommands {
   ) {
     // return await member.setNickname(nickname).catch(null)
     const setnickname = await Promise.all([
-      targets.map((target) => target.setNickname(nickname)),
-    ]).catch(this.handleError)
+      targets.map((target) =>
+        target
+          .setNickname(nickname)
+          .catch((err) => this.handleError(new Error(err)))
+      ),
+    ]).catch((err) => this.handleError(new Error(err)))
     !!setnickname.length
-      ? message.channel.send(
-          `\`${targets[0].user.username}'s ${
-            targets.length > 1 ? `and ${targets.length - 1} others` : ``
-          }\` nickname has been set to \`${nickname}\` by ${
-            executor.displayName
-          }`
-        )
-      : message.author.send(`Unable to set the member's nickname.`)
+      ? message.channel
+          .send(
+            `\`${targets[0].user.username}'s ${
+              targets.length > 1 ? `and ${targets.length - 1} others` : ``
+            }\` nickname has been set to \`${nickname}\` by ${
+              executor.displayName
+            }`
+          )
+          .catch((err) => this.handleError(new Error(err)))
+      : message.author
+          .send(`Unable to set the member's nickname.`)
+          .catch((err) => this.handleError(new Error(err)))
 
     return
   }

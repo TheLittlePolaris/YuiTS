@@ -47,7 +47,6 @@ export function ValidateCommand() {
     const originalDescriptor = descriptor.value!
 
     descriptor.value = async function (..._args: any[]) {
-      console.log('RUN validate command')
       const [message, args] = _args as [Message, Array<string>]
 
       if (!args.length) {
