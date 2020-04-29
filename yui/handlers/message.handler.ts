@@ -1,16 +1,10 @@
 import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
-import {
-  Message,
-  ClientUser,
-  MessageReaction,
-  User,
-  CollectorFilter,
-} from 'discord.js'
+import { Message } from 'discord.js'
 import { MusicService } from './services/music/music.service'
 import { FeatureService } from './services/feature/feature.service'
 import { AdministrationService } from './services/administration/administration.service'
 import { debugLogger, errorLogger } from './log.handler'
-import { LOG_SCOPE, DISCORD_REACTION } from '@/constants/constants'
+import { LOG_SCOPE } from '@/constants/constants'
 
 @MessageHandlerInitiator()
 export class MessageHandler {
@@ -124,7 +118,6 @@ export class MessageHandler {
         return await this._administrationService.executeCommand(message, args)
       }
       case 'test': {
-        console.log('test')
         break
       }
       case 'help': {

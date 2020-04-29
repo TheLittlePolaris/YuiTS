@@ -1,4 +1,5 @@
 import { MusicQueue } from '../music-entities/music-queue'
+import { errorLogger } from '@/handlers/log.handler'
 
 export function isYoutubeLink(link: string): boolean {
   if (typeof link === 'string') {
@@ -8,19 +9,24 @@ export function isYoutubeLink(link: string): boolean {
 
 export function youtubeTimeConverter(duration: string): Promise<number> {
   return new Promise((resolve, _) => {
-    var match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/).slice(1)
-    var result =
-      (parseInt(match[0], 10) || 0) * 3600 + // hours
-      (parseInt(match[1], 10) || 0) * 60 + // minutes
-      (parseInt(match[2], 10) || 0) // seconds
-    resolve(result)
+    try {
+      var match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/).slice(1)
+      var result =
+        (parseInt(match[0], 10) || 0) * 3600 + // hours
+        (parseInt(match[1], 10) || 0) * 60 + // minutes
+        (parseInt(match[2], 10) || 0) // seconds
+      resolve(result)
+    } catch (err) {
+      errorLogger(new Error(err))
+      resolve(0)
+    }
   })
 }
 
 export enum STREAM_STATUS {
   LIVE = 'LIVE',
   QUEUE_LOOPING = 'Queue Looping',
-  LOOPING = 'Looping'
+  LOOPING = 'Looping',
 }
 
 export function timeConverter(duration: number) {
@@ -66,7 +72,7 @@ export function createProgressBar(currentProgress: number, total: number) {
 }
 
 export function printQueueList(queue: MusicQueue, start: number, end: number) {
-  return new Promise(async resolve => {
+  return new Promise(async (resolve) => {
     var result = ''
     for (let i = start; i <= end; i++) {
       const song = queue.at(i)
