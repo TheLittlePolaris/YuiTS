@@ -828,12 +828,12 @@ export class MusicService {
     const { items } = result
 
     let tableContent = '**```css\n'
-    for (let i = 0; i < items.length; i++) {
-      tableContent += `#${i + 1} -- ${items[i].snippet.title.replace(
+    items.map((item, index) => {
+      tableContent += `#${index + 1}: ${item.snippet.title.replace(
         '&amp;',
         '&'
-      )}\n`
-    }
+      )}\n\n`
+    })
     tableContent += '```**'
     const embed = await discordRichEmbedConstructor({
       title: `**Pick one option from the list below, or type \`cancel\` to abort.**`,

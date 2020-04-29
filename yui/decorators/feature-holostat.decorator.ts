@@ -15,15 +15,19 @@ const REFECT_HOLOSTAT_KEYS = {
   DETAIL_KEY: Symbol(HOLOSTAT_REFLECT_SYMBOLS.DETAIL),
 }
 
-export const HoloStatServiceInitiator = () => {
+export function HoloStatServiceInitiator() {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
     return class extends superClass {}
   }
 }
 
-export const HoloStatCommandValidator = () => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+export function HoloStatCommandValidator() {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
     const originalMethod: Function = descriptor.value
 
     descriptor.value = function (..._args: any[]) {

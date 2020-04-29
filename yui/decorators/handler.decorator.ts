@@ -4,7 +4,7 @@ import { AdministrationService } from '@/handlers/services/administration/admini
 import { TFunction } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 
-export const MessageHandlerInitiator = () => {
+export function MessageHandlerInitiator() {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
     return class extends superClass {

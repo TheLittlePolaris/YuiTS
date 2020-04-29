@@ -5,7 +5,7 @@ import { TFunction, LOG_SCOPE } from '@/constants/constants'
 import { decoratorLogger, infoLogger } from '@/handlers/log.handler'
 import { DiscordEvent } from '@/constants/discord-events'
 
-export const Yui = ({
+export function Yui({
   prefix,
   token,
   options,
@@ -13,7 +13,7 @@ export const Yui = ({
   prefix: string
   token: string
   options: ClientOptions
-}) => {
+}) {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
     return class extends superClass {
@@ -29,12 +29,12 @@ export const Yui = ({
 }
 
 //TODO:
-export const On = (event: DiscordEvent) => {
-  return (
+export function On(event: DiscordEvent) {
+  return function (
     target: any,
     propertyKey: string,
     descriptor: PropertyDescriptor
-  ): void => {
+  ) {
     decoratorLogger(`On - ${event}`, LOG_SCOPE.YUI_CORE, propertyKey)
     // return (descriptor.value = descriptor.value)
     const originalMethod = descriptor.value

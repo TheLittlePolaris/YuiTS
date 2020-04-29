@@ -28,8 +28,12 @@ export const FeatureServiceInitiator = () => {
   }
 }
 
-export const ValidateFeaturePermission = () => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+export function FeaturePermissionValidator() {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
     decoratorLogger(
       'ValidateFeaturePermission - Method',
       'FeatureService',

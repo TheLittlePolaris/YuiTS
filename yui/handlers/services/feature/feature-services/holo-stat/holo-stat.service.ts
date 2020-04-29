@@ -1,15 +1,9 @@
-import {
-  HoloStatServiceInitiator,
-  HoloStatCommandValidator,
-  Region,
-  Detail,
-} from '@/decorators/feature-holostat.decorator'
+import { HoloStatServiceInitiator } from '@/decorators/feature-holostat.decorator'
 import {
   Message,
   GuildMember,
   EmbedFieldData,
   CollectorFilter,
-  ReactionEmoji,
   User,
   MessageReaction,
   MessageCollectorOptions,
@@ -39,13 +33,11 @@ export class HoloStatService {
 
     const dataList = await HoloStatRequestService.getListChannels(regionCode)
 
-    const fieldsData: EmbedFieldData[] = dataList.map((item, index) => {
-      return {
-        name: `**${index + 1}**`,
-        value: `**${item.snippet.title}**`,
-        inline: true,
-      }
-    })
+    const fieldsData: EmbedFieldData[] = dataList.map((item, index) => ({
+      name: `**${index + 1}**`,
+      value: `**${item.snippet.title}**`,
+      inline: true,
+    }))
 
     const sentContent: Message[] = []
 

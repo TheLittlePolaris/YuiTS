@@ -15,12 +15,12 @@ import { RNG } from '../music/music-utilities/music-function'
 import {
   FeatureServiceInitiator,
   CurrentGuildMember,
-  ValidateFeaturePermission,
+  FeaturePermissionValidator,
   MentionedUsers,
   UserAction,
   RequestParams,
 } from '@/decorators/features.decorator'
-import { ValidatePermissions } from '@/decorators/permission.decorator'
+import { AdminPermissionValidator } from '@/decorators/permission.decorator'
 import { HoloStatRequestService } from './feature-services/holo-stat/holo-stat-request.service'
 import { Constants, HOLOSTAT_REGION } from '@/constants/constants'
 import {
@@ -37,7 +37,7 @@ export class FeatureService {
     debugLogger('FeatureService')
   }
 
-  @ValidateFeaturePermission()
+  @FeaturePermissionValidator()
   public async getPing(
     message: Message,
     @CurrentGuildMember() yui?: GuildMember
@@ -59,7 +59,7 @@ export class FeatureService {
     if (!!sentMessage) sentMessage.edit(embed)
   }
 
-  @ValidateFeaturePermission()
+  @FeaturePermissionValidator()
   public async help(message: Message, @CurrentGuildMember() yui?: GuildMember) {
     let commands =
       '**__Music:__**\n`play | p`: add to end\n' +
@@ -72,6 +72,7 @@ export class FeatureService {
       '`loop <?queue>`: loop the song/the queue\n' +
       '`pause`: pause the song\n' +
       '`resume`: resume pause\n' +
+      '`volume`: Adjust stream volume' +
       '`shuffle`: shuffle the queue\n' +
       '`clear`: clear queue\n' +
       '`search`: search for a song, pick by index\n' +
@@ -79,10 +80,11 @@ export class FeatureService {
       '`remove <index> <?range>`: remove a/some song(s)\n' +
       '`stop`: clear queue and stop playing\n\n' +
       '**__Ultilities:__**\n' +
-      '`admin <kick/ban/mute/unmute/setnickname/addrole/removerole> <@mentions> <?reason>`: admin commands\n' +
+      '`admin <kick/ban/mute/unmute/setnickname/addrole/removerole> <?@roles> <@mentions> <?reason>`: admin commands\n' +
       '`tenor`: tenor GIFs, random limit: 5\n' +
       "`ping`: connection's status\n" +
-      '`say`: repeat what you say\n\n'
+      '`say`: repeat what you say\n\n' +
+      '`holostat` <?jp|id> <?detail>: Hololive member status'
 
     const embed = await discordRichEmbedConstructor({
       author: {
@@ -97,7 +99,7 @@ export class FeatureService {
     message.channel.send(embed)
   }
 
-  @ValidateFeaturePermission()
+  @FeaturePermissionValidator()
   public async say(
     message: Message,
     args: Array<string>,
@@ -110,7 +112,7 @@ export class FeatureService {
     message.channel.send(embed)
   }
 
-  @ValidateFeaturePermission()
+  @FeaturePermissionValidator()
   public async tenorGif(
     message: Message,
     args: Array<string>,
@@ -152,7 +154,7 @@ export class FeatureService {
     )
   }
 
-  @ValidateFeaturePermission()
+  @FeaturePermissionValidator()
   @HoloStatCommandValidator()
   async getHoloStat(
     message: Message,

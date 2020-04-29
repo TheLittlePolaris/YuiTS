@@ -17,7 +17,7 @@ abstract class GlobalMusicStreams {
   public static streams: Map<string, MusicStream>
 }
 
-export const MusicServiceInitiator = () => {
+export function MusicServiceInitiator() {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
     GlobalMusicStreams.streams = new Map<string, MusicStream>()
@@ -27,13 +27,17 @@ export const MusicServiceInitiator = () => {
   }
 }
 
-export const AccessController = (
+export function AccessController(
   { join, silent }: { join?: boolean; silent?: boolean } = {
     join: false,
     silent: false,
   }
-) => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
     decoratorLogger('AccessController - Method', 'MusicService', propertyKey)
     const originalMethod = descriptor.value!
     descriptor.value = async function (...args: any[]) {

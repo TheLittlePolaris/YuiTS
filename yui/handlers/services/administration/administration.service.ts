@@ -6,7 +6,7 @@ import {
   Command,
   CommandExecutor,
   AdministrationServiceInitiator,
-  ValidatePermissions,
+  AdminPermissionValidator,
 } from '@/decorators/permission.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 
@@ -19,7 +19,7 @@ export class AdministrationService {
   }
 
   @CommandExecutor()
-  @ValidatePermissions()
+  @AdminPermissionValidator()
   public async executeCommand(
     message: Message,
     args: Array<string>,

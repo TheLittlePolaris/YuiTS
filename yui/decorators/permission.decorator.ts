@@ -15,7 +15,7 @@ const REFLECT_PERMISSION_KEYS = {
   COMMAND: Symbol(REFLECT_PERMISSION_SYMBOLS.COMMAND),
 }
 
-export const AdministrationServiceInitiator = () => {
+export function AdministrationServiceInitiator() {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], LOG_SCOPE.ADMIN_SERVICE, 'Initiator')
     return class extends superClass {
@@ -24,8 +24,12 @@ export const AdministrationServiceInitiator = () => {
   }
 }
 
-export const ValidatePermissions = () => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+export function AdminPermissionValidator() {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
     decoratorLogger(
       'ValidatePermissions - Method',
       LOG_SCOPE.ADMIN_ACTION_COMMAND,
@@ -115,8 +119,12 @@ export const ValidatePermissions = () => {
   }
 }
 
-export const CommandExecutor = () => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+export function CommandExecutor() {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
     decoratorLogger(
       'CommandExecutor - Method',
       LOG_SCOPE.ADMIN_SERVICE,

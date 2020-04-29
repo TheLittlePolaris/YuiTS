@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "ES2017",
-    "lib": ["ES2017", "esnext.asynciterable", "ES2015"],
+    "target": "ES2019",
+    "lib": ["ES2019", "ES2017", "esnext.asynciterable", "ES2015"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noImplicitAny": false,
