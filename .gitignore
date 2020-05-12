@@ -1,8 +1,7 @@
-node_modules/
-dist/
 .vscode
-.env
-package-lock.json
+node_modules/
+dist
+.env.*
 LICENCE
 *.pem
 *.txt

@@ -3,9 +3,8 @@ import { youtube_v3, google } from 'googleapis'
 import { errorLogger } from '@/handlers/log.handler'
 import {
   IYoutubeSearchResult,
-  IYoutubePlaylistItem,
   IYoutubeVideosResult,
-} from '../music-entities/interfaces/youtube-song-metadata.interface'
+} from '../music-interfaces/youtube-info.interface'
 
 export abstract class YoutubeRequestService {
   static youtube: youtube_v3.Youtube = google.youtube({
@@ -29,7 +28,6 @@ export abstract class YoutubeRequestService {
             reject('Something went wrong')
           }
           const json = typeof body === 'string' ? JSON.parse(body) : body
-          console.log(json, ' <===== REQUESTTTTT JSONNNNNNNNN')
           const { error, items } = json
           if (error || !items) {
             this.handleRequestErrors(error)

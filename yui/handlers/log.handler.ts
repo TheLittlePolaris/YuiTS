@@ -1,12 +1,12 @@
-const colors = require('colors')
-import { getLogger } from 'log4js'
 import { LOG_SCOPE } from '@/constants/constants'
+import colors from 'colors'
+import { getLogger } from 'log4js'
 
 colors.setTheme({
   info: ['cyan', 'bold'],
   help: 'cyan',
   warn: 'yellow',
-  success: 'blue',
+  success: 'green',
   error: ['red', 'bold'],
 })
 
@@ -24,6 +24,11 @@ export function debugLogger(scope: string): void {
 export function infoLogger(scope: string, info: string) {
   const logger = getLogger(`[${scope}]`)
   logger.info(info)
+}
+
+export function successLogger(scope: string, info: string) {
+  const logger = getLogger(`[${scope}]`)
+  logger.info(info['success'])
 }
 
 export const decoratorLogger = (type: string, scope: string, name: string) => {

@@ -1,10 +1,10 @@
-import { GuildMember, VoiceState } from 'discord.js'
-import { MusicService } from './services/music/music.service'
-import { VoiceStateAction } from './services/music/music-entities/interfaces/voice-state.interface'
-import { MusicStream } from './services/music/music-entities/music-stream'
-import { debugLogger, errorLogger } from './log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
 import { VoiceStateInitiator } from '@/decorators/voice-state.decorator'
+import { VoiceState } from 'discord.js'
+import { debugLogger, errorLogger } from './log.handler'
+import { MusicStream } from './services/music/music-entities/music-stream'
+import { VoiceStateAction } from './services/music/music-interfaces/voice-state.interface'
+import { MusicService } from './services/music/music.service'
 
 @VoiceStateInitiator()
 export class VoiceStateHandler {

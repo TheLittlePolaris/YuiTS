@@ -16,8 +16,8 @@ const REFLECT_PERMISSION_KEYS = {
 }
 
 export function AdministrationServiceInitiator() {
-  return <T extends TFunction>(superClass: T) => {
-    decoratorLogger(superClass['name'], LOG_SCOPE.ADMIN_SERVICE, 'Initiator')
+  return function <T extends TFunction>(superClass: T) {
+    decoratorLogger(superClass['name'], 'Class', 'Initiator')
     return class extends superClass {
       _adminActionCommands = new AdminstrationActionCommands()
     }

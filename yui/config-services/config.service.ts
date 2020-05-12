@@ -1,7 +1,6 @@
 import { config } from 'dotenv'
 import { debugLogger } from '@/handlers/log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
-import { google } from 'googleapis'
 ;(async () => {
   interface EnvConfig {
     [key: string]: string
@@ -10,11 +9,12 @@ import { google } from 'googleapis'
   class ConfigService {
     public static envConfig: EnvConfig
     constructor() {
-      // This loads process.env values
-      ConfigService.envConfig = config().parsed
+      ConfigService.envConfig = config({
+        path: `.env.${process.env.NODE_ENV || `development`}`,
+      }).parsed
       const { error } = ConfigService?.envConfig
       if (error) {
-        throw new Error(`CANNOT READ CONFIG ENVIRONMENT: ${error}`)
+        throw new Error(`Fatal: CANNOT READ CONFIG ENVIRONMENT: ${error}`)
       }
 
       debugLogger(LOG_SCOPE.CONFIG_SERVICE)
@@ -26,6 +26,10 @@ import { google } from 'googleapis'
 
     public static get token(): string {
       return this.envConfig['TOKEN']
+    }
+
+    public static get tokenStaging(): string {
+      return this.envConfig['TOKEN_STAGING']
     }
 
     public static get youtubeApiKey(): string {
@@ -52,6 +56,10 @@ import { google } from 'googleapis'
       return this.envConfig['PREFIX']
     }
 
+    public static get prefixStaging(): string {
+      return this.envConfig['PREFIX_STAGING']
+    }
+
     // TODO: Use oauth2.0
     public static get youtubeClientId(): string {
       return this.envConfig['YOUTUBE_CLIENT_ID']
@@ -60,30 +68,13 @@ import { google } from 'googleapis'
     public static get youtubeClientSecret(): string {
       return this.envConfig['YOUTUBE_CLIENT_SECRET']
     }
+
+    public static get environment(): 'development' | 'production' {
+      return this.envConfig['ENVIRONMENT'] as any
+    }
   }
 
   new ConfigService()
 
   global['config'] = ConfigService
 })()
-
-// TODO: Implement google oauth2 workflow
-// const initGoogleAuth2Client = () => {
-//   const googleAuthClient = new google.auth.OAuth2(
-//     global.config.youtubeClientId,
-//     global.config.youtubeClientSecret
-//   )
-
-//   const url = googleAuthClient.generateAuthUrl({
-//     scope: [
-//       'https://www.googleapis.com/auth/youtube',
-//       'https://www.googleapis.com/auth/youtube.force-ssl',
-//       'https://www.googleapis.com/auth/youtube.readonly',
-//       'https://www.googleapis.com/auth/youtubepartner',
-//       'https://www.googleapis.com/auth/youtubepartner-channel-audit',
-//     ],
-//   })
-//   google.options({
-//     auth: googleAuthClient,
-//   })
-// }

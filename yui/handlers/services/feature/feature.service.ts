@@ -1,34 +1,32 @@
-import { debugLogger, errorLogger } from '@/handlers/log.handler'
+import { LOG_SCOPE } from '@/constants/constants'
 import {
-  Message,
-  GuildMember,
-  EmbedFieldData,
-  MessageEmbedOptions,
-} from 'discord.js'
-import { discordRichEmbedConstructor } from '../music/music-utilities/discord-embed-constructor'
-import {
-  isMyOwner,
-  tenorRequestService,
-  subscriberCountFormatter,
-} from './feature-services/utility.service'
-import { RNG } from '../music/music-utilities/music-function'
-import {
-  FeatureServiceInitiator,
-  CurrentGuildMember,
-  FeaturePermissionValidator,
-  MentionedUsers,
-  UserAction,
-  RequestParams,
-} from '@/decorators/features.decorator'
-import { AdminPermissionValidator } from '@/decorators/permission.decorator'
-import { HoloStatRequestService } from './feature-services/holo-stat/holo-stat-request.service'
-import { Constants, HOLOSTAT_REGION } from '@/constants/constants'
-import {
+  Detail,
   HoloStatCommandValidator,
   Region,
-  Detail,
 } from '@/decorators/feature-holostat.decorator'
-import { HoloStatService } from './feature-services/holo-stat/holo-stat.service'
+import {
+  CurrentGuildMember,
+  FeaturePermissionValidator,
+  FeatureServiceInitiator,
+  MentionedUsers,
+  RequestParams,
+  UserAction,
+} from '@/decorators/features.decorator'
+import { debugLogger, errorLogger } from '@/handlers/log.handler'
+import {
+  GuildMember,
+  Message,
+  MessageAttachment,
+  MessageEmbed,
+  MessageOptions,
+} from 'discord.js'
+import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
+import { RNG } from '../utilities/util-function'
+import {
+  pingImageGenerator,
+  tenorRequestService,
+} from './feature-services/feature-utilities'
+import { HoloStatService } from './holostat-service/holostat.service'
 
 @FeatureServiceInitiator()
 export class FeatureService {
@@ -42,21 +40,32 @@ export class FeatureService {
     message: Message,
     @CurrentGuildMember() yui?: GuildMember
   ) {
-    const ping = yui.client.ws.ping
+    const yuiPing = yui.client.ws.ping
+    const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
 
-    const sentMessage = (await message.channel
-      .send('**`Pinging... `**')
-      .catch(null)) as Message
+    if (!sentMessage)
+      return this.sendMessage(
+        message,
+        '**Something went wrong, please try again.**'
+      )
     const timeStart = message.createdTimestamp
     const timeEnd = sentMessage.createdTimestamp
-    const embed = await discordRichEmbedConstructor({
-      title: 'Status',
-      description: `:revolving_hearts: **: \`${
-        timeEnd - timeStart
-      }ms\`**\n:heartpulse: **: \`${ping}ms\`**`,
-    })
 
-    if (!!sentMessage) sentMessage.edit(embed)
+    const image: Buffer = await pingImageGenerator(
+      yuiPing,
+      timeEnd - timeStart
+    ).catch((err) => this.handleError(new Error(err)))
+    // const embed = await discordRichEmbedConstructor({
+    //   title: 'Status',
+    //   description: `:heartbeat: **Yui's ping: \`${yuiPing}ms\`**.\n:revolving_hearts: **Estimated message RTT: \`${
+    //     timeEnd - timeStart
+    //   }ms\`**`,
+    // })
+
+    const attachment = new MessageAttachment(image, 'ping.jpg')
+    if (!!sentMessage) sentMessage.delete().catch(null)
+
+    this.sendMessage(message, attachment)
   }
 
   @FeaturePermissionValidator()
@@ -88,28 +97,23 @@ export class FeatureService {
 
     const embed = await discordRichEmbedConstructor({
       author: {
-        embedTitle: yui.user.username,
-        authorAvatarUrl: yui.user.avatarURL(),
+        authorName: yui.user.username,
+        avatarUrl: yui.user.avatarURL(),
       },
       description: commands,
       title: 'Command List',
       footer: 'Note: <>: required param | <?>: optional param',
     })
 
-    message.channel.send(embed)
+    this.sendMessage(message, embed)
   }
 
   @FeaturePermissionValidator()
-  public async say(
-    message: Message,
-    args: Array<string>,
-    @CurrentGuildMember() yui?: GuildMember
-  ): Promise<void> {
+  public async say(message: Message, args: Array<string>): Promise<void> {
     const embed = await discordRichEmbedConstructor({
       description: `**${args.join(' ')}**`,
     })
-
-    message.channel.send(embed)
+    this.sendMessage(message, embed)
   }
 
   @FeaturePermissionValidator()
@@ -146,7 +150,8 @@ export class FeatureService {
       ? `${message.member} ${action}`
       : `${message.member} ${action} ${mentionString}`
 
-    message.channel.send(
+    this.sendMessage(
+      message,
       await discordRichEmbedConstructor({
         description,
         imageUrl: result.results[num].media[0].gif.url,
@@ -163,13 +168,22 @@ export class FeatureService {
     @Region() region?: 'jp' | 'id',
     @Detail() detail?: boolean
   ) {
-    if (region && !detail)
-      return this._holoStatService.holoStatStatistics(message, region, yui)
+    if (!detail)
+      return this._holoStatService.holoStatStatistics(message, yui, region)
 
-    if (detail) return this._holoStatService.holoStatSelectList(message, region)
+    return this._holoStatService.holoStatSelectList(message, region)
+  }
+
+  private async sendMessage(
+    message: Message,
+    content: string | MessageEmbed | MessageOptions | MessageAttachment
+  ): Promise<Message> {
+    return await message.channel
+      .send(content)
+      .catch((error) => this.handleError(new Error(error)))
   }
 
   private handleError(error: Error | string): null {
-    return errorLogger(error, 'FEATURE_SERVICE')
+    return errorLogger(error, LOG_SCOPE.FEATURE_SERVICE)
   }
 }

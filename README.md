@@ -8,11 +8,14 @@ Yui but in TypeScript
 
 > **What can Yui do?**
 
-- Designed to be a multi-server music bot
-- Play music from query, youtube link, enqueue playlists, commands to control music, and is free to use, Just the you need to be in the right place to use them. There is no limit controller.
+- Designed to be a multi-server music bot.
+- Play music from
+  - Youtube: Queries, search, links, playlists (except private and personal mix), livestreams (not so stable).
+  - SoundCloud: Song links and playlist links (except private and personal discover or mix).
+  - Commands to control music, and is free to use, just the you need to be in the right place to use them. There is no limit controller.
 - Some utilities for entertaining:
   - Like `>tenor slap @<your-poor-target>`, this will load an anime gif with the action you carried out. Of course anime.
-  - `>holostat ?<id|jp> ?detail`: Channel statistics for Hololive members or a specific member, you can change the order of params
+  - `>holostat ?<id|jp> ?<detail|d>`: Channel statistics for Hololive members or a specific member, you can change the order of params
   - Some basic thingy like `say` or `ping`
 - Some basic administrative commands
 - The permission for each command is base on the executor permissions and yui's permissions

@@ -7,7 +7,7 @@ import type {
   BroadcastDispatcher,
 } from 'discord.js'
 import { MusicQueue } from './music-queue'
-import { MusicStreamValue } from './interfaces/music-stream.interface'
+import { MusicStreamValue } from '../music-interfaces/music-stream.interface'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import { debugLogger } from '@/handlers/log.handler'
 

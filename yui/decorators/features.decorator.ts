@@ -1,8 +1,8 @@
 import { TFunction } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message, PermissionString } from 'discord.js'
-import { isMyOwner } from '@/handlers/services/feature/feature-services/utility.service'
-import { HoloStatService } from '@/handlers/services/feature/feature-services/holo-stat/holo-stat.service'
+import { isMyOwner } from '@/handlers/services/feature/feature-services/feature-utilities'
+import { HoloStatService } from '@/handlers/services/feature/holostat-service/holostat.service'
 
 export enum FEATURE_SYMBOLS {
   CLIENT = 'client',

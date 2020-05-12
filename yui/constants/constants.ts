@@ -35,9 +35,29 @@ export const HOLOSTAT_SUB_COMMANDS = [
   'id',
   'indonesia',
   'detail',
+  'd',
 ]
 
-export type HOLOSTAT_REGION = 'jp' | 'japan' | 'id' | 'indonesia' | 'detail' //exception
+export type DISCORD_REACTIONS_TYPE = '1️⃣' | '2️⃣' // currently just have 2
+// | '3️⃣'
+// | '4️⃣'
+// | '5️⃣'
+// | '6️⃣'
+// | '7️⃣'
+// | '8️⃣'
+// | '9️⃣'
+// | '🔟'
+export type HOLOSTAT_PARAMS =
+  | 'jp'
+  | 'japan'
+  | 'id'
+  | 'indonesia'
+  | 'detail'
+  | 'd'
+export type KNOWN_HOLOLIVE_REGION = 'jp' | 'id'
+export type HOLOSTAT_REACTION = {
+  [key: string]: { name: string; code: KNOWN_HOLOLIVE_REGION }
+}
 
 export const DISCORD_REACTION = {
   NUMBERS: ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'],
@@ -45,7 +65,7 @@ export const DISCORD_REACTION = {
   BACKWARD: '◀',
 }
 
-export const hololiveReactionList = {
+export const HOLOLIVE_REACTION_LIST: HOLOSTAT_REACTION = {
   '1️⃣': {
     name: 'Japan',
     code: 'jp',
@@ -53,5 +73,12 @@ export const hololiveReactionList = {
   '2️⃣': {
     name: 'Indonesia',
     code: 'id',
+  },
+}
+export const holoProxyHandler = {
+  get: function (target: Object, name: DISCORD_REACTIONS_TYPE) {
+    return target.hasOwnProperty(name)
+      ? target[name]
+      : HOLOLIVE_REACTION_LIST[DISCORD_REACTION.NUMBERS[0]]
   },
 }

@@ -3,13 +3,13 @@ import { Constants } from '@/constants/constants'
 
 interface IEmbedConstructor {
   title?: string
-  author?: { embedTitle?: string; authorAvatarUrl?: string }
+  titleUrl?: string
+  author?: { authorName?: string; avatarUrl?: string }
   description: string
   fields?: EmbedFieldData[] | EmbedFieldData[][]
   color?: string
   thumbnailUrl?: string
   appendTimeStamp?: boolean
-  titleUrl?: string
   imageUrl?
   footer?: string
 }
@@ -25,8 +25,8 @@ export function discordRichEmbedConstructor(
     if (records.title) embed.setTitle(records.title)
     if (records.author)
       embed.setAuthor(
-        records.author.embedTitle,
-        records.author.authorAvatarUrl || null
+        records.author.authorName,
+        records.author.avatarUrl || null
       )
 
     if (records?.fields?.length) embed.addFields(...records.fields)

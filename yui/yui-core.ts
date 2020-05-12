@@ -1,9 +1,9 @@
-import { Message, Client, GuildMember, VoiceState } from 'discord.js'
-import type { MessageHandler } from '@/handlers/message.handler'
-import type { VoiceStateHandler } from '@/handlers/voice-state.handler'
-import { errorLogger, debugLogger, infoLogger } from '@/handlers/log.handler'
-import { Yui, On } from './decorators/yui.decorator'
+import { debugLogger, errorLogger, infoLogger } from '@/handlers/log.handler'
+import { MessageHandler } from '@/handlers/message.handler'
+import { VoiceStateHandler } from '@/handlers/voice-state.handler'
+import { Client, Message, VoiceState } from 'discord.js'
 import { LOG_SCOPE } from './constants/constants'
+import { Yui } from './decorators/yui.decorator'
 
 @Yui({
   prefix: global?.config?.prefix,
@@ -41,18 +41,30 @@ export default class YuiCore {
     if (!this.yui.user) return
     infoLogger(LOG_SCOPE.YUI_CORE, 'Connected!')
     await Promise.all([
-      this.yui?.user?.setActivity('📻 Radio Happy', {
-        url: 'https://twitch.tv/onlypolaris',
-        type: 'STREAMING',
-      }),
+      global.config.environment === 'development'
+        ? this.yui.user.setActivity('-help', {
+            type: 'LISTENING',
+          })
+        : this.yui.user.setActivity('📻 Radio Happy (>help)', {
+            url: 'https://twitch.tv/onlypolaris',
+            type: 'STREAMING',
+          }),
     ]).catch((err) => this.handleError(new Error(err)))
     infoLogger(LOG_SCOPE.YUI_CORE, 'Yui is online')
   }
 
   async onMessage(message: Message) {
+    // owner feature
+    if (
+      message.channel.type === 'dm' &&
+      message.author.id === global.config.ownerId
+    )
+      return this.onDM(message)
+
     if (!message.content?.startsWith(this['prefix']) || message.author.bot)
       return
 
+    if (message.channel.type !== 'text') return // only accept text channel message
     const args = message.content
       .slice(this['prefix']?.length)
       .trim()
@@ -65,6 +77,10 @@ export default class YuiCore {
     } catch (err) {
       this.handleError(new Error(err))
     }
+  }
+
+  async onDM(message: Message) {
+    return this.messageHandler.specialExecute(message, this.yui)
   }
 
   async onVoiceStateUpdate(
