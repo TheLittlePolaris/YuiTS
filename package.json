@@ -4,18 +4,17 @@
   "description": "YuiBot TypeScript version",
   "main": "yui/yui.ts",
   "scripts": {
-    "postinstall": "patch-package",
     "prebuild-win": "IF EXIST .\\dist rmdir /Q /S .\\dist && mkdir dist && npm run cpyfiles",
     "prebuild": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run prebuild && cross-env NODE_ENV=production && tsc -p tsconfig.json && node dist/yui.js",
-    "dev": "npm run prebuild && cross-env NODE_ENV=development tsc -p tsconfig.json && node dist/yui.js",
-    "build": "npm run prebuild && cross-env NODE_ENV=production tsc -p tsconfig.json",
-    "start:dev": "cross-env NODE_ENV=development tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\"",
-    "start:prod": "cross-env NODE_ENV=production tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\"",
-    "start:win": "npm run prebuild-win && cross-env NODE_ENV=development tsc -p tsconfig.json && node dist/yui.js",
+    "start": "npm run prebuild && export NODE_ENV=production && tsc -p tsconfig.json && node dist/yui.js",
+    "dev": "npm run prebuild && export NODE_ENV=development && tsc -p tsconfig.json && node dist/yui.js",
+    "build": "npm run prebuild && export NODE_ENV=production && tsc -p tsconfig.json",
+    "start:dev": "export NODE_ENV=development && tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\"",
+    "start:prod": "export NODE_ENV=production tsc-watch -p tsconfig.build.json --onSuccess \"node dist/yui.js\"",
+    "start:win": "npm run prebuild-win && set NODE_ENV=development && tsc -p tsconfig.json && node dist/yui.js",
     "cpyfiles": "copyfiles --up 2 --all yui/assets/**/* dist/assets",
-    "pm2-service": "cross-env NODE_ENV=production pm2 start dist/yui.js"
+    "pm2-service": "export NODE_ENV=production && pm2 start dist/yui.js"
   },
   "author": "Polaris",
   "license": "ISC",
@@ -26,7 +25,6 @@
     "bufferutil": "^4.0.1",
     "colors": "^1.4.0",
     "copyfiles": "^2.2.0",
-    "cross-env": "^7.0.2",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
     "erlpack": "github:discordapp/erlpack",
@@ -71,6 +69,6 @@
   },
   "_moduleAliases": {
     "@": "dist",
-    "config-service": "dist/config-services"
+    "config-service": "dist/config-service"
   }
 }

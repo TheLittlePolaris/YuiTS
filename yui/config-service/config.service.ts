@@ -1,5 +1,5 @@
 import { config } from 'dotenv'
-import { debugLogger } from '@/handlers/log.handler'
+import { debugLogger, infoLogger } from '@/handlers/log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
 ;(async () => {
   interface EnvConfig {
@@ -9,8 +9,17 @@ import { LOG_SCOPE } from '@/constants/constants'
   class ConfigService {
     public static envConfig: EnvConfig
     constructor() {
+      const path = `.env${
+        process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ``
+      }`
+      infoLogger(
+        LOG_SCOPE.CONFIG_SERVICE,
+        `Using ${
+          process.env.NODE_ENV?.toUpperCase() || 'DEVELOPMENT'
+        } environment`
+      )
       ConfigService.envConfig = config({
-        path: `.env.${process.env.NODE_ENV || `development`}`,
+        path,
       }).parsed
       const { error } = ConfigService.envConfig
       if (error) {
@@ -60,7 +69,6 @@ import { LOG_SCOPE } from '@/constants/constants'
       return this.envConfig['PREFIX_STAGING']
     }
 
-    // TODO: Use oauth2.0
     public static get youtubeClientId(): string {
       return this.envConfig['YOUTUBE_CLIENT_ID']
     }

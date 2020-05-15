@@ -26,13 +26,13 @@ import { MusicQueue } from './music-entities/music-queue'
 import { MusicStream } from './music-entities/music-stream'
 import { ISong } from './music-interfaces/song-metadata.interface'
 import { IYoutubeVideo } from './music-interfaces/youtube-info.interface'
-import { SoundCloudService } from './soundcloud.service.ts/soundcloud-info.service'
+import { SoundCloudService } from './soundcloud-service/soundcloud-info.service'
 import {
   isSoundCloudPlaylistUrl,
   isSoundCloudSongUrl,
   isSoundCloudUrl,
-} from './soundcloud.service.ts/soundcloud-utilities'
-import { YoutubeInfoService } from './youtube-services/youtube-info.service'
+} from './soundcloud-service/soundcloud-utilities'
+import { YoutubeInfoService } from './youtube-service/youtube-info.service'
 import {
   createProgressBar,
   isYoutubePlaylistUrl,
@@ -41,8 +41,8 @@ import {
   STREAM_STATUS,
   timeConverter,
   youtubeTimeConverter,
-} from './youtube-services/youtube-utilities'
-import { PolarisSoundCloudPlayer } from './soundcloud.service.ts/soundcloud-player.service'
+} from './youtube-service/youtube-utilities'
+import { PolarisSoundCloudPlayer } from './soundcloud-service/soundcloud-player.service'
 
 @MusicServiceInitiator()
 export class MusicService {

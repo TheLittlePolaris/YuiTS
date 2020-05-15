@@ -19,7 +19,7 @@
     "incremental": true,
     "paths": {
       "@/*": ["./yui/*"],
-      "config-service/*": ["./yui/config-services/*"]
+      "config-service/*": ["yui/config-service/*"]
     }
   },
   "include": ["./yui/**/*"],

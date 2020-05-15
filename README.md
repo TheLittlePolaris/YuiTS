@@ -24,14 +24,15 @@ Yui but in TypeScript
 
 > **How to use ?**
 
-- Create a `.env` file with:
+- Create a `.env.development` file with:
+
   - `TOKEN` is your bot token
   - A fixed `PREFIX`
   - Your own `YOUTUBE_API_KEY` which you can get from Google APIs Console
   - You will also need your bot id to replace `YUI_ID` and your own id to replace `OWNER_ID`
   - Also a `TENOR_KEY` which you can get from Tenor API and a `TENOR_ANONYMOUS_ID`.
-
-> **How to run ?**
+  - Run command with
+    > **How to run ?**
 
 - First you need to install the libraries:
   - First install `nvm` and install 2 node version: 10.16 and 12.16
