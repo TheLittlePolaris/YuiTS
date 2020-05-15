@@ -1,4 +1,5 @@
 import { youtube_v3 } from 'googleapis'
+import { IYoutubeDLSoundCloudAudioProtocol } from './soundcloud-info.interface'
 
 // re-map interface name
 
@@ -11,7 +12,12 @@ export interface IYoutubeVideosResult
 export interface IYoutubePlaylistResult
   extends youtube_v3.Schema$PlaylistItemListResponse {}
 
+export interface ISoundCloudInfo {
+  url: string
+  type: IYoutubeDLSoundCloudAudioProtocol
+}
 export interface IYoutubeVideo extends youtube_v3.Schema$Video {
+  soundcloudInfo?: ISoundCloudInfo
   songUrl?: string
   contentDetails?: youtube_v3.Schema$VideoContentDetails & {
     rawDuration?: number

@@ -92,34 +92,24 @@ export class MusicQueue {
   /**
    * @returns The name of the removed song at the last of queue
    */
-  public popLast() {
+  public popSong() {
     let tempTitle = this.songs[this.songs.length - 1].title
     this.songs.pop()
     return tempTitle
   }
   /**
-   *  @param index - The exact posistion of the song
-   *  @returns string: Name of the removed song
-   */
-  public spliceSong(index: number) {
-    let songName = this.songs[index].title
-    this.songs.splice(index, 1)
-    return songName
-  }
-  /**
    * @param {Number} index - start position in queue
    * @param {Number} length - the amount of songs to be removed
    */
-  public spliceSongs(index: number, length: number) {
+  public spliceSongs(index: number, length: number = 1) {
     this.songs.splice(index, length)
   }
 
-  private swapData(i, j) {
+  private swapData(i: number, j: number) {
     let temp = this.songs[i]
     this.songs[i] = this.songs[j]
     this.songs[j] = temp
   }
-
   /**
    * @type {void} - Shuffle the current queue
    */

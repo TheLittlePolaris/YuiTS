@@ -1,9 +1,9 @@
-export type YoutubedlSoundcloudFormatId =
+export type YoutubeDLSoundcloudFormatId =
   | 'hls_opus_64'
   | 'hls_mp3_128'
   | 'http_mp3_128'
 
-export type IYoutubedlFormat =
+export type IYoutubeDLFormat =
   | 'http_mp3_128 - audio only'
   | 'hls_mp3_128 - audio only'
   | 'hls_opus_64 - audio only'
@@ -20,18 +20,18 @@ export type IYoutubedlSoundcloudThumbnailId =
   | 't500x500'
   | 'original'
 
-export type IYoutubedlFormatExtractor = 'soundcloud'
-export type IYoutubedlFormatExtractorKey = 'Soundcloud'
-export type IYoutubedlSoundCloudProtocol = 'm3u8_native' | 'http'
+export type IYoutubeDLFormatExtractor = 'soundcloud'
+export type IYoutubeDLFormatExtractorKey = 'Soundcloud'
+export type IYoutubeDLSoundCloudAudioProtocol = 'm3u8_native' | 'http'
 
 export interface ISoundCloudSongFormat {
   ext: string
-  protocol: IYoutubedlSoundCloudProtocol
+  protocol: IYoutubeDLSoundCloudAudioProtocol
   preference: any
   vcodec: string // none
   format: string
   url: string
-  format_id: YoutubedlSoundcloudFormatId // known formats
+  format_id: YoutubeDLSoundcloudFormatId // known formats
   http_headers: Object
   abr: number
 }
@@ -48,8 +48,8 @@ export interface ISoundCloudSongThumbnail {
 // base on youtube-dl response
 export interface ISoundCloudSong {
   display_id: string
-  extractor: IYoutubedlFormatExtractor
-  protocol: IYoutubedlSoundCloudProtocol
+  extractor: IYoutubeDLFormatExtractor
+  protocol: IYoutubeDLSoundCloudAudioProtocol
   description: string
   uploader_id: string // number
   upload_date: string // number
@@ -60,8 +60,8 @@ export interface ISoundCloudSong {
   like_count: number
   preference: any
   uploader: string // uploader name
-  duration: string //3:19.46199999999999
-  format_id: YoutubedlSoundcloudFormatId
+  duration: number //3:19.46199999999999
+  format_id: YoutubeDLSoundcloudFormatId
   http_headers: Object
   playlist_index: any
   view_count: number
@@ -71,9 +71,9 @@ export interface ISoundCloudSong {
   license: string
   title: string
   url: string
-  extractor_key: IYoutubedlFormatExtractorKey
+  extractor_key: IYoutubeDLFormatExtractorKey
   vcodec: 'none'
-  format: YoutubedlSoundcloudFormatId
+  format: YoutubeDLSoundcloudFormatId
   repost_count: number
   id: string
   comment_count: number
@@ -84,6 +84,4 @@ export interface ISoundCloudSong {
   fulltitle: string
   thumbnail: string // 'https://i1.sndcdn.com/artworks-000327927942-hpumgb-original.jpg',
   webpage_url_basename: string
-  _duration_raw: number // 199.462,
-  _duration_hms: string // '00:03:19.462'
 }

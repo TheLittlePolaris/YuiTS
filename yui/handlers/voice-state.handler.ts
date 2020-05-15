@@ -34,7 +34,7 @@ export class VoiceStateHandler {
         case 'leave': {
           const timeout = setTimeout(() => {
             this.leaveOnTimeout(voiceStateCheck?.stream)
-          }, 5000)
+          }, 30000)
           voiceStateCheck.stream.set('leaveOnTimeout', timeout)
 
           break

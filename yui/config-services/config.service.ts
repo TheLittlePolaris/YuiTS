@@ -12,7 +12,7 @@ import { LOG_SCOPE } from '@/constants/constants'
       ConfigService.envConfig = config({
         path: `.env.${process.env.NODE_ENV || `development`}`,
       }).parsed
-      const { error } = ConfigService?.envConfig
+      const { error } = ConfigService.envConfig
       if (error) {
         throw new Error(`Fatal: CANNOT READ CONFIG ENVIRONMENT: ${error}`)
       }

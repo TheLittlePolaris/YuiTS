@@ -22,10 +22,7 @@ import {
 } from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
-import {
-  pingImageGenerator,
-  tenorRequestService,
-} from './feature-services/feature-utilities'
+import { tenorRequestService } from './feature-services/feature-utilities'
 import { HoloStatService } from './holostat-service/holostat.service'
 
 @FeatureServiceInitiator()
@@ -51,21 +48,21 @@ export class FeatureService {
     const timeStart = message.createdTimestamp
     const timeEnd = sentMessage.createdTimestamp
 
-    const image: Buffer = await pingImageGenerator(
-      yuiPing,
-      timeEnd - timeStart
-    ).catch((err) => this.handleError(new Error(err)))
-    // const embed = await discordRichEmbedConstructor({
-    //   title: 'Status',
-    //   description: `:heartbeat: **Yui's ping: \`${yuiPing}ms\`**.\n:revolving_hearts: **Estimated message RTT: \`${
-    //     timeEnd - timeStart
-    //   }ms\`**`,
-    // })
+    // const image: Buffer = await pingImageGenerator(
+    //   yuiPing,
+    //   timeEnd - timeStart
+    // ).catch((err) => this.handleError(new Error(err)))
+    const embed = await discordRichEmbedConstructor({
+      title: 'Status',
+      description: `:heartbeat: **Yui's ping: \`${yuiPing}ms\`**.\n:revolving_hearts: **Estimated message RTT: \`${
+        timeEnd - timeStart
+      }ms\`**`,
+    })
 
-    const attachment = new MessageAttachment(image, 'ping.jpg')
+    // const attachment = new MessageAttachment(image, 'ping.jpg')
     if (!!sentMessage) sentMessage.delete().catch(null)
 
-    this.sendMessage(message, attachment)
+    this.sendMessage(message, embed)
   }
 
   @FeaturePermissionValidator()

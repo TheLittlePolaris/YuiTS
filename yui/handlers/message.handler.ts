@@ -25,12 +25,12 @@ export class MessageHandler {
     switch (command) {
       case 'play':
       case 'p':
-        return await this._musicService.play(message, args)
+        return await this._musicService.play(message, args, false)
 
       case 'playnext':
       case 'pnext':
       case 'pn':
-        return await this._musicService.addToNext(message, args)
+        return await this._musicService.play(message, args, true)
 
       case 'skip':
       case 'next':

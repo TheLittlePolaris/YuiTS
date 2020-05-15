@@ -1,5 +1,5 @@
 // import discordYtdl from 'ytdl-core-discord'
-import { Constants } from '@/constants/constants'
+import { Constants, LOG_SCOPE } from '@/constants/constants'
 import {
   AccessController,
   CurrentGuildMember,
@@ -19,7 +19,6 @@ import {
   TextChannel,
 } from 'discord.js'
 import { Readable } from 'stream'
-import youtubedl from 'youtube-dl'
 import ytdl from 'ytdl-core'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
@@ -43,6 +42,7 @@ import {
   timeConverter,
   youtubeTimeConverter,
 } from './youtube-services/youtube-utilities'
+import { PolarisSoundCloudPlayer } from './soundcloud.service.ts/soundcloud-player.service'
 
 @MusicServiceInitiator()
 export class MusicService {
@@ -51,7 +51,7 @@ export class MusicService {
     debugLogger('MusicService')
   }
 
-  async createStream(
+  private async createStream(
     message: Message,
     client: Client
   ): Promise<MusicStream | null> {
@@ -114,7 +114,7 @@ export class MusicService {
     })
   }
 
-  async createVoiceConnection(
+  private async createVoiceConnection(
     message: Message,
     stream: MusicStream,
     client: Client // for broadcast, not using
@@ -137,6 +137,7 @@ export class MusicService {
   public async play(
     message: Message,
     args?: Array<string>,
+    next: boolean = false,
     @GuildStream() stream?: MusicStream,
     @CurrentGuildMember() member?: GuildMember
   ): Promise<void> {
@@ -158,22 +159,30 @@ export class MusicService {
       isYoutubeUrl(query),
       isSoundCloudUrl(query),
     ]
+
+    let type: 'youtube' | 'soundcloud' = 'youtube'
     if (isSoundCloud) {
       if (isSoundCloudPlaylistUrl(query)) {
         return this.queueSoundCloudPlaylist(stream, message, query)
-      } else if (isSoundCloudSongUrl(query)) {
-        return this.queueSong(stream, message, query, 'soundcloud')
+      } else if (!isSoundCloudSongUrl(query)) {
+        this.sendMessage(
+          message,
+          `**I'm sorry but the link you provided doesn't look like a playable SoundCloud source, please try again with a playlist link or a song link**`
+        )
+        return
       }
-      this.sendMessage(
-        message,
-        `I'm sorry but the link you provided looks like a playable source, please try again with a playlist link or a song link`
-      )
+      type = 'soundcloud'
     }
-
     if (isYoutubePlaylistUrl(query)) {
       return this.queueYoutubePlaylist(stream, message, query).catch(null)
     }
-    return this.queueSong(stream, message, query)
+    return this.queueSong({
+      stream,
+      message,
+      args: query,
+      type,
+      next,
+    })
   }
 
   @AccessController({ join: true })
@@ -234,7 +243,7 @@ export class MusicService {
     if (stream.isPlaying === false) {
       stream.set('isPlaying', true)
 
-      await this.playMusic(stream)
+      this.playMusic(stream)
 
       this.sendMessage(
         message,
@@ -255,7 +264,7 @@ export class MusicService {
         // try for video id if exists
         const videoId = await YoutubeInfoService.getVideoId(args)
         if (videoId) {
-          return this.queueSong(stream, message, args)
+          return this.queueSong({ stream, message, args, type: 'youtube' })
         }
         throw new Error('Cannot find playlist')
       })
@@ -302,13 +311,13 @@ export class MusicService {
         message,
         ':hourglass_flowing_sand: **_Loading playlist from SoundCloud, this may take some times, please wait..._**'
       )
-      const playlistSongs: IYoutubeVideo[] = await SoundCloudService.getPlaylistInformation(
+      const playlistSongs: IYoutubeVideo[] = (await SoundCloudService.getInfoUrl(
         playlistLink
-      ).catch((err) => this.handleError(new Error(err))) // checked, should be fine
-      if (!playlistSongs.length) {
+      ).catch((err) => this.handleError(new Error(err)))) as IYoutubeVideo[] // checked, should be fine
+      if (!playlistSongs || !playlistSongs.length) {
         this.sendMessage(
           message,
-          'Sorry, i could not find any song in that playlist.'
+          '**Sorry, i could not find any song in that playlist...**'
         )
         return
       }
@@ -328,29 +337,46 @@ export class MusicService {
     }
   }
 
-  private async queueSong(
-    stream: MusicStream,
-    message: Message,
-    args: string,
-    type: 'youtube' | 'soundcloud' = 'youtube'
-  ): Promise<void> {
-    const requester: string = message.member.displayName
+  private async queueSong({
+    stream,
+    message,
+    args,
+    type,
+    next,
+  }: {
+    stream: MusicStream
+    message: Message
+    args: string
+    type?: 'youtube' | 'soundcloud'
+    next?: boolean
+  }): Promise<void> {
     const queue: MusicQueue = stream.queue
+    const requester: string = message.member.displayName
+    type = type || 'youtube'
     let tempStatus: string
     let itemInfo: IYoutubeVideo[]
     if (type === 'youtube') {
       const videoId = await YoutubeInfoService.getVideoId(args)
       itemInfo = await YoutubeInfoService.getInfoIds(videoId)
     } else {
-      // soundcloud
-      const soundcloudRawInfo = await SoundCloudService.getSongInformation(
-        args
-      ).catch((err) => this.handleError(new Error(err))) // checked url, should be fine
-      itemInfo = [soundcloudRawInfo]
+      const song = (await SoundCloudService.getInfoUrl(args).catch((err) =>
+        this.handleError(new Error(err))
+      )) as IYoutubeVideo
+      if (!song) {
+        this.sendMessage(message, '**Something went wrong...**')
+        return
+      }
+      itemInfo = [song]
     }
 
     await Promise.all([
-      this.pushToQueue({ queue, data: itemInfo, requester, atEnd: true, type }),
+      this.pushToQueue({
+        queue,
+        data: itemInfo,
+        requester,
+        atEnd: !!next,
+        type,
+      }),
     ])
     if (!stream.isPlaying) {
       stream.set('isPlaying', true)
@@ -382,7 +408,7 @@ export class MusicService {
     this.sendMessage(message, embed)
   }
 
-  public pushToQueue({
+  private pushToQueue({
     queue,
     data,
     requester,
@@ -404,22 +430,25 @@ export class MusicService {
           if (!_song.id) {
             return this.handleError(new Error('Song id was undefined.'))
           }
+          const { id, snippet, contentDetails, soundcloudInfo, songUrl } = _song
+          const { title, channelId, channelTitle, thumbnails } = snippet
           const song: ISong = {
-            id: _song.id,
-            title: _song.snippet.title,
-            channelId: _song.snippet.channelId,
-            channelTitle: _song.snippet.channelTitle,
+            id,
+            title: title,
+            channelId,
+            channelTitle,
             duration:
               type === 'youtube'
-                ? await youtubeTimeConverter(_song.contentDetails.duration)
-                : _song.contentDetails.rawDuration,
+                ? await youtubeTimeConverter(contentDetails.duration)
+                : contentDetails.rawDuration,
             requester,
             videoUrl:
               type === 'youtube'
-                ? `https://www.youtube.com/watch?v=${_song.id}`
-                : _song.songUrl,
-            videoThumbnail: _song.snippet.thumbnails.default.url,
+                ? `https://www.youtube.com/watch?v=${id}`
+                : songUrl,
+            videoThumbnail: thumbnails.default.url,
             type: type || 'youtube',
+            soundcloudInfo,
           }
           atEnd ? queue.addSong(song) : queue.addNext(song)
         })
@@ -429,9 +458,9 @@ export class MusicService {
     })
   }
 
-  async playMusic(stream: MusicStream): Promise<void> {
+  private async playMusic(stream: MusicStream): Promise<void> {
     try {
-      const currSong = stream.queue.at(0)
+      const { type, id, videoUrl, soundcloudInfo } = stream.queue.at(0)
 
       const downloadOptions: ytdl.downloadOptions = {
         quality: 'highestaudio',
@@ -441,34 +470,26 @@ export class MusicService {
       }
 
       const ytdlStream: Readable =
-        currSong.type === 'youtube'
-          ? ytdl(
-              `https://www.youtube.com/watch?v=${currSong.id}`,
+        type === 'youtube'
+          ? ytdl(`https://www.youtube.com/watch?v=${id}`, downloadOptions)
+          : await PolarisSoundCloudPlayer.createMusicStream(
+              soundcloudInfo,
               downloadOptions
             )
-          : youtubedl(currSong.videoUrl, ['--buffer-size', '16M'], {
-              // 16M
-              maxBuffer: Infinity,
-            })
 
-      const streamOptions: StreamOptions = {
-        volume: 0.7,
+      this.playStream(stream, ytdlStream, {
+        volume: 0.8,
         highWaterMark: 50,
-      }
-
-      const streamDispatcher = this.playStream(
-        stream,
-        ytdlStream,
-        streamOptions
-      )
+      })
 
       let sent: Message
       stream.streamDispatcher.on('start', async () => {
         stream.voiceConnection.player.streamingData.pausedTime = 0
         if (!stream.isLooping) {
-          sent = (await stream.boundTextChannel
-            .send('**` 🎧 Now Playing: ' + stream.queue.at(0).title + '`**')
-            .catch((err) => this.handleError(new Error(err)))) as Message
+          sent = await this.sendMessageChannel(
+            stream,
+            '**` 🎧 Now Playing: ' + stream.queue.at(0).title + '`**'
+          )
         }
       })
 
@@ -480,7 +501,12 @@ export class MusicService {
         reason?: string
       }) => {
         // destroy ongoing stream (if there is)
-        ytdlStream.destroy()
+        try {
+          ytdlStream.destroy()
+        } catch (err) {
+          // just in case
+          this.handleError(err)
+        }
 
         if (error) {
           this.handleError(error as string)
@@ -501,7 +527,6 @@ export class MusicService {
 
         if (stream.queue.isEmpty) {
           if (!stream.isAutoPlaying) {
-            delete stream._streamDispatcher
             return this.resetStreamStatus(stream)
           } else {
             return this.autoPlaySong(stream, endedSong)
@@ -511,10 +536,10 @@ export class MusicService {
         return this.playMusic(stream)
       }
 
-      // ytdl error ?
-      // ytdlStream.on('error', (error) => onStreamEnd({ error }))
-
-      // stream dispatcher error
+      // youtube-dl/ytdl error ? TODO: CHECK IF ANYTHING FATAL
+      // ytdlStream.on('error', (error: Error) =>
+      //   this.handleError(new Error(error.message))
+      // )
       stream.streamDispatcher.on('finish', (reason) => onStreamEnd({ reason }))
       stream.streamDispatcher.on('error', (error) => onStreamEnd({ error }))
     } catch (err) {
@@ -545,62 +570,6 @@ export class MusicService {
     return streamDispatcher
   }
 
-  @AccessController({ join: true, silent: true })
-  public async addToNext(
-    message: Message,
-    args?: Array<string>,
-    @GuildStream() stream?: MusicStream
-  ): Promise<void> {
-    if (!stream) return this.play(message, args)
-    const queue = stream.queue
-    if (!stream.isPlaying || queue.isEmpty) {
-      return this.play(message, args)
-    } else {
-      const _arguments = args.join(' ')
-      if (isYoutubeUrl(_arguments) && _arguments.indexOf('list=') > -1) {
-        this.sendMessage(
-          message,
-          'Currently cannot add playlist to next. Use `>play` instead.'
-        )
-        return
-      }
-      var requester = message.member.displayName
-      const songId = await YoutubeInfoService.getVideoId(_arguments).catch(
-        this.handleError
-      )
-      const song = await YoutubeInfoService.getInfoIds(songId).catch(
-        this.handleError
-      )
-      const createdSong = await this.pushToQueue({
-        queue,
-        data: song,
-        requester,
-        atEnd: false,
-      }).catch((err) => this.handleError(new Error(err)))
-      if (createdSong) {
-        const description = `*\`Channel\`*: **\`${
-          queue.at(1).channelTitle
-        }\`**\n*\`Duration\`*: **\`${await timeConverter(
-          queue.at(1).duration
-        )}\`**\n*\`Position in queue\`*: **\`1\`**`
-        const embed = await discordRichEmbedConstructor({
-          title: queue.at(0).title,
-          author: {
-            authorName: '♬ Added Next ♬',
-            avatarUrl: message.author.avatarURL(),
-          },
-          description,
-          thumbnailUrl: queue.at(1).videoThumbnail,
-          appendTimeStamp: true,
-          color: Constants.YUI_COLOR_CODE,
-          titleUrl: queue.at(1).videoUrl,
-          footer: `Requested by ${requester}`,
-        })
-        this.sendMessage(message, embed)
-      }
-    }
-  }
-
   @AccessController()
   public async skipSongs(
     message: Message,
@@ -609,51 +578,47 @@ export class MusicService {
   ): Promise<void> {
     stream = stream!
     if (stream.queue.isEmpty) {
-      await this.sendMessage(message, '**__Nothing to skip...__**')
+      await this.sendMessage(
+        message,
+        '**There is nothing playing at the moment...**'
+      )
       return
+    }
+    const firstArg = (args.length && args.shift().toLowerCase()) || null
+    if (!firstArg) {
+      if (stream.isLooping) {
+        stream.set('isLooping', false)
+      }
+      if (!!stream.streamDispatcher) {
+        stream.streamDispatcher.end()
+        this.sendMessage(message, ' :fast_forward: **Skipped!**')
+        return
+      }
     } else {
-      switch (args.length) {
-        case 0: {
-          if (stream.isLooping) {
-            stream.set('isLooping', false)
-          }
-          if (!!stream.streamDispatcher) {
-            this.sendMessage(message, ' :fast_forward: **Skipped!**')
-            stream.streamDispatcher.end()
-            return
-          }
-          break
+      const firstArgToNumber = Number(firstArg)
+      if (!Number.isNaN(firstArgToNumber)) {
+        if (firstArgToNumber < 0 || firstArgToNumber > stream.queue.length) {
+          await this.sendMessage(
+            message,
+            '**The number you gave is bigger than the current queue!**'
+          )
+          return
         }
-        case 1: {
-          if (!isNaN(args[0] as any)) {
-            let skipAmount = Number(args[0])
-            if (skipAmount < 0 || skipAmount > stream.queue.length) {
-              await this.sendMessage(
-                message,
-                'Index out of range! Please choose a valid one, use `>queue` for checking.'
-              )
-              return
-            }
-            stream.queue.spliceSongs(1, skipAmount)
-            if (stream.isLooping) {
-              stream.set('isLooping', false)
-            }
-            if (stream.streamDispatcher) {
-              this.sendMessage(
-                message,
-                ` :fast_forward: **Skipped ${skipAmount} songs!**`
-              )
-              stream.streamDispatcher.end()
-              return
-            }
-          } else {
-            this.sendMessage(message, 'Please enter a number!')
-            return
-          }
-          break
+        stream.queue.spliceSongs(1, firstArgToNumber)
+        if (stream.isLooping) {
+          stream.set('isLooping', false)
         }
-        default:
-          break
+        if (stream.streamDispatcher) {
+          this.sendMessage(
+            message,
+            ` :fast_forward: **Skipped ${firstArgToNumber} songs!**`
+          )
+          stream.streamDispatcher.end()
+          return
+        }
+      } else {
+        this.sendMessage(message, '**Please select a number**')
+        return
       }
     }
   }
@@ -665,15 +630,15 @@ export class MusicService {
     @GuildStream() stream?: MusicStream
   ) {
     if (!args.length) {
-      this.sendMessage(message, '**Please enter a value!**')
+      this.sendMessage(message, '**Please choose a specific volume number!**')
     }
 
-    const newVolume = Number(args[0])
+    const newVolume = Number(args.shift())
 
     if (!Number.isNaN(newVolume) && newVolume < 0 && newVolume > 100) {
       this.sendMessage(
         message,
-        '**Please enter a valid number! (0 <= volume <= 100)**'
+        '**Please choose a valid number! (0 <= volume <= 100)**'
       )
     }
 
@@ -802,7 +767,7 @@ export class MusicService {
     const numberOfSongs = stream.queue.length
     const limit = 10
     const tabs = Math.floor((numberOfSongs - 1) / limit) + 1
-    const firstArg = (args.length && Number(args.shift())) || 1
+    const firstArg = (args.length && Number(args.shift().toLowerCase())) || 1
     if (firstArg > tabs) {
       this.sendMessage(
         message,
@@ -863,7 +828,7 @@ export class MusicService {
     return
   }
 
-  async getQueueLength(stream: MusicStream): Promise<string | number> {
+  private async getQueueLength(stream: MusicStream): Promise<string | number> {
     if (stream.isLooping) return STREAM_STATUS.LOOPING
     if (stream.isQueueLooping) return STREAM_STATUS.QUEUE_LOOPING
     return await timeConverter(await stream.queue.totalDuration)
@@ -877,15 +842,17 @@ export class MusicService {
   ): Promise<void> {
     stream = stream!
 
-    const firstArg = (args.length && args.shift()) || null
-    const secondArg = (args.length && args.shift()) || null
-    if (!firstArg) {
+    if (!args.length) {
       this.sendMessage(
         message,
         '*Please choose certain song(s) from QUEUE to remove.*'
       )
       return
     }
+
+    const firstArg = args.shift().toLowerCase() || null
+    const secondArg = (args.length && args.shift().toLowerCase()) || null
+
     const firstArgToNumber = Number(firstArg)
     if (!secondArg || Number.isNaN(firstArgToNumber)) {
       if (Number.isNaN(firstArgToNumber)) {
@@ -898,7 +865,7 @@ export class MusicService {
           else
             this.sendMessage(
               message,
-              `**\`${stream.queue.popLast()}\` has been removed from QUEUE!**`
+              `**\`${stream.queue.popSong()}\` has been removed from QUEUE!**`
             )
         }
       }
@@ -914,7 +881,7 @@ export class MusicService {
       } else {
         this.sendMessage(
           message,
-          `**\`${stream.queue.spliceSong(
+          `**\`${stream.queue.spliceSongs(
             firstArgToNumber
           )}\` has been removed from QUEUE!**`
         )
@@ -1046,7 +1013,6 @@ export class MusicService {
     } else {
       this.sendMessage(message, '**Queue is empty.**')
     }
-    return
   }
 
   @AccessController()
@@ -1057,10 +1023,13 @@ export class MusicService {
   ): Promise<void> {
     stream = stream!
     if (!stream) {
-      this.handleError(new Error('`guild` was undefined'))
+      this.handleError(new Error('Undefined stream value'))
       return
     }
-    if (!args[0]) {
+
+    const firstArg = (args.length && args.shift().toLowerCase()) || null
+
+    if (!firstArg) {
       if (!stream.isLooping) {
         stream.set('isLooping', true)
         this.sendMessage(message, ' :repeat: _**Loop enabled!**_')
@@ -1071,8 +1040,7 @@ export class MusicService {
           ' :twisted_rightwards_arrows: _**Loop disabled!**_'
         )
       }
-      return
-    } else if (args[0].toLowerCase() === 'queue') {
+    } else if (firstArg === 'queue') {
       if (!stream.isQueueLooping) {
         stream.set('isQueueLooping', true)
         this.sendMessage(message, ' :repeat: _**Queue loop enabled!**_')
@@ -1083,11 +1051,12 @@ export class MusicService {
           ' :twisted_rightwards_arrows: _**Queue loop disabled!**_'
         )
       }
-      return
     } else {
-      this.sendMessage(message, 'Invailid option, action aborted!')
+      this.sendMessage(
+        message,
+        `**I'm sorry but what do you mean by \`${firstArg}\` ?**`
+      )
     }
-    return
   }
 
   @AccessController()
@@ -1098,34 +1067,36 @@ export class MusicService {
   ) {
     stream = stream!
     if (!stream) {
-      this.handleError(new Error('`guild` was undefined'))
+      this.handleError(new Error('Undefined stream value'))
       return
     }
     if (stream.streamDispatcher) {
-      isPause ? this.setPause(message, stream) : this.setResume(message, stream)
+      isPause ? this.setPause(stream) : this.setResume(stream)
       return
     } else {
       this.sendMessage(message, "I'm not playing anything.")
     }
     return
   }
-  private setPause(message: Message, stream: MusicStream): Promise<void> {
+
+  private setPause(stream: MusicStream): Promise<void> {
     if (!stream.isPaused) {
       stream.streamDispatcher.pause()
       stream.set('isPaused', true)
-      this.sendMessage(message, ':pause_button: **Paused!**')
+      this.sendMessageChannel(stream, ':pause_button: **Paused!**')
     } else {
-      this.sendMessage(message, '*Currently paused!*')
+      this.sendMessageChannel(stream, '*Currently paused!*')
     }
     return
   }
-  private setResume(message: Message, stream: MusicStream): Promise<void> {
+
+  private setResume(stream: MusicStream): Promise<void> {
     if (stream.isPaused) {
       stream.streamDispatcher.pause()
       stream.set('isPaused', false)
-      this.sendMessage(message, ' :arrow_forward: **Continue playing~!**')
+      this.sendMessageChannel(stream, ' :arrow_forward: **Continue playing~!**')
     } else {
-      this.sendMessage(message, '*Currently playing!*')
+      this.sendMessageChannel(stream, '*Currently playing!*')
     }
     return
   }
@@ -1152,10 +1123,7 @@ export class MusicService {
   }
 
   @AccessController()
-  public async stopPlaying(
-    message: Message,
-    @GuildStream() stream?: MusicStream
-  ) {
+  public stopPlaying(message: Message, @GuildStream() stream?: MusicStream) {
     if (stream?.isPlaying) {
       stream.queue.deleteQueue()
       this.resetStreamStatus(stream)
@@ -1174,55 +1142,52 @@ export class MusicService {
   @AccessController({ silent: true })
   public async leaveVoiceChannel(
     message: Message,
-    isError: boolean = false
+    isError: boolean = false,
+    @GuildStream() stream?: MusicStream
   ): Promise<void> {
-    const { guild } = message
-    if (!guild?.id)
-      return this.handleError(
-        new Error('[leaveVoiceChannel] Guild was undefined')
-      )
-    const stream = this._streams.get(guild.id)
-    if (!stream)
-      return this.handleError(
-        new Error('[leaveVoiceChannel] Stream not found!')
-      )
+    try {
+      if (!stream) throw new Error('[leaveVoiceChannel] Stream not found!')
 
-    stream.boundVoiceChannel.leave()
+      stream.boundVoiceChannel.leave()
 
-    this.resetStreamStatus(stream)
-    this.deleteStream(stream)
+      this.resetStreamStatus(stream)
+      this.deleteStream(stream)
 
-    if (!isError)
-      this.sendMessage(message, '**_Bye bye~! Matta nee~!_**').catch((err) =>
-        this.handleError(new Error(err))
-      )
+      if (!isError) this.sendMessage(message, '**_Bye bye~! Matta nee~!_**')
+    } catch (err) {
+      this.handleError(err)
+    }
   }
 
   public async soundcloudGetSongInfo(message: Message, link: string) {
-    const info = await SoundCloudService.getSongInformation(link).catch((err) =>
-      this.handleError(new Error(err))
-    )
-    console.log(info.snippet.thumbnails)
+    // const info = await SoundCloudService.getInfoYtdl(link).catch((err) =>
+    //   this.handleError(new Error(err))
+    // )
   }
 
   public async sendMessage(
     message: Message,
     content: string | MessageEmbed
   ): Promise<Message> {
-    return (await message.channel
+    return await message.channel
       .send(content)
-      .catch((err) => this.handleError(new Error(err)))) as Message
+      .catch((err) => this.handleError(new Error(err)))
+  }
+
+  public async sendMessageChannel(
+    stream: MusicStream,
+    content: string | MessageEmbed
+  ): Promise<Message> {
+    return await stream.boundTextChannel
+      .send(content)
+      .catch((err) => this.handleError(new Error(err)))
   }
 
   public get streams(): Map<string, MusicStream> {
     return this._streams
   }
 
-  public getStreams() {
-    return this._streams
-  }
-
   private handleError(error: Error | string): null {
-    return errorLogger(error, 'MUSIC_SERVICE')
+    return errorLogger(error, LOG_SCOPE.MUSIC_SERVICE)
   }
 }

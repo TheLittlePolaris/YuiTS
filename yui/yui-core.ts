@@ -61,16 +61,16 @@ export default class YuiCore {
     )
       return this.onDM(message)
 
-    if (!message.content?.startsWith(this['prefix']) || message.author.bot)
+    if (!message.content.startsWith(this['prefix']) || message.author.bot)
       return
 
     if (message.channel.type !== 'text') return // only accept text channel message
     const args = message.content
-      .slice(this['prefix']?.length)
+      .slice(this['prefix'].length)
       .trim()
       .split(/ +/g)
 
-    const command = args.shift().toLowerCase()
+    const command = args.shift()
 
     try {
       return this.messageHandler.execute(message, command, args)
