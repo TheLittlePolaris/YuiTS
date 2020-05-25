@@ -4,8 +4,8 @@ import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
 import { spawnSync, SpawnSyncOptions } from 'child_process'
 
 enum FORMAT_URL {
-  MU3U8_64 = 0,
-  MU3U8_128 = 1,
+  M3U8_64 = 0,
+  M3U8_128 = 1,
   HTTP_128 = 2,
 }
 
@@ -66,7 +66,7 @@ export abstract class SoundCloudService {
     } = info
 
     const selectedFormat =
-      formats[FORMAT_URL.MU3U8_128] || formats[FORMAT_URL.HTTP_128]
+      formats[FORMAT_URL.M3U8_128] || formats[FORMAT_URL.HTTP_128]
 
     return {
       id: id,
@@ -86,7 +86,7 @@ export abstract class SoundCloudService {
         },
       },
       contentDetails: {
-        rawDuration: Math.round(duration), // mapped
+        rawDuration: Math.round(duration),
       },
     }
   }

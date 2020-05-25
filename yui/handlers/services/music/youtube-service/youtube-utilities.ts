@@ -2,7 +2,9 @@ import { MusicQueue } from '../music-entities/music-queue'
 import { errorLogger } from '@/handlers/log.handler'
 
 export function isYoutubeUrl(link: string): boolean {
-  return /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(link)
+  return /^(https?:\/\/)?(www\.)?(music\.)?(youtube\.com|youtu\.be)\//i.test(
+    link
+  )
 }
 
 export function isYoutubePlaylistUrl(link: string): boolean {

@@ -1,4 +1,3 @@
-import getYoutubeID from 'get-youtube-id'
 import { isYoutubeUrl } from './youtube-utilities'
 import { errorLogger } from '@/handlers/log.handler'
 import { YoutubeRequestService } from './youtube-request.service'
@@ -9,27 +8,18 @@ import {
 } from '../music-interfaces/youtube-info.interface'
 
 export abstract class YoutubeInfoService {
-  public static async getVideoId(query: string): Promise<string> {
-    if (isYoutubeUrl(query)) {
-      return Promise.resolve(getYoutubeID(query))
-    } else {
-      return await this.searchVideo(query)
-    }
+  public static getYoutubePlaylistId(query: string) {
+    const result = /[&|\?]list=([a-zA-Z0-9_-]+)/gi.exec(query)
+    return (result && result.length && result[1]) || null
   }
 
-  public static getPlaylistID(url: string): Promise<string> {
-    return new Promise((resolve, _) => {
-      const isPlaylist: string = url.match(/[&|\?]list=([a-zA-Z0-9_-]+)/i)[1]
-      resolve(isPlaylist)
-    })
-  }
-
-  public static async getPlaylistId(args) {
-    if (!isYoutubeUrl(args)) {
-      throw new Error('Argument is not a youtube link.')
-    } else {
-      return await this.getPlaylistID(args)
-    }
+  public static async getYoutubeVideoId(query: string) {
+    const result = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/gi.exec(
+      query
+    )
+    return (
+      (result && result.length && result[1]) || (await this.searchVideo(query))
+    )
   }
 
   public static async searchVideo(query: string): Promise<string> {

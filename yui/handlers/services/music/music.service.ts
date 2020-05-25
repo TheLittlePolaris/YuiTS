@@ -65,7 +65,7 @@ export class MusicService {
       const voiceChannel = member?.voice?.channel
 
       if (!guild || !channel || !voiceChannel)
-        reject(new Error('Please join a voice channel and try again.'))
+        reject(new Error('No voice channel'))
 
       const existingStream = this._streams.get(guild.id)
 
@@ -149,9 +149,10 @@ export class MusicService {
     if (!stream) {
       this.sendMessage(
         message,
-        'Something went wrong. Could not create the stream. Please try again!'
+        '**Something went wrong :( please give one more try.**'
       )
       this.handleError(new Error('Guild stream was not created.'))
+      return
     }
 
     const query: string = args.join(' ')
@@ -173,9 +174,10 @@ export class MusicService {
       }
       type = 'soundcloud'
     }
-    if (isYoutubePlaylistUrl(query)) {
+
+    if (isYoutubePlaylistUrl(query))
       return this.queueYoutubePlaylist(stream, message, query).catch(null)
-    }
+
     return this.queueSong({
       stream,
       message,
@@ -258,40 +260,39 @@ export class MusicService {
     args: string
   ): Promise<void> {
     try {
-      const youtubePlaylistId = await YoutubeInfoService.getPlaylistId(
+      const youtubePlaylistId = await YoutubeInfoService.getYoutubePlaylistId(
         args
-      ).catch(async (err) => {
+      )
+      if (!youtubePlaylistId) {
         // try for video id if exists
-        const videoId = await YoutubeInfoService.getVideoId(args)
+        const videoId = await YoutubeInfoService.getYoutubeVideoId(args)
         if (videoId) {
           return this.queueSong({ stream, message, args, type: 'youtube' })
         }
         throw new Error('Cannot find playlist')
-      })
-
-      if (youtubePlaylistId) {
-        const sentMessage: Message = await this.sendMessage(
-          message,
-          ':hourglass_flowing_sand: **_Loading playlist, please wait..._**'
-        )
-        const requester = message.member.displayName
-        const playListVideos = await YoutubeInfoService.getPlaylistItems(
-          youtubePlaylistId
-        ).catch((err) => this.handleError(new Error(err)))
-
-        if (!playListVideos) {
-          this.sendMessage(message, 'Something went terribly wrong!')
-          throw new Error(`Couldn't load the playlist`)
-        }
-
-        return await this.startPlaylist({
-          message: sentMessage,
-          stream,
-          data: playListVideos,
-          requester,
-          type: 'youtube',
-        })
       }
+
+      const sentMessage: Message = await this.sendMessage(
+        message,
+        ':hourglass_flowing_sand: **_Loading playlist, please wait..._**'
+      )
+      const requester = message.member.displayName
+      const playListVideos = await YoutubeInfoService.getPlaylistItems(
+        youtubePlaylistId
+      ).catch((err) => this.handleError(new Error(err)))
+
+      if (!playListVideos) {
+        this.sendMessage(message, 'Something went terribly wrong!')
+        throw new Error(`Couldn't load the playlist`)
+      }
+
+      return await this.startPlaylist({
+        message: sentMessage,
+        stream,
+        data: playListVideos,
+        requester,
+        type: 'youtube',
+      })
     } catch (error) {
       this.sendMessage(
         message,
@@ -356,7 +357,7 @@ export class MusicService {
     let tempStatus: string
     let itemInfo: IYoutubeVideo[]
     if (type === 'youtube') {
-      const videoId = await YoutubeInfoService.getVideoId(args)
+      const videoId = await YoutubeInfoService.getYoutubeVideoId(args)
       itemInfo = await YoutubeInfoService.getInfoIds(videoId)
     } else {
       const song = (await SoundCloudService.getInfoUrl(args).catch((err) =>
@@ -1092,7 +1093,7 @@ export class MusicService {
 
   private setResume(stream: MusicStream): Promise<void> {
     if (stream.isPaused) {
-      stream.streamDispatcher.pause()
+      stream.streamDispatcher.resume()
       stream.set('isPaused', false)
       this.sendMessageChannel(stream, ' :arrow_forward: **Continue playing~!**')
     } else {
