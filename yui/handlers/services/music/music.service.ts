@@ -103,8 +103,8 @@ export class MusicService {
         }
       }
 
-      stream.voiceConnection.on('error', (error) => onConnectionError(error))
-      stream.voiceConnection.on('failed', (error) => onConnectionError(error))
+      stream.voiceConnection?.on('error', (error) => onConnectionError(error))
+      stream.voiceConnection?.on('failed', (error) => onConnectionError(error))
 
       await sentMessage
         .delete()
