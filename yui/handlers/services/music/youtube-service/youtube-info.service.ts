@@ -17,9 +17,7 @@ export abstract class YoutubeInfoService {
     const result = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/gi.exec(
       query
     )
-    return (
-      (result && result.length && result[1]) || (await this.searchVideo(query))
-    )
+    return (result?.length && result[1]) || (await this.searchVideo(query))
   }
 
   public static async searchVideo(query: string): Promise<string> {
@@ -35,7 +33,7 @@ export abstract class YoutubeInfoService {
     )
     if (!data) throw Error('Something went wrong during request')
 
-    return data?.items[0]?.id?.videoId || '3uOWvcFLUY0' // default
+    return data?.items?.[0]?.id?.videoId || '3uOWvcFLUY0' // default
   }
 
   public static async getInfoIds(ids: string): Promise<IYoutubeVideo[]> {

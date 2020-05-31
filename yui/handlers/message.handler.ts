@@ -120,7 +120,7 @@ export class MessageHandler {
         return await this._administrationService.executeCommand(message, args)
       }
       case 'test': {
-        // this.musicService.soundcloudGetSongInfo(message, args[0])
+        this.musicService.soundcloudGetSongInfo(message, args[0])
         // this.musicService.scPlaySong(message, args[0])
         break
       }

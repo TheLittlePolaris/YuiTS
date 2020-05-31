@@ -77,12 +77,18 @@ import { LOG_SCOPE } from '@/constants/constants'
       return this.envConfig['YOUTUBE_CLIENT_SECRET']
     }
 
+    public static get soundcloudUserId(): string {
+      return this.envConfig['SOUNDCLOUD_USERNAME']
+    }
+
+    public static get soundcloudPassword(): string {
+      return this.envConfig['SOUNDCLOUD_PASSWORD']
+    }
+
     public static get environment(): 'development' | 'production' {
       return this.envConfig['ENVIRONMENT'] as any
     }
   }
-
   new ConfigService()
-
   global['config'] = ConfigService
 })()

@@ -18,7 +18,7 @@ import {
   StreamOptions,
   TextChannel,
 } from 'discord.js'
-import { Readable } from 'stream'
+import { Readable, PassThrough } from 'stream'
 import ytdl from 'ytdl-core'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
@@ -431,7 +431,7 @@ export class MusicService {
           if (!_song.id) {
             return this.handleError(new Error('Song id was undefined.'))
           }
-          const { id, snippet, contentDetails, soundcloudInfo, songUrl } = _song
+          const { id, snippet, contentDetails, songUrl } = _song
           const { title, channelId, channelTitle, thumbnails } = snippet
           const song: ISong = {
             id,
@@ -449,7 +449,6 @@ export class MusicService {
                 : songUrl,
             videoThumbnail: thumbnails.default.url,
             type: type || 'youtube',
-            soundcloudInfo,
           }
           atEnd ? queue.addSong(song) : queue.addNext(song)
         })
@@ -461,7 +460,7 @@ export class MusicService {
 
   private async playMusic(stream: MusicStream): Promise<void> {
     try {
-      const { type, id, videoUrl, soundcloudInfo } = stream.queue.at(0)
+      const { type, id, videoUrl } = stream.queue.at(0)
 
       const downloadOptions: ytdl.downloadOptions = {
         quality: 'highestaudio',
@@ -470,11 +469,11 @@ export class MusicService {
         liveBuffer: 40000,
       }
 
-      const ytdlStream: Readable =
+      const ytdlStream: Readable | PassThrough =
         type === 'youtube'
           ? ytdl(`https://www.youtube.com/watch?v=${id}`, downloadOptions)
           : await PolarisSoundCloudPlayer.createMusicStream(
-              soundcloudInfo,
+              videoUrl,
               downloadOptions
             )
 
@@ -519,9 +518,9 @@ export class MusicService {
             .catch((err) => this.handleError(new Error(err)))
         }
 
-        const endedSong = stream.queue.shiftSong()
+        const endedSong = stream.queue.removeFirst()
         if (stream.isLooping) {
-          stream.queue.unshiftSong(endedSong)
+          stream.queue.addFirst(endedSong)
         } else if (stream.isQueueLooping) {
           stream.queue.addSong(endedSong)
         }
@@ -537,14 +536,14 @@ export class MusicService {
         return this.playMusic(stream)
       }
 
-      // youtube-dl/ytdl error ? TODO: CHECK IF ANYTHING FATAL
-      // ytdlStream.on('error', (error: Error) =>
-      //   this.handleError(new Error(error.message))
-      // )
       stream.streamDispatcher.on('finish', (reason) => onStreamEnd({ reason }))
       stream.streamDispatcher.on('error', (error) => onStreamEnd({ error }))
     } catch (err) {
-      this.handleError(new Error(err))
+      if (!stream.queue.isEmpty) {
+        stream.queue.removeFirst()
+        this.playMusic(stream)
+      } else this.resetStreamStatus(stream)
+      this.handleError(err)
     }
   }
 
@@ -605,7 +604,7 @@ export class MusicService {
           )
           return
         }
-        stream.queue.spliceSongs(1, firstArgToNumber)
+        stream.queue.removeSongs(1, firstArgToNumber)
         if (stream.isLooping) {
           stream.set('isLooping', false)
         }
@@ -765,9 +764,9 @@ export class MusicService {
       this.sendMessage(message, `**Nothing in queue!**`)
       return
     }
-    const numberOfSongs = stream.queue.length
+    const songsInQueue = stream.queue.length - 1 // exclude now playing
     const limit = 10
-    const tabs = Math.floor((numberOfSongs - 1) / limit) + 1
+    const tabs = Math.floor(songsInQueue / limit)
     const firstArg = (args.length && Number(args.shift().toLowerCase())) || 1
     if (firstArg > tabs) {
       this.sendMessage(
@@ -777,20 +776,20 @@ export class MusicService {
       return
     }
     if (firstArg === 1) {
-      const nowPlaying = stream.queue.at(0)
+      const nowPlaying = stream.queue.first
       let data = `**__NOW PLAYING:__\n\`🎶\`${
         nowPlaying.title
       }\`🎶\`** - \`(${await timeConverter(
         nowPlaying.duration
       )})\`\n*Requested by \`${nowPlaying.requester}\`*\n\n`
       const start = 1
-      const end = numberOfSongs <= 10 ? numberOfSongs - 1 : limit
-      if (numberOfSongs >= 2) {
+      const end = songsInQueue <= 10 ? songsInQueue : limit
+      if (songsInQueue >= 2) {
         data += `**__QUEUE LIST:__**\n
           ${await printQueueList(stream.queue, start, end)}
           ${
-            numberOfSongs > 11
-              ? `\`And another ${numberOfSongs - 11} songs.\``
+            songsInQueue > 11
+              ? `\`And another ${songsInQueue - limit} songs.\``
               : ``
           }\n`
       }
@@ -808,8 +807,7 @@ export class MusicService {
     } else {
       const startPosition = (firstArg - 1) * limit + 1
       let endPos = startPosition + limit - 1
-      const endPosition =
-        endPos > numberOfSongs - 1 ? numberOfSongs - 1 : endPos
+      const endPosition = endPos > songsInQueue ? songsInQueue : endPos
       const data = `**__QUEUE LIST:__**\n${await printQueueList(
         stream.queue,
         startPosition,
@@ -866,7 +864,7 @@ export class MusicService {
           else
             this.sendMessage(
               message,
-              `**\`${stream.queue.popSong()}\` has been removed from QUEUE!**`
+              `**\`${stream.queue.removeLast()}\` has been removed from QUEUE!**`
             )
         }
       }
@@ -882,7 +880,7 @@ export class MusicService {
       } else {
         this.sendMessage(
           message,
-          `**\`${stream.queue.spliceSongs(
+          `**\`${stream.queue.removeSongs(
             firstArgToNumber
           )}\` has been removed from QUEUE!**`
         )
@@ -906,7 +904,7 @@ export class MusicService {
         )
         return
       }
-      stream.queue.spliceSongs(firstArgToNumber, secondArgToNumber)
+      stream.queue.removeSongs(firstArgToNumber, secondArgToNumber)
       this.sendMessage(
         message,
         `**Songs from number ${firstArgToNumber} to ${
@@ -1161,9 +1159,11 @@ export class MusicService {
   }
 
   public async soundcloudGetSongInfo(message: Message, link: string) {
-    // const info = await SoundCloudService.getInfoYtdl(link).catch((err) =>
-    //   this.handleError(new Error(err))
-    // )
+    const info = await SoundCloudService.getInfoUrlTest(link).catch((err) =>
+      this.handleError(new Error(err))
+    )
+
+    console.log(info)
   }
 
   public async sendMessage(

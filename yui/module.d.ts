@@ -20,6 +20,8 @@ declare namespace NodeJS {
       youtubeClientSecret: string
       tenorKey: string
       tenorAnonymousId: string
+      soundcloudUserId: string
+      soundcloudPassword: string
       environment: 'development' | 'production'
     }
     youtube: any

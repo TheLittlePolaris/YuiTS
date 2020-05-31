@@ -30,13 +30,13 @@ export class MusicQueue {
   /**
    * @returns {ISong} Remove the song from the start of queue
    */
-  public shiftSong() {
+  public removeFirst() {
     return this.songs.shift()
   }
   /**
    * @param {ISong} currSong - Append the song to the start of queue
    */
-  public unshiftSong(currSong: ISong) {
+  public addFirst(currSong: ISong) {
     this.songs.unshift(currSong)
   }
   /**
@@ -69,7 +69,8 @@ export class MusicQueue {
    * @returns {ISong} The last song in the queue
    */
   public get last() {
-    return this.songs[this.length - 1]
+    const { length } = this.songs
+    return this.songs[length - 1]
   }
 
   /**
@@ -92,7 +93,7 @@ export class MusicQueue {
   /**
    * @returns The name of the removed song at the last of queue
    */
-  public popSong() {
+  public removeLast() {
     let tempTitle = this.songs[this.songs.length - 1].title
     this.songs.pop()
     return tempTitle
@@ -101,7 +102,7 @@ export class MusicQueue {
    * @param {Number} index - start position in queue
    * @param {Number} length - the amount of songs to be removed
    */
-  public spliceSongs(index: number, length: number = 1) {
+  public removeSongs(index: number, length: number = 1) {
     this.songs.splice(index, length)
   }
 

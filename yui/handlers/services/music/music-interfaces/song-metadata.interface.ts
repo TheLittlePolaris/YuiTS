@@ -11,5 +11,4 @@ export interface ISong {
   videoUrl: string
   videoThumbnail: string
   type: 'youtube' | 'soundcloud'
-  soundcloudInfo?: ISoundCloudInfo
 }

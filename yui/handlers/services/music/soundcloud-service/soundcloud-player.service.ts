@@ -1,16 +1,18 @@
 import { PassThrough, TransformOptions } from 'stream'
 import { parse } from 'url'
 import axios from 'axios'
-import m3u8stream from 'm3u8stream'
-import type { IYoutubeDLSoundCloudAudioProtocol } from '../music-interfaces/soundcloud-info.interface'
+import m3u8stream, { Progress } from 'm3u8stream'
+import { SoundCloudService } from './soundcloud-info.service'
 
 export abstract class PolarisSoundCloudPlayer {
   public static async createMusicStream(
-    data: { url: string; type: IYoutubeDLSoundCloudAudioProtocol },
+    videoUrl: string,
     options?: TransformOptions | m3u8stream.Options
   ): Promise<PassThrough> {
-    if (!data) throw new Error('Undefined data value')
-    const { url, type } = data
+    if (!videoUrl) throw new Error('Undefined data value')
+
+    const { url, type } = await this.getDownloadLink(videoUrl)
+
     switch (type) {
       case 'm3u8_native': {
         return Promise.resolve(this.m3u8Stream(url, options))
@@ -52,9 +54,7 @@ export abstract class PolarisSoundCloudPlayer {
     if (promisedRequest.status !== 200 && promisedRequest.status !== 206) {
       stream.emit(
         'error',
-        new Error(
-          `Status code: ${promisedRequest.status}. Status message: ${promisedRequest.statusText}`
-        )
+        `Status code: ${promisedRequest.status}. Status message: ${promisedRequest.statusText}`
       )
       return
     }
@@ -71,17 +71,37 @@ export abstract class PolarisSoundCloudPlayer {
     const { highWaterMark } = options
     const m3u8Stream = m3u8stream(url, {
       parser: 'm3u8',
-      chunkReadahead: 4,
+      chunkReadahead: 5,
       highWaterMark,
       requestOptions: {
-        maxRetries: 3,
+        maxRetries: 1,
+        highWaterMark,
       },
     })
 
-    m3u8Stream.on('progress', (data) => stream.emit('progress', data))
+    m3u8Stream.on('progress', (data: Progress) => {
+      stream.emit('progress', data)
+    })
+
+    m3u8Stream.on('error', (error) => stream.emit('error', error))
+
+    m3u8Stream.on('end', () => {
+      stream.emit('end')
+      stream.end()
+    })
 
     m3u8Stream.pipe(stream)
 
     return stream
+  }
+
+  public static async getDownloadLink(videoUrl: string) {
+    const soundcloudDll = (await SoundCloudService.getInfoUrl(videoUrl, {
+      getUrl: true,
+    })) as {
+      url: string
+      type: string
+    }
+    return soundcloudDll
   }
 }

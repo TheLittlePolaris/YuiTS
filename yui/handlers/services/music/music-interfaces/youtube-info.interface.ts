@@ -17,7 +17,6 @@ export interface ISoundCloudInfo {
   type: IYoutubeDLSoundCloudAudioProtocol
 }
 export interface IYoutubeVideo extends youtube_v3.Schema$Video {
-  soundcloudInfo?: ISoundCloudInfo
   songUrl?: string
   contentDetails?: youtube_v3.Schema$VideoContentDetails & {
     rawDuration?: number

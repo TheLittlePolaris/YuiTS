@@ -31,7 +31,7 @@ export function AdminPermissionValidator() {
     descriptor: PropertyDescriptor
   ) {
     decoratorLogger(
-      'ValidatePermissions - Method',
+      'AdminPermissionValidator - Method',
       LOG_SCOPE.ADMIN_ACTION_COMMAND,
       propertyKey
     )
@@ -119,14 +119,14 @@ export function AdminPermissionValidator() {
   }
 }
 
-export function CommandExecutor() {
+export function CommandValidator() {
   return function (
     target: any,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
     decoratorLogger(
-      'CommandExecutor - Method',
+      'CommandValidator - Method',
       LOG_SCOPE.ADMIN_SERVICE,
       propertyKey
     )

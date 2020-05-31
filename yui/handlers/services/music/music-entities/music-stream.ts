@@ -46,7 +46,7 @@ export class MusicStream {
     this._boundVoiceChannel = boundVoiceChannel
     this._boundTextChannel = boundTextChannel
     this._queue = new MusicQueue()
-    debugLogger(`MusicStream - Guild => ${this._name}`)
+    debugLogger(`MusicStream`, this._name)
   }
 
   /**

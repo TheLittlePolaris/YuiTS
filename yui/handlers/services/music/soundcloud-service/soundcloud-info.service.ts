@@ -1,4 +1,3 @@
-// import youtubedl from 'youtube-dl'
 import { ISoundCloudSong } from '../music-interfaces/soundcloud-info.interface'
 import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
 import { spawnSync, SpawnSyncOptions } from 'child_process'
@@ -22,12 +21,20 @@ enum FORMAT_THUMBNAILS {
   original = 9,
 }
 export abstract class SoundCloudService {
-  // TODO: UPDATE NEXT VERSION OF YOUTUBE-DL, fail for user playlist
-  public static async getInfoUrl(url: string, options?: SpawnSyncOptions) {
+  public static async getInfoUrl(
+    url: string,
+    {
+      getUrl,
+      options,
+    }: {
+      getUrl?: boolean
+      options?: SpawnSyncOptions
+    } = { getUrl: false, options: {} }
+  ) {
     if (!url || !url.length) throw new Error('Empty url')
     const result = await spawnSync(
       'youtube-dl',
-      ['--dump-json', '-f', 'best', '--', url],
+      ['--skip-download', '-s', '--dump-json', '--', url],
       {
         ...options,
         encoding: 'utf-8',
@@ -35,22 +42,48 @@ export abstract class SoundCloudService {
     )
     const rawInfo = result.stdout.trim().split(/\r?\n/)
     if (!rawInfo || !rawInfo.length) return []
+
     const info = rawInfo
-      .map((item) => this.mapToYoutubeVideoFormat(JSON.parse(item)))
+      .map((item) => this.mapToYoutubeVideoFormat(JSON.parse(item), getUrl))
       .filter(Boolean)
     if (!info) throw new Error('Cannot get any info')
-    // console.log(info)
 
     return info.length > 1 ? info : info[0]
   }
 
-  // public static async getInfoYtdl(url: string) {
-  //   youtubedl.getInfo(url, (err, info) => {
-  //     console.log(info)
-  //   })
-  // }
+  public static async getInfoUrlTest(url: string, options?: SpawnSyncOptions) {
+    if (!url || !url.length) throw new Error('Empty url')
+    const time = console.time('json')
+    const result = await spawnSync(
+      'youtube-dl',
+      ['--skip-download', '-s', '--dump-json', '--', url],
+      {
+        ...options,
+        encoding: 'utf-8',
+      }
+    )
+    const timeEnd = console.timeEnd('json')
+    const rawInfo = result.stdout.trim().split(/\r?\n/)
+    console.log(rawInfo[0])
+    if (!rawInfo || !rawInfo.length) return []
 
-  static mapToYoutubeVideoFormat = (info: ISoundCloudSong): IYoutubeVideo => {
+    const info = rawInfo
+      .map((item) => {
+        try {
+          return JSON.parse(item)
+        } catch (err) {
+          return item
+        }
+      })
+      .filter(Boolean)
+    if (!info) throw new Error('Cannot get any info')
+    return info
+  }
+
+  static mapToYoutubeVideoFormat = (
+    info: ISoundCloudSong,
+    getUrl: boolean = false
+  ): IYoutubeVideo | { url: string; type: string } => {
     const {
       id,
       webpage_url,
@@ -68,12 +101,14 @@ export abstract class SoundCloudService {
     const selectedFormat =
       formats[FORMAT_URL.M3U8_128] || formats[FORMAT_URL.HTTP_128]
 
-    return {
-      id: id,
-      soundcloudInfo: {
+    if (getUrl)
+      return {
         url: selectedFormat.url || url,
         type: selectedFormat.protocol || protocol,
-      },
+      }
+
+    return {
+      id: id,
       songUrl: webpage_url,
       snippet: {
         title: title,

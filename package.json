@@ -51,7 +51,7 @@
     "source-map-support": "^0.5.16",
     "tslib": "^1.11.2",
     "utf-8-validate": "^5.0.2",
-    "ytdl-core": "^2.1.0",
+    "ytdl-core": "^2.1.5",
     "ytdl-core-discord": "^1.2.0",
     "zlib-sync": "^0.1.6"
   },

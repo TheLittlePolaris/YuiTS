@@ -6,7 +6,7 @@ export const isSoundCloudSongUrl = (url: string) => {
   return scSongRegexp.test(url)
 }
 
-/** 3 cases:
+/** 4 cases:
  * 1) https://soundcloud.com/wavemeow => channel all tracks including reposts
  * 2) https://soundcloud.com/naoden/tracks => channel tracks/popular-tracks/reposts
  * 3) https://soundcloud.com/polaris-nguyen/sets/honeycomebear => normal playlist

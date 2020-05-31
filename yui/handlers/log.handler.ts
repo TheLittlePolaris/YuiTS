@@ -16,9 +16,9 @@ export function errorLogger(error: Error | string, scope?: string): null {
   return null
 }
 
-export function debugLogger(scope: string): void {
+export function debugLogger(scope: string, detail?: string): void {
   const logger = getLogger(scope)
-  logger.info(`[${scope}] initiated!`['info'])
+  logger.info(`[${scope}]${detail ? `[${detail}]` : ``} initiated!`['info'])
 }
 
 export function infoLogger(scope: string, info: string) {
