@@ -1,10 +1,14 @@
 import { MusicQueue } from '../music-entities/music-queue'
 import { errorLogger } from '@/handlers/log.handler'
 
-export function isYoutubeLink(link: string): boolean {
-  if (typeof link === 'string') {
-    return link.indexOf('youtube.com') >= 0 || link.indexOf('youtu.be') >= 0
-  } else return false
+export function isYoutubeUrl(link: string): boolean {
+  return /^(https?:\/\/)?(www\.)?(music\.)?(youtube\.com|youtu\.be)\//i.test(
+    link
+  )
+}
+
+export function isYoutubePlaylistUrl(link: string): boolean {
+  return /[\?\&]{1}list=/i.test(link)
 }
 
 export function youtubeTimeConverter(duration: string): Promise<number> {
@@ -29,7 +33,7 @@ export enum STREAM_STATUS {
   LOOPING = 'Looping',
 }
 
-export function timeConverter(duration: number) {
+export function timeConverter(duration: number): Promise<string | number> {
   return new Promise((resolve, _) => {
     if (duration === 0) {
       return resolve(STREAM_STATUS.LIVE)
@@ -53,12 +57,6 @@ export function timeConverter(duration: number) {
   })
 }
 
-export function RNG(range): Promise<number> {
-  return new Promise<number>((resolve, _) => {
-    resolve(Math.floor(Math.random() * range))
-  })
-}
-
 export function createProgressBar(currentProgress: number, total: number) {
   return new Promise((resolve, _) => {
     if (isNaN(total)) {
@@ -71,14 +69,18 @@ export function createProgressBar(currentProgress: number, total: number) {
   })
 }
 
-export function printQueueList(queue: MusicQueue, start: number, end: number) {
-  return new Promise(async (resolve) => {
+export function printQueueList(
+  queue: MusicQueue,
+  start: number,
+  end: number
+): Promise<string> {
+  return new Promise<string>(async (resolve, _) => {
     var result = ''
     for (let i = start; i <= end; i++) {
       const song = queue.at(i)
       result += `#${i}: **${song.title}** - \`(${await timeConverter(
         song.duration
-      )})\n\`*Requested by \`${song.requester}\`*\n\n`
+      )})\`\n*Requested by \`${song.requester}\`*\n\n`
     }
     resolve(result)
   })

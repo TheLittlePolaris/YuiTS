@@ -1,5 +1,6 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
+    NODE_ENV: string
     TOKEN: string
     YOUTUBE_API_KEY: string
     YOUTUBE_CLIENT_ID: string
@@ -19,6 +20,9 @@ declare namespace NodeJS {
       youtubeClientSecret: string
       tenorKey: string
       tenorAnonymousId: string
+      soundcloudUserId: string
+      soundcloudPassword: string
+      environment: 'development' | 'production'
     }
     youtube: any
   }

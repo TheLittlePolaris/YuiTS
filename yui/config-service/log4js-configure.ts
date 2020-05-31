@@ -1,4 +1,4 @@
-import { configure, Configuration, levels, getLogger } from 'log4js'
+import { configure, Configuration, Appender, getLogger } from 'log4js'
 
 const log4jsConfig: Configuration = {
   appenders: {
@@ -9,11 +9,16 @@ const log4jsConfig: Configuration = {
     default: {
       appenders: ['output'],
       level: 'all',
+      enableCallStack: true,
+    },
+    YuiMain: {
+      appenders: ['error'],
+      level: 'all',
     },
   },
 }
 
-;(async () => {
+;(() => {
   configure(log4jsConfig)
   const logger = getLogger('default')
   logger.info('INIT LOGGER')

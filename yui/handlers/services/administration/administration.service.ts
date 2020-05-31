@@ -4,7 +4,7 @@ import { ADMIN_ACTION_TYPE } from './admin-interfaces/administration.interface'
 import { AdminstrationActionCommands } from './administration-actions/action.service'
 import {
   Command,
-  CommandExecutor,
+  CommandValidator,
   AdministrationServiceInitiator,
   AdminPermissionValidator,
 } from '@/decorators/permission.decorator'
@@ -18,7 +18,7 @@ export class AdministrationService {
     debugLogger('AdministrationService')
   }
 
-  @CommandExecutor()
+  @CommandValidator()
   @AdminPermissionValidator()
   public async executeCommand(
     message: Message,

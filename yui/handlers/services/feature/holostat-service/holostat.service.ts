@@ -7,20 +7,22 @@ import {
   User,
   MessageReaction,
   MessageCollectorOptions,
+  MessageEmbed,
+  MessageOptions,
+  GuildEmoji,
 } from 'discord.js'
 import {
-  HOLOSTAT_REGION,
   LOG_SCOPE,
   DISCORD_REACTION,
-  hololiveReactionList,
+  HOLOLIVE_REACTION_LIST,
 } from '@/constants/constants'
 import { errorLogger } from '@/handlers/log.handler'
-import { discordRichEmbedConstructor } from '@/handlers/services/music/music-utilities/discord-embed-constructor'
-import { HoloStatRequestService } from './holo-stat-request.service'
+import { discordRichEmbedConstructor } from '@/handlers/services/utilities/discord-embed-constructor'
+import { HoloStatRequestService } from './holostat-request.service'
 import {
   subscriberCountFormatter,
   dateTimeJSTFormatter,
-} from '../utility.service'
+} from '../feature-services/feature-utilities'
 
 @HoloStatServiceInitiator()
 export class HoloStatService {
@@ -54,9 +56,8 @@ export class HoloStatService {
         fields: fieldsData.slice(index, currentPartLimit),
       })
 
-      const sent = await message.channel
-        .send({ embed: sendingEmbed })
-        .catch((err) => this.handleError(new Error(err)))
+      const sent = await this.sendMessage(message, sendingEmbed)
+
       sentContent.push(sent)
 
       if (!(currentPartLimit >= fieldsData.length))
@@ -80,20 +81,16 @@ export class HoloStatService {
     )
 
     const deleteSentContent = () => {
-      try {
-        sentContent.forEach((e) =>
-          e.delete().catch((err) => this.handleError(new Error(err)))
-        )
-      } catch (err) {
-        this.handleError(new Error(err))
-      }
+      sentContent.forEach((e) =>
+        e.delete().catch((err) => this.handleError(new Error(err)))
+      )
     }
 
     collector.on('collect', async (collected: Message) => {
       collector.stop()
       collected.delete().catch((err) => this.handleError(new Error(err)))
       if (collected.content.toLowerCase() === 'cancel') {
-        message.channel.send('**Canceled**')
+        this.sendMessage(message, '**Canceled**')
         deleteSentContent()
         return
       } else {
@@ -103,7 +100,7 @@ export class HoloStatService {
           selectedNumber - 1 > dataList.length ||
           selectedNumber - 1 < 0
         ) {
-          message.channel.send('**Please chose a valid number**')
+          this.sendMessage(message, '**Please choose a valid number**')
           return
         }
         return this.holoStatChannelDetail(
@@ -114,7 +111,8 @@ export class HoloStatService {
     })
     collector.on('end', (collected) => {
       if (sentContent) deleteSentContent()
-      if (collected.size < 1) message.channel.send(':ok_hand: Action aborted.')
+      if (collected.size < 1)
+        this.sendMessage(message, ':ok_hand: Action aborted.')
       return
     })
   }
@@ -124,7 +122,7 @@ export class HoloStatService {
       channelId
     ).catch((err) => this.handleError(new Error(err)))
     if (!channelData) {
-      message.channel.send('Something went wrong, please try again.')
+      this.sendMessage(message, 'Something went wrong, please try again.')
     }
 
     const description = `**Description:** ${
@@ -146,22 +144,19 @@ export class HoloStatService {
       color: channelData.brandingSettings.channel.profileColor,
     })
 
-    await message.channel
-      .send({ embed })
-      .catch((err) => this.handleError(new Error(err)))
+    await this.sendMessage(message, embed)
 
     return
   }
 
   public async getHoloRegion(message: Message) {
-    const sentMessage = await message.channel
-      .send(
-        `**Which region should i look for ?\n1. ${hololiveReactionList['1️⃣'].name}\n2. ${hololiveReactionList['2️⃣'].name} **`
-      )
-      .catch((err) => this.handleError(new Error(err)))
+    const sentMessage = await this.sendMessage(
+      message,
+      `**Which region should i look for ?\n1. ${HOLOLIVE_REACTION_LIST['1️⃣'].name}\n2. ${HOLOLIVE_REACTION_LIST['2️⃣'].name} **`
+    )
 
     if (!sentMessage) {
-      message.channel.send('**Sorry, something went wrong.**')
+      this.sendMessage(message, '**Sorry, something went wrong.**')
       return
     }
 
@@ -189,9 +184,12 @@ export class HoloStatService {
 
     collector.on('collect', (reaction: MessageReaction, user: User) => {
       collector.stop()
-      region = hololiveReactionList[reaction['_emoji']['name']]['code']
+      region = HOLOLIVE_REACTION_LIST[reaction.emoji?.name]?.code || 'jp'
       if (!region) {
-        message.channel.send('**Unknown reaction. Action aborted.**')
+        return this.sendMessage(
+          message,
+          '**Unknown reaction. Action aborted.**'
+        )
       }
       return this.holoStatSelectList(message, region).catch((err) =>
         this.handleError(new Error(err))
@@ -201,22 +199,24 @@ export class HoloStatService {
     collector.on('end', (collected) => {
       if (sentMessage)
         sentMessage.delete().catch((err) => this.handleError(new Error(err)))
-      if (collected.size < 1) message.channel.send(':ok_hand: Action aborted.')
+      if (collected.size < 1)
+        this.sendMessage(message, ':ok_hand: Action aborted.')
       return
     })
   }
 
   public async holoStatStatistics(
     message: Message,
-    region: HOLOSTAT_REGION,
-    yui: GuildMember
+    yui: GuildMember,
+    region?: 'id' | 'jp'
   ) {
-    const waitingMessage = (await message.channel.send(
+    const waitingMessage = await this.sendMessage(
+      message,
       ':hourglass_flowing_sand: **_Hold on while i go grab some data!_**'
-    )) as Message
+    )
 
     const holoStatData = await HoloStatRequestService.getAllHololiveMembersDetail(
-      region as 'id' | 'jp'
+      region
     ).catch((error) => this.handleError(new Error(error)))
 
     const fieldsData: EmbedFieldData[] = holoStatData.map((item) => {
@@ -236,7 +236,7 @@ export class HoloStatService {
     if (fieldsData)
       waitingMessage.delete().catch((err) => this.handleError(new Error(err)))
 
-    const limit = 12
+    const limit = 18
     const hasPaging = fieldsData.length > limit
     const sendPartial = async (index: number) => {
       const currentPartLimit =
@@ -244,8 +244,8 @@ export class HoloStatService {
 
       const sendingEmbed = await discordRichEmbedConstructor({
         author: {
-          embedTitle: yui.displayName,
-          authorAvatarUrl: yui.user.avatarURL(),
+          authorName: yui.displayName,
+          avatarUrl: yui.user.avatarURL(),
         },
         description: `Hololive ${
           region === 'id' ? 'Indonesia' : 'Japan'
@@ -253,9 +253,7 @@ export class HoloStatService {
         fields: fieldsData.slice(index, currentPartLimit),
       })
 
-      message.channel
-        .send({ embed: sendingEmbed })
-        .catch((err) => this.handleError(new Error(err)))
+      this.sendMessage(message, { embed: sendingEmbed })
 
       if (!(currentPartLimit >= fieldsData.length))
         sendPartial(currentPartLimit)
@@ -266,7 +264,16 @@ export class HoloStatService {
     sendPartial(0)
   }
 
-  handleError(error: Error | string) {
+  private async sendMessage(
+    message: Message,
+    content: string | MessageEmbed | MessageOptions
+  ) {
+    return await message.channel
+      .send(content)
+      .catch((err) => this.handleError(new Error(err)))
+  }
+
+  private handleError(error: Error | string) {
     return errorLogger(error, LOG_SCOPE.HOLOSTAT_SERVICE)
   }
 }

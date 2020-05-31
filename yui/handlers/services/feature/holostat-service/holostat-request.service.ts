@@ -14,7 +14,7 @@ export abstract class HoloStatRequestService {
     debugLogger('HoloStatService')
   }
   public static hololiveOfficialChannelId = 'UCJFZiqLMntJufDCHc6bQixg' // official, default, hololive japan
-  public static ayundaRisuChannelId = 'UCOyYb1c43VlX9rc_lT6NKQw' // hololive indonesia
+  public static ayundaRisuChannelId = 'UCOyYb1c43VlX9rc_lT6NKQw' // hololive indonesia, risu ch
 
   public static async getListChannels(
     region: 'id' | 'jp'

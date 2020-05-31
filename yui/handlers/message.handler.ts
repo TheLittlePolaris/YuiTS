@@ -1,16 +1,18 @@
-import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
-import { Message } from 'discord.js'
-import { MusicService } from './services/music/music.service'
-import { FeatureService } from './services/feature/feature.service'
-import { AdministrationService } from './services/administration/administration.service'
-import { debugLogger, errorLogger } from './log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
+import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
+import { Client, Message } from 'discord.js'
+import { debugLogger, errorLogger } from './log.handler'
+import { OwnerChannelService } from './owner-service/channel.service'
+import { AdministrationService } from './services/administration/administration.service'
+import { FeatureService } from './services/feature/feature.service'
+import { MusicService } from './services/music/music.service'
 
 @MessageHandlerInitiator()
 export class MessageHandler {
   private _musicService: MusicService
   private _featureService: FeatureService
   private _administrationService: AdministrationService
+  private _ownerChannelService: OwnerChannelService
   constructor() {
     debugLogger(LOG_SCOPE.MESSAGE_HANDLER)
   }
@@ -23,12 +25,12 @@ export class MessageHandler {
     switch (command) {
       case 'play':
       case 'p':
-        return await this._musicService.play(message, args)
+        return await this._musicService.play(message, args, false)
 
       case 'playnext':
       case 'pnext':
       case 'pn':
-        return await this._musicService.addToNext(message, args)
+        return await this._musicService.play(message, args, true)
 
       case 'skip':
       case 'next':
@@ -118,6 +120,8 @@ export class MessageHandler {
         return await this._administrationService.executeCommand(message, args)
       }
       case 'test': {
+        this.musicService.soundcloudGetSongInfo(message, args[0])
+        // this.musicService.scPlaySong(message, args[0])
         break
       }
       case 'help': {
@@ -131,6 +135,17 @@ export class MessageHandler {
         )
         break
       }
+    }
+  }
+
+  async specialExecute(message: Message, yui: Client) {
+    const content = message.content.trim().split(/ +/g)
+    const command = content.shift().toLowerCase()
+
+    switch (command) {
+      case 'statistics':
+      case 'stat':
+        return this._ownerChannelService.statistics(message, content, yui)
     }
   }
 
