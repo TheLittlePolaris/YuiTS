@@ -1,14 +1,7 @@
 import { ISoundCloudSong } from '../music-interfaces/soundcloud-info.interface'
 import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
-import {
-  spawnSync,
-  SpawnSyncOptions,
-  spawn,
-  execFile,
-  ChildProcessByStdio,
-} from 'child_process'
-import { resolve } from 'dns'
-import { Readable, Writable } from 'stream'
+import { spawnSync, SpawnSyncOptions, spawn } from 'child_process'
+import * as differenceBy from 'lodash.differenceby'
 
 enum FORMAT_URL {
   M3U8_64 = 0,
@@ -48,78 +41,48 @@ export abstract class PolarisSoundCloudService {
           { stdio: ['inherit', 'pipe', 'pipe'] }
         )
         console.log(`SPAWN ${process.pid}`)
-
         let results: (IYoutubeVideo | { url: string; type: string })[] = []
-
-        process.stdout.on('data', (buffer: Buffer) => {
-          const parseRawInfo = (data: string) => {
-            try {
-              return JSON.parse(data)
-            } catch (e) {
-              return null
+        process.stdout
+          .on('data', (buffer: Buffer) => {
+            const parseRawInfo = (data: string) => {
+              try {
+                return JSON.parse(data)
+              } catch (e) {
+                return null
+              }
             }
-          }
-          const parsedRaw = parseRawInfo(buffer.toString('utf-8'))
-          if (!parsedRaw) return
-          const parsed = this.mapToYoutubeVideoFormat(parsedRaw, getUrl)
-          results.push(parsed)
-        })
+            const parsedRaw = parseRawInfo(buffer.toString('utf-8'))
+            if (!parsedRaw) return
+            const parsed = this.mapToYoutubeVideoFormat(parsedRaw, getUrl)
+            results.push(parsed)
+          })
+          .on('end', () => {
+            resolve(results.length > 1 ? results : results[0])
+          })
+          .on('error', (error) => {
+            cleanProcessOnErr(error)
+          })
 
-        process.stdout.on('end', () => {
-          resolve(results.length > 1 ? results : results[0])
-        })
-        process.stdout.on('close', () => {
-          // console.log('STDOUT CLOSEEEEE')
-        })
-        process.stdout.on('error', (error) => {
-          cleanProcess(error)
-        })
-
-        const cleanProcess = (error: Error) => {
+        const cleanProcessOnErr = (error: Error) => {
           process.stdout.emit('end')
           setTimeout(() => {
             process.stdout.destroy(error)
             process.kill()
           }, 100)
         }
-        process.stderr.on('data', (buffer: Buffer) => {
-          const rawInfo = buffer.toString('utf-8')
-          cleanProcess(new Error(rawInfo))
-        })
-        process.stderr.on('error', (error) => {
-          // console.error(error, ' <==== STD ERR ERROR')
-          cleanProcess(error)
-        })
-        // DEBUG CODE
-        process.stderr.on('end', () => {
-          console.log('STD ERROR EEEEEEEEEEEEEENDDD')
-        })
-        process.stderr.on('close', () => {
-          console.log('STD ERROR CLOSEEEEEEEEEEEEEEEEEEE')
-        })
-
-        process.on('exit', (code: number, signal: NodeJS.Signals) => {
-          console.log(code, ' <==== PROCESS EIT WITH CODE')
-        })
-
-        process.on('close', () => {
-          console.log('PROCESS CLOSE')
-        })
+        process.stderr
+          .on('data', (buffer: Buffer) => {
+            const rawInfo = buffer.toString('utf-8')
+            cleanProcessOnErr(new Error(rawInfo))
+          })
+          .on('error', (error) => {
+            cleanProcessOnErr(error)
+          })
       } catch (err) {
-        reject(err)
+        reject('Fatal Error: ' + err)
       }
     })
   }
-
-  // const rawInfo = result.stdout.trim().split(/\r?\n/)
-  // if (!rawInfo || !rawInfo.length) return []
-
-  // const info = rawInfo
-  //   .map((item) => this.mapToYoutubeVideoFormat(JSON.parse(item), getUrl))
-  //   .filter(Boolean)
-  // if (!info) throw new Error('Cannot get any info')
-
-  // return info.length > 1 ? info : info[0]
 
   public static async getInfoUrlTest(url: string, options?: SpawnSyncOptions) {
     if (!url || !url.length) throw new Error('Empty url')

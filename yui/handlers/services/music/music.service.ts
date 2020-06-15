@@ -312,9 +312,12 @@ export class MusicService {
         message,
         ':hourglass_flowing_sand: **_Loading playlist from SoundCloud, this may take some times, please wait..._**'
       )
+
       const playlistSongs: IYoutubeVideo[] = (await PolarisSoundCloudService.getInfoUrl(
-        playlistLink
-      ).catch((err) => this.handleError(new Error(err)))) as IYoutubeVideo[] // checked, should be fine
+        playlistLink,
+        { getUrl: false, options: {} }
+      )) as IYoutubeVideo[] // checked, should be fine
+
       if (!playlistSongs || !playlistSongs.length) {
         this.sendMessage(
           message,
