@@ -34,7 +34,6 @@
     "googleapis": "^48.0.0",
     "install": "^0.13.0",
     "libsodium-wrappers": "^0.7.6",
-    "lodash.differenceby": "^4.8.0",
     "log4js": "^6.1.2",
     "m3u8stream": "^0.7.1",
     "miniget": "^1.7.0",

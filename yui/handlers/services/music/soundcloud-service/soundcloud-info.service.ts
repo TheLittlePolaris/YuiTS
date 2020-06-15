@@ -1,7 +1,6 @@
 import { ISoundCloudSong } from '../music-interfaces/soundcloud-info.interface'
 import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
 import { spawnSync, SpawnSyncOptions, spawn } from 'child_process'
-import * as differenceBy from 'lodash.differenceby'
 
 enum FORMAT_URL {
   M3U8_64 = 0,
