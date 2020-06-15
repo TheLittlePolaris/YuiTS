@@ -1,6 +1,14 @@
 import { ISoundCloudSong } from '../music-interfaces/soundcloud-info.interface'
 import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
-import { spawnSync, SpawnSyncOptions } from 'child_process'
+import {
+  spawnSync,
+  SpawnSyncOptions,
+  spawn,
+  execFile,
+  ChildProcessByStdio,
+} from 'child_process'
+import { resolve } from 'dns'
+import { Readable, Writable } from 'stream'
 
 enum FORMAT_URL {
   M3U8_64 = 0,
@@ -20,7 +28,7 @@ enum FORMAT_THUMBNAILS {
   t500x500 = 8,
   original = 9,
 }
-export abstract class SoundCloudService {
+export abstract class PolarisSoundCloudService {
   public static async getInfoUrl(
     url: string,
     {
@@ -32,24 +40,86 @@ export abstract class SoundCloudService {
     } = { getUrl: false, options: {} }
   ) {
     if (!url || !url.length) throw new Error('Empty url')
-    const result = await spawnSync(
-      'youtube-dl',
-      ['--skip-download', '-s', '--dump-json', '--', url],
-      {
-        ...options,
-        encoding: 'utf-8',
+    return new Promise((resolve, reject) => {
+      try {
+        const process = spawn(
+          'youtube-dl',
+          ['--skip-download', '-s', '--dump-json', '--', url],
+          { stdio: ['inherit', 'pipe', 'pipe'] }
+        )
+        console.log(`SPAWN ${process.pid}`)
+
+        let results: (IYoutubeVideo | { url: string; type: string })[] = []
+
+        process.stdout.on('data', (buffer: Buffer) => {
+          const parseRawInfo = (data: string) => {
+            try {
+              return JSON.parse(data)
+            } catch (e) {
+              return null
+            }
+          }
+          const parsedRaw = parseRawInfo(buffer.toString('utf-8'))
+          if (!parsedRaw) return
+          const parsed = this.mapToYoutubeVideoFormat(parsedRaw, getUrl)
+          results.push(parsed)
+        })
+
+        process.stdout.on('end', () => {
+          resolve(results.length > 1 ? results : results[0])
+        })
+        process.stdout.on('close', () => {
+          // console.log('STDOUT CLOSEEEEE')
+        })
+        process.stdout.on('error', (error) => {
+          cleanProcess(error)
+        })
+
+        const cleanProcess = (error: Error) => {
+          process.stdout.emit('end')
+          setTimeout(() => {
+            process.stdout.destroy(error)
+            process.kill()
+          }, 100)
+        }
+        process.stderr.on('data', (buffer: Buffer) => {
+          const rawInfo = buffer.toString('utf-8')
+          cleanProcess(new Error(rawInfo))
+        })
+        process.stderr.on('error', (error) => {
+          // console.error(error, ' <==== STD ERR ERROR')
+          cleanProcess(error)
+        })
+        // DEBUG CODE
+        process.stderr.on('end', () => {
+          console.log('STD ERROR EEEEEEEEEEEEEENDDD')
+        })
+        process.stderr.on('close', () => {
+          console.log('STD ERROR CLOSEEEEEEEEEEEEEEEEEEE')
+        })
+
+        process.on('exit', (code: number, signal: NodeJS.Signals) => {
+          console.log(code, ' <==== PROCESS EIT WITH CODE')
+        })
+
+        process.on('close', () => {
+          console.log('PROCESS CLOSE')
+        })
+      } catch (err) {
+        reject(err)
       }
-    )
-    const rawInfo = result.stdout.trim().split(/\r?\n/)
-    if (!rawInfo || !rawInfo.length) return []
-
-    const info = rawInfo
-      .map((item) => this.mapToYoutubeVideoFormat(JSON.parse(item), getUrl))
-      .filter(Boolean)
-    if (!info) throw new Error('Cannot get any info')
-
-    return info.length > 1 ? info : info[0]
+    })
   }
+
+  // const rawInfo = result.stdout.trim().split(/\r?\n/)
+  // if (!rawInfo || !rawInfo.length) return []
+
+  // const info = rawInfo
+  //   .map((item) => this.mapToYoutubeVideoFormat(JSON.parse(item), getUrl))
+  //   .filter(Boolean)
+  // if (!info) throw new Error('Cannot get any info')
+
+  // return info.length > 1 ? info : info[0]
 
   public static async getInfoUrlTest(url: string, options?: SpawnSyncOptions) {
     if (!url || !url.length) throw new Error('Empty url')

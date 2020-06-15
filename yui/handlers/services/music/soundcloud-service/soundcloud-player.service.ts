@@ -2,7 +2,7 @@ import { PassThrough, TransformOptions } from 'stream'
 import { parse } from 'url'
 import axios from 'axios'
 import m3u8stream, { Progress } from 'm3u8stream'
-import { SoundCloudService } from './soundcloud-info.service'
+import { PolarisSoundCloudService } from './soundcloud-info.service'
 
 export abstract class PolarisSoundCloudPlayer {
   public static async createMusicStream(
@@ -96,7 +96,7 @@ export abstract class PolarisSoundCloudPlayer {
   }
 
   public static async getDownloadLink(videoUrl: string) {
-    const soundcloudDll = (await SoundCloudService.getInfoUrl(videoUrl, {
+    const soundcloudDll = (await PolarisSoundCloudService.getInfoUrl(videoUrl, {
       getUrl: true,
     })) as {
       url: string

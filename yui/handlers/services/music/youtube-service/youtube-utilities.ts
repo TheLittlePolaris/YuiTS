@@ -45,7 +45,6 @@ export function timeConverter(duration: number): Promise<string | number> {
         `${totalMinutes >= 10 ? totalMinutes : `0${totalMinutes}`}:${seconds}`
       )
     } else {
-      //videos with duration exceed 1 hour
       let hours = Math.floor(totalMinutes / 60)
       let minutesLeft = totalMinutes % 60
       return resolve(

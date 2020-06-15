@@ -1,4 +1,3 @@
-// import discordYtdl from 'ytdl-core-discord'
 import { Constants, LOG_SCOPE } from '@/constants/constants'
 import {
   AccessController,
@@ -26,7 +25,7 @@ import { MusicQueue } from './music-entities/music-queue'
 import { MusicStream } from './music-entities/music-stream'
 import { ISong } from './music-interfaces/song-metadata.interface'
 import { IYoutubeVideo } from './music-interfaces/youtube-info.interface'
-import { SoundCloudService } from './soundcloud-service/soundcloud-info.service'
+import { PolarisSoundCloudService } from './soundcloud-service/soundcloud-info.service'
 import {
   isSoundCloudPlaylistUrl,
   isSoundCloudSongUrl,
@@ -97,7 +96,8 @@ export class MusicService {
             this.resetStreamStatus(stream)
           }
         } else {
-          stream?.boundTextChannel.send(
+          this.sendMessageChannel(
+            stream,
             `**I'm sorry, my connection failed. Please try joining me in again**`
           )
         }
@@ -312,7 +312,7 @@ export class MusicService {
         message,
         ':hourglass_flowing_sand: **_Loading playlist from SoundCloud, this may take some times, please wait..._**'
       )
-      const playlistSongs: IYoutubeVideo[] = (await SoundCloudService.getInfoUrl(
+      const playlistSongs: IYoutubeVideo[] = (await PolarisSoundCloudService.getInfoUrl(
         playlistLink
       ).catch((err) => this.handleError(new Error(err)))) as IYoutubeVideo[] // checked, should be fine
       if (!playlistSongs || !playlistSongs.length) {
@@ -360,9 +360,9 @@ export class MusicService {
       const videoId = await YoutubeInfoService.getYoutubeVideoId(args)
       itemInfo = await YoutubeInfoService.getInfoIds(videoId)
     } else {
-      const song = (await SoundCloudService.getInfoUrl(args).catch((err) =>
-        this.handleError(new Error(err))
-      )) as IYoutubeVideo
+      const song = (await PolarisSoundCloudService.getInfoUrl(
+        args
+      ).catch((err) => this.handleError(new Error(err)))) as IYoutubeVideo
       if (!song) {
         this.sendMessage(message, '**Something went wrong...**')
         return
@@ -914,7 +914,7 @@ export class MusicService {
     }
   }
 
-  @AccessController({ join: false, silent: true })
+  @AccessController({ join: true, silent: true })
   public async searchSong(
     message: Message,
     args?: Array<string>
@@ -1159,9 +1159,9 @@ export class MusicService {
   }
 
   public async soundcloudGetSongInfo(message: Message, link: string) {
-    const info = await SoundCloudService.getInfoUrlTest(link).catch((err) =>
-      this.handleError(new Error(err))
-    )
+    const info = await PolarisSoundCloudService.getInfoUrlTest(
+      link
+    ).catch((err) => this.handleError(new Error(err)))
 
     console.log(info)
   }
