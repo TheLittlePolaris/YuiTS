@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-types */
 import { Message } from 'discord.js'
 
 export enum Constants {
@@ -75,10 +77,10 @@ export const HOLOLIVE_REACTION_LIST: HOLOSTAT_REACTION = {
     code: 'id',
   },
 }
-export const holoProxyHandler = {
-  get: function (target: Object, name: DISCORD_REACTIONS_TYPE) {
-    return target.hasOwnProperty(name)
-      ? target[name]
-      : HOLOLIVE_REACTION_LIST[DISCORD_REACTION.NUMBERS[0]]
-  },
-}
+// export const holoProxyHandler = {
+//   get: function (target: object, name: DISCORD_REACTIONS_TYPE) {
+//     return target.hasOwnProperty(name)
+//       ? target[name]
+//       : HOLOLIVE_REACTION_LIST[DISCORD_REACTION.NUMBERS[0]]
+//   },
+// }

@@ -17,7 +17,7 @@ export class VoiceStateHandler {
   public checkOnVoiceStateUpdate(
     oldVoiceState: VoiceState,
     newVoiceState: VoiceState
-  ) {
+  ): void {
     try {
       if (!oldVoiceState && !newVoiceState) return
 
@@ -70,7 +70,7 @@ export class VoiceStateHandler {
     return { stream, action: 'ignore' }
   }
 
-  public leaveOnTimeout(stream: MusicStream) {
+  public leaveOnTimeout(stream: MusicStream): void {
     try {
       stream.boundVoiceChannel.leave()
       stream.boundTextChannel.send(

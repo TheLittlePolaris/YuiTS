@@ -25,12 +25,14 @@ export abstract class PolarisSoundCloudService {
     url: string,
     {
       getUrl,
-      options,
     }: {
       getUrl?: boolean
-      options?: SpawnSyncOptions
-    } = { getUrl: false, options: {} }
-  ) {
+    } = { getUrl: false }
+  ): Promise<
+    | IYoutubeVideo
+    | { url: string; type: string }
+    | (IYoutubeVideo | { url: string; type: string })[]
+  > {
     if (!url || !url.length) throw new Error('Empty url')
     return new Promise((resolve, reject) => {
       try {
@@ -40,7 +42,7 @@ export abstract class PolarisSoundCloudService {
           { stdio: ['inherit', 'pipe', 'pipe'] }
         )
         console.log(`SPAWN ${process.pid}`)
-        let results: (IYoutubeVideo | { url: string; type: string })[] = []
+        const results: (IYoutubeVideo | { url: string; type: string })[] = []
         process.stdout
           .on('data', (buffer: Buffer) => {
             const parseRawInfo = (data: string) => {
@@ -83,7 +85,10 @@ export abstract class PolarisSoundCloudService {
     })
   }
 
-  public static async getInfoUrlTest(url: string, options?: SpawnSyncOptions) {
+  public static async getInfoUrlTest(
+    url: string,
+    options?: SpawnSyncOptions
+  ): Promise<unknown[]> {
     if (!url || !url.length) throw new Error('Empty url')
     const time = console.time('json')
     const result = await spawnSync(
@@ -114,7 +119,7 @@ export abstract class PolarisSoundCloudService {
 
   static mapToYoutubeVideoFormat = (
     info: ISoundCloudSong,
-    getUrl: boolean = false
+    getUrl = false
   ): IYoutubeVideo | { url: string; type: string } => {
     const {
       id,

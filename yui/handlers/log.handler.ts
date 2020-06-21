@@ -21,17 +21,21 @@ export function debugLogger(scope: string, detail?: string): void {
   logger.info(`[${scope}]${detail ? `[${detail}]` : ``} initiated!`['info'])
 }
 
-export function infoLogger(scope: string, info: string) {
+export function infoLogger(scope: string, info: string): void {
   const logger = getLogger(`[${scope}]`)
   logger.info(info)
 }
 
-export function successLogger(scope: string, info: string) {
+export function successLogger(scope: string, info: string): void {
   const logger = getLogger(`[${scope}]`)
   logger.info(info['success'])
 }
 
-export const decoratorLogger = (type: string, scope: string, name: string) => {
+export const decoratorLogger = (
+  type: string,
+  scope: string,
+  name: string
+): void => {
   const logger = getLogger(LOG_SCOPE.DECORATOR)
   logger.info(
     `${colors.red.bold(`[${type}]`)} -- ${colors.yellow.bold(

@@ -21,74 +21,74 @@ export class MessageHandler {
     message: Message,
     command: string,
     args?: Array<string>
-  ) {
+  ): Promise<unknown> {
     switch (command) {
       case 'play':
       case 'p':
-        return await this._musicService.play(message, args, false)
+        return this._musicService.play(message, args, false)
 
       case 'playnext':
       case 'pnext':
       case 'pn':
-        return await this._musicService.play(message, args, true)
+        return this._musicService.play(message, args, true)
 
       case 'skip':
       case 'next':
-        return await this._musicService.skipSongs(message, args)
+        return this._musicService.skipSongs(message, args)
 
       case 'join':
       case 'come':
-        return await this._musicService.joinVoiceChannel(message)
+        return this._musicService.joinVoiceChannel(message)
 
       case 'leave':
       case 'bye':
-        return await this._musicService.leaveVoiceChannel(message)
+        return this._musicService.leaveVoiceChannel(message)
 
       case 'np':
       case 'nowplaying':
-        return await this.musicService.getNowPlayingData(message)
+        return this.musicService.getNowPlayingData(message)
 
       case 'queue':
       case 'q':
-        return await this._musicService.printQueue(message, args)
+        return this._musicService.printQueue(message, args)
 
       case 'pause':
-        return await this._musicService.musicController(message, true)
+        return this._musicService.musicController(message, true)
 
       case 'resume':
-        return await this._musicService.musicController(message, false)
+        return this._musicService.musicController(message, false)
 
       case 'stop':
-        return await this._musicService.stopPlaying(message)
+        return this._musicService.stopPlaying(message)
 
       case 'loop':
-        return await this._musicService.loopSettings(message, args)
+        return this._musicService.loopSettings(message, args)
 
       case 'shuffle':
-        return await this._musicService.shuffleQueue(message)
+        return this._musicService.shuffleQueue(message)
 
       case 'remove':
-        return await this._musicService.removeSongs(message, args)
+        return this._musicService.removeSongs(message, args)
 
       case 'clear':
-        return await this._musicService.clearQueue(message)
+        return this._musicService.clearQueue(message)
 
       case 'search':
-        return await this._musicService.searchSong(message, args)
+        return this._musicService.searchSong(message, args)
 
       case 'autoplay':
       case 'ap':
-        return await this._musicService.autoPlay(message)
+        return this._musicService.autoPlay(message)
 
       case 'volume':
-        return await this._musicService.setVolume(message, args)
+        return this._musicService.setVolume(message, args)
 
       //end of music command batch
       case 'ping': {
         return this._featureService.getPing(message)
       }
       case 'say': {
-        await message.delete().catch((error) => {
+        message.delete().catch((error) => {
           message.author.send(
             `Something went wrong, i couldn't delete the message`
           )
@@ -101,7 +101,7 @@ export class MessageHandler {
       }
       case 'tenor': {
         try {
-          await message.delete()
+          message.delete()
         } catch (err) {
           message.author.send(`Sorry i couldn't delete the message`)
         }
@@ -117,10 +117,10 @@ export class MessageHandler {
         if (!deletedMessage) {
           return
         }
-        return await this._administrationService.executeCommand(message, args)
+        return this._administrationService.executeCommand(message, args)
       }
       case 'test': {
-        this.musicService.soundcloudGetSongInfo(message, args[0])
+        this.musicService.soundcloudGetSongInfo(args[0])
         // this.musicService.scPlaySong(message, args[0])
         break
       }
@@ -138,7 +138,7 @@ export class MessageHandler {
     }
   }
 
-  async specialExecute(message: Message, yui: Client) {
+  async specialExecute(message: Message, yui: Client): Promise<void> {
     const content = message.content.trim().split(/ +/g)
     const command = content.shift().toLowerCase()
 
@@ -161,7 +161,7 @@ export class MessageHandler {
     return this._administrationService
   }
 
-  handleError(error: Error | string) {
+  handleError(error: Error | string): null {
     return errorLogger(error, LOG_SCOPE.MESSAGE_HANDLER)
   }
 }

@@ -2,7 +2,7 @@ import request from 'request'
 import { errorLogger } from '@/handlers/log.handler'
 import { TenorApiQueryResult } from '../feature-interfaces/tenor-query.interface'
 
-export function isMyOwner(userId: string) {
+export function isMyOwner(userId: string): boolean {
   return userId === global?.config?.ownerId
 }
 
@@ -31,7 +31,7 @@ function handleRequestErrors(error: string): null {
   return errorLogger(error, 'UTILITY_SERVICE')
 }
 
-export const subscriberCountFormatter = (number: number | string) => {
+export const subscriberCountFormatter = (number: number | string): string => {
   number = typeof number === 'string' ? Number(number) : number
   let result: string
 
@@ -45,7 +45,7 @@ export const subscriberCountFormatter = (number: number | string) => {
   return result.includes('.00') ? result.replace('.00', '') : result
 }
 
-export const dateTimeJSTFormatter = (iso8601DateString: string) =>
+export const dateTimeJSTFormatter = (iso8601DateString: string): string =>
   `${new Date(iso8601DateString).toLocaleString('en-US', {
     timeZone: 'Asia/Tokyo',
     year: 'numeric',

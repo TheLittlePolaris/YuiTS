@@ -26,9 +26,12 @@ import {
 
 @HoloStatServiceInitiator()
 export class HoloStatService {
-  constructor() {}
+  // constructor() {}
 
-  public async holoStatSelectList(message: Message, regionCode?: 'id' | 'jp') {
+  public async holoStatSelectList(
+    message: Message,
+    regionCode?: 'id' | 'jp'
+  ): Promise<unknown> {
     if (!regionCode) {
       return this.getHoloRegion(message)
     }
@@ -117,7 +120,10 @@ export class HoloStatService {
     })
   }
 
-  public async holoStatChannelDetail(message: Message, channelId: string) {
+  public async holoStatChannelDetail(
+    message: Message,
+    channelId: string
+  ): Promise<void> {
     const channelData = await HoloStatRequestService.getSelectedChannelDetail(
       channelId
     ).catch((err) => this.handleError(new Error(err)))
@@ -149,7 +155,7 @@ export class HoloStatService {
     return
   }
 
-  public async getHoloRegion(message: Message) {
+  public async getHoloRegion(message: Message): Promise<void> {
     const sentMessage = await this.sendMessage(
       message,
       `**Which region should i look for ?\n1. ${HOLOLIVE_REACTION_LIST['1️⃣'].name}\n2. ${HOLOLIVE_REACTION_LIST['2️⃣'].name} **`
@@ -209,7 +215,7 @@ export class HoloStatService {
     message: Message,
     yui: GuildMember,
     region?: 'id' | 'jp'
-  ) {
+  ): Promise<void> {
     const waitingMessage = await this.sendMessage(
       message,
       ':hourglass_flowing_sand: **_Hold on while i go grab some data!_**'

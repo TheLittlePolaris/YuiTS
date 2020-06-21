@@ -27,12 +27,12 @@ export type IYoutubeDLSoundCloudAudioProtocol = 'm3u8_native' | 'http'
 export interface ISoundCloudSongFormat {
   ext: string
   protocol: IYoutubeDLSoundCloudAudioProtocol
-  preference: any
+  preference: unknown
   vcodec: string // none
   format: string
   url: string
   format_id: YoutubeDLSoundcloudFormatId // known formats
-  http_headers: Object
+  http_headers: Record<string, unknown>
   abr: number
 }
 
@@ -53,17 +53,17 @@ export interface ISoundCloudSong {
   description: string
   uploader_id: string // number
   upload_date: string // number
-  requested_subtitles: any
+  requested_subtitles: unknown
   formats: ISoundCloudSongFormat[]
   genre: string
   _filename: string
   like_count: number
-  preference: any
+  preference: unknown
   uploader: string // uploader name
   duration: number //3:19.46199999999999
   format_id: YoutubeDLSoundcloudFormatId
-  http_headers: Object
-  playlist_index: any
+  http_headers: Record<string, unknown>
+  playlist_index: unknown
   view_count: number
   playlist: string | null
   ext: string

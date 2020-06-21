@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GuildMember, Message, Role } from 'discord.js'
 import {
   ADMIN_COMMANDS,
@@ -35,7 +37,7 @@ export function AdminPermissionValidator() {
       LOG_SCOPE.ADMIN_ACTION_COMMAND,
       propertyKey
     )
-    const originalDescriptor = descriptor.value!
+    const originalDescriptor = descriptor.value
 
     descriptor.value = async function (..._args: any[]) {
       const [message, args, command] = _args as [Message, Array<string>, string]
@@ -130,7 +132,7 @@ export function CommandValidator() {
       LOG_SCOPE.ADMIN_SERVICE,
       propertyKey
     )
-    const originalDescriptor = descriptor.value!
+    const originalDescriptor = descriptor.value
     descriptor.value = function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]
 

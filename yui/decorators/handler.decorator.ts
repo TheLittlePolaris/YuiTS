@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { MusicService } from '@/handlers/services/music/music.service'
 import { FeatureService } from '@/handlers/services/feature/feature.service'
 import { AdministrationService } from '@/handlers/services/administration/administration.service'

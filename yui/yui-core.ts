@@ -12,7 +12,7 @@ import { Yui } from './decorators/yui.decorator'
     disableMentions: 'everyone',
   },
 })
-export default class YuiCore {
+export class YuiCore {
   private yui: Client
   private messageHandler: MessageHandler
   private voiceStateHandler: VoiceStateHandler
@@ -37,7 +37,7 @@ export default class YuiCore {
     )
   }
 
-  async onReady() {
+  async onReady(): Promise<void> {
     if (!this.yui.user) return
     infoLogger(LOG_SCOPE.YUI_CORE, 'Connected!')
     await Promise.all([
@@ -53,40 +53,40 @@ export default class YuiCore {
     infoLogger(LOG_SCOPE.YUI_CORE, 'Yui is online')
   }
 
-  async onMessage(message: Message) {
-    // owner feature
-    if (
-      message.channel.type === 'dm' &&
-      message.author.id === global.config.ownerId
-    )
-      return this.onDM(message)
-
-    if (!message.content.startsWith(this['prefix']) || message.author.bot)
-      return
-
-    if (message.channel.type !== 'text') return // only accept text channel message
-    const args = message.content
-      .slice(this['prefix'].length)
-      .trim()
-      .split(/ +/g)
-
-    const command = args.shift()
-
+  async onMessage(message: Message): Promise<unknown> {
     try {
+      // owner feature
+      if (
+        message.channel.type === 'dm' &&
+        message.author.id === global.config.ownerId
+      )
+        return this.onDM(message)
+
+      if (!message.content.startsWith(this['prefix']) || message.author.bot)
+        return
+
+      if (message.channel.type !== 'text') return // only accept text channel message
+      const args = message.content
+        .slice(this['prefix'].length)
+        .trim()
+        .split(/ +/g)
+
+      const command = args.shift()
+
       return this.messageHandler.execute(message, command, args)
     } catch (err) {
       this.handleError(new Error(err))
     }
   }
 
-  async onDM(message: Message) {
+  async onDM(message: Message): Promise<void> {
     return this.messageHandler.specialExecute(message, this.yui)
   }
 
   async onVoiceStateUpdate(
     oldVoiceState: VoiceState,
     newVoiceState: VoiceState
-  ) {
+  ): Promise<void> {
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldVoiceState, newVoiceState)
   }
 

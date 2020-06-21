@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { GuildMember, Message, Role } from 'discord.js'
 import { errorLogger, debugLogger } from '@/handlers/log.handler'
 import {
@@ -29,7 +30,7 @@ export class AdminstrationActionCommands {
       targets.map((target) => target.kick()),
     ]).catch((err) => this.handleError(new Error(err)))
 
-    !!kicks.length
+    kicks.length
       ? message.channel
           .send(
             `\`${targets[0].user.username}${
@@ -58,7 +59,7 @@ export class AdminstrationActionCommands {
       targets.map((target) => target.ban({ reason })),
     ]).catch((err) => this.handleError(new Error(err)))
 
-    !!bans.length
+    bans.length
       ? message.channel
           .send(
             `\`${targets[0].user.username}${
@@ -92,7 +93,7 @@ export class AdminstrationActionCommands {
 
     const roleNames = roles.map((role) => role.name)
 
-    !!addedRole.length
+    addedRole.length
       ? message.channel.send(
           `Added role \`${
             roleNames.length > 1 ? roleNames.join(', ') : roleNames[0]
@@ -122,7 +123,7 @@ export class AdminstrationActionCommands {
 
     const roleNames = roles.map((role) => role.name)
 
-    !!(removedRoles && removedRoles.length)
+    removedRoles && removedRoles.length
       ? message.channel.send(
           `Removed role \`${
             roleNames.length > 1 ? roleNames.join(', ') : roleNames[0]
@@ -150,7 +151,8 @@ export class AdminstrationActionCommands {
           .catch((err) => this.handleError(new Error(err)))
       ),
     ]).catch((err) => this.handleError(new Error(err)))
-    !!muted.length
+
+    muted.length
       ? message.channel.send(
           `\`${targets[0].displayName} ${
             targets.length > 1 ? `and ${targets.length - 1} others` : ``
@@ -178,7 +180,7 @@ export class AdminstrationActionCommands {
           .catch((err) => this.handleError(new Error(err)))
       ),
     ]).catch((err) => this.handleError(new Error(err)))
-    !!unmuted.length
+    unmuted.length
       ? message.channel.send(
           `\`${targets[0].displayName} ${
             targets.length > 1 ? `and ${targets.length - 1} others` : ``
@@ -207,7 +209,8 @@ export class AdminstrationActionCommands {
           .catch((err) => this.handleError(new Error(err)))
       ),
     ]).catch((err) => this.handleError(new Error(err)))
-    !!setnickname.length
+
+    setnickname.length
       ? message.channel
           .send(
             `\`${targets[0].user.username}'s ${

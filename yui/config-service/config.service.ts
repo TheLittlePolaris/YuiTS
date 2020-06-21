@@ -7,7 +7,7 @@ import { LOG_SCOPE } from '@/constants/constants'
   }
 
   class ConfigService {
-    public static envConfig: EnvConfig
+    public envConfig: EnvConfig
     constructor() {
       const path = `.env${
         process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ``
@@ -18,10 +18,10 @@ import { LOG_SCOPE } from '@/constants/constants'
           process.env.NODE_ENV?.toUpperCase() || 'DEVELOPMENT'
         } environment`
       )
-      ConfigService.envConfig = config({
+      this.envConfig = config({
         path,
       }).parsed
-      const { error } = ConfigService.envConfig
+      const { error } = this.envConfig
       if (error) {
         throw new Error(`Fatal: CANNOT READ CONFIG ENVIRONMENT: ${error}`)
       }
@@ -29,66 +29,61 @@ import { LOG_SCOPE } from '@/constants/constants'
       debugLogger(LOG_SCOPE.CONFIG_SERVICE)
     }
 
-    public static init() {
-      return new ConfigService()
-    }
-
-    public static get token(): string {
+    public get token(): string {
       return this.envConfig['TOKEN']
     }
 
-    public static get tokenStaging(): string {
+    public get tokenStaging(): string {
       return this.envConfig['TOKEN_STAGING']
     }
 
-    public static get youtubeApiKey(): string {
+    public get youtubeApiKey(): string {
       return this.envConfig['YOUTUBE_API_KEY']
     }
 
-    public static get tenorKey(): string {
+    public get tenorKey(): string {
       return this.envConfig['TENOR_KEY']
     }
 
-    public static get tenorAnonymousId(): string {
+    public get tenorAnonymousId(): string {
       return this.envConfig['TENOR_ANONYMOUS_ID']
     }
 
-    public static get yuiId(): string {
+    public get yuiId(): string {
       return this.envConfig['YUI_ID']
     }
 
-    public static get ownerId(): string {
+    public get ownerId(): string {
       return this.envConfig['OWNER_ID']
     }
 
-    public static get prefix(): string {
+    public get prefix(): string {
       return this.envConfig['PREFIX']
     }
 
-    public static get prefixStaging(): string {
+    public get prefixStaging(): string {
       return this.envConfig['PREFIX_STAGING']
     }
 
-    public static get youtubeClientId(): string {
+    public get youtubeClientId(): string {
       return this.envConfig['YOUTUBE_CLIENT_ID']
     }
 
-    public static get youtubeClientSecret(): string {
+    public get youtubeClientSecret(): string {
       return this.envConfig['YOUTUBE_CLIENT_SECRET']
     }
 
-    public static get soundcloudUserId(): string {
+    public get soundcloudUserId(): string {
       return this.envConfig['SOUNDCLOUD_USERNAME']
     }
 
-    public static get soundcloudPassword(): string {
+    public get soundcloudPassword(): string {
       return this.envConfig['SOUNDCLOUD_PASSWORD']
     }
 
-    public static get environment(): 'development' | 'production' {
-      return this.envConfig['ENVIRONMENT'] as any
+    public get environment(): 'development' | 'production' {
+      return this.envConfig['ENVIRONMENT'] as 'development' | 'production'
     }
   }
-  new ConfigService()
-  global['config'] = ConfigService
+  global['config'] = new ConfigService()
 })()

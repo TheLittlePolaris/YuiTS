@@ -14,11 +14,11 @@ import { debugLogger } from '@/handlers/log.handler'
 export class MusicStream {
   private _id: string
   private _name: string
-  private _isLooping: boolean = false
-  private _isQueueLooping: boolean = false
-  private _isAutoPlaying: boolean = false
-  private _isPlaying: boolean = false
-  private _isPaused: boolean = false
+  private _isLooping = false
+  private _isQueueLooping = false
+  private _isAutoPlaying = false
+  private _isPlaying = false
+  private _isPaused = false
   public _streamDispatcher: StreamDispatcher
   public _broadcastDispatcher: BroadcastDispatcher
   public _voiceBroadcast: VoiceBroadcast

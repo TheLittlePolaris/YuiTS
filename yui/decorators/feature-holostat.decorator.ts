@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { TFunction, HOLOSTAT_PARAMS } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message } from 'discord.js'
@@ -28,7 +31,7 @@ export function HoloStatCommandValidator() {
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
-    const originalMethod: Function = descriptor.value
+    const originalMethod = descriptor.value
 
     descriptor.value = function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]

@@ -5,7 +5,7 @@ import 'config-service'
 
 import { LOG_SCOPE } from '@/constants/constants'
 import { errorLogger, infoLogger } from '@/handlers/log.handler'
-import YuiCore from '@/yui-core'
+import { YuiCore } from '@/yui-core'
 ;(async () => {
   try {
     infoLogger(LOG_SCOPE.YUI_MAIN, 'Starting...')

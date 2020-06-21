@@ -25,7 +25,10 @@ export abstract class PolarisSoundCloudPlayer {
     }
   }
 
-  static async axiosHttpStream(url: string, options?: TransformOptions) {
+  static async axiosHttpStream(
+    url: string,
+    options?: TransformOptions
+  ): Promise<PassThrough> {
     const stream = new PassThrough()
 
     // fix for pause/resume downloads
@@ -36,12 +39,10 @@ export abstract class PolarisSoundCloudPlayer {
       url,
       headers,
       timeout: 30000,
+      onDownloadProgress: (progressEvent) => {
+        stream.emit('info', progressEvent)
+      },
       responseType: 'stream',
-    })
-
-    stream.emit('info', {
-      contentLength: promisedRequest.headers['content-length'],
-      contentType: promisedRequest.headers['content-type'],
     })
 
     if (promisedRequest.status === 416) {
@@ -65,7 +66,7 @@ export abstract class PolarisSoundCloudPlayer {
     return stream
   }
 
-  static m3u8Stream(url: string, options?: m3u8stream.Options) {
+  static m3u8Stream(url: string, options?: m3u8stream.Options): PassThrough {
     const stream: PassThrough = new PassThrough()
 
     const { highWaterMark } = options
@@ -95,7 +96,12 @@ export abstract class PolarisSoundCloudPlayer {
     return stream
   }
 
-  public static async getDownloadLink(videoUrl: string) {
+  public static async getDownloadLink(
+    videoUrl: string
+  ): Promise<{
+    url: string
+    type: string
+  }> {
     const soundcloudDll = (await PolarisSoundCloudService.getInfoUrl(videoUrl, {
       getUrl: true,
     })) as {

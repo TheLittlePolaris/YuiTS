@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { TFunction } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message, PermissionString } from 'discord.js'
@@ -40,7 +42,7 @@ export function FeaturePermissionValidator() {
       propertyKey
     )
 
-    const originalDescriptor = descriptor.value!
+    const originalDescriptor = descriptor.value
 
     descriptor.value = async function (..._args: any[]) {
       const message = _args[0] as Message
