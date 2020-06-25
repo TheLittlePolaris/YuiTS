@@ -23,29 +23,25 @@ export class YuiCore {
   public async start(): Promise<void> {
     infoLogger(LOG_SCOPE.YUI_CORE, 'Connecting...')
 
-    this.yui
-      .login(this['token'])
-      .catch((err) => this.handleError(new Error(err)))
+    this.yui.login(this['token']).catch((err) => this.handleError(new Error(err)))
 
     this.yui.on('ready', () => this.onReady())
     this.yui.on('message', (message: Message) => this.onMessage(message))
     // this.yui.on("message", this.onMessage.bind(this));
-    this.yui.on(
-      'voiceStateUpdate',
-      (oldMember: VoiceState, newMember: VoiceState) =>
-        this.onVoiceStateUpdate(oldMember, newMember)
+    this.yui.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) =>
+      this.onVoiceStateUpdate(oldState, newState)
     )
   }
 
   async onReady(): Promise<void> {
-    if (!this.yui.user) return
+    if (!this.yui?.user) return
     infoLogger(LOG_SCOPE.YUI_CORE, 'Connected!')
     await Promise.all([
       global.config.environment === 'development'
-        ? this.yui.user.setActivity('-help', {
+        ? this.yui?.user?.setActivity('-help', {
             type: 'LISTENING',
           })
-        : this.yui.user.setActivity('📻 Radio Happy (>help)', {
+        : this.yui?.user?.setActivity('📻 Radio Happy (>help)', {
             url: 'https://twitch.tv/onlypolaris',
             type: 'STREAMING',
           }),
@@ -56,20 +52,12 @@ export class YuiCore {
   async onMessage(message: Message): Promise<unknown> {
     try {
       // owner feature
-      if (
-        message.channel.type === 'dm' &&
-        message.author.id === global.config.ownerId
-      )
-        return this.onDM(message)
+      if (message.channel.type === 'dm' && message.author.id === global.config.ownerId) return this.onDM(message)
 
-      if (!message.content.startsWith(this['prefix']) || message.author.bot)
-        return
+      if (!message.content.startsWith(this['prefix']) || message.author.bot) return
 
       if (message.channel.type !== 'text') return // only accept text channel message
-      const args = message.content
-        .slice(this['prefix'].length)
-        .trim()
-        .split(/ +/g)
+      const args = message.content.slice(this['prefix'].length).trim().split(/ +/g)
 
       const command = args.shift()
 
@@ -83,10 +71,7 @@ export class YuiCore {
     return this.messageHandler.specialExecute(message, this.yui)
   }
 
-  async onVoiceStateUpdate(
-    oldVoiceState: VoiceState,
-    newVoiceState: VoiceState
-  ): Promise<void> {
+  async onVoiceStateUpdate(oldVoiceState: VoiceState, newVoiceState: VoiceState): Promise<void> {
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldVoiceState, newVoiceState)
   }
 

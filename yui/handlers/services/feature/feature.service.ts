@@ -1,4 +1,4 @@
-import { LOG_SCOPE } from '@/constants/constants'
+import { LOG_SCOPE, HOLOSTAT_KNOWN_REGION_CODE } from '@/constants/constants'
 import {
   Detail,
   HoloStatCommandValidator,
@@ -156,7 +156,7 @@ export class FeatureService {
       message,
       await discordRichEmbedConstructor({
         description,
-        imageUrl: result.results[num].media[0].gif.url,
+        imageUrl: result?.results[num]?.media[0]?.gif?.url,
       })
     )
   }
@@ -167,7 +167,7 @@ export class FeatureService {
     message: Message,
     args: Array<string>,
     @CurrentGuildMember() yui?: GuildMember,
-    @Region() region?: 'jp' | 'id',
+    @Region() region?: HOLOSTAT_KNOWN_REGION_CODE,
     @Detail() detail?: boolean
   ): Promise<unknown> {
     if (!detail)

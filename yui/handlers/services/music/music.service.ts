@@ -53,7 +53,7 @@ export class MusicService {
   }
 
   private async createStream(message: Message): Promise<MusicStream | null> {
-    await this.sendMessage(
+    const sentMessage = await this.sendMessage(
       message,
       ':hourglass_flowing_sand: **_Preparing, just one moment! ;)_**'
     )
@@ -99,7 +99,7 @@ export class MusicService {
     stream.voiceConnection?.on('error', (error) => onConnectionError(error))
     stream.voiceConnection?.on('failed', (error) => onConnectionError(error))
 
-    await this.deleteMessage(message)
+    this.deleteMessage(sentMessage)
 
     return stream
   }
