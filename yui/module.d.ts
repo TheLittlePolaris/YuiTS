@@ -24,6 +24,5 @@ declare namespace NodeJS {
       soundcloudPassword: string
       environment: 'development' | 'production'
     }
-    youtube: any
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import { youtube_v3 } from 'googleapis'
 import { IYoutubeDLSoundCloudAudioProtocol } from './soundcloud-info.interface'
 

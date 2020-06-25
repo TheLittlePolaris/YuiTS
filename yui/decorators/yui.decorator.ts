@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { ClientOptions, Client, Message } from 'discord.js'
 import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
@@ -28,7 +30,7 @@ export function Yui({
   }
 }
 
-//TODO:
+// TODO:
 export function On(event: DiscordEvent) {
   return function (
     target: any,

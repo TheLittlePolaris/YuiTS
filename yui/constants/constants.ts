@@ -1,4 +1,5 @@
-import { Message } from 'discord.js'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-types */
 
 export enum Constants {
   YUI_COLOR_CODE = 'FFA000',
@@ -6,12 +7,6 @@ export enum Constants {
 }
 
 export type TFunction = new (...args: any[]) => {}
-
-export type AcessControllerFn = (message: Message, join: boolean) => void
-
-export enum CONSTANTS {
-  MUSIC_STREAMS = 'music-streams',
-}
 
 export enum LOG_SCOPE {
   YUI_MAIN = 'YuiMain',
@@ -29,17 +24,20 @@ export enum LOG_SCOPE {
   HOLOSTAT_REQUEST_SERVICE = 'HolostatRequestService',
 }
 
-export const HOLOSTAT_SUB_COMMANDS = [
+/** ================================= HOLO STAT ======================================== */
+
+export const holoStatRegionSubCommand = [
   'jp',
   'japan',
   'id',
   'indonesia',
-  'detail',
-  'd',
+  'cn',
+  'china',
 ]
 
-export type DISCORD_REACTIONS_TYPE = '1️⃣' | '2️⃣' // currently just have 2
-// | '3️⃣'
+export const holoStatDetailSubCommand = ['detail', 'd']
+
+export type DISCORD_REACTIONS_TYPE = '1️⃣' | '2️⃣' | '3️⃣' // currently just have 3
 // | '4️⃣'
 // | '5️⃣'
 // | '6️⃣'
@@ -52,11 +50,15 @@ export type HOLOSTAT_PARAMS =
   | 'japan'
   | 'id'
   | 'indonesia'
+  | 'china'
+  | 'cn'
   | 'detail'
   | 'd'
-export type KNOWN_HOLOLIVE_REGION = 'jp' | 'id'
+
+export type HOLOSTAT_KNOWN_REGION_CODE = 'jp' | 'id' | 'cn'
+
 export type HOLOSTAT_REACTION = {
-  [key: string]: { name: string; code: KNOWN_HOLOLIVE_REGION }
+  [key: string]: { name: string; code: HOLOSTAT_KNOWN_REGION_CODE }
 }
 
 export const DISCORD_REACTION = {
@@ -65,7 +67,7 @@ export const DISCORD_REACTION = {
   BACKWARD: '◀',
 }
 
-export const HOLOLIVE_REACTION_LIST: HOLOSTAT_REACTION = {
+export const holoStatReactionList: HOLOSTAT_REACTION = {
   '1️⃣': {
     name: 'Japan',
     code: 'jp',
@@ -74,11 +76,23 @@ export const HOLOLIVE_REACTION_LIST: HOLOSTAT_REACTION = {
     name: 'Indonesia',
     code: 'id',
   },
-}
-export const holoProxyHandler = {
-  get: function (target: Object, name: DISCORD_REACTIONS_TYPE) {
-    return target.hasOwnProperty(name)
-      ? target[name]
-      : HOLOLIVE_REACTION_LIST[DISCORD_REACTION.NUMBERS[0]]
+  '3️⃣': {
+    name: 'China',
+    code: 'cn',
   },
 }
+
+export enum HOLO_REGION_MAP {
+  cn = 'China',
+  jp = 'Japan',
+  id = 'Indonesia',
+}
+/** ==================================================================================== */
+
+// export const holoProxyHandler = {
+//   get: function (target: object, name: DISCORD_REACTIONS_TYPE) {
+//     return target.hasOwnProperty(name)
+//       ? target[name]
+//       : HOLOLIVE_REACTION_LIST[DISCORD_REACTION.NUMBERS[0]]
+//   },
+// }

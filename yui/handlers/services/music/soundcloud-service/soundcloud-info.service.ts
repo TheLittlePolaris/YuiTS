@@ -1,6 +1,6 @@
 import { ISoundCloudSong } from '../music-interfaces/soundcloud-info.interface'
 import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
-import { spawnSync, SpawnSyncOptions } from 'child_process'
+import { spawnSync, SpawnSyncOptions, spawn } from 'child_process'
 
 enum FORMAT_URL {
   M3U8_64 = 0,
@@ -20,38 +20,75 @@ enum FORMAT_THUMBNAILS {
   t500x500 = 8,
   original = 9,
 }
-export abstract class SoundCloudService {
+export abstract class PolarisSoundCloudService {
   public static async getInfoUrl(
     url: string,
     {
       getUrl,
-      options,
     }: {
       getUrl?: boolean
-      options?: SpawnSyncOptions
-    } = { getUrl: false, options: {} }
-  ) {
+    } = { getUrl: false }
+  ): Promise<
+    | IYoutubeVideo
+    | { url: string; type: string }
+    | (IYoutubeVideo | { url: string; type: string })[]
+  > {
     if (!url || !url.length) throw new Error('Empty url')
-    const result = await spawnSync(
-      'youtube-dl',
-      ['--skip-download', '-s', '--dump-json', '--', url],
-      {
-        ...options,
-        encoding: 'utf-8',
+    return new Promise((resolve, reject) => {
+      try {
+        const process = spawn(
+          'youtube-dl',
+          ['--skip-download', '-s', '--dump-json', '--', url],
+          { stdio: ['inherit', 'pipe', 'pipe'] }
+        )
+        console.log(`SPAWN ${process.pid}`)
+        const results: (IYoutubeVideo | { url: string; type: string })[] = []
+        process.stdout
+          .on('data', (buffer: Buffer) => {
+            const parseRawInfo = (data: string) => {
+              try {
+                return JSON.parse(data)
+              } catch (e) {
+                return null
+              }
+            }
+            const parsedRaw = parseRawInfo(buffer.toString('utf-8'))
+            if (!parsedRaw) return
+            const parsed = this.mapToYoutubeVideoFormat(parsedRaw, getUrl)
+            results.push(parsed)
+          })
+          .on('end', () => {
+            resolve(results.length > 1 ? results : results[0])
+          })
+          .on('error', (error) => {
+            cleanProcessOnErr(error)
+          })
+
+        const cleanProcessOnErr = (error: Error) => {
+          process.stdout.emit('end')
+          setTimeout(() => {
+            process.stdout.destroy(error)
+            process.kill()
+          }, 100)
+        }
+        process.stderr
+          .on('data', (buffer: Buffer) => {
+            const rawInfo = buffer.toString('utf-8')
+            cleanProcessOnErr(new Error(rawInfo))
+          })
+          .on('error', (error) => {
+            cleanProcessOnErr(error)
+          })
+      } catch (err) {
+        reject('Fatal Error: ' + err)
       }
-    )
-    const rawInfo = result.stdout.trim().split(/\r?\n/)
-    if (!rawInfo || !rawInfo.length) return []
-
-    const info = rawInfo
-      .map((item) => this.mapToYoutubeVideoFormat(JSON.parse(item), getUrl))
-      .filter(Boolean)
-    if (!info) throw new Error('Cannot get any info')
-
-    return info.length > 1 ? info : info[0]
+    })
   }
 
-  public static async getInfoUrlTest(url: string, options?: SpawnSyncOptions) {
+  public static async getInfoUrlTest(
+    url: string,
+    options?: SpawnSyncOptions
+  ): Promise<unknown[]> {
     if (!url || !url.length) throw new Error('Empty url')
     const time = console.time('json')
     const result = await spawnSync(
@@ -82,7 +119,7 @@ export abstract class SoundCloudService {
 
   static mapToYoutubeVideoFormat = (
     info: ISoundCloudSong,
-    getUrl: boolean = false
+    getUrl = false
   ): IYoutubeVideo | { url: string; type: string } => {
     const {
       id,

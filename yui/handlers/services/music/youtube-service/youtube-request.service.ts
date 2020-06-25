@@ -4,6 +4,7 @@ import { errorLogger } from '@/handlers/log.handler'
 import {
   IYoutubeSearchResult,
   IYoutubeVideosResult,
+  IYoutubePlaylistResult,
 } from '../music-interfaces/youtube-info.interface'
 
 export abstract class YoutubeRequestService {
@@ -59,7 +60,7 @@ export abstract class YoutubeRequestService {
 
   public static async googleYoutubeApiPlaylistItems(
     options: youtube_v3.Params$Resource$Playlistitems$List
-  ) {
+  ): Promise<IYoutubePlaylistResult> {
     const { data, status } = await this.youtubePlayListItems.list(options)
     if (status !== 200 || !data.items)
       throw new Error('Youtube Request Failed: ' + data)

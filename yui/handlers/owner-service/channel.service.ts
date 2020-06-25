@@ -10,9 +10,13 @@ import { discordRichEmbedConstructor } from '../services/utilities/discord-embed
 
 @OwnerServiceInitiator()
 export class OwnerChannelService {
-  constructor() {}
+  // constructor() {}
 
-  async statistics(message: Message, args: Array<string>, yui: Client) {
+  async statistics(
+    message: Message,
+    args: Array<string>,
+    yui: Client
+  ): Promise<void> {
     const channels = yui.channels.cache
     const guilds = yui.guilds.cache
     const totalUsers = guilds

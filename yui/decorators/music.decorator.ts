@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import type { TFunction } from '@/constants/constants'
 import type { MusicStream } from '@/handlers/services/music/music-entities/music-stream'
 import { Message, TextChannel } from 'discord.js'
@@ -39,7 +41,7 @@ export function AccessController(
     descriptor: PropertyDescriptor
   ) {
     decoratorLogger('AccessController - Method', 'MusicService', propertyKey)
-    const originalMethod = descriptor.value!
+    const originalMethod = descriptor.value
     descriptor.value = async function (...args: any[]) {
       const streams = GlobalMusicStreams.streams
       const [message] = args as [Message]

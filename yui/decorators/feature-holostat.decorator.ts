@@ -1,7 +1,14 @@
-import { TFunction, HOLOSTAT_PARAMS } from '@/constants/constants'
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import {
+  TFunction,
+  HOLOSTAT_PARAMS,
+  holoStatDetailSubCommand,
+} from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message } from 'discord.js'
-import { HOLOSTAT_SUB_COMMANDS } from '@/constants/constants'
+import { holoStatRegionSubCommand } from '@/constants/constants'
 
 enum HOLOSTAT_REFLECT_SYMBOLS {
   SUB_COMMAND = 'sub-command',
@@ -9,7 +16,7 @@ enum HOLOSTAT_REFLECT_SYMBOLS {
   DETAIL = 'detail',
 }
 
-const REFECT_HOLOSTAT_KEYS = {
+const REFLECT_HOLOSTAT_KEYS = {
   SUB_COMMAND_KEY: Symbol(HOLOSTAT_REFLECT_SYMBOLS.SUB_COMMAND),
   REGION_KEY: Symbol(HOLOSTAT_REFLECT_SYMBOLS.REGION),
   DETAIL_KEY: Symbol(HOLOSTAT_REFLECT_SYMBOLS.DETAIL),
@@ -28,13 +35,18 @@ export function HoloStatCommandValidator() {
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
-    const originalMethod: Function = descriptor.value
+    const originalMethod = descriptor.value
 
     descriptor.value = function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]
 
+      const holoStatCommands = [
+        ...holoStatRegionSubCommand,
+        ...holoStatDetailSubCommand,
+      ]
+
       const regionIndex = Reflect.getMetadata(
-        REFECT_HOLOSTAT_KEYS.REGION_KEY,
+        REFLECT_HOLOSTAT_KEYS.REGION_KEY,
         target,
         propertyKey
       )
@@ -46,13 +58,13 @@ export function HoloStatCommandValidator() {
       const subCommand: HOLOSTAT_PARAMS = args
         .shift()
         .toLowerCase() as HOLOSTAT_PARAMS
-      if (!HOLOSTAT_SUB_COMMANDS.includes(subCommand)) {
+      if (!holoStatCommands.includes(subCommand)) {
         message.channel.send(`*${subCommand} is not recognized as an option.*`)
         return
       }
 
       const detailIndex = Reflect.getMetadata(
-        REFECT_HOLOSTAT_KEYS.DETAIL_KEY,
+        REFLECT_HOLOSTAT_KEYS.DETAIL_KEY,
         target,
         propertyKey
       )
@@ -62,6 +74,10 @@ export function HoloStatCommandValidator() {
           case 'id':
           case 'indonesia': {
             return 'id'
+          }
+          case 'cn':
+          case 'china': {
+            return 'cn'
           }
           case 'jp':
           case 'japan':
@@ -113,7 +129,7 @@ export function HoloStatCommandValidator() {
 export const Region = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(
-      REFECT_HOLOSTAT_KEYS.REGION_KEY,
+      REFLECT_HOLOSTAT_KEYS.REGION_KEY,
       paramIndex,
       target,
       propertyKey
@@ -124,7 +140,7 @@ export const Region = () => {
 export const Detail = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(
-      REFECT_HOLOSTAT_KEYS.DETAIL_KEY,
+      REFLECT_HOLOSTAT_KEYS.DETAIL_KEY,
       paramIndex,
       target,
       propertyKey

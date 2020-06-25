@@ -1,4 +1,4 @@
-import { isYoutubeUrl } from './youtube-utilities'
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { errorLogger } from '@/handlers/log.handler'
 import { YoutubeRequestService } from './youtube-request.service'
 import {
@@ -73,22 +73,21 @@ export abstract class YoutubeInfoService {
     return [...playlistSongs, ...(nextPageResults || [])]
   }
 
-  static processPlaylistItemsData(
+  static async processPlaylistItemsData(
     data: IYoutubePlaylistResult
   ): Promise<IYoutubeVideo[]> {
-    return new Promise(async (resolve, _) => {
-      const tmpIdsArray: Array<string> = []
-      await Promise.all(
-        data.items.map((song) => {
-          return tmpIdsArray.push(song.snippet.resourceId.videoId)
-        })
-      ).catch(this.handleError)
+    const tmpIdsArray: Array<string> = []
+    await Promise.all(
+      data.items.map((song) => {
+        return tmpIdsArray.push(song.snippet.resourceId.videoId)
+      })
+    ).catch(this.handleError)
 
-      const videos = await this.getInfoIds(tmpIdsArray.join(',')).catch(
-        this.handleError
-      )
-      resolve(videos)
-    })
+    const videos = await this.getInfoIds(tmpIdsArray.join(',')).catch(
+      this.handleError
+    )
+
+    return videos
   }
 
   public static async getSongsByChannelId(

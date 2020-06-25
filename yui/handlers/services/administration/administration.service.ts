@@ -24,7 +24,7 @@ export class AdministrationService {
     message: Message,
     args: Array<string>,
     @Command() command?: ADMIN_ACTION_TYPE
-  ) {
+  ): Promise<void> {
     return await this._adminActionCommands[command](message, args)
   }
 

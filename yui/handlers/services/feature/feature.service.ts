@@ -1,4 +1,4 @@
-import { LOG_SCOPE } from '@/constants/constants'
+import { LOG_SCOPE, HOLOSTAT_KNOWN_REGION_CODE } from '@/constants/constants'
 import {
   Detail,
   HoloStatCommandValidator,
@@ -36,15 +36,14 @@ export class FeatureService {
   public async getPing(
     message: Message,
     @CurrentGuildMember() yui?: GuildMember
-  ) {
+  ): Promise<void> {
     const yuiPing = yui.client.ws.ping
     const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
 
-    if (!sentMessage)
-      return this.sendMessage(
-        message,
-        '**Something went wrong, please try again.**'
-      )
+    if (!sentMessage) {
+      this.sendMessage(message, '**Something went wrong, please try again.**')
+      return
+    }
     const timeStart = message.createdTimestamp
     const timeEnd = sentMessage.createdTimestamp
 
@@ -60,37 +59,41 @@ export class FeatureService {
     })
 
     // const attachment = new MessageAttachment(image, 'ping.jpg')
-    if (!!sentMessage) sentMessage.delete().catch(null)
+    if (sentMessage) sentMessage.delete().catch(null)
 
     this.sendMessage(message, embed)
   }
 
   @FeaturePermissionValidator()
-  public async help(message: Message, @CurrentGuildMember() yui?: GuildMember) {
-    let commands =
-      '**__Music:__**\n`play | p`: add to end\n' +
-      '`pnext | pn`: add to next\n' +
-      '`skip | next <?range>`: skip a/some song(s)\n' +
-      '`leave | bye`: leave the bot\n' +
-      '`join | come`: join the bot\n' +
-      '`queue | q <?number>`: list out the queue at tab number (default 0)\n' +
-      "`np | nowplaying`: currently playing song's info\n" +
-      '`loop <?queue>`: loop the song/the queue\n' +
-      '`pause`: pause the song\n' +
-      '`resume`: resume pause\n' +
-      '`volume`: Adjust stream volume' +
-      '`shuffle`: shuffle the queue\n' +
-      '`clear`: clear queue\n' +
-      '`search`: search for a song, pick by index\n' +
-      '`autoplay | ap`: auto play a random song from current Youtube channel\n' +
-      '`remove <index> <?range>`: remove a/some song(s)\n' +
-      '`stop`: clear queue and stop playing\n\n' +
-      '**__Ultilities:__**\n' +
-      '`admin <kick/ban/mute/unmute/setnickname/addrole/removerole> <?@roles> <@mentions> <?reason>`: admin commands\n' +
-      '`tenor`: tenor GIFs, random limit: 5\n' +
-      "`ping`: connection's status\n" +
-      '`say`: repeat what you say\n\n' +
-      '`holostat` <?jp|id> <?detail>: Hololive member status'
+  public async help(
+    message: Message,
+    @CurrentGuildMember() yui?: GuildMember
+  ): Promise<void> {
+    const commands = `**__Music:__**
+    \`play, p\`: Add to end
+    \`playnext, pnext, pn\`: Add to next
+    \`skip, next <?range>\`: Skip a/some song(s)
+    \`leave, bye\`: Leave the bot
+    \`join, come\`: Join the bot
+    \`queue, q <?number>\`: Print queue
+    \`np, nowplaying\`: Currently playing song's info
+    \`loop <?queue>\`: Loop the song/the queue
+    \`pause\`: Pause the song
+    \`resume\`: Resume pause
+    \`volume\`: Adjust stream volume
+    \`shuffle\`: Shuffle queue
+    \`clear\`: Clear queue
+    \`search\`: search song
+    \`autoplay, ap\`: auto play random song from Youtube channel
+    \`remove <index> <?range>\`: remove a/some song(s)
+    \`stop\`: Clear queue, stop playing
+
+    **__Ultilities:__**
+    \`admin <kick/ban/mute/unmute/setnickname/addrole/removerole> <?role(s)> <@mention(s)> <?reason>\`: Admin commands
+    \`tenor\`: tenor GIFs
+    \`ping\`: Connection status
+    \`say\`: Repeat
+    \`holostat\` <?jp|id> <?detail|d>: Hololive member(s) channel status`
 
     const embed = await discordRichEmbedConstructor({
       author: {
@@ -120,7 +123,7 @@ export class FeatureService {
     @MentionedUsers() users?: GuildMember[],
     @UserAction() action?: string,
     @RequestParams() params?: string
-  ) {
+  ): Promise<void> {
     const num = await RNG(5)
     const result = await tenorRequestService(
       `${action} ${params ? params : ``}`
@@ -135,10 +138,12 @@ export class FeatureService {
           mentionString = users[0]
           break
         default:
-          const last = users.pop()
-          mentionString = `${
-            users.length > 1 ? users.join(', ') : users[0]
-          } and ${last}`
+          {
+            const last = users.pop()
+            mentionString = `${
+              users.length > 1 ? users.join(', ') : users[0]
+            } and ${last}`
+          }
           break
       }
     }
@@ -151,7 +156,7 @@ export class FeatureService {
       message,
       await discordRichEmbedConstructor({
         description,
-        imageUrl: result.results[num].media[0].gif.url,
+        imageUrl: result?.results[num]?.media[0]?.gif?.url,
       })
     )
   }
@@ -162,9 +167,9 @@ export class FeatureService {
     message: Message,
     args: Array<string>,
     @CurrentGuildMember() yui?: GuildMember,
-    @Region() region?: 'jp' | 'id',
+    @Region() region?: HOLOSTAT_KNOWN_REGION_CODE,
     @Detail() detail?: boolean
-  ) {
+  ): Promise<unknown> {
     if (!detail)
       return this._holoStatService.holoStatStatistics(message, yui, region)
 
