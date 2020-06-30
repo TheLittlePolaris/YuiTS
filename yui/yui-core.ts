@@ -61,7 +61,7 @@ export class YuiCore {
 
       const command = args.shift()
 
-      return this.messageHandler.execute(message, command, args)
+      return this.messageHandler.messageSwitchMap(message, command, args)
     } catch (err) {
       this.handleError(new Error(err))
     }

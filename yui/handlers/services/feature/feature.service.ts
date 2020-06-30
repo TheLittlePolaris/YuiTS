@@ -1,8 +1,9 @@
-import { LOG_SCOPE, HOLOSTAT_KNOWN_REGION_CODE } from '@/constants/constants'
+import { LOG_SCOPE } from '@/constants/constants'
 import {
   Detail,
   HoloStatCommandValidator,
   Region,
+  NijiStatCommandValidator,
 } from '@/decorators/feature-holostat.decorator'
 import {
   CurrentGuildMember,
@@ -13,30 +14,23 @@ import {
   UserAction,
 } from '@/decorators/features.decorator'
 import { debugLogger, errorLogger } from '@/handlers/log.handler'
-import {
-  GuildMember,
-  Message,
-  MessageAttachment,
-  MessageEmbed,
-  MessageOptions,
-} from 'discord.js'
+import { GuildMember, Message, MessageAttachment, MessageEmbed, MessageOptions } from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
 import { tenorRequestService } from './feature-services/feature-utilities'
-import { HoloStatService } from './holostat-service/holostat.service'
+import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
+import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
+import { NIJI_REGION_MAP, NIJI_KNOWN_REGION } from './vtuberstat-service/nijistat-service/nijistat.interface'
 
 @FeatureServiceInitiator()
 export class FeatureService {
-  private _holoStatService: HoloStatService
+  private _vtuberStatService: VtuberStatService
   constructor() {
     debugLogger('FeatureService')
   }
 
   @FeaturePermissionValidator()
-  public async getPing(
-    message: Message,
-    @CurrentGuildMember() yui?: GuildMember
-  ): Promise<void> {
+  public async getPing(message: Message, @CurrentGuildMember() yui?: GuildMember): Promise<void> {
     const yuiPing = yui.client.ws.ping
     const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
 
@@ -65,10 +59,7 @@ export class FeatureService {
   }
 
   @FeaturePermissionValidator()
-  public async help(
-    message: Message,
-    @CurrentGuildMember() yui?: GuildMember
-  ): Promise<void> {
+  public async help(message: Message, @CurrentGuildMember() yui?: GuildMember): Promise<void> {
     const commands = `**__Music:__**
     \`play, p\`: Add to end
     \`playnext, pnext, pn\`: Add to next
@@ -125,9 +116,9 @@ export class FeatureService {
     @RequestParams() params?: string
   ): Promise<void> {
     const num = await RNG(5)
-    const result = await tenorRequestService(
-      `${action} ${params ? params : ``}`
-    ).catch((error) => this.handleError(new Error(error)))
+    const result = await tenorRequestService(`${action} ${params ? params : ``}`).catch((error) =>
+      this.handleError(new Error(error))
+    )
 
     let mentionString
     if (users?.length) {
@@ -140,17 +131,13 @@ export class FeatureService {
         default:
           {
             const last = users.pop()
-            mentionString = `${
-              users.length > 1 ? users.join(', ') : users[0]
-            } and ${last}`
+            mentionString = `${users.length > 1 ? users.join(', ') : users[0]} and ${last}`
           }
           break
       }
     }
 
-    const description = !users?.length
-      ? `${message.member} ${action}`
-      : `${message.member} ${action} ${mentionString}`
+    const description = !users?.length ? `${message.member} ${action}` : `${message.member} ${action} ${mentionString}`
 
     this.sendMessage(
       message,
@@ -167,22 +154,33 @@ export class FeatureService {
     message: Message,
     args: Array<string>,
     @CurrentGuildMember() yui?: GuildMember,
-    @Region() region?: HOLOSTAT_KNOWN_REGION_CODE,
+    @Region() region?: HOLO_KNOWN_REGION,
     @Detail() detail?: boolean
   ): Promise<unknown> {
-    if (!detail)
-      return this._holoStatService.holoStatStatistics(message, yui, region)
+    if (!detail) return this._vtuberStatService.vtuberStatStatistics({ message, yui, affiliation: 'Hololive', region })
 
-    return this._holoStatService.holoStatSelectList(message, region)
+    return this._vtuberStatService.vtuberStatSelectList({ message, affiliation: 'Hololive', regionCode: region })
+  }
+
+  @FeaturePermissionValidator()
+  @NijiStatCommandValidator()
+  async getNijiStat(
+    message: Message,
+    args: Array<string>,
+    @CurrentGuildMember() yui?: GuildMember,
+    @Region() region?: NIJI_KNOWN_REGION,
+    @Detail() detail?: boolean
+  ): Promise<unknown> {
+    if (!detail) return this._vtuberStatService.vtuberStatStatistics({ message, yui, affiliation: 'Nijisanji', region })
+
+    return this._vtuberStatService.vtuberStatSelectList({ message, affiliation: 'Nijisanji', regionCode: region })
   }
 
   private async sendMessage(
     message: Message,
     content: string | MessageEmbed | MessageOptions | MessageAttachment
   ): Promise<Message> {
-    return await message.channel
-      .send(content)
-      .catch((error) => this.handleError(new Error(error)))
+    return await message.channel.send(content).catch((error) => this.handleError(new Error(error)))
   }
 
   private handleError(error: Error | string): null {

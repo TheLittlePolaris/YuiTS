@@ -4,7 +4,7 @@ import { TFunction } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message, PermissionString } from 'discord.js'
 import { isMyOwner } from '@/handlers/services/feature/feature-services/feature-utilities'
-import { HoloStatService } from '@/handlers/services/feature/holostat-service/holostat.service'
+import { VtuberStatService } from '@/handlers/services/feature/vtuberstat-service/vtuberstat.service'
 
 export enum FEATURE_SYMBOLS {
   CLIENT = 'client',
@@ -25,22 +25,14 @@ export const FeatureServiceInitiator = () => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
     // for future use
     return class extends superClass {
-      _holoStatService = new HoloStatService()
+      _vtuberStatService = new VtuberStatService()
     }
   }
 }
 
 export function FeaturePermissionValidator() {
-  return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    decoratorLogger(
-      'ValidateFeaturePermission - Method',
-      'FeatureService',
-      propertyKey
-    )
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger('ValidateFeaturePermission - Method', 'FeatureService', propertyKey)
 
     const originalDescriptor = descriptor.value
 
@@ -48,10 +40,7 @@ export function FeaturePermissionValidator() {
       const message = _args[0] as Message
 
       const requiredPermissions: PermissionString[] = ['SEND_MESSAGES']
-      const [yui, actionMember] = await Promise.all([
-        message.guild.members.fetch(global.config.yuiId),
-        message.member,
-      ])
+      const [yui, actionMember] = await Promise.all([message.guild.members.fetch(global.config.yuiId), message.member])
 
       const [yuiPermission, memberPermission, isOwner] = [
         yui.hasPermission([...requiredPermissions, 'MANAGE_MESSAGES'], {
@@ -65,26 +54,14 @@ export function FeaturePermissionValidator() {
       ]
       if (!(yuiPermission && (memberPermission || isOwner))) return
 
-      const clientIndex = Reflect.getMetadata(
-        REFLECT_FEATURE_KEYS.CLIENT_KEY,
-        target,
-        propertyKey
-      )
+      const clientIndex = Reflect.getMetadata(REFLECT_FEATURE_KEYS.CLIENT_KEY, target, propertyKey)
       if (clientIndex) _args[clientIndex] = yui
 
-      const mentionIndex = Reflect.getMetadata(
-        REFLECT_FEATURE_KEYS.MENTION_KEY,
-        target,
-        propertyKey
-      )
+      const mentionIndex = Reflect.getMetadata(REFLECT_FEATURE_KEYS.MENTION_KEY, target, propertyKey)
       if (mentionIndex) {
         const mentioned = message.mentions.members.array()
 
-        const actionIndex = Reflect.getMetadata(
-          REFLECT_FEATURE_KEYS.ACTION_KEY,
-          target,
-          propertyKey
-        )
+        const actionIndex = Reflect.getMetadata(REFLECT_FEATURE_KEYS.ACTION_KEY, target, propertyKey)
 
         const arrayArgs = _args[1] as Array<string>
 
@@ -100,19 +77,11 @@ export function FeaturePermissionValidator() {
           })
 
           if (actionIndex) _args[actionIndex] = userAction.shift()
-          const paramsIndex = Reflect.getMetadata(
-            REFLECT_FEATURE_KEYS.REQUEST_KEY,
-            target,
-            propertyKey
-          )
+          const paramsIndex = Reflect.getMetadata(REFLECT_FEATURE_KEYS.REQUEST_KEY, target, propertyKey)
           if (paramsIndex) _args[paramsIndex] = userAction.join(' ')
         } else {
           if (actionIndex) _args[actionIndex] = arrayArgs.shift()
-          const paramsIndex = Reflect.getMetadata(
-            REFLECT_FEATURE_KEYS.REQUEST_KEY,
-            target,
-            propertyKey
-          )
+          const paramsIndex = Reflect.getMetadata(REFLECT_FEATURE_KEYS.REQUEST_KEY, target, propertyKey)
           if (paramsIndex) _args[paramsIndex] = arrayArgs.join(' ')
         }
       }
@@ -124,44 +93,24 @@ export function FeaturePermissionValidator() {
 
 export const CurrentGuildMember = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_FEATURE_KEYS.CLIENT_KEY,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_FEATURE_KEYS.CLIENT_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const MentionedUsers = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_FEATURE_KEYS.MENTION_KEY,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_FEATURE_KEYS.MENTION_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const UserAction = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_FEATURE_KEYS.ACTION_KEY,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_FEATURE_KEYS.ACTION_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const RequestParams = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_FEATURE_KEYS.REQUEST_KEY,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_FEATURE_KEYS.REQUEST_KEY, paramIndex, target, propertyKey)
   }
 }

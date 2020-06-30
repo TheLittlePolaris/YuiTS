@@ -15,7 +15,7 @@ Yui but in TypeScript
   - Commands to control music, and is free to use, just the you need to be in the right place to use them. There is no limit controller.
 - Some utilities for entertaining:
   - Like `>tenor slap @<your-poor-target>`, this will load an anime gif with the action you carried out. Of course anime.
-  - `>holostat ?<id|jp> ?<detail|d>`: Channel statistics for Hololive members or a specific member, you can change the order of params
+  - `>holostat ?<id|jp|cn> ?<detail|d>`: Channel statistics for Hololive members or a specific member, you can change the order of params
   - Some basic thingy like `say` or `ping`
 - Some basic administrative commands
 - The permission for each command is base on the executor permissions and yui's permissions
@@ -30,17 +30,16 @@ Yui but in TypeScript
   - A fixed `PREFIX`
   - Your own `YOUTUBE_API_KEY` which you can get from Google APIs Console
   - You will also need your bot id to replace `YUI_ID` and your own id to replace `OWNER_ID`
-  - Also a `TENOR_KEY` which you can get from Tenor API and a `TENOR_ANONYMOUS_ID`.
-  - Run command with
+  - Also a `TENOR_KEY` which you can get from Tenor API and a `TENOR_ANONYMOUS_ID`. (If you dont feel line using this just comment it out)
 
 > **How to run ?**
 
 - First you need to install the libraries:
   - First install `nvm` and install 2 node version: 10.16 and 12.16
-  - You need to have node 10 installed, and switch no node 10 (10.16) to do the `npm install` for 2 library `opusscript` and `@discord/opus`. Node 12 for running Yui.
+  - You need to have node 10 installed, and switch no node 10 to do the `npm install` for 2 library `opusscript` and `@discordjs/opus`. These libs fail to install with Node 12. Node 12 for installing other libs and running Yui.
   - On Windows: You will need to install Python 2.7, Microsoft Visual Studio (Community) with C++ compiler and language support installed. About which option: sorry i forgot, you will need to figure it out yourself, but it takes about 6-8 something GB of memory iirc. And then `npm install`
-  - Also on Windows: Enable your Windows Linux Subsystem and do the same as on Linux.
-  - On Linux: (I use Ubuntu) Just `sudo apt update && sudo apt upgrade -y`. Then install Python 2.7, and then `npm install`.
+  - Also on Windows: Enable your Windows Subsystem for Linux (WSL(2)) and do the same as on Linux.
+  - On Linux: (I use Ubuntu) Just `sudo apt update && sudo apt upgrade -y`. Then install Python 2.7 follow the instruction on their site and youtube-dl (`sudo apt install youtube-dl`), and then install the node_modules.
   - `sudo yum update && sudo yum upgrade -y` for CentOS? Maybe.
   - If you are going to bring Yui on a host, make sure you have above 1.5GB of RAM available. 1GB will fail. If it fail for 1.5GB add one more option after the `node` command: `--max-old-space-size=4096`. If still doesn't work the increase it to 2GB.
 - If nothing happen then your good to run, or else google for the error XD. I did the above steps and had no problem.

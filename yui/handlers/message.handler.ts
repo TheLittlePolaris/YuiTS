@@ -17,11 +17,7 @@ export class MessageHandler {
     debugLogger(LOG_SCOPE.MESSAGE_HANDLER)
   }
 
-  public async execute(
-    message: Message,
-    command: string,
-    args?: Array<string>
-  ): Promise<unknown> {
+  public async messageSwitchMap(message: Message, command: string, args?: Array<string>): Promise<unknown> {
     switch (command) {
       case 'play':
       case 'p':
@@ -89,15 +85,16 @@ export class MessageHandler {
       }
       case 'say': {
         message.delete().catch((error) => {
-          message.author.send(
-            `Something went wrong, i couldn't delete the message`
-          )
+          message.author.send(`Something went wrong, i couldn't delete the message`)
           this.handleError(new Error(error))
         })
         return this._featureService.say(message, args)
       }
       case 'holostat': {
         return this._featureService.getHoloStat(message, args)
+      }
+      case 'nijistat': {
+        return this._featureService.getNijiStat(message, args)
       }
       case 'tenor': {
         try {
@@ -109,9 +106,7 @@ export class MessageHandler {
       }
       case 'admin': {
         const deletedMessage = await message.delete().catch((error) => {
-          message.author.send(
-            `Something went wrong, i couldn't delete the message`
-          )
+          message.author.send(`Something went wrong, i couldn't delete the message`)
           this.handleError(new Error(error))
         })
         if (!deletedMessage) {
@@ -128,11 +123,7 @@ export class MessageHandler {
         return this._featureService.help(message)
       }
       default: {
-        message.channel.send(
-          'What do you mean by `>' +
-            command +
-            '`? How about taking a look at `>help`?.'
-        )
+        message.channel.send('What do you mean by `>' + command + '`? How about taking a look at `>help`?.')
         break
       }
     }

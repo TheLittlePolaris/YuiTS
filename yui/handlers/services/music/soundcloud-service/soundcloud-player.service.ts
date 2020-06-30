@@ -1,15 +1,16 @@
-import { PassThrough, TransformOptions } from 'stream'
+import { PassThrough, TransformOptions, Readable } from 'stream'
 import { parse } from 'url'
 import axios from 'axios'
 import m3u8stream, { Progress } from 'm3u8stream'
 import { PolarisSoundCloudService } from './soundcloud-info.service'
+import { errorLogger } from '@/handlers/log.handler'
 
 export abstract class PolarisSoundCloudPlayer {
   public static async createMusicStream(
     videoUrl: string,
     options?: TransformOptions | m3u8stream.Options
   ): Promise<PassThrough> {
-    if (!videoUrl) throw new Error('Undefined data value')
+    if (!videoUrl) throw new Error('Undefined url')
 
     const { url, type } = await this.getDownloadLink(videoUrl)
 
@@ -25,43 +26,37 @@ export abstract class PolarisSoundCloudPlayer {
     }
   }
 
-  static async axiosHttpStream(
-    url: string,
-    options?: TransformOptions
-  ): Promise<PassThrough> {
+  static async axiosHttpStream(url: string, options?: TransformOptions): Promise<PassThrough> {
     const stream = new PassThrough()
 
     // fix for pause/resume downloads
     const headers = { Host: parse(url).hostname }
 
-    const promisedRequest = await axios({
-      method: 'GET',
-      url,
-      headers,
-      timeout: 30000,
-      onDownloadProgress: (progressEvent) => {
-        stream.emit('info', progressEvent)
-      },
-      responseType: 'stream',
-    })
+    const promisedRequest = await axios
+      .get<Readable>(url, {
+        headers,
+        timeout: 30000,
+        onDownloadProgress: (progressEvent) => stream.emit('info', progressEvent),
+        responseType: 'stream',
+      })
+      .catch((rejectedReason) => errorLogger(rejectedReason))
 
-    if (promisedRequest.status === 416) {
+    if (promisedRequest?.status === 416) {
       // the file that is being resumed is complete.
-      stream.emit('end', promisedRequest.statusText)
+      stream.emit('end', promisedRequest?.statusText)
       stream.end()
-      return
     }
 
-    if (promisedRequest.status !== 200 && promisedRequest.status !== 206) {
+    if (promisedRequest?.status !== 200 && promisedRequest?.status !== 206) {
       stream.emit(
         'error',
-        `Status code: ${promisedRequest.status}. Status message: ${promisedRequest.statusText}`
+        new Error(`Status code: ${promisedRequest?.status}. Status message: ${promisedRequest?.statusText}`)
       )
-      return
     }
 
-    const requestData = promisedRequest.data
-    requestData.pipe(stream)
+    if (!promisedRequest?.data) {
+      stream.emit('error', new Error('Something went wrong'))
+    } else promisedRequest.data.pipe(stream)
 
     return stream
   }
@@ -72,7 +67,7 @@ export abstract class PolarisSoundCloudPlayer {
     const { highWaterMark } = options
     const m3u8Stream = m3u8stream(url, {
       parser: 'm3u8',
-      chunkReadahead: 5,
+      chunkReadahead: 10,
       highWaterMark,
       requestOptions: {
         maxRetries: 1,

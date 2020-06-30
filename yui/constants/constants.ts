@@ -22,43 +22,12 @@ export enum LOG_SCOPE {
   ADMIN_ACTION_COMMAND = 'AdminActionCommand',
   HOLOSTAT_SERVICE = 'HolostatService',
   HOLOSTAT_REQUEST_SERVICE = 'HolostatRequestService',
-}
-
-/** ================================= HOLO STAT ======================================== */
-
-export const holoStatRegionSubCommand = [
-  'jp',
-  'japan',
-  'id',
-  'indonesia',
-  'cn',
-  'china',
-]
-
-export const holoStatDetailSubCommand = ['detail', 'd']
-
-export type DISCORD_REACTIONS_TYPE = '1️⃣' | '2️⃣' | '3️⃣' // currently just have 3
-// | '4️⃣'
-// | '5️⃣'
-// | '6️⃣'
-// | '7️⃣'
-// | '8️⃣'
-// | '9️⃣'
-// | '🔟'
-export type HOLOSTAT_PARAMS =
-  | 'jp'
-  | 'japan'
-  | 'id'
-  | 'indonesia'
-  | 'china'
-  | 'cn'
-  | 'detail'
-  | 'd'
-
-export type HOLOSTAT_KNOWN_REGION_CODE = 'jp' | 'id' | 'cn'
-
-export type HOLOSTAT_REACTION = {
-  [key: string]: { name: string; code: HOLOSTAT_KNOWN_REGION_CODE }
+  YOUTUBE_CHANNEL_SERVICE = 'YoutubeChannelService',
+  BILIBILI_CHANNEL_SERVICE = 'BilibiliChannelService',
+  YOUTUBE_INFO_SERVICE = 'YoutubeInfoService',
+  YOUTUBE_REQUEST_SERVICE = 'YoutubeRequestService',
+  SOUNDCLOUD_INFO_SERICE = 'SoundcloudInfoService',
+  SOUNDCLOUD_PLAYER_SERICE = 'SoundcloudPlayerService',
 }
 
 export const DISCORD_REACTION = {
@@ -66,33 +35,3 @@ export const DISCORD_REACTION = {
   FORWARD: '▶',
   BACKWARD: '◀',
 }
-
-export const holoStatReactionList: HOLOSTAT_REACTION = {
-  '1️⃣': {
-    name: 'Japan',
-    code: 'jp',
-  },
-  '2️⃣': {
-    name: 'Indonesia',
-    code: 'id',
-  },
-  '3️⃣': {
-    name: 'China',
-    code: 'cn',
-  },
-}
-
-export enum HOLO_REGION_MAP {
-  cn = 'China',
-  jp = 'Japan',
-  id = 'Indonesia',
-}
-/** ==================================================================================== */
-
-// export const holoProxyHandler = {
-//   get: function (target: object, name: DISCORD_REACTIONS_TYPE) {
-//     return target.hasOwnProperty(name)
-//       ? target[name]
-//       : HOLOLIVE_REACTION_LIST[DISCORD_REACTION.NUMBERS[0]]
-//   },
-// }
