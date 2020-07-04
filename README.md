@@ -6,7 +6,7 @@ Yui but in TypeScript
 
 # **WORK IN PROGRESS!**
 
-> **What can Yui do?**
+> # **What can Yui do?**
 
 - Designed to be a multi-server music and (a bit of) administration bot.
 - Play music from
