@@ -13,9 +13,9 @@ export abstract class YoutubeChannelService {
 
   public static async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const getDataOptions: youtube_v3.Params$Resource$Channels$List = {
-      part: 'snippet',
+      part: ['snippet'],
       maxResults: 50,
-      id: channelIds.join(','),
+      id: channelIds,
       fields: 'items(id,snippet(title))',
     }
 
@@ -27,8 +27,8 @@ export abstract class YoutubeChannelService {
 
   public static async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const getDataOptions: youtube_v3.Params$Resource$Channels$List = {
-      part: 'statistics,brandingSettings,snippet',
-      id: channelIds.join(','),
+      part: ['statistics', 'brandingSettings', 'snippet'],
+      id: channelIds,
       maxResults: 50,
       fields:
         'items(id,brandingSettings(image(bannerImageUrl)),statistics(viewCount,subscriberCount,videoCount),snippet(title,thumbnails(medium)))',
@@ -41,9 +41,9 @@ export abstract class YoutubeChannelService {
     return data.items
   }
 
-  public static async getFeaturedChannelIds(selectedChannelId: string): Promise<string[]> {
+  public static async getFeaturedChannelIds(...selectedChannelId: string[]): Promise<string[]> {
     const getChannelsOptions: youtube_v3.Params$Resource$Channels$List = {
-      part: 'brandingSettings',
+      part: ['brandingSettings'],
       id: selectedChannelId,
       fields: 'items(brandingSettings(channel(featuredChannelsUrls)))',
     }
@@ -57,9 +57,9 @@ export abstract class YoutubeChannelService {
     return featuredChannelsUrls
   }
 
-  public static async getSelectedChannelDetail(channelId: string): Promise<IYoutubeChannel> {
+  public static async getSelectedChannelDetail(channelId: string[]): Promise<IYoutubeChannel> {
     const getDataOptions: youtube_v3.Params$Resource$Channels$List = {
-      part: 'snippet,brandingSettings,statistics',
+      part: ['statistics', 'brandingSettings', 'snippet'],
       id: channelId,
       maxResults: 1,
       fields:

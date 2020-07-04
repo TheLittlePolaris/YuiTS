@@ -1,0 +1,7 @@
+version: '3.3'
+services:
+  yui:
+    image: yui-little-house:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile

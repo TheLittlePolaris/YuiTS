@@ -22,7 +22,7 @@ declare namespace NodeJS {
       tenorAnonymousId: string
       soundcloudUserId: string
       soundcloudPassword: string
-      environment: 'development' | 'production'
+      environment: 'development' | 'build'
     }
   }
 }

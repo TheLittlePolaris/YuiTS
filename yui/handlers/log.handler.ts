@@ -1,14 +1,6 @@
 import { LOG_SCOPE } from '@/constants/constants'
-import colors from 'colors'
+import { red, yellow, cyan, green } from 'chalk'
 import { getLogger } from 'log4js'
-
-colors.setTheme({
-  info: ['cyan', 'bold'],
-  help: 'cyan',
-  warn: 'yellow',
-  success: 'green',
-  error: ['red', 'bold'],
-})
 
 export function errorLogger(error: Error | string, scope?: string): null {
   const logger = getLogger(scope || 'default')
@@ -18,7 +10,7 @@ export function errorLogger(error: Error | string, scope?: string): null {
 
 export function debugLogger(scope: string, detail?: string): void {
   const logger = getLogger(scope)
-  logger.info(`[${scope}]${detail ? `[${detail}]` : ``} initiated!`['info'])
+  logger.info(cyan.bold(`[${scope}]${detail ? `[${detail}]` : ``} initiated!`))
 }
 
 export function infoLogger(scope: string, info: string): void {
@@ -31,15 +23,9 @@ export function successLogger(scope: string, info: string): void {
   logger.info(info['success'])
 }
 
-export const decoratorLogger = (
-  type: string,
-  scope: string,
-  name: string
-): void => {
+export const decoratorLogger = (type: string, scope: string, name: string): void => {
   const logger = getLogger(LOG_SCOPE.DECORATOR)
   logger.info(
-    `${colors.red.bold(`[${type}]`)} -- ${colors.yellow.bold(
-      `[${scope}]`
-    )}: ${colors.cyan.bold(`${name}`)} ${colors.green.bold(`completed!`)}`
+    `${red.bold(`[${type}]`)} -- ${yellow.bold(`[${scope}]`)}: ${cyan.bold(`${name}`)} ${green.bold(`completed!`)}`
   )
 }

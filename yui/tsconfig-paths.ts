@@ -1,8 +1,10 @@
-import * as tsConfig from 'tsconfig-paths';
-
-tsConfig.register({
-  baseUrl: '../',
-  paths: {
-    '@/*': ['./yui/*']
-  }
-});
+import { register } from 'tsconfig-paths'
+;(() => {
+  register({
+    baseUrl: '../',
+    paths: {
+      '@/*': ['./yui/*'],
+      'config-service': ['./yui/config-service'],
+    },
+  })
+})()

@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import { debugLogger, infoLogger } from '@/handlers/log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
+import { existsSync } from 'fs'
 ;(async () => {
   interface EnvConfig {
     [key: string]: string
@@ -9,18 +10,11 @@ import { LOG_SCOPE } from '@/constants/constants'
   class ConfigService {
     public envConfig: EnvConfig
     constructor() {
-      const path = `.env${
-        process.env.NODE_ENV ? `.${process.env.NODE_ENV}` : ``
-      }`
-      infoLogger(
-        LOG_SCOPE.CONFIG_SERVICE,
-        `Using ${
-          process.env.NODE_ENV?.toUpperCase() || 'DEVELOPMENT'
-        } environment`
-      )
-      this.envConfig = config({
-        path,
-      }).parsed
+      const nodeEnv = process.env.NODE_ENV
+      const filePath = `.env${(nodeEnv && `.${nodeEnv}`) || ``}`
+      const path = existsSync(filePath) ? filePath : `.env`
+      nodeEnv && infoLogger(LOG_SCOPE.CONFIG_SERVICE, `Using ${nodeEnv?.toUpperCase() || 'DEVELOPMENT'} environment`)
+      this.envConfig = config({ path }).parsed
       const { error } = this.envConfig
       if (error) {
         throw new Error(`Fatal: CANNOT READ CONFIG ENVIRONMENT: ${error}`)
@@ -81,8 +75,8 @@ import { LOG_SCOPE } from '@/constants/constants'
       return this.envConfig['SOUNDCLOUD_PASSWORD']
     }
 
-    public get environment(): 'development' | 'production' {
-      return this.envConfig['ENVIRONMENT'] as 'development' | 'production'
+    public get environment(): 'development' | 'build' {
+      return this.envConfig['ENVIRONMENT'] as 'development' | 'build'
     }
   }
   global['config'] = new ConfigService()

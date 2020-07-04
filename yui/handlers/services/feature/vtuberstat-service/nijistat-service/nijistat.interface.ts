@@ -39,3 +39,4 @@ export enum NIJI_REGION_MAP {
 }
 
 export type NIJI_KNOWN_REGION = keyof typeof NIJI_REGION_MAP
+export type test = NIJI_KNOWN_REGION[]

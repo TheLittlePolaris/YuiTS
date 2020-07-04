@@ -1,14 +1,14 @@
-# YuiTS
+# **YuiTS**
 
-![](https://img.shields.io/badge/YuiTS-orange) ![](https://img.shields.io/badge/TypeScript-v3.8-blue) ![](https://img.shields.io/badge/discord.js-v12.2-blue) ![](https://img.shields.io/badge/ytdl--core-v2.1.0-red) ![](https://img.shields.io/badge/youtube--dl-v2020.06.06-red) ![](https://img.shields.io/badge/googleapis-v48.0.0-red) ![](https://img.shields.io/badge/ffmpeg--static-v4.1.1-c9f) ![](https://img.shields.io/badge/dotenv-v8.2-blueviolet) ![](https://img.shields.io/badge/node-%3E=12.0.0-brightgreen) ![](https://img.shields.io/badge/code%20style-prettier-ff69b4) ![](https://img.shields.io/badge/what%20is%20this%3F-idk%20JUST%20DO%20IT-success)
+![](https://img.shields.io/badge/YuiTS-orange) ![](https://img.shields.io/badge/TypeScript-v3.9-blue) ![](https://img.shields.io/badge/discord.js-v12.2-blue) ![](https://img.shields.io/badge/ytdl--core-v2.1.0-red) ![](https://img.shields.io/badge/youtube--dl-v@latest-red) ![](https://img.shields.io/badge/googleapis-v52.1.0-red) ![](https://img.shields.io/badge/ffmpeg--static-v4.1.1-c9f) ![](https://img.shields.io/badge/dotenv-v8.2-blueviolet) ![](https://img.shields.io/badge/node-%3E=12.0.0-brightgreen) ![](https://img.shields.io/badge/code%20style-prettier-ff69b4) ![](https://img.shields.io/badge/what%20is%20this%3F-idk%20JUST%20DO%20IT-success)
 
 Yui but in TypeScript
 
-**WORK IN PROGRESS!**
+# **WORK IN PROGRESS!**
 
 > **What can Yui do?**
 
-- Designed to be a multi-server music bot.
+- Designed to be a multi-server music and (a bit of) administration bot.
 - Play music from
   - Youtube: Queries, search, links, playlists (except private/personal mix), livestreams (not so stable).
   - SoundCloud: Song links and SoundCloud playlist links (except private/personal/discover/mix).
@@ -22,24 +22,30 @@ Yui but in TypeScript
 - Most of Yui's command are flexible, which means you can change the position of the arguments, like the `holostat` command, but there are always rules to follow.
 - For Yui's admin command, you can have multiple targets, like you can assign many roles to many users, role can either be a Role `@mention` or Role `Name`, and targets have to be `@mentioned`, for example: `>admin addrole @RoleName1 RoleName2 @target1 @target2 <?reason>`, for `kick` or `ban`, rule is also the same, action will be applied for all `@mentioned` targets, no matter where you mention them, so please be careful.
 
-> **How to use ?**
+> # **Preparation:**
 
-- Create a `.env.development` file with:
-
+- Create a `.env` file with:
   - `TOKEN` is your bot token
   - A fixed `PREFIX`
   - Your own `YOUTUBE_API_KEY` which you can get from Google APIs Console
   - You will also need your bot id to replace `YUI_ID` and your own id to replace `OWNER_ID`
   - Also a `TENOR_KEY` which you can get from Tenor API and a `TENOR_ANONYMOUS_ID`. (If you dont feel line using this just comment it out)
 
-> **How to run ?**
+> # **How to run ?**
+
+**Using a machine:**
 
 - First you need to install the libraries:
-  - First install `nvm` and install 2 node version: 10.16 and 12.16
-  - You need to have node 10 installed, and switch no node 10 to do the `npm install` for 2 library `opusscript` and `@discordjs/opus`. These libs fail to install with Node 12. Node 12 for installing other libs and running Yui.
-  - On Windows: You will need to install Python 2.7, Microsoft Visual Studio (Community) with C++ compiler and language support installed. About which option: sorry i forgot, you will need to figure it out yourself, but it takes about 6-8 something GB of memory iirc. And then `npm install`
-  - Also on Windows: Enable your Windows Subsystem for Linux (WSL(2)) and do the same as on Linux.
-  - On Linux: (I use Ubuntu) Just `sudo apt update && sudo apt upgrade -y`. Then install Python 2.7 follow the instruction on their site and youtube-dl (`sudo apt install youtube-dl`), and then install the node_modules.
-  - `sudo yum update && sudo yum upgrade -y` for CentOS? Maybe.
+
+  - First install node. Install node version 12.x.x. You might want to use [`nvm`](https://github.com/nvm-sh/nvm).
+  - On Windows: You will need to install Python 2.7, Microsoft Visual Studio (Community) with C++ compiler and language support installed. About which option: sorry i forgot, you will need to figure it out yourself, but it takes about 6-8 something GB of memory iirc. And then `npm install`. You can either run with `npm run start:win`, or add `cross-env` package and replace linux's `export` with `cross-env`, remember to call the `dotenv's config()` on top of the `ConfigService`
+  - Also on Windows: Enable your [`Windows Subsystem for Linux`](https://docs.microsoft.com/en-us/windows/wsl/about) and do the same as on Linux.
+  - On Linux: (I use Ubuntu) Just `sudo apt update && sudo apt upgrade -y`. Then install Python 2.7 follow [the instruction](https://tecadmin.net/install-python-2-7-on-ubuntu-and-linuxmint/) and [youtube-dl](https://github.com/ytdl-org/youtube-dl) (`sudo apt install youtube-dl`), and then `npm install`.
   - If you are going to bring Yui on a host, make sure you have above 1.5GB of RAM available. 1GB will fail. If it fail for 1.5GB add one more option after the `node` command: `--max-old-space-size=4096`. If still doesn't work the increase it to 2GB.
+  - `npm start`
+
 - If nothing happen then your good to run, or else google for the error XD. I did the above steps and had no problem.
+
+**Docker:**
+
+- `docker-compose up -d yui` or `docker build -f Dockerfile .` and then run the image manually (~600MB)

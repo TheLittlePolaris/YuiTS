@@ -11,6 +11,6 @@ export abstract class ChannelDetailService {
     isBilibili: boolean
   }): Promise<IYoutubeChannel> {
     if (isBilibili) return await BilibiliChannelService.getSelectedChannelDetail(channelId)
-    else return await YoutubeChannelService.getSelectedChannelDetail(channelId)
+    else return await YoutubeChannelService.getSelectedChannelDetail([channelId])
   }
 }

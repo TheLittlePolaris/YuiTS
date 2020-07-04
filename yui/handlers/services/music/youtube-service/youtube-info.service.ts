@@ -20,10 +20,10 @@ export abstract class YoutubeInfoService {
   public static async searchVideo(query: string): Promise<string> {
     // todo: add error notice when fail
     const data: IYoutubeSearchResult = await YoutubeRequestService.googleYoutubeApiSearch({
-      part: 'snippet',
+      part: ['snippet'],
       maxResults: 10,
       q: query,
-      type: 'video',
+      type: ['video'],
       fields: 'items(id(kind,videoId),snippet(channelId,channelTitle,title))',
     })
     if (!data) throw Error('Something went wrong during request')
@@ -31,9 +31,9 @@ export abstract class YoutubeInfoService {
     return data?.items?.[0]?.id?.videoId || '3uOWvcFLUY0' // default
   }
 
-  public static async getInfoIds(ids: /* strings joined my "," */ string): Promise<IYoutubeVideo[]> {
+  public static async getInfoIds(...ids: string[]): Promise<IYoutubeVideo[]> {
     const data = await YoutubeRequestService.googleYoutubeApiVideos({
-      part: 'snippet, contentDetails',
+      part: ['snippet', 'contentDetails'],
       id: ids,
       fields: 'items(contentDetails(duration),id,snippet(channelId,channelTitle,thumbnails/default,title))',
     })
@@ -43,7 +43,7 @@ export abstract class YoutubeInfoService {
 
   public static async getPlaylistItems(playlistId: string, currentPageToken?: string): Promise<IYoutubeVideo[]> {
     const data = await YoutubeRequestService.googleYoutubeApiPlaylistItems({
-      part: 'snippet',
+      part: ['snippet'],
       playlistId,
       fields: 'nextPageToken,items(id,kind,snippet(channelId,channelTitle,resourceId(kind,videoId),title))',
       ...(currentPageToken ? { pageToken: currentPageToken } : {}),
@@ -69,16 +69,16 @@ export abstract class YoutubeInfoService {
       })
     ).catch(this.handleError)
 
-    const videos = await this.getInfoIds(tmpIdsArray.join(',')).catch(this.handleError)
+    const videos = await this.getInfoIds(...tmpIdsArray).catch(this.handleError)
 
     return videos
   }
 
   public static async getSongsByChannelId(channelId: string, pageToken?: string): Promise<IYoutubeSearchResult> {
     const data = await YoutubeRequestService.googleYoutubeApiSearch({
-      part: 'snippet',
+      part: ['snippet'],
       channelId,
-      type: 'video',
+      type: ['video'],
       fields: 'nextPageToken,items(id(videoId))',
       ...(pageToken ? { pageToken } : {}),
     })
@@ -87,10 +87,10 @@ export abstract class YoutubeInfoService {
 
   public static async searchByQuery(query: string): Promise<IYoutubeSearchResult> {
     const data = await YoutubeRequestService.googleYoutubeApiSearch({
-      part: 'snippet',
+      part: ['snippet'],
       maxResults: 10,
       q: query,
-      type: 'video',
+      type: ['video'],
       fields: 'items(id,kind,snippet(channelId,channelTitle,title))',
     })
     return data

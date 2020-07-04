@@ -21,7 +21,7 @@ export class YuiCore {
   }
 
   public async start(): Promise<void> {
-    infoLogger(LOG_SCOPE.YUI_CORE, 'Connecting...')
+    infoLogger(LOG_SCOPE.YUI_CORE, 'Connecting... 📡')
 
     this.yui.login(this['token']).catch((err) => this.handleError(new Error(err)))
 
@@ -35,18 +35,18 @@ export class YuiCore {
 
   async onReady(): Promise<void> {
     if (!this.yui?.user) return
-    infoLogger(LOG_SCOPE.YUI_CORE, 'Connected!')
+    infoLogger(LOG_SCOPE.YUI_CORE, '🔗 🛰 Connected!')
     await Promise.all([
       global.config.environment === 'development'
-        ? this.yui?.user?.setActivity('-help', {
+        ? this.yui.user.setActivity(`${global.config.prefix}help`, {
             type: 'LISTENING',
           })
-        : this.yui?.user?.setActivity('📻 Radio Happy (>help)', {
+        : this.yui.user.setActivity(`📻 Radio Happy (${global.config.prefix}help)`, {
             url: 'https://twitch.tv/onlypolaris',
             type: 'STREAMING',
           }),
     ]).catch((err) => this.handleError(new Error(err)))
-    infoLogger(LOG_SCOPE.YUI_CORE, 'Yui is online')
+    infoLogger(LOG_SCOPE.YUI_CORE, '🚀 🔶Yui is online! 🚀')
   }
 
   async onMessage(message: Message): Promise<unknown> {
