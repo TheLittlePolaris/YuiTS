@@ -48,4 +48,4 @@ Yui but in TypeScript
 
 **Docker:**
 
-- `docker-compose up -d yui` or `docker build -f Dockerfile .` and then run the image manually (~600MB)
+- `docker-compose up -d yui` or `docker build -t yui-little-house:latest -f Dockerfile .` and then run the image manually using `docker run -d --name Yui-no-Ie yui-little-house`. Clean the build to save space with `docker image prune` or list out the images and remove the one without name. (~420MB)

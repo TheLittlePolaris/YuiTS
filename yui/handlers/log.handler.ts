@@ -9,8 +9,8 @@ export function errorLogger(error: Error | string, scope?: string): null {
 }
 
 export function debugLogger(scope: string, detail?: string): void {
-  const logger = getLogger(scope)
-  logger.info(cyan.bold(`[${scope}]${detail ? `[${detail}]` : ``} initiated!`))
+  const logger = getLogger(`[${scope}]`)
+  logger.info(cyan.bold(`${detail ? `[${detail}] initiated!` : `Initiated!`}`))
 }
 
 export function infoLogger(scope: string, info: string): void {

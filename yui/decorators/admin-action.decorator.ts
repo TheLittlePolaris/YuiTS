@@ -26,26 +26,14 @@ const REFLECT_PERMISSION_KEYS = {
 
 export function AdminActionInitiator(forward?: () => any) {
   return function <T extends TFunction>(superClass: T) {
-    decoratorLogger(
-      superClass['name'],
-      LOG_SCOPE.ADMIN_ACTION_COMMAND,
-      'Initiator'
-    )
+    decoratorLogger(superClass['name'], LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
     return class extends superClass {}
   }
 }
 
 export function ValidateCommand() {
-  return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    decoratorLogger(
-      'ValidateCommand - Method',
-      LOG_SCOPE.ADMIN_SERVICE,
-      propertyKey
-    )
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(LOG_SCOPE.ADMIN_SERVICE, 'ValidateCommand - Method', propertyKey)
     const originalDescriptor = descriptor.value
 
     descriptor.value = async function (..._args: any[]) {
@@ -63,9 +51,7 @@ export function ValidateCommand() {
       const mentionedMembers = message.mentions.members.array()
 
       if (!mentionedMembers.length) {
-        message.author.send(
-          '**Please mention at least one member for the action.**'
-        )
+        message.author.send('**Please mention at least one member for the action.**')
         return
       }
 
@@ -77,21 +63,9 @@ export function ValidateCommand() {
       })
 
       const [executorIndex, targetsIndex, reasonIndex] = [
-        Reflect.getMetadata(
-          REFLECT_PERMISSION_KEYS.EXECUTOR,
-          target,
-          propertyKey
-        ),
-        Reflect.getMetadata(
-          REFLECT_PERMISSION_KEYS.TARGETS_KEY,
-          target,
-          propertyKey
-        ),
-        Reflect.getMetadata(
-          REFLECT_PERMISSION_KEYS.REASON_KEY,
-          target,
-          propertyKey
-        ),
+        Reflect.getMetadata(REFLECT_PERMISSION_KEYS.EXECUTOR, target, propertyKey),
+        Reflect.getMetadata(REFLECT_PERMISSION_KEYS.TARGETS_KEY, target, propertyKey),
+        Reflect.getMetadata(REFLECT_PERMISSION_KEYS.REASON_KEY, target, propertyKey),
       ]
 
       if (!targetsIndex) return
@@ -100,9 +74,7 @@ export function ValidateCommand() {
       _args[targetsIndex] = mentionedMembers
 
       if (['addrole', 'removerole'].includes(subCommand)) {
-        const serverRoles = await (
-          await message.guild.roles.fetch()
-        ).cache.array()
+        const serverRoles = await (await message.guild.roles.fetch()).cache.array()
         const selectedRoles: Role[] = serverRoles
           .map((role) => {
             const test = reason.filter((arg) => {
@@ -128,25 +100,16 @@ export function ValidateCommand() {
           return !test.length
         })
 
-        const rolesIndex = Reflect.getMetadata(
-          REFLECT_PERMISSION_KEYS.ROLES,
-          target,
-          propertyKey
-        )
+        const rolesIndex = Reflect.getMetadata(REFLECT_PERMISSION_KEYS.ROLES, target, propertyKey)
 
         if (rolesIndex === undefined) return
         _args[rolesIndex] = selectedRoles
 
-        if (reasonIndex !== undefined)
-          _args[reasonIndex] = updatedReason.join(' ')
+        if (reasonIndex !== undefined) _args[reasonIndex] = updatedReason.join(' ')
 
         return originalDescriptor.apply(this, _args)
       } else if (['setnickname'].includes(subCommand)) {
-        const nicknameIndex = Reflect.getMetadata(
-          REFLECT_PERMISSION_KEYS.NICKNAME,
-          target,
-          propertyKey
-        )
+        const nicknameIndex = Reflect.getMetadata(REFLECT_PERMISSION_KEYS.NICKNAME, target, propertyKey)
 
         if (nicknameIndex === undefined) return
         _args[nicknameIndex] = reason.join(' ')
@@ -162,55 +125,30 @@ export function ValidateCommand() {
 
 export const Targets = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_PERMISSION_KEYS.TARGETS_KEY,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.TARGETS_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const Reason = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_PERMISSION_KEYS.REASON_KEY,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.REASON_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const NickName = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_PERMISSION_KEYS.NICKNAME,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.NICKNAME, paramIndex, target, propertyKey)
   }
 }
 
 export const GuildRoles = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_PERMISSION_KEYS.ROLES,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.ROLES, paramIndex, target, propertyKey)
   }
 }
 
 export const Executor = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_PERMISSION_KEYS.EXECUTOR,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.EXECUTOR, paramIndex, target, propertyKey)
   }
 }

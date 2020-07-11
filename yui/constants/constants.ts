@@ -28,6 +28,7 @@ export enum LOG_SCOPE {
   YOUTUBE_REQUEST_SERVICE = 'YoutubeRequestService',
   SOUNDCLOUD_INFO_SERICE = 'SoundcloudInfoService',
   SOUNDCLOUD_PLAYER_SERICE = 'SoundcloudPlayerService',
+  VTUBER_STAT_SERVICE = 'VtuberStatService',
 }
 
 export const DISCORD_REACTION = {

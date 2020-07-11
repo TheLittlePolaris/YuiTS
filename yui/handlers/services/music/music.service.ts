@@ -35,7 +35,7 @@ import { isYoutubePlaylistUrl, isYoutubeUrl, youtubeTimeConverter } from './yout
 export class MusicService {
   _streams: Map<string, MusicStream> // type
   constructor() {
-    debugLogger('MusicService')
+    debugLogger(LOG_SCOPE.MUSIC_SERVICE)
   }
 
   private async createStream(message: Message): Promise<MusicStream | null> {

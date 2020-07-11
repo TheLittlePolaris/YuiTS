@@ -2,6 +2,7 @@ version: '3.3'
 services:
   yui:
     image: yui-little-house:latest
+    container_name: Yui-no-Ie
     build:
       context: ./
       dockerfile: ./Dockerfile

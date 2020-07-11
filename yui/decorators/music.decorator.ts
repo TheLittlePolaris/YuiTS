@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import type { TFunction } from '@/constants/constants'
+import { TFunction, LOG_SCOPE } from '@/constants/constants'
 import type { MusicStream } from '@/handlers/services/music/music-entities/music-stream'
 import { Message, TextChannel } from 'discord.js'
 import { decoratorLogger } from '@/handlers/log.handler'
@@ -35,12 +35,8 @@ export function AccessController(
     silent: false,
   }
 ) {
-  return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    decoratorLogger('AccessController - Method', 'MusicService', propertyKey)
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(LOG_SCOPE.MUSIC_SERVICE, 'AccessController - Method', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = async function (...args: any[]) {
       const streams = GlobalMusicStreams.streams
@@ -57,44 +53,30 @@ export function AccessController(
       if (!streams) return
       const stream = streams.has(guild.id) ? streams.get(guild.id) : null
 
-      const streamParamIndex: number = Reflect.getMetadata(
-        REFLECT_MUSIC_KEYS.STREAM_KEY,
-        target,
-        propertyKey
-      )
+      const streamParamIndex: number = Reflect.getMetadata(REFLECT_MUSIC_KEYS.STREAM_KEY, target, propertyKey)
       if (streamParamIndex !== undefined) args[streamParamIndex] = stream
 
-      const clientUserIndex: number = Reflect.getMetadata(
-        REFLECT_MUSIC_KEYS.CLIENT_KEY,
-        target,
-        propertyKey
-      )
+      const clientUserIndex: number = Reflect.getMetadata(REFLECT_MUSIC_KEYS.CLIENT_KEY, target, propertyKey)
       if (clientUserIndex !== undefined) {
         const client = await message.guild.members.fetch(global.config.yuiId)
         args[clientUserIndex] = client
       }
 
       const boundVoiceChannel = stream?.boundVoiceChannel
-      // console.log(args, ' <===== args')
       if (!boundVoiceChannel && join) {
         if (!silent) {
           message.channel.send(
-            `**Bound to Text Channel: \`${
-              (channel as TextChannel).name
-            }\` and Voice Channel: \`${voiceChannel?.name}\`**!`
+            `**Bound to Text Channel: \`${(channel as TextChannel).name}\` and Voice Channel: \`${
+              voiceChannel?.name
+            }\`**!`
           )
         }
         return originalMethod.apply(this, args)
       }
       if (boundVoiceChannel) {
         const boundTextChannel = stream.boundTextChannel
-        if (
-          channel.id !== boundTextChannel.id ||
-          voiceChannel.id !== boundVoiceChannel.id
-        ) {
-          message.reply(
-            `**I'm playing at \`${boundTextChannel.name}\` -- \` ${boundVoiceChannel.name}\`**`
-          )
+        if (channel.id !== boundTextChannel.id || voiceChannel.id !== boundVoiceChannel.id) {
+          message.reply(`**I'm playing at \`${boundTextChannel.name}\` -- \` ${boundVoiceChannel.name}\`**`)
 
           return
         } else {
@@ -111,23 +93,13 @@ export function AccessController(
 
 export const GuildStream = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_MUSIC_KEYS.STREAM_KEY,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_MUSIC_KEYS.STREAM_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const CurrentGuildMember = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(
-      REFLECT_MUSIC_KEYS.CLIENT_KEY,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_MUSIC_KEYS.CLIENT_KEY, paramIndex, target, propertyKey)
   }
 }
 

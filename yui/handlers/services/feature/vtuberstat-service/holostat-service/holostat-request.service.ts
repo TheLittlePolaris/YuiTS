@@ -1,15 +1,20 @@
-import { google, youtube_v3 } from 'googleapis'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
-import { BilibiliChannelService } from '../../bilibili-channel-service/bilibili-channel.service'
-import { YoutubeChannelService } from '../../youtube-channel-service/youtube-channel.service'
 import { HOLO_KNOWN_REGION } from './holostat.interface'
+import { BaseRequestService } from '../channel-service/base-request.service'
+import { BilibiliChannelService } from '../channel-service/bilibili-channel.service'
+import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
+import { debugLogger } from '@/handlers/log.handler'
 
-export abstract class HoloStatRequestService {
-  public static hololiveOfficialChannelId = 'UCJFZiqLMntJufDCHc6bQixg' // default, hololive japan
-  public static ayundaRisuChannelId = 'UCOyYb1c43VlX9rc_lT6NKQw' // hololive indonesia, risu ch
-  public static hololiveBilibiliIds = ['456368455', '354411419', '427061218', '511613156', '511613155', '511613157'] // hololive China
+export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REGION> {
+  public hololiveOfficialChannelId = 'UCJFZiqLMntJufDCHc6bQixg' // default, hololive japan
+  public ayundaRisuChannelId = 'UCOyYb1c43VlX9rc_lT6NKQw' // hololive indonesia, risu ch
+  public hololiveBilibiliIds = ['456368455', '354411419', '427061218', '511613156', '511613155', '511613157'] // hololive China
 
-  public static async getChannelList(region: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
+  constructor() {
+    debugLogger(this.constructor.name)
+  }
+
+  public async getChannelList(region: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     switch (region) {
       case 'cn':
         return await BilibiliChannelService.getChannelList(this.hololiveBilibiliIds)
@@ -27,7 +32,7 @@ export abstract class HoloStatRequestService {
     }
   }
 
-  public static async getAllMembersChannelDetail(region?: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
+  public async getAllMembersChannelDetail(region?: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     switch (region) {
       case 'cn':
         return await BilibiliChannelService.getAllMembersChannelDetail(this.hololiveBilibiliIds)

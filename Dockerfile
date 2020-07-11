@@ -1,20 +1,26 @@
 
+#Build Stage
+FROM node:12.18.2-alpine3.12 as builder
+
+WORKDIR /yui
+
+COPY . /yui
+
+RUN apk add --no-cache --virtual .build-deps python3 gcc g++ make curl ca-certificates git &&\
+  npm install &&\
+  npm run build-docker &&\
+  apk del .build-deps
+
+
+#Run Stage
 FROM node:12.18.2-alpine3.12
 
 WORKDIR /yui
 
-ENV HOME=/yui \
-  NODE_ENV=build
+ENV NODE_ENV=build HOME=/yui
 
-COPY . /yui
+COPY --from=builder /yui .
 
-RUN apk update && apk upgrade &&\
-  apk add --no-cache python2 youtube-dl &&\
-  apk add --no-cache --virtual .build-deps gcc g++ make curl ca-certificates git &&\
-  npm install &&\
-  npm run build &&\
-  apk del .build-deps
-
-EXPOSE 80 443
+RUN apk add --no-cache youtube-dl
 
 CMD ["node", "./dist/yui.js"]

@@ -14,6 +14,9 @@ import {
   nijiStatRegionSubCommand,
   nijiStatDetailSubCommand,
 } from '@/handlers/services/feature/vtuberstat-service/nijistat-service/nijistat.interface'
+import { HoloStatRequestService } from '@/handlers/services/feature/vtuberstat-service/holostat-service/holostat-request.service'
+import { NijiStatRequestService } from '@/handlers/services/feature/vtuberstat-service/nijistat-service/nijistat-request.service'
+import { BaseChannelService } from '@/handlers/services/feature/vtuberstat-service/channel-service/base-channel.service'
 
 enum REFLECT_SYMBOLS {
   SUB_COMMAND = 'sub-command',
@@ -30,7 +33,12 @@ const REFLECT_KEYS = {
 export function VtuberStatServiceInitiator() {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    return class extends superClass {}
+    return class extends superClass {
+      _name = superClass['name']
+      _holostatRequestService = new HoloStatRequestService()
+      _nijistatRequestService = new NijiStatRequestService()
+      _baseChannelService = new BaseChannelService()
+    }
   }
 }
 

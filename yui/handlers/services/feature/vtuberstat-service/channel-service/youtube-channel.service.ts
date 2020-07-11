@@ -1,15 +1,14 @@
 import { google, youtube_v3 } from 'googleapis'
-import { LOG_SCOPE } from '@/constants/constants'
-import { IYoutubeChannel } from '../feature-interfaces/youtube-channel.interface'
-import { errorLogger } from '@/handlers/log.handler'
+import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
+import { BaseChannelService } from './base-channel.service'
 
-export abstract class YoutubeChannelService {
-  static youtube: youtube_v3.Youtube = google.youtube({
+export abstract class YoutubeChannelService implements BaseChannelService {
+  private static youtube: youtube_v3.Youtube = google.youtube({
     version: 'v3',
     auth: global?.config?.youtubeApiKey,
   })
 
-  static youtubeChannel = YoutubeChannelService.youtube.channels
+  private static youtubeChannel = YoutubeChannelService.youtube.channels
 
   public static async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const getDataOptions: youtube_v3.Params$Resource$Channels$List = {
@@ -57,7 +56,7 @@ export abstract class YoutubeChannelService {
     return featuredChannelsUrls
   }
 
-  public static async getSelectedChannelDetail(channelId: string[]): Promise<IYoutubeChannel> {
+  public static async getSelectedChannelDetail(...channelId: string[]): Promise<IYoutubeChannel> {
     const getDataOptions: youtube_v3.Params$Resource$Channels$List = {
       part: ['statistics', 'brandingSettings', 'snippet'],
       id: channelId,

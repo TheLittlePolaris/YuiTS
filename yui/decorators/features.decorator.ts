@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { TFunction } from '@/constants/constants'
+import { TFunction, LOG_SCOPE } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message, PermissionString } from 'discord.js'
 import { isMyOwner } from '@/handlers/services/feature/feature-services/feature-utilities'
@@ -20,10 +20,9 @@ const REFLECT_FEATURE_KEYS = {
   REQUEST_KEY: Symbol(FEATURE_SYMBOLS.REQUEST_PARAMS),
 }
 
-export const FeatureServiceInitiator = () => {
-  return <T extends TFunction>(superClass: T) => {
+export function FeatureServiceInitiator() {
+  return function <T extends TFunction>(superClass: T) {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    // for future use
     return class extends superClass {
       _vtuberStatService = new VtuberStatService()
     }
@@ -32,7 +31,7 @@ export const FeatureServiceInitiator = () => {
 
 export function FeaturePermissionValidator() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger('ValidateFeaturePermission - Method', 'FeatureService', propertyKey)
+    decoratorLogger(LOG_SCOPE.FEATURE_SERVICE, 'ValidateFeaturePermission - Method', propertyKey)
 
     const originalDescriptor = descriptor.value
 

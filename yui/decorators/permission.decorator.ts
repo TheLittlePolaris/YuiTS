@@ -27,24 +27,13 @@ export function AdministrationServiceInitiator() {
 }
 
 export function AdminPermissionValidator() {
-  return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    decoratorLogger(
-      'AdminPermissionValidator - Method',
-      LOG_SCOPE.ADMIN_ACTION_COMMAND,
-      propertyKey
-    )
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(LOG_SCOPE.ADMIN_ACTION_COMMAND, 'AdminPermissionValidator - Method', propertyKey)
     const originalDescriptor = descriptor.value
 
     descriptor.value = async function (..._args: any[]) {
       const [message, args, command] = _args as [Message, Array<string>, string]
-      const [yui, actionMember] = [
-        await message.guild.members.fetch(global.config.yuiId),
-        message.member,
-      ]
+      const [yui, actionMember] = [await message.guild.members.fetch(global.config.yuiId), message.member]
       if (!command || !ADMIN_COMMANDS.includes(command)) return
 
       const isOwner: boolean = message.author.id === global.config.ownerId
@@ -122,16 +111,8 @@ export function AdminPermissionValidator() {
 }
 
 export function CommandValidator() {
-  return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    decoratorLogger(
-      'CommandValidator - Method',
-      LOG_SCOPE.ADMIN_SERVICE,
-      propertyKey
-    )
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(LOG_SCOPE.ADMIN_SERVICE, 'CommandValidator - Method', propertyKey)
     const originalDescriptor = descriptor.value
     descriptor.value = function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]
@@ -143,11 +124,7 @@ export function CommandValidator() {
       if (!ADMIN_COMMANDS.includes(args[0])) return
       const subCommand: ADMIN_ACTION_TYPE = <ADMIN_ACTION_TYPE>args.shift()
 
-      const commandIndex = Reflect.getMetadata(
-        REFLECT_PERMISSION_KEYS.COMMAND,
-        target,
-        propertyKey
-      )
+      const commandIndex = Reflect.getMetadata(REFLECT_PERMISSION_KEYS.COMMAND, target, propertyKey)
 
       if (commandIndex) _args[commandIndex] = subCommand
 
@@ -158,11 +135,6 @@ export function CommandValidator() {
 
 export const Command = () => {
   return function (target: any, propertyKey: string, paramIndex: number) {
-    Reflect.defineMetadata(
-      REFLECT_PERMISSION_KEYS.COMMAND,
-      paramIndex,
-      target,
-      propertyKey
-    )
+    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.COMMAND, paramIndex, target, propertyKey)
   }
 }

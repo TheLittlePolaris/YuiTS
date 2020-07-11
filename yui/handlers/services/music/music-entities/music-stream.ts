@@ -36,17 +36,13 @@ export class MusicStream {
    * @param boundVoiceChannel Voice channel the the bot has joined: message.member.voiceChannel
    * @param boundTextChannel Text channel message was sent: message.channel
    */
-  constructor(
-    guild: Guild,
-    boundVoiceChannel: VoiceChannel,
-    boundTextChannel: TextChannel
-  ) {
+  constructor(guild: Guild, boundVoiceChannel: VoiceChannel, boundTextChannel: TextChannel) {
     this._id = guild.id
     this._name = guild.name
     this._boundVoiceChannel = boundVoiceChannel
     this._boundTextChannel = boundTextChannel
     this._queue = new MusicQueue()
-    debugLogger(`MusicStream`, this._name)
+    debugLogger(this.constructor.name, this._name)
   }
 
   /**

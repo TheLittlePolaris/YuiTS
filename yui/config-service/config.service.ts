@@ -75,6 +75,10 @@ import { existsSync } from 'fs'
       return this.envConfig['SOUNDCLOUD_PASSWORD']
     }
 
+    public get rapidApiKey(): string {
+      return this.envConfig['RAPID_API_KEY']
+    }
+
     public get environment(): 'development' | 'build' {
       return this.envConfig['ENVIRONMENT'] as 'development' | 'build'
     }

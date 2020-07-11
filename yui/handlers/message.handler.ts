@@ -115,6 +115,7 @@ export class MessageHandler {
         return this._administrationService.executeCommand(message, args)
       }
       case 'test': {
+        if (global.config.environment !== 'development') return
         this.musicService.soundcloudGetSongInfo(args[0])
         // this.musicService.scPlaySong(message, args[0])
         break

@@ -1,10 +1,12 @@
-import { BilibiliChannelService } from '../../bilibili-channel-service/bilibili-channel.service'
-import { YoutubeChannelService } from '../../youtube-channel-service/youtube-channel.service'
+import { BilibiliChannelService } from '../channel-service/bilibili-channel.service'
+import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
 import { NIJI_KNOWN_REGION } from './nijistat.interface'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
+import { BaseRequestService } from '../channel-service/base-request.service'
+import { debugLogger } from '@/handlers/log.handler'
 
-export abstract class NijiStatRequestService {
-  public static nijisanJPIds = [
+export class NijiStatRequestService implements BaseRequestService<NIJI_KNOWN_REGION> {
+  public nijisanJPIds = [
     'UCX7YkU9nEeaoZbkVLVajcMg',
     'UC_a1ZYZ8ZTXpjg9xUY9sj8w',
     'UCdpUojq0KWZCN9bxXnZwz5w',
@@ -45,7 +47,7 @@ export abstract class NijiStatRequestService {
     'UCfki3lMEF6SGBFiFfo9kvUA',
   ]
 
-  public static nijisanIDIds = [
+  public nijisanIDIds = [
     'UCpJtk0myFr5WnyfsmnInP-w',
     'UCA3WE2WRSpoIvtnoVGq4VAw',
     'UCrR7JxkbeLY82e8gsj_I0pQ',
@@ -54,7 +56,7 @@ export abstract class NijiStatRequestService {
     'UCyRkQSuhJILuGOuXk10voPg',
   ]
 
-  public static nijiCNids = [
+  public nijiCNids = [
     '421267475',
     '420249427',
     '434334701',
@@ -69,7 +71,11 @@ export abstract class NijiStatRequestService {
     '56748733',
   ]
 
-  public static async getChannelList(region: NIJI_KNOWN_REGION): Promise<IYoutubeChannel[]> {
+  constructor() {
+    debugLogger(this.constructor.name)
+  }
+
+  public async getChannelList(region: NIJI_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     switch (region) {
       case 'cn':
         return await BilibiliChannelService.getChannelList(this.nijiCNids)
@@ -81,7 +87,7 @@ export abstract class NijiStatRequestService {
     }
   }
 
-  public static async getAllMembersChannelDetail(region?: NIJI_KNOWN_REGION): Promise<IYoutubeChannel[]> {
+  public async getAllMembersChannelDetail(region?: NIJI_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     switch (region) {
       case 'cn':
         return await BilibiliChannelService.getAllMembersChannelDetail(this.nijiCNids)

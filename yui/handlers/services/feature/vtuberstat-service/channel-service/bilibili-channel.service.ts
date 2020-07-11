@@ -1,9 +1,10 @@
 import bilibili from 'bili-api'
-import { IYoutubeChannel } from '../feature-interfaces/youtube-channel.interface'
+import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { Constants } from '@/constants/constants'
 import { errorLogger } from '@/handlers/log.handler'
+import { BaseChannelService } from './base-channel.service'
 
-export abstract class BilibiliChannelService {
+export abstract class BilibiliChannelService implements BaseChannelService {
   public static async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(channelIds.map((id) => bilibili({ mid: id }, ['info'])))
     const data = results.map(this.mapToYoutubeChannel)
@@ -32,7 +33,7 @@ export abstract class BilibiliChannelService {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  static mapToYoutubeChannel = ({
+  private static mapToYoutubeChannel = ({
     mid,
     follower,
     info,
@@ -73,7 +74,7 @@ export abstract class BilibiliChannelService {
     },
   })
 
-  static handleError(error: Error | string): null {
+  private static handleError(error: Error | string): null {
     return errorLogger(error)
   }
 }
