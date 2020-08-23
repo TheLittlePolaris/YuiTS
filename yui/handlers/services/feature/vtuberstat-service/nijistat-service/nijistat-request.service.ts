@@ -4,7 +4,9 @@ import { NIJI_KNOWN_REGION } from './nijistat.interface'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { BaseRequestService } from '../channel-service/base-request.service'
 import { debugLogger } from '@/handlers/log.handler'
+import { Injectable } from '@/decorators/injector'
 
+@Injectable()
 export class NijiStatRequestService implements BaseRequestService<NIJI_KNOWN_REGION> {
   public nijisanJPIds = [
     'UCX7YkU9nEeaoZbkVLVajcMg',

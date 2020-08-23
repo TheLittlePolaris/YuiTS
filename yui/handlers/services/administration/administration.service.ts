@@ -12,9 +12,7 @@ import { LOG_SCOPE } from '@/constants/constants'
 
 @AdministrationServiceInitiator()
 export class AdministrationService {
-  private _adminActionCommands: AdminstrationActionCommands
-
-  constructor() {
+  constructor(private _adminActionCommands: AdminstrationActionCommands) {
     debugLogger('AdministrationService')
   }
 
@@ -28,13 +26,8 @@ export class AdministrationService {
     return await this._adminActionCommands[command](message, args)
   }
 
-  public sendMessage(
-    message: Message,
-    content: string | MessageEmbed
-  ): Promise<Message | Message[]> {
-    return message.author
-      .send(content)
-      .catch((err) => this.handleError(new Error(err)))
+  public sendMessage(message: Message, content: string | MessageEmbed): Promise<Message | Message[]> {
+    return message.author.send(content).catch((err) => this.handleError(new Error(err)))
   }
 
   private handleError(error: Error | string): null {

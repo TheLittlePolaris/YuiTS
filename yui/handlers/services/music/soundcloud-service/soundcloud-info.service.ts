@@ -34,7 +34,7 @@ export abstract class PolarisSoundCloudService {
     if (!url || !url.length) throw new Error('Empty url')
     return new Promise((resolve, reject) => {
       try {
-        const process = spawn('youtube-dl', ['--skip-download', '-s', '--dump-json', '--', url], {
+        const process = spawn('youtube-dl', ['--skip-download', '--no-cache-dir', '-s', '--dump-json', '--', url], {
           stdio: ['inherit', 'pipe', 'pipe'],
         })
         console.log(`SPAWN ${process.pid}`)

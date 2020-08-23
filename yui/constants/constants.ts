@@ -8,6 +8,13 @@ export enum Constants {
 
 export type TFunction = new (...args: any[]) => {}
 
+export enum CONST_TOKEN {
+  BOT_TOKEN = 'bot-token',
+  BOT_OPTION = 'bot-option',
+  BOT_PREFIX = 'bot-prefix',
+  CLIENT = 'client',
+}
+
 export enum LOG_SCOPE {
   YUI_MAIN = 'YuiMain',
   YUI_CORE = 'YuiCore',

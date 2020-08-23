@@ -4,7 +4,9 @@ import { BaseRequestService } from '../channel-service/base-request.service'
 import { BilibiliChannelService } from '../channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
 import { debugLogger } from '@/handlers/log.handler'
+import { Injectable } from '@/decorators/injector'
 
+@Injectable()
 export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REGION> {
   public hololiveOfficialChannelId = 'UCJFZiqLMntJufDCHc6bQixg' // default, hololive japan
   public ayundaRisuChannelId = 'UCOyYb1c43VlX9rc_lT6NKQw' // hololive indonesia, risu ch

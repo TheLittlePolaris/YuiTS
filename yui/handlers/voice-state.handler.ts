@@ -14,10 +14,7 @@ export class VoiceStateHandler {
     debugLogger(LOG_SCOPE.VOICE_STATE_HANDLER)
   }
 
-  public checkOnVoiceStateUpdate(
-    oldVoiceState: VoiceState,
-    newVoiceState: VoiceState
-  ): void {
+  public checkOnVoiceStateUpdate(oldVoiceState: VoiceState, newVoiceState: VoiceState): void {
     try {
       if (!oldVoiceState && !newVoiceState) return
 
@@ -49,10 +46,7 @@ export class VoiceStateHandler {
     }
   }
 
-  public checkOnLeave(
-    oldState: VoiceState,
-    newState: VoiceState
-  ): VoiceStateAction {
+  public checkOnLeave(oldState: VoiceState, newState: VoiceState): VoiceStateAction {
     const stream = this.currentMusicService?.streams.get(oldState?.guild?.id)
     const boundVoiceChannel = stream?.boundVoiceChannel
     if (boundVoiceChannel) {
@@ -73,9 +67,7 @@ export class VoiceStateHandler {
   public leaveOnTimeout(stream: MusicStream): void {
     try {
       stream.boundVoiceChannel.leave()
-      stream.boundTextChannel.send(
-        "**_There's no one around so I'll leave too. Bye~!_**"
-      )
+      stream.boundTextChannel.send("**_There's no one around so I'll leave too. Bye~!_**")
       this.currentMusicService.resetStreamStatus(stream)
       this.currentMusicService.deleteStream(stream)
     } catch (err) {

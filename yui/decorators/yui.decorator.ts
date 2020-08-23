@@ -7,36 +7,16 @@ import { TFunction, LOG_SCOPE } from '@/constants/constants'
 import { decoratorLogger, infoLogger } from '@/handlers/log.handler'
 import { DiscordEvent } from '@/constants/discord-events'
 
-export function Yui({
-  prefix,
-  token,
-  options,
-}: {
-  prefix: string
-  token: string
-  options: ClientOptions
-}) {
+export function Yui() {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    return class extends superClass {
-      prefix = prefix
-      token = token
-      yui = new Client(options)
-      messageHandler = new MessageHandler()
-      voiceStateHandler = new VoiceStateHandler(
-        this.messageHandler?.musicService || null
-      )
-    }
+    return class extends superClass {}
   }
 }
 
 // TODO:
 export function On(event: DiscordEvent) {
-  return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(`On - ${event}`, LOG_SCOPE.YUI_CORE, propertyKey)
     // return (descriptor.value = descriptor.value)
     const originalMethod = descriptor.value

@@ -9,11 +9,12 @@ import { MusicService } from './services/music/music.service'
 
 @MessageHandlerInitiator()
 export class MessageHandler {
-  private _musicService: MusicService
-  private _featureService: FeatureService
-  private _administrationService: AdministrationService
-  private _ownerChannelService: OwnerChannelService
-  constructor() {
+  constructor(
+    private _musicService: MusicService,
+    private _featureService: FeatureService,
+    private _administrationService: AdministrationService,
+    private _ownerChannelService: OwnerChannelService
+  ) {
     debugLogger(LOG_SCOPE.MESSAGE_HANDLER)
   }
 

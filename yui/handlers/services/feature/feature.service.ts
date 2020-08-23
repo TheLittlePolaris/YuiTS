@@ -24,8 +24,8 @@ import { NIJI_REGION_MAP, NIJI_KNOWN_REGION } from './vtuberstat-service/nijista
 
 @FeatureServiceInitiator()
 export class FeatureService {
-  private _vtuberStatService: VtuberStatService
-  constructor() {
+  // private _vtuberStatService: VtuberStatService
+  constructor(private _vtuberStatService: VtuberStatService) {
     debugLogger(LOG_SCOPE.FEATURE_SERVICE)
   }
 

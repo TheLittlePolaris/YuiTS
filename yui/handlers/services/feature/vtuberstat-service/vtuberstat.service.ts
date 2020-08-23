@@ -25,9 +25,10 @@ import { YoutubeChannelService } from './channel-service/youtube-channel.service
 
 @VtuberStatServiceInitiator()
 export class VtuberStatService {
-  private _holostatRequestService: HoloStatRequestService
-  private _nijistatRequestService: NijiStatRequestService
-  constructor() {
+  constructor(
+    private _holostatRequestService: HoloStatRequestService,
+    private _nijistatRequestService: NijiStatRequestService
+  ) {
     debugLogger(LOG_SCOPE.VTUBER_STAT_SERVICE)
   }
 

@@ -23,9 +23,7 @@ const REFLECT_FEATURE_KEYS = {
 export function FeatureServiceInitiator() {
   return function <T extends TFunction>(superClass: T) {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    return class extends superClass {
-      _vtuberStatService = new VtuberStatService()
-    }
+    return class extends superClass {}
   }
 }
 

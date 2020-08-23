@@ -9,11 +9,6 @@ import { OwnerChannelService } from '@/handlers/owner-service/channel.service'
 export function MessageHandlerInitiator() {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    return class extends superClass {
-      _musicService = new MusicService()
-      _featureService = new FeatureService()
-      _administrationService = new AdministrationService()
-      _ownerChannelService = new OwnerChannelService()
-    }
+    return class extends superClass {}
   }
 }

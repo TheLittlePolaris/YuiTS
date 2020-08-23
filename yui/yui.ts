@@ -2,9 +2,10 @@ import 'module-alias/register'
 import 'reflect-metadata'
 import 'config-service'
 
-import { LOG_SCOPE } from '@/constants/constants'
+import { LOG_SCOPE, CONST_TOKEN } from '@/constants/constants'
 import { errorLogger, infoLogger } from '@/handlers/log.handler'
 import { YuiCore } from '@/yui-core'
+import { Injector } from './decorators/injector'
 ;(async () => {
   try {
     infoLogger(LOG_SCOPE.YUI_MAIN, '🔸 Starting...')
@@ -15,7 +16,7 @@ import { YuiCore } from '@/yui-core'
       )
     }
     infoLogger(LOG_SCOPE.YUI_MAIN, '🔸 Yui is starting...')
-    const yui = new YuiCore()
+    const yui = Injector.resolve<YuiCore>(YuiCore)
     await yui.start()
   } catch (error) {
     errorLogger(error, LOG_SCOPE.YUI_MAIN)

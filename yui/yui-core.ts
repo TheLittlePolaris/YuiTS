@@ -1,29 +1,27 @@
 import { debugLogger, errorLogger, infoLogger } from '@/handlers/log.handler'
 import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
-import { Client, Message, VoiceState } from 'discord.js'
+import { Message, VoiceState } from 'discord.js'
 import { LOG_SCOPE } from './constants/constants'
 import { Yui } from './decorators/yui.decorator'
+import { YuiClient } from './yui-client'
 
-@Yui({
-  prefix: global?.config?.prefix,
-  token: global?.config?.token,
-  options: {
-    disableMentions: 'everyone',
-  },
-})
+@Yui()
 export class YuiCore {
-  private yui: Client
-  private messageHandler: MessageHandler
-  private voiceStateHandler: VoiceStateHandler
-  constructor() {
+  private token = global.config.token
+  private prefix = global.config.prefix
+  constructor(
+    private yui: YuiClient,
+    private messageHandler: MessageHandler,
+    private voiceStateHandler: VoiceStateHandler
+  ) {
     debugLogger(LOG_SCOPE.YUI_CORE)
   }
 
   public async start(): Promise<void> {
     infoLogger(LOG_SCOPE.YUI_CORE, 'Connecting... 📡')
 
-    this.yui.login(this['token']).catch((err) => this.handleError(new Error(err)))
+    this.yui.login(this.token).catch((err) => this.handleError(new Error(err)))
 
     this.yui.on('ready', () => this.onReady())
     this.yui.on('message', (message: Message) => this.onMessage(message))
@@ -38,10 +36,10 @@ export class YuiCore {
     infoLogger(LOG_SCOPE.YUI_CORE, '🔗 🛰 Connected!')
     await Promise.all([
       global.config.environment === 'development'
-        ? this.yui.user.setActivity(`${global.config.prefix}help`, {
+        ? this.yui.user.setActivity(`${this.prefix}help`, {
             type: 'LISTENING',
           })
-        : this.yui.user.setActivity(`📻 Radio Happy (${global.config.prefix}help)`, {
+        : this.yui.user.setActivity(`📻 Radio Happy (${this.prefix}help)`, {
             url: 'https://twitch.tv/onlypolaris',
             type: 'STREAMING',
           }),
@@ -54,10 +52,10 @@ export class YuiCore {
       // owner feature
       if (message.channel.type === 'dm' && message.author.id === global.config.ownerId) return this.onDM(message)
 
-      if (!message.content.startsWith(this['prefix']) || message.author.bot) return
+      if (!message.content.startsWith(this.prefix) || message.author.bot) return
 
       if (message.channel.type !== 'text') return // only accept text channel message
-      const args = message.content.slice(this['prefix'].length).trim().split(/ +/g)
+      const args = message.content.slice(this.prefix.length).trim().split(/ +/g)
 
       const command = args.shift()
 
