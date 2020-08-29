@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata'
 
-/* TEST IMPLEMENTINGn DI */
+/* TEST IMPLEMENTING DI */
 export type GenericClassDecorator<T> = (target: T) => void
 export interface Type<T> {
   new (...args: any[]): T

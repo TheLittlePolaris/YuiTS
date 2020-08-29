@@ -6,7 +6,7 @@ import { TFunction } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { OwnerChannelService } from '@/handlers/owner-service/channel.service'
 
-export function MessageHandlerInitiator() {
+export const MessageHandlerInitiator = () => {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
     return class extends superClass {}

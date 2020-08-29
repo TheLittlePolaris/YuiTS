@@ -24,14 +24,14 @@ const REFLECT_PERMISSION_KEYS = {
   EXECUTOR: Symbol(REFLECT_ADMIN_ACTION_SYMBOLS.EXECUTOR),
 }
 
-export function AdminActionInitiator(forward?: () => any) {
+export const AdminActionInitiator = () => {
   return function <T extends TFunction>(superClass: T) {
     decoratorLogger(superClass['name'], LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
     return class extends superClass {}
   }
 }
 
-export function ValidateCommand() {
+export const ValidateCommand = () => {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(LOG_SCOPE.ADMIN_SERVICE, 'ValidateCommand - Method', propertyKey)
     const originalDescriptor = descriptor.value

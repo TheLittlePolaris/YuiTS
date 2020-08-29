@@ -20,14 +20,14 @@ const REFLECT_FEATURE_KEYS = {
   REQUEST_KEY: Symbol(FEATURE_SYMBOLS.REQUEST_PARAMS),
 }
 
-export function FeatureServiceInitiator() {
+export const FeatureServiceInitiator = () => {
   return function <T extends TFunction>(superClass: T) {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
     return class extends superClass {}
   }
 }
 
-export function FeaturePermissionValidator() {
+export const FeaturePermissionValidator = () => {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(LOG_SCOPE.FEATURE_SERVICE, 'ValidateFeaturePermission - Method', propertyKey)
 

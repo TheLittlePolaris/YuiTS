@@ -30,7 +30,7 @@ const REFLECT_KEYS = {
   DETAIL_KEY: Symbol(REFLECT_SYMBOLS.DETAIL),
 }
 
-export function VtuberStatServiceInitiator() {
+export const VtuberStatServiceInitiator = () => {
   return <T extends TFunction>(superClass: T) => {
     decoratorLogger(superClass['name'], 'Class', 'Initiator')
     return class extends superClass {
@@ -42,7 +42,7 @@ export function VtuberStatServiceInitiator() {
   }
 }
 
-export function HoloStatCommandValidator() {
+export const HoloStatCommandValidator = () => {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
 
@@ -109,7 +109,7 @@ export function HoloStatCommandValidator() {
   }
 }
 
-export function NijiStatCommandValidator() {
+export const NijiStatCommandValidator = () => {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
 
