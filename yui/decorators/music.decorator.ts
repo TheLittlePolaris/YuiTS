@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { TFunction, LOG_SCOPE } from '@/constants/constants'
-import type { MusicStream } from '@/handlers/services/music/music-entities/music-stream'
 import { Message, TextChannel } from 'discord.js'
 import { decoratorLogger } from '@/handlers/log.handler'
+import { INJECTABLE_METADATA } from '@/constants/di-connstants'
+import { GlobalMusicStream } from '@/handlers/services/music/global-streams'
 
 enum REFLECT_MUSIC_SYMBOLS {
   STREAM = 'STREAM',
@@ -15,31 +16,25 @@ const REFLECT_MUSIC_KEYS = {
   CLIENT_KEY: Symbol(REFLECT_MUSIC_SYMBOLS.CLIENT),
 }
 
-abstract class GlobalMusicStreams {
-  public static streams: Map<string, MusicStream>
-}
-
 export const MusicServiceInitiator = () => {
-  return <T extends TFunction>(superClass: T) => {
-    decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    GlobalMusicStreams.streams = new Map<string, MusicStream>()
-    return class extends superClass {
-      _streams = GlobalMusicStreams.streams
-    }
+  return <T extends TFunction>(target: T) => {
+    decoratorLogger(target['name'], 'Class', 'Initiator')
+    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
-export const AccessController = (
+export function AccessController(
   { join, silent }: { join?: boolean; silent?: boolean } = {
     join: false,
     silent: false,
   }
-) => {
+) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(LOG_SCOPE.MUSIC_SERVICE, 'AccessController - Method', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = async function (...args: any[]) {
-      const streams = GlobalMusicStreams.streams
+      const streams = GlobalMusicStream.streams
+      console.log(streams)
       const [message] = args as [Message]
       const { channel, guild, member } = message as Message
 
@@ -52,6 +47,7 @@ export const AccessController = (
 
       if (!streams) return
       const stream = streams.has(guild.id) ? streams.get(guild.id) : null
+      console.log(stream)
 
       const streamParamIndex: number = Reflect.getMetadata(REFLECT_MUSIC_KEYS.STREAM_KEY, target, propertyKey)
       if (streamParamIndex !== undefined) args[streamParamIndex] = stream

@@ -4,7 +4,7 @@ import { BaseRequestService } from '../channel-service/base-request.service'
 import { BilibiliChannelService } from '../channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
 import { debugLogger } from '@/handlers/log.handler'
-import { Injectable } from '@/decorators/injector'
+import { Injectable } from '@/decorators/dep-injection-ioc/decorators'
 
 @Injectable()
 export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REGION> {
@@ -12,24 +12,29 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
   public ayundaRisuChannelId = 'UCOyYb1c43VlX9rc_lT6NKQw' // hololive indonesia, risu ch
   public hololiveBilibiliIds = ['456368455', '354411419', '427061218', '511613156', '511613155', '511613157'] // hololive China
 
-  constructor() {
+  constructor(
+    private bilibiliChannelService: BilibiliChannelService,
+    private youtubeChannelService: YoutubeChannelService
+  ) {
     debugLogger(this.constructor.name)
   }
 
   public async getChannelList(region: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     switch (region) {
       case 'cn':
-        return await BilibiliChannelService.getChannelList(this.hololiveBilibiliIds)
+        return await this.bilibiliChannelService.getChannelList(this.hololiveBilibiliIds)
       case 'id': {
-        const featuredChannelIds = await YoutubeChannelService.getFeaturedChannelIds(this.ayundaRisuChannelId)
+        const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(this.ayundaRisuChannelId)
         if (!featuredChannelIds) throw new Error('No featured channels')
-        return await YoutubeChannelService.getChannelList([...featuredChannelIds, this.ayundaRisuChannelId])
+        return await this.youtubeChannelService.getChannelList([...featuredChannelIds, this.ayundaRisuChannelId])
       }
       case 'jp':
       default: {
-        const featuredChannelIds = await YoutubeChannelService.getFeaturedChannelIds(this.hololiveOfficialChannelId)
+        const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(
+          this.hololiveOfficialChannelId
+        )
         if (!featuredChannelIds) throw new Error('No featured channels')
-        return await YoutubeChannelService.getChannelList([...featuredChannelIds, this.hololiveOfficialChannelId])
+        return await this.youtubeChannelService.getChannelList([...featuredChannelIds, this.hololiveOfficialChannelId])
       }
     }
   }
@@ -37,25 +42,30 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
   public async getAllMembersChannelDetail(region?: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     switch (region) {
       case 'cn':
-        return await BilibiliChannelService.getAllMembersChannelDetail(this.hololiveBilibiliIds)
+        return await this.bilibiliChannelService.getAllMembersChannelDetail(this.hololiveBilibiliIds)
       case 'id': {
-        const featuredChannelIds = await YoutubeChannelService.getFeaturedChannelIds(this.ayundaRisuChannelId)
+        const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(this.ayundaRisuChannelId)
         if (!featuredChannelIds) throw new Error('No featured channels')
-        return await YoutubeChannelService.getAllMembersChannelDetail([...featuredChannelIds, this.ayundaRisuChannelId])
+        return await this.youtubeChannelService.getAllMembersChannelDetail([
+          ...featuredChannelIds,
+          this.ayundaRisuChannelId,
+        ])
       }
       case 'jp':
       default: {
-        const featuredChannelIds = await YoutubeChannelService.getFeaturedChannelIds(this.hololiveOfficialChannelId)
+        const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(
+          this.hololiveOfficialChannelId
+        )
         if (!featuredChannelIds) throw new Error('No featured channels')
-        return await YoutubeChannelService.getAllMembersChannelDetail([
+        return await this.youtubeChannelService.getAllMembersChannelDetail([
           ...featuredChannelIds,
           this.hololiveOfficialChannelId,
         ])
       }
     }
   }
-  // public static async getSelectedChannelDetail(channelId: string, isBilibili: boolean): Promise<IYoutubeChannel> {
-  //   if (isBilibili) return await BilibiliChannelService.getSelectedChannelDetail(channelId)
-  //   else return await YoutubeChannelService.getSelectedChannelDetail(channelId)
-  // }
+  public async getSelectedChannelDetail(channelId: string, isBilibili: boolean): Promise<IYoutubeChannel> {
+    if (isBilibili) return await this.bilibiliChannelService.getSelectedChannelDetail(channelId)
+    else return await this.youtubeChannelService.getSelectedChannelDetail(channelId)
+  }
 }

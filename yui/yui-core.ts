@@ -2,18 +2,20 @@ import { debugLogger, errorLogger, infoLogger } from '@/handlers/log.handler'
 import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { Message, VoiceState } from 'discord.js'
-import { LOG_SCOPE } from './constants/constants'
+import { LOG_SCOPE, INJECT_TOKEN } from './constants/constants'
 import { Yui } from './decorators/yui.decorator'
 import { YuiClient } from './yui-client'
+import { EntryConponent } from './decorators/dep-injection-ioc/interfaces/di-interfaces'
+import { Inject } from './decorators/dep-injection-ioc/decorators'
 
 @Yui()
-export class YuiCore {
-  private token = global.config.token
-  private prefix = global.config.prefix
+export class YuiCore implements EntryConponent {
   constructor(
     private yui: YuiClient,
     private messageHandler: MessageHandler,
-    private voiceStateHandler: VoiceStateHandler
+    private voiceStateHandler: VoiceStateHandler,
+    @Inject(INJECT_TOKEN.BOT_TOKEN) private token: string,
+    @Inject(INJECT_TOKEN.BOT_PREFIX) private prefix: string
   ) {
     debugLogger(LOG_SCOPE.YUI_CORE)
   }

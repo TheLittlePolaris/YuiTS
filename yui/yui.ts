@@ -2,10 +2,17 @@ import 'module-alias/register'
 import 'reflect-metadata'
 import 'config-service'
 
-import { LOG_SCOPE, CONST_TOKEN } from '@/constants/constants'
+import { LOG_SCOPE } from '@/constants/constants'
 import { errorLogger, infoLogger } from '@/handlers/log.handler'
-import { YuiCore } from '@/yui-core'
-import { Injector } from './decorators/injector'
+import { YuiContainerFactory } from './decorators/dep-injection-ioc/container-factory'
+import { YuiMainModule } from './yui.module'
+
+const bootstrap = async (): Promise<any> => {
+  const yuiContainerFactory = new YuiContainerFactory()
+  const yuiCore = await yuiContainerFactory.create(YuiMainModule)
+  return yuiCore
+}
+
 ;(async () => {
   try {
     infoLogger(LOG_SCOPE.YUI_MAIN, '🔸 Starting...')
@@ -16,7 +23,7 @@ import { Injector } from './decorators/injector'
       )
     }
     infoLogger(LOG_SCOPE.YUI_MAIN, '🔸 Yui is starting...')
-    const yui = Injector.resolve<YuiCore>(YuiCore)
+    const yui = await bootstrap()
     await yui.start()
   } catch (error) {
     errorLogger(error, LOG_SCOPE.YUI_MAIN)

@@ -3,15 +3,17 @@ import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interf
 import { Constants } from '@/constants/constants'
 import { errorLogger } from '@/handlers/log.handler'
 import { BaseChannelService } from './base-channel.service'
+import { Injectable } from '@/decorators/dep-injection-ioc/decorators'
 
-export abstract class BilibiliChannelService implements BaseChannelService {
-  public static async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
+@Injectable()
+export class BilibiliChannelService implements BaseChannelService {
+  public async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(channelIds.map((id) => bilibili({ mid: id }, ['info'])))
     const data = results.map(this.mapToYoutubeChannel)
     return data
   }
 
-  public static async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
+  public async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(
       channelIds.map((id) => bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView']))
     ).catch((err) => this.handleError(err))
@@ -20,7 +22,7 @@ export abstract class BilibiliChannelService implements BaseChannelService {
     return channelData
   }
 
-  public static async getSelectedChannelDetail(channelId: string): Promise<IYoutubeChannel> {
+  public async getSelectedChannelDetail(channelId: string): Promise<IYoutubeChannel> {
     const result = await bilibili({ mid: channelId }, [
       'follower',
       'title',
@@ -33,7 +35,7 @@ export abstract class BilibiliChannelService implements BaseChannelService {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  private static mapToYoutubeChannel = ({
+  private mapToYoutubeChannel = ({
     mid,
     follower,
     info,
@@ -74,7 +76,7 @@ export abstract class BilibiliChannelService implements BaseChannelService {
     },
   })
 
-  private static handleError(error: Error | string): null {
+  private handleError(error: Error | string): null {
     return errorLogger(error)
   }
 }

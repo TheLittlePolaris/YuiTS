@@ -3,6 +3,7 @@ import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
 import { spawnSync, SpawnSyncOptions, spawn } from 'child_process'
 import { errorLogger } from '@/handlers/log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
+import { Injectable } from '@/decorators/dep-injection-ioc/decorators'
 
 enum FORMAT_URL {
   M3U8_64 = 0,
@@ -22,8 +23,10 @@ enum FORMAT_THUMBNAILS {
   t500x500 = 8,
   original = 9,
 }
-export abstract class PolarisSoundCloudService {
-  public static async getInfoUrl(
+
+@Injectable()
+export class PolarisSoundCloudService {
+  public async getInfoUrl(
     url: string,
     {
       getUrl,
@@ -81,7 +84,7 @@ export abstract class PolarisSoundCloudService {
     })
   }
 
-  public static async getInfoUrlTest(url: string, options?: SpawnSyncOptions): Promise<unknown[]> {
+  public async getInfoUrlTest(url: string, options?: SpawnSyncOptions): Promise<unknown[]> {
     if (!url || !url.length) throw new Error('Empty url')
     const time = console.time('json')
     const result = await spawnSync('youtube-dl', ['--skip-download', '-s', '--dump-json', '--', url], {
@@ -106,10 +109,7 @@ export abstract class PolarisSoundCloudService {
     return info
   }
 
-  static mapToYoutubeVideoFormat = (
-    info: ISoundCloudSong,
-    getUrl = false
-  ): IYoutubeVideo | { url: string; type: string } => {
+  mapToYoutubeVideoFormat = (info: ISoundCloudSong, getUrl = false): IYoutubeVideo | { url: string; type: string } => {
     const {
       id,
       webpage_url,
@@ -151,7 +151,7 @@ export abstract class PolarisSoundCloudService {
     }
   }
 
-  static handleError(error: string | Error): null {
+  handleError(error: string | Error): null {
     return errorLogger(error, LOG_SCOPE.SOUNDCLOUD_INFO_SERICE)
   }
 }

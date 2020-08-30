@@ -1,4 +1,4 @@
-import { Constants, LOG_SCOPE } from '@/constants/constants'
+import { Constants, LOG_SCOPE, INJECT_TOKEN } from '@/constants/constants'
 import { AccessController, CurrentGuildMember, GuildStream, MusicServiceInitiator } from '@/decorators/music.decorator'
 import { debugLogger, errorLogger } from '@/handlers/log.handler'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
@@ -12,7 +12,7 @@ import {
   StreamOptions,
   TextChannel,
 } from 'discord.js'
-import { PassThrough, Readable } from 'stream'
+import { PassThrough, Readable, Stream } from 'stream'
 import ytdl from 'ytdl-core'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
@@ -30,12 +30,19 @@ import {
 } from './soundcloud-service/soundcloud-utilities'
 import { YoutubeInfoService } from './youtube-service/youtube-info.service'
 import { isYoutubePlaylistUrl, isYoutubeUrl, youtubeTimeConverter } from './youtube-service/youtube-utilities'
+import { Inject } from '@/decorators/dep-injection-ioc/decorators'
+import { GlobalMusicStream } from './global-streams'
 
 @MusicServiceInitiator()
 export class MusicService {
-  _streams: Map<string, MusicStream> // type
-  constructor() {
+  _streams = GlobalMusicStream._streams
+  constructor(
+    private youtubeInfoService: YoutubeInfoService,
+    private soundcloudService: PolarisSoundCloudService,
+    private soundcloudPlayer: PolarisSoundCloudPlayer
+  ) {
     debugLogger(LOG_SCOPE.MUSIC_SERVICE)
+    console.log(this.streams)
   }
 
   private async createStream(message: Message): Promise<MusicStream | null> {
@@ -58,6 +65,7 @@ export class MusicService {
     if (!connection) throw new Error('Could not create voice connection')
 
     this._streams.set(guild.id, stream)
+    console.log(this._streams)
 
     const onConnectionError = (error: unknown) => {
       if (stream?.isPlaying) {
@@ -187,10 +195,10 @@ export class MusicService {
 
   private async queueYoutubePlaylist(stream: MusicStream, message: Message, args: string): Promise<void> {
     try {
-      const youtubePlaylistId = await YoutubeInfoService.getYoutubePlaylistId(args)
+      const youtubePlaylistId = await this.youtubeInfoService.getYoutubePlaylistId(args)
       if (!youtubePlaylistId) {
         // try for video id if exists
-        const videoId = await YoutubeInfoService.getYoutubeVideoId(args)
+        const videoId = await this.youtubeInfoService.getYoutubeVideoId(args)
         if (videoId) {
           return this.queueSong({ stream, message, args, type: 'youtube' })
         }
@@ -202,9 +210,9 @@ export class MusicService {
         ':hourglass_flowing_sand: **_Loading playlist, please wait..._**'
       )
       const requester = message.member.displayName
-      const playListVideos = await YoutubeInfoService.getPlaylistItems(youtubePlaylistId).catch((err) =>
-        this.handleError(new Error(err))
-      )
+      const playListVideos = await this.youtubeInfoService
+        .getPlaylistItems(youtubePlaylistId)
+        .catch((err) => this.handleError(new Error(err)))
 
       if (!playListVideos) {
         this.sendMessage(message, 'Something went terribly wrong!')
@@ -231,7 +239,7 @@ export class MusicService {
         ':hourglass_flowing_sand: **_Loading playlist from SoundCloud, this may take some times, please wait..._**'
       )
 
-      const playlistSongs: IYoutubeVideo[] = (await PolarisSoundCloudService.getInfoUrl(playlistLink, {
+      const playlistSongs: IYoutubeVideo[] = (await this.soundcloudService.getInfoUrl(playlistLink, {
         getUrl: false,
       })) as IYoutubeVideo[] // checked, should be fine
 
@@ -271,12 +279,12 @@ export class MusicService {
     let tempStatus: string
     let itemInfo: IYoutubeVideo[]
     if (type === 'youtube') {
-      const videoId = await YoutubeInfoService.getYoutubeVideoId(args)
-      itemInfo = await YoutubeInfoService.getInfoIds(videoId)
+      const videoId = await this.youtubeInfoService.getYoutubeVideoId(args)
+      itemInfo = await this.youtubeInfoService.getInfoIds(videoId)
     } else {
-      const song = (await PolarisSoundCloudService.getInfoUrl(args).catch((err) =>
-        this.handleError(new Error(err))
-      )) as IYoutubeVideo
+      const song = (await this.soundcloudService
+        .getInfoUrl(args)
+        .catch((err) => this.handleError(new Error(err)))) as IYoutubeVideo
       if (!song) {
         this.sendMessage(message, '**Something went wrong...**')
         return
@@ -382,7 +390,7 @@ export class MusicService {
       const readableStream: Readable | PassThrough =
         type === 'youtube'
           ? ytdl(`https://www.youtube.com/watch?v=${id}`, downloadOptions)
-          : await PolarisSoundCloudPlayer.createMusicStream(videoUrl, downloadOptions)
+          : await this.soundcloudPlayer.createMusicStream(videoUrl, downloadOptions)
 
       if (!readableStream) throw new Error('Stream not created.')
 
@@ -552,11 +560,11 @@ export class MusicService {
       return
     }
     stream.set('tempChannelId', endedSong.channelId)
-    const videoInfo = await YoutubeInfoService.getSongsByChannelId(stream.tempChannelId, stream.nextPage)
+    const videoInfo = await this.youtubeInfoService.getSongsByChannelId(stream.tempChannelId, stream.nextPage)
     const { nextPageToken, items } = videoInfo
     stream.set('nextPage', nextPageToken)
     const rand = await RNG(items.length)
-    const songMetadata = await YoutubeInfoService.getInfoIds(items[rand].id.videoId)
+    const songMetadata = await this.youtubeInfoService.getInfoIds(items[rand].id.videoId)
 
     await this.pushToQueue({
       queue: stream.queue,
@@ -720,7 +728,9 @@ export class MusicService {
   @AccessController({ join: true, silent: true })
   public async searchSong(message: Message, args?: Array<string>): Promise<void> {
     const _arguments = args?.join(' ')
-    const result = await YoutubeInfoService.searchByQuery(_arguments).catch((err) => this.handleError(new Error(err)))
+    const result = await this.youtubeInfoService
+      .searchByQuery(_arguments)
+      .catch((err) => this.handleError(new Error(err)))
     const { items } = result
 
     let tableContent = '**```css\n'
@@ -914,7 +924,7 @@ export class MusicService {
   }
 
   public async soundcloudGetSongInfo(link: string): Promise<void> {
-    const info = await PolarisSoundCloudService.getInfoUrlTest(link).catch((err) => this.handleError(new Error(err)))
+    const info = await this.soundcloudService.getInfoUrlTest(link).catch((err) => this.handleError(new Error(err)))
 
     console.log(info)
   }

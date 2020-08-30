@@ -6,8 +6,8 @@ import {
   ADMIN_ACTION_TYPE,
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
 import { TFunction, LOG_SCOPE } from '@/constants/constants'
-import { AdminstrationActionCommands } from '@/handlers/services/administration/administration-actions/action.service'
 import { decoratorLogger } from '@/handlers/log.handler'
+import { INJECTABLE_METADATA } from '@/constants/di-connstants'
 
 enum REFLECT_PERMISSION_SYMBOLS {
   COMMAND = 'command',
@@ -17,14 +17,14 @@ const REFLECT_PERMISSION_KEYS = {
   COMMAND: Symbol(REFLECT_PERMISSION_SYMBOLS.COMMAND),
 }
 
-export const AdministrationServiceInitiator = () => {
-  return function <T extends TFunction>(superClass: T) {
-    decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    return class extends superClass {}
+export function AdministrationServiceInitiator() {
+  return function <T extends TFunction>(target: T) {
+    decoratorLogger(target['name'], 'Class', 'Initiator')
+    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
-export const AdminPermissionValidator = () => {
+export function AdminPermissionValidator() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(LOG_SCOPE.ADMIN_ACTION_COMMAND, 'AdminPermissionValidator - Method', propertyKey)
     const originalDescriptor = descriptor.value

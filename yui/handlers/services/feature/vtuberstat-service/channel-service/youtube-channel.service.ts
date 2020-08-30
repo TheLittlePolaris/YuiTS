@@ -1,16 +1,21 @@
 import { google, youtube_v3 } from 'googleapis'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { BaseChannelService } from './base-channel.service'
+import { Injectable, Inject } from '@/decorators/dep-injection-ioc/decorators'
+import { INJECT_TOKEN } from '@/constants/constants'
 
-export abstract class YoutubeChannelService implements BaseChannelService {
-  private static youtube: youtube_v3.Youtube = google.youtube({
+@Injectable()
+export class YoutubeChannelService implements BaseChannelService {
+  constructor(@Inject(INJECT_TOKEN.YOUTUBE_API_KEY) private youtubeApiKey: string) {}
+
+  private youtube: youtube_v3.Youtube = google.youtube({
     version: 'v3',
-    auth: global?.config?.youtubeApiKey,
+    auth: this.youtubeApiKey,
   })
 
-  private static youtubeChannel = YoutubeChannelService.youtube.channels
+  private youtubeChannel = this.youtube.channels
 
-  public static async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
+  public async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const getDataOptions: youtube_v3.Params$Resource$Channels$List = {
       part: ['snippet'],
       maxResults: 50,
@@ -24,7 +29,7 @@ export abstract class YoutubeChannelService implements BaseChannelService {
     return data.items
   }
 
-  public static async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
+  public async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const getDataOptions: youtube_v3.Params$Resource$Channels$List = {
       part: ['statistics', 'brandingSettings', 'snippet'],
       id: channelIds,
@@ -40,7 +45,7 @@ export abstract class YoutubeChannelService implements BaseChannelService {
     return data.items
   }
 
-  public static async getFeaturedChannelIds(...selectedChannelId: string[]): Promise<string[]> {
+  public async getFeaturedChannelIds(...selectedChannelId: string[]): Promise<string[]> {
     const getChannelsOptions: youtube_v3.Params$Resource$Channels$List = {
       part: ['brandingSettings'],
       id: selectedChannelId,
@@ -56,7 +61,7 @@ export abstract class YoutubeChannelService implements BaseChannelService {
     return featuredChannelsUrls
   }
 
-  public static async getSelectedChannelDetail(...channelId: string[]): Promise<IYoutubeChannel> {
+  public async getSelectedChannelDetail(...channelId: string[]): Promise<IYoutubeChannel> {
     const getDataOptions: youtube_v3.Params$Resource$Channels$List = {
       part: ['statistics', 'brandingSettings', 'snippet'],
       id: channelId,

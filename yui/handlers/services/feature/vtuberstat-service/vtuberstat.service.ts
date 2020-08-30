@@ -19,15 +19,17 @@ import { HOLO_KNOWN_REGION, holoStatReactionList, HOLO_REGION_MAP } from './holo
 import { nijiStatReactionList, NIJI_REGION_MAP, NIJI_KNOWN_REGION } from './nijistat-service/nijistat.interface'
 import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
 import { NijiStatRequestService } from './nijistat-service/nijistat-request.service'
-import { BaseChannelService } from './channel-service/base-channel.service'
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
+import { YoutubeRequestService } from '../../music/youtube-service/youtube-request.service'
 
 @VtuberStatServiceInitiator()
 export class VtuberStatService {
   constructor(
-    private _holostatRequestService: HoloStatRequestService,
-    private _nijistatRequestService: NijiStatRequestService
+    private holostatRequestService: HoloStatRequestService,
+    private nijistatRequestService: NijiStatRequestService,
+    private youtubeRequestService: YoutubeChannelService,
+    private bilibiliRequestService: BilibiliChannelService
   ) {
     debugLogger(LOG_SCOPE.VTUBER_STAT_SERVICE)
   }
@@ -46,7 +48,7 @@ export class VtuberStatService {
     }
 
     const isBilibili = regionCode === 'cn'
-    const service = affiliation === 'Hololive' ? this._holostatRequestService : this._nijistatRequestService
+    const service = affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
     const dataList = await service.getChannelList(regionCode).catch((err) => this.handleError(new Error(err)))
 
     if (!dataList || !dataList.length) return this.sendMessage(message, '**Something went wrong :(**')
@@ -126,7 +128,7 @@ export class VtuberStatService {
     channelId: string
     isBilibili: boolean
   }): Promise<void> {
-    const service = isBilibili ? BilibiliChannelService : YoutubeChannelService
+    const service = isBilibili ? this.youtubeRequestService : this.bilibiliRequestService
     const channelData = await service.getSelectedChannelDetail(channelId)
     if (!channelData) {
       this.sendMessage(message, 'Something went wrong, please try again.')
@@ -237,7 +239,7 @@ export class VtuberStatService {
     )
 
     const isBilibili = region === 'cn'
-    const service = affiliation === 'Hololive' ? this._holostatRequestService : this._nijistatRequestService
+    const service = affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
     const holoStatData = await service
       .getAllMembersChannelDetail(region)
       .catch((error) => this.handleError(new Error(error)))

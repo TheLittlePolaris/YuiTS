@@ -3,8 +3,7 @@
 import { TFunction, LOG_SCOPE } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message, PermissionString } from 'discord.js'
-import { isMyOwner } from '@/handlers/services/feature/feature-services/feature-utilities'
-import { VtuberStatService } from '@/handlers/services/feature/vtuberstat-service/vtuberstat.service'
+import { INJECTABLE_METADATA } from '@/constants/di-connstants'
 
 export enum FEATURE_SYMBOLS {
   CLIENT = 'client',
@@ -20,14 +19,14 @@ const REFLECT_FEATURE_KEYS = {
   REQUEST_KEY: Symbol(FEATURE_SYMBOLS.REQUEST_PARAMS),
 }
 
-export const FeatureServiceInitiator = () => {
-  return function <T extends TFunction>(superClass: T) {
-    decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    return class extends superClass {}
+export function FeatureServiceInitiator() {
+  return function <T extends TFunction>(target: T) {
+    decoratorLogger(target['name'], 'Class', 'Initiator')
+    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
-export const FeaturePermissionValidator = () => {
+export function FeaturePermissionValidator() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(LOG_SCOPE.FEATURE_SERVICE, 'ValidateFeaturePermission - Method', propertyKey)
 

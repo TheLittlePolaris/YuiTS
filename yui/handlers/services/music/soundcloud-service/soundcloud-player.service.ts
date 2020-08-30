@@ -4,9 +4,13 @@ import axios from 'axios'
 import m3u8stream, { Progress } from 'm3u8stream'
 import { PolarisSoundCloudService } from './soundcloud-info.service'
 import { errorLogger } from '@/handlers/log.handler'
+import { Injectable } from '@/decorators/dep-injection-ioc/decorators'
 
-export abstract class PolarisSoundCloudPlayer {
-  public static async createMusicStream(
+@Injectable()
+export class PolarisSoundCloudPlayer {
+  constructor(private soundcloudService: PolarisSoundCloudService) {}
+
+  public async createMusicStream(
     videoUrl: string,
     options?: TransformOptions | m3u8stream.Options
   ): Promise<PassThrough> {
@@ -26,7 +30,7 @@ export abstract class PolarisSoundCloudPlayer {
     }
   }
 
-  static async axiosHttpStream(url: string, options?: TransformOptions): Promise<PassThrough> {
+  async axiosHttpStream(url: string, options?: TransformOptions): Promise<PassThrough> {
     const stream = new PassThrough()
 
     // fix for pause/resume downloads
@@ -61,7 +65,7 @@ export abstract class PolarisSoundCloudPlayer {
     return stream
   }
 
-  static m3u8Stream(url: string, options?: m3u8stream.Options): PassThrough {
+  m3u8Stream(url: string, options?: m3u8stream.Options): PassThrough {
     const stream: PassThrough = new PassThrough()
 
     const { highWaterMark } = options
@@ -91,13 +95,13 @@ export abstract class PolarisSoundCloudPlayer {
     return stream
   }
 
-  public static async getDownloadLink(
+  public async getDownloadLink(
     videoUrl: string
   ): Promise<{
     url: string
     type: string
   }> {
-    const soundcloudDll = (await PolarisSoundCloudService.getInfoUrl(videoUrl, {
+    const soundcloudDll = (await this.soundcloudService.getInfoUrl(videoUrl, {
       getUrl: true,
     })) as {
       url: string

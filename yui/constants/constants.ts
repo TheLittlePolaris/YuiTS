@@ -8,11 +8,13 @@ export enum Constants {
 
 export type TFunction = new (...args: any[]) => {}
 
-export enum CONST_TOKEN {
+export enum INJECT_TOKEN {
   BOT_TOKEN = 'bot-token',
   BOT_OPTION = 'bot-option',
   BOT_PREFIX = 'bot-prefix',
+  YOUTUBE_API_KEY = 'youtube-api-key',
   CLIENT = 'client',
+  GLOBAL_STREAMS = 'global-streams',
 }
 
 export enum LOG_SCOPE {

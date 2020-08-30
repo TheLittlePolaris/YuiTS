@@ -17,6 +17,7 @@ import {
 import { HoloStatRequestService } from '@/handlers/services/feature/vtuberstat-service/holostat-service/holostat-request.service'
 import { NijiStatRequestService } from '@/handlers/services/feature/vtuberstat-service/nijistat-service/nijistat-request.service'
 import { BaseChannelService } from '@/handlers/services/feature/vtuberstat-service/channel-service/base-channel.service'
+import { INJECTABLE_METADATA } from '@/constants/di-connstants'
 
 enum REFLECT_SYMBOLS {
   SUB_COMMAND = 'sub-command',
@@ -30,19 +31,14 @@ const REFLECT_KEYS = {
   DETAIL_KEY: Symbol(REFLECT_SYMBOLS.DETAIL),
 }
 
-export const VtuberStatServiceInitiator = () => {
-  return <T extends TFunction>(superClass: T) => {
-    decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    return class extends superClass {
-      _name = superClass['name']
-      _holostatRequestService = new HoloStatRequestService()
-      _nijistatRequestService = new NijiStatRequestService()
-      _baseChannelService = new BaseChannelService()
-    }
+export function VtuberStatServiceInitiator() {
+  return <T extends TFunction>(target: T) => {
+    decoratorLogger(target['name'], 'Class', 'Initiator')
+    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
-export const HoloStatCommandValidator = () => {
+export function HoloStatCommandValidator() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
 

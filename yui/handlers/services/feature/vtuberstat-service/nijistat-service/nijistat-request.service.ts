@@ -4,7 +4,7 @@ import { NIJI_KNOWN_REGION } from './nijistat.interface'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { BaseRequestService } from '../channel-service/base-request.service'
 import { debugLogger } from '@/handlers/log.handler'
-import { Injectable } from '@/decorators/injector'
+import { Injectable } from '@/decorators/dep-injection-ioc/decorators'
 
 @Injectable()
 export class NijiStatRequestService implements BaseRequestService<NIJI_KNOWN_REGION> {
@@ -73,31 +73,34 @@ export class NijiStatRequestService implements BaseRequestService<NIJI_KNOWN_REG
     '56748733',
   ]
 
-  constructor() {
+  constructor(
+    private bilibiliChannelService: BilibiliChannelService,
+    private youtubeChannelService: YoutubeChannelService
+  ) {
     debugLogger(this.constructor.name)
   }
 
   public async getChannelList(region: NIJI_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     switch (region) {
       case 'cn':
-        return await BilibiliChannelService.getChannelList(this.nijiCNids)
+        return await this.bilibiliChannelService.getChannelList(this.nijiCNids)
       case 'id':
-        return await YoutubeChannelService.getChannelList(this.nijisanIDIds)
+        return await this.youtubeChannelService.getChannelList(this.nijisanIDIds)
       case 'jp':
       default:
-        return await YoutubeChannelService.getChannelList(this.nijisanJPIds)
+        return await this.youtubeChannelService.getChannelList(this.nijisanJPIds)
     }
   }
 
   public async getAllMembersChannelDetail(region?: NIJI_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     switch (region) {
       case 'cn':
-        return await BilibiliChannelService.getAllMembersChannelDetail(this.nijiCNids)
+        return await this.bilibiliChannelService.getAllMembersChannelDetail(this.nijiCNids)
       case 'id':
-        return await YoutubeChannelService.getAllMembersChannelDetail(this.nijisanIDIds)
+        return await this.youtubeChannelService.getAllMembersChannelDetail(this.nijisanIDIds)
       case 'jp':
       default:
-        return await YoutubeChannelService.getAllMembersChannelDetail(this.nijisanJPIds)
+        return await this.youtubeChannelService.getAllMembersChannelDetail(this.nijisanJPIds)
     }
   }
 }

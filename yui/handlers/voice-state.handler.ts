@@ -8,9 +8,7 @@ import { MusicService } from './services/music/music.service'
 
 @VoiceStateInitiator()
 export class VoiceStateHandler {
-  private currentMusicService: MusicService
-  constructor(musicService: MusicService) {
-    this.currentMusicService = musicService
+  constructor(private musicService: MusicService) {
     debugLogger(LOG_SCOPE.VOICE_STATE_HANDLER)
   }
 
@@ -47,7 +45,7 @@ export class VoiceStateHandler {
   }
 
   public checkOnLeave(oldState: VoiceState, newState: VoiceState): VoiceStateAction {
-    const stream = this.currentMusicService?.streams.get(oldState?.guild?.id)
+    const stream = this.musicService?.streams.get(oldState?.guild?.id)
     const boundVoiceChannel = stream?.boundVoiceChannel
     if (boundVoiceChannel) {
       const oldStateChannel = oldState?.channel
@@ -68,8 +66,8 @@ export class VoiceStateHandler {
     try {
       stream.boundVoiceChannel.leave()
       stream.boundTextChannel.send("**_There's no one around so I'll leave too. Bye~!_**")
-      this.currentMusicService.resetStreamStatus(stream)
-      this.currentMusicService.deleteStream(stream)
+      this.musicService.resetStreamStatus(stream)
+      this.musicService.deleteStream(stream)
     } catch (err) {
       errorLogger(new Error(err))
     }

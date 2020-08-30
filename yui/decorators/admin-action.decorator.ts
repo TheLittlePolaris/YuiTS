@@ -7,6 +7,7 @@ import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
+import { INJECTABLE_METADATA } from '@/constants/di-connstants'
 
 enum REFLECT_ADMIN_ACTION_SYMBOLS {
   REASON = 'reason',
@@ -24,14 +25,14 @@ const REFLECT_PERMISSION_KEYS = {
   EXECUTOR: Symbol(REFLECT_ADMIN_ACTION_SYMBOLS.EXECUTOR),
 }
 
-export const AdminActionInitiator = () => {
-  return function <T extends TFunction>(superClass: T) {
-    decoratorLogger(superClass['name'], LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
-    return class extends superClass {}
+export function AdminActionInitiator() {
+  return function <T extends TFunction>(target: T) {
+    decoratorLogger(target['name'], LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
+    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
-export const ValidateCommand = () => {
+export function ValidateCommand() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(LOG_SCOPE.ADMIN_SERVICE, 'ValidateCommand - Method', propertyKey)
     const originalDescriptor = descriptor.value
