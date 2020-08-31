@@ -45,11 +45,11 @@ export class VoiceStateHandler {
   }
 
   public checkOnLeave(oldState: VoiceState, newState: VoiceState): VoiceStateAction {
-    const stream = this.musicService?.streams.get(oldState?.guild?.id)
-    const boundVoiceChannel = stream?.boundVoiceChannel
+    const stream = this.musicService.streams.get(oldState.guild.id)
+    const boundVoiceChannel = stream.boundVoiceChannel
     if (boundVoiceChannel) {
-      const oldStateChannel = oldState?.channel
-      const newStateChannel = newState?.channel
+      const oldStateChannel = oldState.channel
+      const newStateChannel = newState.channel
       if (newStateChannel === boundVoiceChannel) {
         return { stream, action: 'clear' }
       } else if (

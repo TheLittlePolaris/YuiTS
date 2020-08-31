@@ -40,7 +40,6 @@ export class PolarisSoundCloudService {
         const process = spawn('youtube-dl', ['--skip-download', '--no-cache-dir', '-s', '--dump-json', '--', url], {
           stdio: ['inherit', 'pipe', 'pipe'],
         })
-        console.log(`SPAWN ${process.pid}`)
         const results: (IYoutubeVideo | { url: string; type: string })[] = []
         process.stdout
           .on('data', (buffer: Buffer) => {

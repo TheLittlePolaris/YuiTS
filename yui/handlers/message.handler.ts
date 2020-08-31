@@ -10,10 +10,10 @@ import { MusicService } from './services/music/music.service'
 @MessageHandlerInitiator()
 export class MessageHandler {
   constructor(
-    private _musicService: MusicService,
-    private _featureService: FeatureService,
-    private _administrationService: AdministrationService,
-    private _ownerChannelService: OwnerChannelService
+    private musicService: MusicService,
+    private featureService: FeatureService,
+    private administrationService: AdministrationService,
+    private ownerChannelService: OwnerChannelService
   ) {
     debugLogger(LOG_SCOPE.MESSAGE_HANDLER)
   }
@@ -22,24 +22,24 @@ export class MessageHandler {
     switch (command) {
       case 'play':
       case 'p':
-        return this._musicService.play(message, args, false)
+        return this.musicService.play(message, args, false)
 
       case 'playnext':
       case 'pnext':
       case 'pn':
-        return this._musicService.play(message, args, true)
+        return this.musicService.play(message, args, true)
 
       case 'skip':
       case 'next':
-        return this._musicService.skipSongs(message, args)
+        return this.musicService.skipSongs(message, args)
 
       case 'join':
       case 'come':
-        return this._musicService.joinVoiceChannel(message)
+        return this.musicService.joinVoiceChannel(message)
 
       case 'leave':
       case 'bye':
-        return this._musicService.leaveVoiceChannel(message)
+        return this.musicService.leaveVoiceChannel(message)
 
       case 'np':
       case 'nowplaying':
@@ -47,55 +47,55 @@ export class MessageHandler {
 
       case 'queue':
       case 'q':
-        return this._musicService.printQueue(message, args)
+        return this.musicService.printQueue(message, args)
 
       case 'pause':
-        return this._musicService.musicController(message, true)
+        return this.musicService.musicController(message, true)
 
       case 'resume':
-        return this._musicService.musicController(message, false)
+        return this.musicService.musicController(message, false)
 
       case 'stop':
-        return this._musicService.stopPlaying(message)
+        return this.musicService.stopPlaying(message)
 
       case 'loop':
-        return this._musicService.loopSettings(message, args)
+        return this.musicService.loopSettings(message, args)
 
       case 'shuffle':
-        return this._musicService.shuffleQueue(message)
+        return this.musicService.shuffleQueue(message)
 
       case 'remove':
-        return this._musicService.removeSongs(message, args)
+        return this.musicService.removeSongs(message, args)
 
       case 'clear':
-        return this._musicService.clearQueue(message)
+        return this.musicService.clearQueue(message)
 
       case 'search':
-        return this._musicService.searchSong(message, args)
+        return this.musicService.searchSong(message, args)
 
       case 'autoplay':
       case 'ap':
-        return this._musicService.autoPlay(message)
+        return this.musicService.autoPlay(message)
 
       case 'volume':
-        return this._musicService.setVolume(message, args)
+        return this.musicService.setVolume(message, args)
 
       //end of music command batch
       case 'ping': {
-        return this._featureService.getPing(message)
+        return this.featureService.getPing(message)
       }
       case 'say': {
         message.delete().catch((error) => {
           message.author.send(`Something went wrong, i couldn't delete the message`)
           this.handleError(new Error(error))
         })
-        return this._featureService.say(message, args)
+        return this.featureService.say(message, args)
       }
       case 'holostat': {
-        return this._featureService.getHoloStat(message, args)
+        return this.featureService.getHoloStat(message, args)
       }
       case 'nijistat': {
-        return this._featureService.getNijiStat(message, args)
+        return this.featureService.getNijiStat(message, args)
       }
       case 'tenor': {
         try {
@@ -103,7 +103,7 @@ export class MessageHandler {
         } catch (err) {
           message.author.send(`Sorry i couldn't delete the message`)
         }
-        return this._featureService.tenorGif(message, args)
+        return this.featureService.tenorGif(message, args)
       }
       case 'admin': {
         const deletedMessage = await message.delete().catch((error) => {
@@ -113,7 +113,7 @@ export class MessageHandler {
         if (!deletedMessage) {
           return
         }
-        return this._administrationService.executeCommand(message, args)
+        return this.administrationService.executeCommand(message, args)
       }
       case 'test': {
         if (global.config.environment !== 'development') return
@@ -122,7 +122,7 @@ export class MessageHandler {
         break
       }
       case 'help': {
-        return this._featureService.help(message)
+        return this.featureService.help(message)
       }
       default: {
         message.channel.send('What do you mean by `>' + command + '`? How about taking a look at `>help`?.')
@@ -131,27 +131,15 @@ export class MessageHandler {
     }
   }
 
-  async specialExecute(message: Message, yui: Client): Promise<void> {
+  async specialExecute(message: Message): Promise<void> {
     const content = message.content.trim().split(/ +/g)
     const command = content.shift().toLowerCase()
 
     switch (command) {
       case 'statistics':
       case 'stat':
-        return this._ownerChannelService.statistics(message, content, yui)
+        return this.ownerChannelService.statistics(message, content)
     }
-  }
-
-  public get musicService(): MusicService {
-    return this._musicService
-  }
-
-  public get featureService(): FeatureService {
-    return this._featureService
-  }
-
-  public get admintrationService(): AdministrationService {
-    return this._administrationService
   }
 
   handleError(error: Error | string): null {

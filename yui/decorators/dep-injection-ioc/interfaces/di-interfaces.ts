@@ -16,7 +16,7 @@ export interface CustomValueProvider<T> {
 
 export interface CustomClassProvider<T> {
   provide: string
-  useClass: T
+  useClass: Type<T>
 }
 
 export type CustomProviderToken = { [key: string]: number | string }
@@ -24,7 +24,7 @@ export type CustomProviderToken = { [key: string]: number | string }
 export interface ModuleOption {
   providers?: CustomValueProvider<any>[]
   modules?: Type<any>[]
-  components?: Type<any>[]
+  components: Type<any>[]
   entryComponent?: Type<any>
 }
 

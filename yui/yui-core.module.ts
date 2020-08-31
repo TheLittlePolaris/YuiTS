@@ -1,8 +1,8 @@
 import { YuiCore } from './yui-core'
-import { INJECT_TOKEN } from './constants/constants'
 import { HandlerModule } from './handlers/handler.module'
 import { YuiClient } from './yui-client'
 import { YuiModule } from './decorators/dep-injection-ioc/decorators'
+import { INJECT_TOKEN } from './decorators/dep-injection-ioc/constants/di-connstants'
 
 @YuiModule({
   providers: [

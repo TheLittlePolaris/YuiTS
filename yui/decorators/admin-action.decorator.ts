@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { TFunction, LOG_SCOPE } from '@/constants/constants'
+import { LOG_SCOPE } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message, GuildMember, Role } from 'discord.js'
 import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
-import { INJECTABLE_METADATA } from '@/constants/di-connstants'
+import { INJECTABLE_METADATA } from '@/decorators/dep-injection-ioc/constants/di-connstants'
+import { GenericClassDecorator, Type } from './dep-injection-ioc/interfaces/di-interfaces'
 
 enum REFLECT_ADMIN_ACTION_SYMBOLS {
   REASON = 'reason',
@@ -25,8 +24,8 @@ const REFLECT_PERMISSION_KEYS = {
   EXECUTOR: Symbol(REFLECT_ADMIN_ACTION_SYMBOLS.EXECUTOR),
 }
 
-export function AdminActionInitiator() {
-  return function <T extends TFunction>(target: T) {
+export function AdminActionInitiator<T = any>(): GenericClassDecorator<Type<T>> {
+  return function (target: Type<T>) {
     decoratorLogger(target['name'], LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }

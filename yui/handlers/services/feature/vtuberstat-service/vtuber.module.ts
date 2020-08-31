@@ -4,7 +4,7 @@ import { NijiStatRequestService } from './nijistat-service/nijistat-request.serv
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { VtuberStatService } from './vtuberstat.service'
-import { INJECT_TOKEN } from '@/constants/constants'
+import { INJECT_TOKEN } from '@/decorators/dep-injection-ioc/constants/di-connstants'
 
 @YuiModule({
   components: [

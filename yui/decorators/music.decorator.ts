@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { TFunction, LOG_SCOPE } from '@/constants/constants'
+import { LOG_SCOPE } from '@/constants/constants'
 import { Message, TextChannel } from 'discord.js'
 import { decoratorLogger } from '@/handlers/log.handler'
-import { INJECTABLE_METADATA } from '@/constants/di-connstants'
+import { INJECTABLE_METADATA } from '@/decorators/dep-injection-ioc/constants/di-connstants'
 import { GlobalMusicStream } from '@/handlers/services/music/global-streams'
+import { Type, GenericClassDecorator } from './dep-injection-ioc/interfaces/di-interfaces'
 
 enum REFLECT_MUSIC_SYMBOLS {
   STREAM = 'STREAM',
@@ -16,8 +15,8 @@ const REFLECT_MUSIC_KEYS = {
   CLIENT_KEY: Symbol(REFLECT_MUSIC_SYMBOLS.CLIENT),
 }
 
-export const MusicServiceInitiator = () => {
-  return <T extends TFunction>(target: T) => {
+export function MusicServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
+  return (target: Type<T>) => {
     decoratorLogger(target['name'], 'Class', 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
@@ -33,8 +32,7 @@ export function AccessController(
     decoratorLogger(LOG_SCOPE.MUSIC_SERVICE, 'AccessController - Method', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = async function (...args: any[]) {
-      const streams = GlobalMusicStream.streams
-      console.log(streams)
+      const streams = GlobalMusicStream.streams /* TODO: find a way to inject this ~.~ */
       const [message] = args as [Message]
       const { channel, guild, member } = message as Message
 
@@ -47,8 +45,6 @@ export function AccessController(
 
       if (!streams) return
       const stream = streams.has(guild.id) ? streams.get(guild.id) : null
-      console.log(stream)
-
       const streamParamIndex: number = Reflect.getMetadata(REFLECT_MUSIC_KEYS.STREAM_KEY, target, propertyKey)
       if (streamParamIndex !== undefined) args[streamParamIndex] = stream
 
@@ -96,12 +92,5 @@ export const GuildStream = () => {
 export const CurrentGuildMember = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_MUSIC_KEYS.CLIENT_KEY, paramIndex, target, propertyKey)
-  }
-}
-
-export const configurable = (value: boolean) => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    descriptor.configurable = value
-    return descriptor
   }
 }

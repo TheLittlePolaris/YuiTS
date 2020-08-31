@@ -4,7 +4,6 @@ export abstract class GlobalMusicStream {
   static _streams = null
 
   static createStream() {
-    console.log('RUN CREATE STREAM')
     this._streams = new Map<string, MusicStream>()
   }
 

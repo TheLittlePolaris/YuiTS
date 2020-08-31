@@ -2,7 +2,7 @@ import { google, youtube_v3 } from 'googleapis'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { BaseChannelService } from './base-channel.service'
 import { Injectable, Inject } from '@/decorators/dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from '@/constants/constants'
+import { INJECT_TOKEN } from '@/decorators/dep-injection-ioc/constants/di-connstants'
 
 @Injectable()
 export class YoutubeChannelService implements BaseChannelService {

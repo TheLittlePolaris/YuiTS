@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { TFunction } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
-import { INJECTABLE_METADATA } from '@/constants/di-connstants'
+import { INJECTABLE_METADATA } from '@/decorators/dep-injection-ioc/constants/di-connstants'
+import { GenericClassDecorator, Type } from './dep-injection-ioc/interfaces/di-interfaces'
 
-export function VoiceStateInitiator() {
-  return <T extends TFunction>(superClass: T) => {
-    decoratorLogger(superClass['name'], 'Class', 'Initiator')
-    Reflect.defineMetadata(INJECTABLE_METADATA, true, superClass)
+export function VoiceStateInitiator<T = any>(): GenericClassDecorator<Type<T>> {
+  return (target: Type<T>) => {
+    decoratorLogger(target['name'], 'Class', 'Initiator')
+    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }

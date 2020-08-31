@@ -6,17 +6,6 @@ export enum Constants {
   NOW_PLAYING_YUI = 'https://media.discordapp.net/attachments/413313406993694728/525196421553455114/Yui_Loading_5.gif',
 }
 
-export type TFunction = new (...args: any[]) => {}
-
-export enum INJECT_TOKEN {
-  BOT_TOKEN = 'bot-token',
-  BOT_OPTION = 'bot-option',
-  BOT_PREFIX = 'bot-prefix',
-  YOUTUBE_API_KEY = 'youtube-api-key',
-  CLIENT = 'client',
-  GLOBAL_STREAMS = 'global-streams',
-}
-
 export enum LOG_SCOPE {
   YUI_MAIN = 'YuiMain',
   YUI_CORE = 'YuiCore',

@@ -1,13 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata'
 import { isUndefined, isFunction } from './helper-functions'
 import { GenericClassDecorator, Type, ModuleOption } from './interfaces/di-interfaces'
-import { SELF_DECLARED_DEPS_METADATA, PROPERTY_DEPS_METADATA, INJECTABLE_METADATA } from '@/constants/di-connstants'
+import {
+  SELF_DECLARED_DEPS_METADATA,
+  PROPERTY_DEPS_METADATA,
+  INJECTABLE_METADATA,
+  DESIGN_TYPE,
+} from '@/decorators/dep-injection-ioc/constants/di-connstants'
 import { YuiContainerFactory } from './container-factory'
 
+// NestJS Inject function, edited
 export const Inject = (token: string) => {
   return (target: object, key: string | symbol, index?: number) => {
-    token = token || Reflect.getMetadata('design:type', target, key)
+    token = token || Reflect.getMetadata(DESIGN_TYPE, target, key)
     const type = token && isFunction(token) ? ((token as any) as Function).name : token
 
     if (!isUndefined(index)) {
@@ -36,12 +41,11 @@ export function YuiModule<T = any>(options: ModuleOption): GenericClassDecorator
   })
   return (target: Type<any>) => {
     for (const property in options) {
-      if (YuiContainerFactory.entryDetected && property === 'entryComponent') {
-        throw new Error('Multiple entry detected: ' + target['name'])
-      }
-      if (property === 'entryComponent' && !YuiContainerFactory.entryDetected) {
+      if (property === 'entryComponent') {
+        if (YuiContainerFactory.entryDetected) throw new Error('Multiple entry detected: ' + target['name'])
         YuiContainerFactory.entryDetected = true
       }
+
       if (options.hasOwnProperty(property)) {
         Reflect.defineMetadata(property, (options as any)[property], target)
       }

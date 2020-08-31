@@ -20,7 +20,7 @@ import { RNG } from '../utilities/util-function'
 import { tenorRequestService } from './feature-services/feature-utilities'
 import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
-import { NIJI_REGION_MAP, NIJI_KNOWN_REGION } from './vtuberstat-service/nijistat-service/nijistat.interface'
+import { NIJI_KNOWN_REGION } from './vtuberstat-service/nijistat-service/nijistat.interface'
 
 @FeatureServiceInitiator()
 export class FeatureService {

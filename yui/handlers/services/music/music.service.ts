@@ -1,9 +1,8 @@
-import { Constants, LOG_SCOPE, INJECT_TOKEN } from '@/constants/constants'
+import { Constants, LOG_SCOPE } from '@/constants/constants'
 import { AccessController, CurrentGuildMember, GuildStream, MusicServiceInitiator } from '@/decorators/music.decorator'
 import { debugLogger, errorLogger } from '@/handlers/log.handler'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import {
-  Client,
   GuildMember,
   Message,
   MessageCollectorOptions,
@@ -12,7 +11,7 @@ import {
   StreamOptions,
   TextChannel,
 } from 'discord.js'
-import { PassThrough, Readable, Stream } from 'stream'
+import { PassThrough, Readable } from 'stream'
 import ytdl from 'ytdl-core'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
@@ -31,18 +30,17 @@ import {
 import { YoutubeInfoService } from './youtube-service/youtube-info.service'
 import { isYoutubePlaylistUrl, isYoutubeUrl, youtubeTimeConverter } from './youtube-service/youtube-utilities'
 import { Inject } from '@/decorators/dep-injection-ioc/decorators'
-import { GlobalMusicStream } from './global-streams'
+import { INJECT_TOKEN } from '@/decorators/dep-injection-ioc/constants/di-connstants'
 
 @MusicServiceInitiator()
 export class MusicService {
-  _streams = GlobalMusicStream._streams
   constructor(
     private youtubeInfoService: YoutubeInfoService,
     private soundcloudService: PolarisSoundCloudService,
-    private soundcloudPlayer: PolarisSoundCloudPlayer
+    private soundcloudPlayer: PolarisSoundCloudPlayer,
+    @Inject(INJECT_TOKEN.GLOBAL_STREAMS) public _streams: Map<string, MusicStream>
   ) {
     debugLogger(LOG_SCOPE.MUSIC_SERVICE)
-    console.log(this.streams)
   }
 
   private async createStream(message: Message): Promise<MusicStream | null> {
@@ -65,7 +63,6 @@ export class MusicService {
     if (!connection) throw new Error('Could not create voice connection')
 
     this._streams.set(guild.id, stream)
-    console.log(this._streams)
 
     const onConnectionError = (error: unknown) => {
       if (stream?.isPlaying) {
@@ -146,7 +143,7 @@ export class MusicService {
   }
 
   @AccessController({ join: true })
-  public async joinVoiceChannel(message: Message, @CurrentGuildMember() member?: GuildMember): Promise<void> {
+  public async joinVoiceChannel(message: Message): Promise<void> {
     const connection = await this.createStream(message).catch((err) => this.handleError(new Error(err)))
     if (connection) this.sendMessage(message, ' :loudspeaker: Kawaii **Yui-chan** is here~! xD')
     else {
@@ -530,11 +527,7 @@ export class MusicService {
   }
 
   @AccessController({ join: true })
-  public async autoPlay(
-    message: Message,
-    @GuildStream() stream?: MusicStream,
-    @CurrentGuildMember() member?: GuildMember
-  ): Promise<void> {
+  public async autoPlay(message: Message, @GuildStream() stream?: MusicStream): Promise<void> {
     if (!stream) {
       stream = await this.createStream(message)
     }

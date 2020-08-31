@@ -21,7 +21,6 @@ import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
 import { NijiStatRequestService } from './nijistat-service/nijistat-request.service'
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
-import { YoutubeRequestService } from '../../music/youtube-service/youtube-request.service'
 
 @VtuberStatServiceInitiator()
 export class VtuberStatService {

@@ -12,3 +12,13 @@ export const OPTIONAL_DEPS_METADATA = 'optional:paramtypes'
 export const PROPERTY_DEPS_METADATA = 'self:properties_metadata'
 export const OPTIONAL_PROPERTY_DEPS_METADATA = 'optional:properties_metadata'
 export const SCOPE_OPTIONS_METADATA = 'scope:options'
+export const DESIGN_TYPE = 'design:type'
+
+export enum INJECT_TOKEN {
+  BOT_TOKEN = 'bot-token',
+  BOT_OPTION = 'bot-option',
+  BOT_PREFIX = 'bot-prefix',
+  YOUTUBE_API_KEY = 'youtube-api-key',
+  CLIENT = 'client',
+  GLOBAL_STREAMS = 'global-streams',
+}

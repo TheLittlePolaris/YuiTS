@@ -1,132 +1,91 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Type, CustomValueProvider, EntryConponent, CustomProviderToken } from './interfaces/di-interfaces'
-import { MODULE_METADATA, PARAMTYPES_METADATA, SELF_DECLARED_DEPS_METADATA } from '@/constants/di-connstants'
-import { ModuleContainer } from './module'
-import { isEmpty, isValue } from './helper-functions'
+import { Type, CustomValueProvider, CustomClassProvider } from './interfaces/di-interfaces'
+import {
+  MODULE_METADATA,
+  PARAMTYPES_METADATA,
+  SELF_DECLARED_DEPS_METADATA,
+} from '@/decorators/dep-injection-ioc/constants/di-connstants'
+import { YuiModule } from './module'
+import { isValueInjector, isValue } from './helper-functions'
 
-export class YuiContainerFactory<T = any> {
+export class YuiContainerFactory {
   static entryDetected = false
 
-  private container = new YuiContainer<T>()
+  private container = new YuiModule()
 
-  async create(target: Type<any>): Promise<Type<T>> {
-    await this.initialize(target)
+  async create<T = any>(moduleMetadata: Type<any>): Promise<T> {
+    await this.initialize(moduleMetadata)
 
-    const entryComponent = this.container.getEntryComponent()
-    if (!entryComponent) throw new Error('No entry detected!')
+    const entryInstance: T = this.container.getEntryInstance()
+    if (!entryInstance) throw new Error('No entry detected!')
 
-    const componentInstance = this.container.components.get(entryComponent.name)
-    return componentInstance
+    return entryInstance
   }
 
-  async initialize(module: Type<any>) {
-    const providers: CustomValueProvider<any>[] = Reflect.getMetadata(MODULE_METADATA.PROVIDERS, module)
+  async initialize<T = any>(module: Type<T>) {
+    const providers: CustomValueProvider<T>[] = Reflect.getMetadata(MODULE_METADATA.PROVIDERS, module)
     if (providers) {
-      for (const provider of providers) this.injectCustomProvider(provider)
+      for (const provider of providers) this.injectValueProvider(module, provider)
     }
 
     const entryComponent = Reflect.getMetadata(MODULE_METADATA.ENTRY_COMPONENT, module)
     if (entryComponent) this.container.setEntryComponent(entryComponent)
 
-    const modules: Type<any>[] = Reflect.getMetadata(MODULE_METADATA.MODULES, module)
+    const modules: Type<T>[] = Reflect.getMetadata(MODULE_METADATA.MODULES, module)
     if (modules) {
-      for (const module of modules) await this.initialize(module)
+      for (const module of modules) {
+        await this.initialize(module)
+      }
+      this.container.importModules(modules)
     }
 
-    const components: Type<any>[] = Reflect.getMetadata(MODULE_METADATA.COMPONENTS, module)
+    const components: Type<T>[] = Reflect.getMetadata(MODULE_METADATA.COMPONENTS, module)
     if (components) {
       for (const component of components) {
-        this.loadComponentInjection(component)
+        this.loadComponentInjection(component, module)
       }
     }
   }
 
-  loadComponentInjection(target: Type<T>) {
-    const createdInstance = this.container.components.get(target.name)
+  /**
+   * Find the instance for injection, if exists then inject it, if not create it and store it
+   */
+  loadComponentInjection<T = any>(target: Type<T>, module: Type<T>): T {
+    const createdInstance = this.container.getInstance(target)
     if (createdInstance) return createdInstance
 
-    const tokens = Reflect.getMetadata(PARAMTYPES_METADATA, target)
-    const customTokens = Reflect.getMetadata(SELF_DECLARED_DEPS_METADATA, target)
+    const tokens: Type<T>[] = Reflect.getMetadata(PARAMTYPES_METADATA, target) || []
 
-    const injections =
-      (!isEmpty(tokens) &&
-        tokens.map((token: Type<T>, i: number) => {
-          if (isValue(token) && customTokens) {
-            const customToken = this.container.providers.get(customTokens[i])
-            return customToken.useValue
-          }
-          const created = this.container.components.get(token.name)
-          if (created) return created
-          return this.loadComponentInjection(token)
-        })) ||
-      []
+    const customTokens: { [paramIndex: string]: /* param name */ string } =
+      Reflect.getMetadata(SELF_DECLARED_DEPS_METADATA, target) || []
 
-    const newInstance = Reflect.construct(target, injections)
+    const injections = tokens.map((token: Type<T>, paramIndex: number) => {
+      if (customTokens && customTokens[paramIndex]) {
+        // module-based value provider
+        const customToken = this.container.getProvider(module, customTokens[paramIndex])
+
+        /* TODO: class provider */
+        if (isValueInjector(customToken)) return (customToken as CustomValueProvider<T>).useValue
+        else return this.loadComponentInjection((customToken as CustomClassProvider<T>).useClass, module)
+      }
+
+      const created = this.container.getInstance(token)
+
+      if (created) return created
+      return this.loadComponentInjection(token, module)
+    })
+
+    const newInstance: T = Reflect.construct(target, injections)
 
     if (isValue(target)) return
-    this.container.setComponent(target.name, newInstance)
+
+    this.container.addInstance(target, newInstance)
+
     return newInstance
   }
 
-  injectCustomProvider(provider: CustomValueProvider<T>) {
-    const { provide } = provider
-    this.container.setProvider(provide, provider)
-  }
-}
-
-export class YuiContainer<T = any> {
-  private _modules: Map<string, ModuleContainer> = new Map()
-  private _providers: Map<string, CustomValueProvider<T>> = new Map()
-  private _components: Map<string, Type<T>> = new Map()
-  private entryComponent: EntryConponent<T> = null
-
-  constructor() {}
-
-  get providers() {
-    return this._providers
-  }
-  get components() {
-    return this._components
-  }
-  get modules() {
-    return this._modules
+  injectValueProvider<T = any>(module: Type<T>, provider: CustomValueProvider<T>) {
+    this.container.setValueProvider(module, provider)
   }
 
-  getModules() {
-    return this._modules
-  }
-
-  getProviders() {
-    return this._providers
-  }
-
-  getComponents() {
-    return this._components
-  }
-
-  getEntryComponent(): any {
-    return this.entryComponent
-  }
-
-  setEntryComponent(component: EntryConponent<T>) {
-    this.entryComponent = component
-  }
-
-  setComponent(key: string, component: Type<any>) {
-    this.components.set(key, component)
-  }
-
-  setProvider(key: string, provider: CustomValueProvider<any>) {
-    this._providers.set(key, provider)
-  }
-
-  addModule(key: string, module: ModuleContainer) {
-    this._modules.set(key, module)
-  }
-
-  clear() {
-    this._components.clear()
-    this._modules.clear()
-    this._providers.clear()
-  }
+  injectClassProvider<T = any>(module: Type<T>, provider: CustomClassProvider<T>) {}
 }

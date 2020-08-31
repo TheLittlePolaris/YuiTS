@@ -2,11 +2,12 @@ import { debugLogger, errorLogger, infoLogger } from '@/handlers/log.handler'
 import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { Message, VoiceState } from 'discord.js'
-import { LOG_SCOPE, INJECT_TOKEN } from './constants/constants'
+import { LOG_SCOPE } from './constants/constants'
 import { Yui } from './decorators/yui.decorator'
 import { YuiClient } from './yui-client'
 import { EntryConponent } from './decorators/dep-injection-ioc/interfaces/di-interfaces'
 import { Inject } from './decorators/dep-injection-ioc/decorators'
+import { INJECT_TOKEN } from './decorators/dep-injection-ioc/constants/di-connstants'
 
 @Yui()
 export class YuiCore implements EntryConponent {
@@ -27,14 +28,13 @@ export class YuiCore implements EntryConponent {
 
     this.yui.on('ready', () => this.onReady())
     this.yui.on('message', (message: Message) => this.onMessage(message))
-    // this.yui.on("message", this.onMessage.bind(this));
     this.yui.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) =>
       this.onVoiceStateUpdate(oldState, newState)
     )
   }
 
   async onReady(): Promise<void> {
-    if (!this.yui?.user) return
+    if (!this.yui || !this.yui.user) throw new Error('Something went horribly wrong! Client is not defined!')
     infoLogger(LOG_SCOPE.YUI_CORE, '🔗 🛰 Connected!')
     await Promise.all([
       global.config.environment === 'development'
@@ -68,7 +68,7 @@ export class YuiCore implements EntryConponent {
   }
 
   async onDM(message: Message): Promise<void> {
-    return this.messageHandler.specialExecute(message, this.yui)
+    return this.messageHandler.specialExecute(message)
   }
 
   async onVoiceStateUpdate(oldVoiceState: VoiceState, newVoiceState: VoiceState): Promise<void> {
