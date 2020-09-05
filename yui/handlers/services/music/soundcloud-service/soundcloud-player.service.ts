@@ -4,7 +4,7 @@ import axios from 'axios'
 import m3u8stream, { Progress } from 'm3u8stream'
 import { PolarisSoundCloudService } from './soundcloud-info.service'
 import { errorLogger } from '@/handlers/log.handler'
-import { Injectable } from '@/decorators/dep-injection-ioc/decorators'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
 @Injectable()
 export class PolarisSoundCloudPlayer {

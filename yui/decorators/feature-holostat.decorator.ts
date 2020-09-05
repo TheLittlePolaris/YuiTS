@@ -10,8 +10,8 @@ import {
   nijiStatRegionSubCommand,
   nijiStatDetailSubCommand,
 } from '@/handlers/services/feature/vtuberstat-service/nijistat-service/nijistat.interface'
-import { INJECTABLE_METADATA } from '@/decorators/dep-injection-ioc/constants/di-connstants'
-import { Type, GenericClassDecorator } from './dep-injection-ioc/interfaces/di-interfaces'
+import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
+import { Type, GenericClassDecorator, Prototype } from '../dep-injection-ioc/interfaces/di-interfaces'
 
 enum REFLECT_SYMBOLS {
   SUB_COMMAND = 'sub-command',
@@ -27,13 +27,15 @@ const REFLECT_KEYS = {
 
 export function VtuberStatServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target['name'], 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Class', 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
 export function HoloStatCommandValidator() {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(target.constructor.name, 'HoloStatCommandValidator', propertyKey)
+
     const originalMethod = descriptor.value
 
     descriptor.value = function (..._args: any[]) {
@@ -100,7 +102,9 @@ export function HoloStatCommandValidator() {
 }
 
 export const NijiStatCommandValidator = () => {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(target.constructor.name, 'NijiStatCommandValidator', propertyKey)
+
     const originalMethod = descriptor.value
 
     descriptor.value = function (..._args: any[]) {
@@ -165,17 +169,6 @@ export const NijiStatCommandValidator = () => {
     }
   }
 }
-
-// export const SubCommand = () => {
-//   return (target: any, propertyKey: string, paramIndex: number) => {
-//     Reflect.defineMetadata(
-//       REFECT_HOLOSTAT_KEYS.SUB_COMMAND_KEY,
-//       paramIndex,
-//       target,
-//       propertyKey
-//     )
-//   }
-// }
 
 export const Region = () => {
   return (target: any, propertyKey: string, paramIndex: number) => {

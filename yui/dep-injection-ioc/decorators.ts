@@ -6,7 +6,7 @@ import {
   PROPERTY_DEPS_METADATA,
   INJECTABLE_METADATA,
   DESIGN_TYPE,
-} from '@/decorators/dep-injection-ioc/constants/di-connstants'
+} from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiContainerFactory } from './container-factory'
 
 // NestJS Inject function, edited

@@ -29,8 +29,8 @@ import {
 } from './soundcloud-service/soundcloud-utilities'
 import { YoutubeInfoService } from './youtube-service/youtube-info.service'
 import { isYoutubePlaylistUrl, isYoutubeUrl, youtubeTimeConverter } from './youtube-service/youtube-utilities'
-import { Inject } from '@/decorators/dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from '@/decorators/dep-injection-ioc/constants/di-connstants'
+import { Inject } from '@/dep-injection-ioc/decorators'
+import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
 
 @MusicServiceInitiator()
 export class MusicService {

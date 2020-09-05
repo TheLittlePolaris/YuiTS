@@ -1,8 +1,8 @@
 import { LOG_SCOPE } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
 import { Message, PermissionString } from 'discord.js'
-import { INJECTABLE_METADATA } from '@/decorators/dep-injection-ioc/constants/di-connstants'
-import { Type, GenericClassDecorator } from './dep-injection-ioc/interfaces/di-interfaces'
+import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
+import { Type, GenericClassDecorator, Prototype } from '../dep-injection-ioc/interfaces/di-interfaces'
 
 export enum FEATURE_SYMBOLS {
   CLIENT = 'client',
@@ -20,14 +20,14 @@ const REFLECT_FEATURE_KEYS = {
 
 export function FeatureServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return function (target: Type<T>) {
-    decoratorLogger(target['name'], 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Class', 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
 export function FeaturePermissionValidator() {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(LOG_SCOPE.FEATURE_SERVICE, 'ValidateFeaturePermission - Method', propertyKey)
+  return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(target.constructor.name, 'ValidateFeaturePermission', propertyKey)
 
     const originalDescriptor = descriptor.value
 
@@ -87,25 +87,25 @@ export function FeaturePermissionValidator() {
 }
 
 export const CurrentGuildMember = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_FEATURE_KEYS.CLIENT_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const MentionedUsers = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_FEATURE_KEYS.MENTION_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const UserAction = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_FEATURE_KEYS.ACTION_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const RequestParams = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_FEATURE_KEYS.REQUEST_KEY, paramIndex, target, propertyKey)
   }
 }

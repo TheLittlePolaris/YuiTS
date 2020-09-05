@@ -11,27 +11,23 @@ export class VoiceStateHandler {
   constructor(private musicService: MusicService) {
     debugLogger(LOG_SCOPE.VOICE_STATE_HANDLER)
   }
-
   public checkOnVoiceStateUpdate(oldVoiceState: VoiceState, newVoiceState: VoiceState): void {
     try {
       if (!oldVoiceState && !newVoiceState) return
-
-      const voiceStateCheck = this.checkOnLeave(oldVoiceState, newVoiceState)
-
-      switch (voiceStateCheck?.action) {
-        case 'clear': {
-          if (voiceStateCheck?.stream?.leaveOnTimeOut) {
-            clearTimeout(voiceStateCheck?.stream?.leaveOnTimeOut)
-            voiceStateCheck.stream.set('leaveOnTimeout', null)
+      const { action, stream } = this.checkOnLeave(oldVoiceState, newVoiceState)
+      switch (action) {
+        case 'clearTimeout': {
+          if (stream.leaveOnTimeOut) {
+            clearTimeout(stream.leaveOnTimeOut)
+            stream.set('leaveOnTimeout', null)
           }
           break
         }
-        case 'leave': {
+        case 'setLeaveTimeout': {
           const timeout = setTimeout(() => {
-            this.leaveOnTimeout(voiceStateCheck?.stream)
+            this.leaveOnTimeout(stream)
           }, 30000)
-          voiceStateCheck.stream.set('leaveOnTimeout', timeout)
-
+          stream.set('leaveOnTimeout', timeout)
           break
         }
         default:
@@ -46,18 +42,13 @@ export class VoiceStateHandler {
 
   public checkOnLeave(oldState: VoiceState, newState: VoiceState): VoiceStateAction {
     const stream = this.musicService.streams.get(oldState.guild.id)
-    const boundVoiceChannel = stream.boundVoiceChannel
-    if (boundVoiceChannel) {
-      const oldStateChannel = oldState.channel
-      const newStateChannel = newState.channel
-      if (newStateChannel === boundVoiceChannel) {
-        return { stream, action: 'clear' }
-      } else if (
-        (!newStateChannel || newStateChannel !== boundVoiceChannel) &&
-        oldStateChannel.members.size === 1 // just yui left
-      ) {
-        return { stream, action: 'leave' }
-      }
+    const boundVoiceChannel = stream && stream.boundVoiceChannel
+    if (!boundVoiceChannel) return { stream, action: 'ignore' }
+    const [oldStateChannel, newStateChannel] = [oldState.channel, newState.channel]
+    if (newStateChannel === boundVoiceChannel) {
+      return { stream, action: 'clearTimeout' }
+    } else if ((!newStateChannel || newStateChannel !== boundVoiceChannel) && oldStateChannel.members.size === 1) {
+      return { stream, action: 'setLeaveTimeout' }
     }
     return { stream, action: 'ignore' }
   }

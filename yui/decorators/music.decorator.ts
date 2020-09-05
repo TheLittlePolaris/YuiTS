@@ -1,9 +1,9 @@
 import { LOG_SCOPE } from '@/constants/constants'
 import { Message, TextChannel } from 'discord.js'
 import { decoratorLogger } from '@/handlers/log.handler'
-import { INJECTABLE_METADATA } from '@/decorators/dep-injection-ioc/constants/di-connstants'
+import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
 import { GlobalMusicStream } from '@/handlers/services/music/global-streams'
-import { Type, GenericClassDecorator } from './dep-injection-ioc/interfaces/di-interfaces'
+import { Type, GenericClassDecorator, Prototype } from '../dep-injection-ioc/interfaces/di-interfaces'
 
 enum REFLECT_MUSIC_SYMBOLS {
   STREAM = 'STREAM',
@@ -17,7 +17,7 @@ const REFLECT_MUSIC_KEYS = {
 
 export function MusicServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target['name'], 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Class', 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
@@ -28,8 +28,8 @@ export function AccessController(
     silent: false,
   }
 ) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(LOG_SCOPE.MUSIC_SERVICE, 'AccessController - Method', propertyKey)
+  return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
+    decoratorLogger(target.constructor.name, 'AccessController', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = async function (...args: any[]) {
       const streams = GlobalMusicStream.streams /* TODO: find a way to inject this ~.~ */
@@ -84,13 +84,13 @@ export function AccessController(
 }
 
 export const GuildStream = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_MUSIC_KEYS.STREAM_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const CurrentGuildMember = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_MUSIC_KEYS.CLIENT_KEY, paramIndex, target, propertyKey)
   }
 }

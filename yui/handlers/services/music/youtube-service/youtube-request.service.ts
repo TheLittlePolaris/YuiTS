@@ -7,8 +7,8 @@ import {
   IYoutubePlaylistResult,
 } from '../music-interfaces/youtube-info.interface'
 import { LOG_SCOPE } from '@/constants/constants'
-import { Injectable, Inject } from '@/decorators/dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from '@/decorators/dep-injection-ioc/constants/di-connstants'
+import { Injectable, Inject } from '@/dep-injection-ioc/decorators'
+import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
 
 @Injectable()
 export class YoutubeRequestService {

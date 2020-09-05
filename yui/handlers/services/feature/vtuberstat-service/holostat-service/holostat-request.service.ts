@@ -4,7 +4,7 @@ import { BaseRequestService } from '../channel-service/base-request.service'
 import { BilibiliChannelService } from '../channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
 import { debugLogger } from '@/handlers/log.handler'
-import { Injectable } from '@/decorators/dep-injection-ioc/decorators'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
 @Injectable()
 export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REGION> {

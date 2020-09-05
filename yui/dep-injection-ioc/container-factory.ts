@@ -1,11 +1,14 @@
-import { Type, CustomValueProvider, CustomClassProvider } from './interfaces/di-interfaces'
+import { Type, CustomValueProvider, CustomClassProvider, EntryConponent } from './interfaces/di-interfaces'
 import {
   MODULE_METADATA,
   PARAMTYPES_METADATA,
   SELF_DECLARED_DEPS_METADATA,
-} from '@/decorators/dep-injection-ioc/constants/di-connstants'
+  COMPONENT_METADATA,
+  paramKeyConstructor,
+} from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiModule } from './module'
-import { isValueInjector, isValue } from './helper-functions'
+import { isValueInjector, isValue, isFunction } from './helper-functions'
+import { DiscordEvent } from '@/constants/discord-events'
 
 export class YuiContainerFactory {
   static entryDetected = false
@@ -15,10 +18,29 @@ export class YuiContainerFactory {
   async create<T = any>(moduleMetadata: Type<any>): Promise<T> {
     await this.initialize(moduleMetadata)
 
-    const entryInstance: T = this.container.getEntryInstance()
-    if (!entryInstance) throw new Error('No entry detected!')
+    const entryInstance: EntryConponent = this.container.entryInstance
+    this.testEntryInstance(entryInstance)
 
-    return entryInstance
+    /**
+     * IMPORTANT:
+     *  - Required the entry component to implement EntryComponent interface
+     *  - Require events to be defined within entry component
+     */
+
+    const entryComponent: Type<any> = this.container.entryComponent
+    const boundEvents = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryComponent.prototype)
+    const eventKeys = Object.keys(boundEvents)
+    if (eventKeys.length) {
+      eventKeys.forEach((eventKey: DiscordEvent) =>
+        // const paramKey = paramKeyConstructor(key, boundEvents[key])
+        // const paramList = Reflect.getMetadata(paramKey, entryComponent.prototype)
+        entryInstance.client.addListener(eventKey, (...args) => entryInstance[boundEvents[eventKey]](...args))
+      )
+    } else {
+      console.warn('No event listener detected!')
+    }
+
+    return (entryInstance as unknown) as T
   }
 
   async initialize<T = any>(module: Type<T>) {
@@ -88,4 +110,11 @@ export class YuiContainerFactory {
   }
 
   injectClassProvider<T = any>(module: Type<T>, provider: CustomClassProvider<T>) {}
+
+  testEntryInstance(entryInstance: EntryConponent) {
+    if (!entryInstance) throw new Error('No entry detected!')
+    const { start, client } = entryInstance
+    if (!client) throw new Error('Client for the instance has not been defined')
+    if (!(start && isFunction(start))) throw new Error(`Component's starting point not detected!`)
+  }
 }

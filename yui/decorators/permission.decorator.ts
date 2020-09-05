@@ -5,8 +5,8 @@ import {
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
 import { LOG_SCOPE } from '@/constants/constants'
 import { decoratorLogger } from '@/handlers/log.handler'
-import { INJECTABLE_METADATA } from '@/decorators/dep-injection-ioc/constants/di-connstants'
-import { Type, GenericClassDecorator } from './dep-injection-ioc/interfaces/di-interfaces'
+import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
+import { Type, GenericClassDecorator, Prototype } from '../dep-injection-ioc/interfaces/di-interfaces'
 
 enum REFLECT_PERMISSION_SYMBOLS {
   COMMAND = 'command',
@@ -18,14 +18,14 @@ const REFLECT_PERMISSION_KEYS = {
 
 export function AdministrationServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target['name'], 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Class', 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
 export function AdminPermissionValidator() {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(LOG_SCOPE.ADMIN_ACTION_COMMAND, 'AdminPermissionValidator - Method', propertyKey)
+  return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(target.constructor.name, 'AdminPermissionValidator', propertyKey)
     const originalDescriptor = descriptor.value
 
     descriptor.value = async function (..._args: any[]) {
@@ -108,8 +108,8 @@ export function AdminPermissionValidator() {
 }
 
 export function CommandValidator() {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(LOG_SCOPE.ADMIN_SERVICE, 'CommandValidator - Method', propertyKey)
+  return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(target.constructor.name, 'CommandValidator', propertyKey)
     const originalDescriptor = descriptor.value
     descriptor.value = function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]
@@ -131,7 +131,7 @@ export function CommandValidator() {
 }
 
 export const Command = () => {
-  return function (target: any, propertyKey: string, paramIndex: number) {
+  return function (target: Prototype, propertyKey: string, paramIndex: number) {
     Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.COMMAND, paramIndex, target, propertyKey)
   }
 }

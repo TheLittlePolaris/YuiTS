@@ -1,10 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DiscordEvent } from '@/constants/discord-events'
+import { Client } from 'discord.js'
+
 /* ================================== INTERFACES ===================================== */
 export type GenericClassDecorator<T> = (target: T) => void
 
+export type GenericMethodDecorator<T> = (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => void
+
 export interface Type<T> extends Function {
   new (...args: any[]): T
+}
+
+export interface Prototype {
+  constructor: Function
 }
 
 export type Provider<T = any> = CustomValueProvider<T> | CustomClassProvider<T>
@@ -28,7 +37,21 @@ export interface ModuleOption {
   entryComponent?: Type<any>
 }
 
-export interface EntryConponent<T = void | Promise<void>> {
-  start: (...args: any) => T
+export interface EntryConponent {
+  start: (...args: any) => void | Promise<void>
+  client: Client
+}
+
+export interface IEvent {
+  eventName: DiscordEvent
+  propertyKey: string
+  value: Function
+}
+
+export interface EventParamMetadata {
+  event?: string
+  index: number
+  propertyKey: string | symbol
+  additionalParam?: string
 }
 /**************************************************************************************/

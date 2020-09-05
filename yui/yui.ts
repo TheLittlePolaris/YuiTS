@@ -4,7 +4,7 @@ import 'config-service'
 
 import { LOG_SCOPE } from '@/constants/constants'
 import { errorLogger, infoLogger } from '@/handlers/log.handler'
-import { YuiContainerFactory } from './decorators/dep-injection-ioc/container-factory'
+import { YuiContainerFactory } from './dep-injection-ioc/container-factory'
 import { YuiMainModule } from './yui.module'
 import { YuiCore } from './yui-core'
 

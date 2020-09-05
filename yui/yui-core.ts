@@ -3,11 +3,11 @@ import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { Message, VoiceState } from 'discord.js'
 import { LOG_SCOPE } from './constants/constants'
-import { Yui } from './decorators/yui.decorator'
+import { Yui, On, EventMessage, EventVoiceState } from './decorators/yui.decorator'
 import { YuiClient } from './yui-client'
-import { EntryConponent } from './decorators/dep-injection-ioc/interfaces/di-interfaces'
-import { Inject } from './decorators/dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from './decorators/dep-injection-ioc/constants/di-connstants'
+import { EntryConponent } from './dep-injection-ioc/interfaces/di-interfaces'
+import { Inject } from './dep-injection-ioc/decorators'
+import { INJECT_TOKEN } from './dep-injection-ioc/constants/di-connstants'
 
 @Yui()
 export class YuiCore implements EntryConponent {
@@ -23,16 +23,10 @@ export class YuiCore implements EntryConponent {
 
   public async start(): Promise<void> {
     infoLogger(LOG_SCOPE.YUI_CORE, 'Connecting... 📡')
-
     this.yui.login(this.token).catch((err) => this.handleError(new Error(err)))
-
-    this.yui.on('ready', () => this.onReady())
-    this.yui.on('message', (message: Message) => this.onMessage(message))
-    this.yui.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) =>
-      this.onVoiceStateUpdate(oldState, newState)
-    )
   }
 
+  @On('ready')
   async onReady(): Promise<void> {
     if (!this.yui || !this.yui.user) throw new Error('Something went horribly wrong! Client is not defined!')
     infoLogger(LOG_SCOPE.YUI_CORE, '🔗 🛰 Connected!')
@@ -49,7 +43,8 @@ export class YuiCore implements EntryConponent {
     infoLogger(LOG_SCOPE.YUI_CORE, '🚀 🔶Yui is online! 🚀')
   }
 
-  async onMessage(message: Message): Promise<unknown> {
+  @On('message')
+  async onMessage(@EventMessage() message: Message): Promise<unknown> {
     try {
       // owner feature
       if (message.channel.type === 'dm' && message.author.id === global.config.ownerId) return this.onDM(message)
@@ -71,8 +66,16 @@ export class YuiCore implements EntryConponent {
     return this.messageHandler.specialExecute(message)
   }
 
-  async onVoiceStateUpdate(oldVoiceState: VoiceState, newVoiceState: VoiceState): Promise<void> {
+  @On('voiceStateUpdate')
+  async onVoiceStateUpdate(
+    @EventVoiceState('old') oldVoiceState: VoiceState,
+    @EventVoiceState('new') newVoiceState: VoiceState
+  ): Promise<void> {
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldVoiceState, newVoiceState)
+  }
+
+  get client() {
+    return this.yui
   }
 
   private handleError(error: Error | string): null {

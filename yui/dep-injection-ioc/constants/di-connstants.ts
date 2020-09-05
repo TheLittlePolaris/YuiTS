@@ -1,9 +1,21 @@
+import { DiscordEvent } from '@/constants/discord-events'
+
 export const MODULE_METADATA = {
   MODULES: 'modules',
   PROVIDERS: 'providers',
   COMPONENTS: 'components',
   ENTRY_COMPONENT: 'entryComponent',
 }
+
+export const COMPONENT_METADATA = {
+  EVENT_LIST: 'custom_metadata:event_list',
+  PROPERT: 'custom_type:property',
+  METHOD: 'custom_type:method',
+  CLIENT: 'custom_param:client',
+}
+
+export const paramKeyConstructor = (eventName: DiscordEvent, propertyKey: string) =>
+  `event_key:${eventName}:${propertyKey}`
 
 export const INJECTABLE_METADATA = 'injectable-metadata'
 export const PARAMTYPES_METADATA = 'design:paramtypes'

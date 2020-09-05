@@ -1,10 +1,10 @@
-import { YuiModule } from '@/decorators/dep-injection-ioc/decorators'
+import { YuiModule } from '@/dep-injection-ioc/decorators'
 import { HoloStatRequestService } from './holostat-service/holostat-request.service'
 import { NijiStatRequestService } from './nijistat-service/nijistat-request.service'
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { VtuberStatService } from './vtuberstat.service'
-import { INJECT_TOKEN } from '@/decorators/dep-injection-ioc/constants/di-connstants'
+import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
 
 @YuiModule({
   components: [

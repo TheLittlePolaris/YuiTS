@@ -5,8 +5,13 @@ import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
-import { INJECTABLE_METADATA } from '@/decorators/dep-injection-ioc/constants/di-connstants'
-import { GenericClassDecorator, Type } from './dep-injection-ioc/interfaces/di-interfaces'
+import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
+import {
+  GenericClassDecorator,
+  Type,
+  Prototype,
+  GenericMethodDecorator,
+} from '../dep-injection-ioc/interfaces/di-interfaces'
 
 enum REFLECT_ADMIN_ACTION_SYMBOLS {
   REASON = 'reason',
@@ -26,16 +31,16 @@ const REFLECT_PERMISSION_KEYS = {
 
 export function AdminActionInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return function (target: Type<T>) {
-    decoratorLogger(target['name'], LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
+    decoratorLogger(target.name, LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
-export function ValidateCommand() {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(LOG_SCOPE.ADMIN_SERVICE, 'ValidateCommand - Method', propertyKey)
-    const originalDescriptor = descriptor.value
+export function ValidateCommand<T = any>(): GenericMethodDecorator<T> {
+  return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
+    decoratorLogger(target.constructor.name, 'ValidateCommand', propertyKey)
 
+    const originalDescriptor = descriptor.value
     descriptor.value = async function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]
 
@@ -124,31 +129,31 @@ export function ValidateCommand() {
 }
 
 export const Targets = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.TARGETS_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const Reason = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.REASON_KEY, paramIndex, target, propertyKey)
   }
 }
 
 export const NickName = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.NICKNAME, paramIndex, target, propertyKey)
   }
 }
 
 export const GuildRoles = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.ROLES, paramIndex, target, propertyKey)
   }
 }
 
 export const Executor = () => {
-  return (target: any, propertyKey: string, paramIndex: number) => {
+  return (target: Prototype, propertyKey: string, paramIndex: number) => {
     Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.EXECUTOR, paramIndex, target, propertyKey)
   }
 }
