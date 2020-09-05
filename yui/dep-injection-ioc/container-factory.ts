@@ -1,4 +1,4 @@
-import { Type, CustomValueProvider, CustomClassProvider, EntryConponent } from './interfaces/di-interfaces'
+import { Type, CustomValueProvider, CustomClassProvider, EntryComponent } from './interfaces/di-interfaces'
 import {
   MODULE_METADATA,
   PARAMTYPES_METADATA,
@@ -18,7 +18,7 @@ export class YuiContainerFactory {
   async create<T = any>(moduleMetadata: Type<any>): Promise<T> {
     await this.initialize(moduleMetadata)
 
-    const entryInstance: EntryConponent = this.container.entryInstance
+    const entryInstance: EntryComponent = this.container.entryInstance
     this.testEntryInstance(entryInstance)
 
     /**
@@ -111,7 +111,7 @@ export class YuiContainerFactory {
 
   injectClassProvider<T = any>(module: Type<T>, provider: CustomClassProvider<T>) {}
 
-  testEntryInstance(entryInstance: EntryConponent) {
+  testEntryInstance(entryInstance: EntryComponent) {
     if (!entryInstance) throw new Error('No entry detected!')
     const { start, client } = entryInstance
     if (!client) throw new Error('Client for the instance has not been defined')

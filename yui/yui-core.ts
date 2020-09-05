@@ -5,12 +5,12 @@ import { Message, VoiceState } from 'discord.js'
 import { LOG_SCOPE } from './constants/constants'
 import { Yui, On, EventMessage, EventVoiceState } from './decorators/yui.decorator'
 import { YuiClient } from './yui-client'
-import { EntryConponent } from './dep-injection-ioc/interfaces/di-interfaces'
+import { EntryComponent } from './dep-injection-ioc/interfaces/di-interfaces'
 import { Inject } from './dep-injection-ioc/decorators'
 import { INJECT_TOKEN } from './dep-injection-ioc/constants/di-connstants'
 
 @Yui()
-export class YuiCore implements EntryConponent {
+export class YuiCore implements EntryComponent {
   constructor(
     private yui: YuiClient,
     private messageHandler: MessageHandler,

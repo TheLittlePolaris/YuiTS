@@ -37,7 +37,7 @@ export interface ModuleOption {
   entryComponent?: Type<any>
 }
 
-export interface EntryConponent {
+export interface EntryComponent {
   start: (...args: any) => void | Promise<void>
   client: Client
 }

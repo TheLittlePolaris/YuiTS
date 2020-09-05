@@ -1,4 +1,4 @@
-import { CustomValueProvider, Provider, EntryConponent, Type } from './interfaces/di-interfaces'
+import { CustomValueProvider, Provider, EntryComponent, Type } from './interfaces/di-interfaces'
 export class YuiModule {
   private _modules: Map<string, Type<any>> = new Map()
   private _providers: Map<string, Provider<any>> = new Map()
