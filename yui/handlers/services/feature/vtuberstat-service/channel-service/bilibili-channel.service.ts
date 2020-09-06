@@ -22,6 +22,15 @@ export class BilibiliChannelService implements BaseChannelService {
     return channelData
   }
 
+  public async testgetAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
+    const results = await Promise.all(
+      channelIds.map((id) => bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView']))
+    ).catch((err) => this.handleError(err))
+    if (!results) return []
+    const channelData = results.map(this.mapToYoutubeChannel)
+    return channelData
+  }
+
   public async getSelectedChannelDetail(channelId: string): Promise<IYoutubeChannel> {
     const result = await bilibili({ mid: channelId }, [
       'follower',

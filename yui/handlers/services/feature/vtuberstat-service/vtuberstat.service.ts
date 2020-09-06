@@ -127,7 +127,7 @@ export class VtuberStatService {
     channelId: string
     isBilibili: boolean
   }): Promise<void> {
-    const service = isBilibili ? this.youtubeRequestService : this.bilibiliRequestService
+    const service = isBilibili ? this.bilibiliRequestService : this.youtubeRequestService
     const channelData = await service.getSelectedChannelDetail(channelId)
     if (!channelData) {
       this.sendMessage(message, 'Something went wrong, please try again.')
