@@ -1,7 +1,7 @@
 import { config } from 'dotenv'
-import { debugLogger, infoLogger } from '@/handlers/log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
 import { existsSync } from 'fs'
+import { YuiLogger } from '@/log/logger.service'
 ;(async () => {
   interface EnvConfig {
     [key: string]: string
@@ -13,14 +13,15 @@ import { existsSync } from 'fs'
       const nodeEnv = process.env.NODE_ENV
       const filePath = `.env${(nodeEnv && `.${nodeEnv}`) || ``}`
       const path = existsSync(filePath) ? filePath : `.env`
-      nodeEnv && infoLogger(LOG_SCOPE.CONFIG_SERVICE, `Using ${nodeEnv?.toUpperCase() || 'DEVELOPMENT'} environment`)
+      nodeEnv &&
+        YuiLogger.info(`Using ${nodeEnv?.toUpperCase() || 'DEVELOPMENT'} environment`, LOG_SCOPE.CONFIG_SERVICE)
       this.envConfig = config({ path }).parsed
       const { error } = this.envConfig
       if (error) {
         throw new Error(`Fatal: CANNOT READ CONFIG ENVIRONMENT: ${error}`)
       }
 
-      debugLogger(LOG_SCOPE.CONFIG_SERVICE)
+      YuiLogger.debug(`Created!`, LOG_SCOPE.CONFIG_SERVICE)
     }
 
     public get token(): string {

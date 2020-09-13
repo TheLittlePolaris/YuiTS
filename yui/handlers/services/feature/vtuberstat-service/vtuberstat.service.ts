@@ -1,26 +1,34 @@
-import { VtuberStatServiceInitiator } from '@/decorators/feature-holostat.decorator'
+import { VtuberStatServiceInitiator } from '@/decorators/feature-vtuber.decorator'
 import {
   Message,
   GuildMember,
   EmbedFieldData,
-  CollectorFilter,
-  User,
-  MessageReaction,
   MessageCollectorOptions,
   MessageEmbed,
   MessageOptions,
 } from 'discord.js'
 import { LOG_SCOPE } from '@/constants/constants'
-import { errorLogger, debugLogger } from '@/handlers/log.handler'
 import { discordRichEmbedConstructor } from '@/handlers/services/utilities/discord-embed-constructor'
 import { HoloStatRequestService } from './holostat-service/holostat-request.service'
-import { subscriberCountFormatter, dateTimeJSTFormatter } from '../feature-services/feature-utilities'
-import { HOLO_KNOWN_REGION, holoStatReactionList, HOLO_REGION_MAP } from './holostat-service/holostat.interface'
-import { nijiStatReactionList, NIJI_REGION_MAP, NIJI_KNOWN_REGION } from './nijistat-service/nijistat.interface'
+import {
+  subscriberCountFormatter,
+  dateTimeJSTFormatter,
+} from '../feature-services/feature-utilities'
+import {
+  HOLO_KNOWN_REGION,
+  HOLO_REGION_MAP,
+  holoStatList,
+} from './holostat-service/holostat.interface'
+import {
+  nijiStatList,
+  NIJI_REGION_MAP,
+  NIJI_KNOWN_REGION,
+} from './nijistat-service/nijistat.interface'
 import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
 import { NijiStatRequestService } from './nijistat-service/nijistat-request.service'
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
+import { YuiLogger } from '@/log/logger.service'
 
 @VtuberStatServiceInitiator()
 export class VtuberStatService {
@@ -30,7 +38,7 @@ export class VtuberStatService {
     private youtubeRequestService: YoutubeChannelService,
     private bilibiliRequestService: BilibiliChannelService
   ) {
-    debugLogger(LOG_SCOPE.VTUBER_STAT_SERVICE)
+    YuiLogger.debug('Created!', LOG_SCOPE.VTUBER_STAT_SERVICE)
   }
 
   public async vtuberStatSelectList({
@@ -47,10 +55,14 @@ export class VtuberStatService {
     }
 
     const isBilibili = regionCode === 'cn'
-    const service = affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
-    const dataList = await service.getChannelList(regionCode).catch((err) => this.handleError(new Error(err)))
+    const service =
+      affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
+    const dataList = await service
+      .getChannelList(regionCode as any)
+      .catch((err) => this.handleError(new Error(err)))
 
-    if (!dataList || !dataList.length) return this.sendMessage(message, '**Something went wrong :(**')
+    if (!dataList || !dataList.length)
+      return this.sendMessage(message, '**Something went wrong :(**')
 
     const fieldsData: EmbedFieldData[] = dataList.map((item, index) => ({
       name: `**${index + 1}**`,
@@ -63,7 +75,8 @@ export class VtuberStatService {
     const limit = 20
     const hasPaging = fieldsData.length > limit
     const sendPartial = async (index: number) => {
-      const currentPartLimit = index + limit >= fieldsData.length ? fieldsData.length : index + limit
+      const currentPartLimit =
+        index + limit >= fieldsData.length ? fieldsData.length : index + limit
 
       const sendingEmbed = await discordRichEmbedConstructor({
         description: `**Select the number dedicated to the channel name for detail${
@@ -83,7 +96,8 @@ export class VtuberStatService {
     sendPartial(0)
 
     const collectorFilter = (messageFilter: Message) =>
-      messageFilter.author.id === message.author.id && messageFilter.channel.id === message.channel.id
+      messageFilter.author.id === message.author.id &&
+      messageFilter.channel.id === message.channel.id
 
     const collectorOptions: MessageCollectorOptions = {
       time: 30000,
@@ -97,18 +111,21 @@ export class VtuberStatService {
 
     collector.on('collect', async (collected: Message) => {
       collector.stop()
-      collected.delete().catch((err) => this.handleError(new Error(err)))
-      if (collected.content.toLowerCase() === 'cancel') {
+
+      const selected = /^\d{1,2}|cancel$/.exec(collected.content)
+      if (!selected) return this.sendMessage(message, '**Please choose a valid number**')
+      const option = selected[0]
+      if (option === 'cancel') {
         this.sendMessage(message, '**Canceled**')
         deleteSentContent()
         return
       } else {
-        const selectedNumber = Number(collected.content)
-        if (Number.isNaN(selectedNumber) || selectedNumber > dataList.length || selectedNumber < 1) {
-          this.sendMessage(message, '**Please choose a valid number**')
-          return
-        }
-        return this.getChannelDetail({ message, channelId: dataList[selectedNumber - 1]?.id, isBilibili })
+        const selectedNumber = Number(option) //number is valid
+        return this.getChannelDetail({
+          message,
+          channelId: dataList[selectedNumber - 1]?.id,
+          isBilibili,
+        })
       }
     })
     collector.on('end', (collected) => {
@@ -134,7 +151,11 @@ export class VtuberStatService {
     }
 
     const [subscriberCount, channelUrl, publishedDate] = isBilibili
-      ? [channelData.statistics.subscriberCount, `https://space.bilibili.com/${channelData.id}`, `N/A`]
+      ? [
+          channelData.statistics.subscriberCount,
+          `https://space.bilibili.com/${channelData.id}`,
+          `N/A`,
+        ]
       : [
           subscriberCountFormatter(channelData.statistics.subscriberCount),
           `https://www.youtube.com/channel/${channelData.id}`,
@@ -174,44 +195,46 @@ export class VtuberStatService {
     message: Message
     affiliation?: KNOWN_AFFILIATION
   }): Promise<void> {
-    const reactionList = affiliation === 'Hololive' ? holoStatReactionList : nijiStatReactionList
+    const reactionList = affiliation === 'Hololive' ? holoStatList : nijiStatList
 
-    const objKeys = Object.keys(reactionList)
+    const regionCodes = Object.keys(reactionList)
 
-    const content = `**Which region should i look for ? ${objKeys.map(
+    const content = `**Which region should i look for ? ${regionCodes.map(
       (k, i) => `\n${i + 1}. ${reactionList[k].name}`
     )}**`
-
     const sentMessage = await this.sendMessage(message, content)
-
     if (!sentMessage) {
       this.sendMessage(message, '**Sorry, something went wrong.**')
       return
     }
+    const collectorFilter = (messageFilter: Message) =>
+      messageFilter.author.id === message.author.id &&
+      messageFilter.channel.id === message.channel.id
 
-    await Promise.all([objKeys.map((icon) => sentMessage.react(icon))]).catch((err) => this.handleError(new Error(err)))
-
-    const filter: CollectorFilter = (reaction: MessageReaction, user: User) => {
-      return objKeys.includes(reaction.emoji.name) && user.id === message.author.id
-    }
-
-    const collector = sentMessage.createReactionCollector(filter, {
+    const collectorOptions: MessageCollectorOptions = {
       time: 15000,
       max: 1,
-      maxEmojis: 1,
-      maxUsers: 1,
-    })
+    }
+    const collector = sentMessage.channel.createMessageCollector(collectorFilter, collectorOptions)
 
-    collector.on('collect', (reaction: MessageReaction, user: User) => {
+    collector.on('collect', (collected: Message) => {
       collector.stop()
-      const emojiName = reaction?.emoji?.name || '1️⃣'
-      const region = reactionList[emojiName].code
-      if (!objKeys.includes(emojiName)) {
-        this.sendMessage(message, '**Unknown reaction, using default region: Japan.**')
+
+      const selected = /^[1-4]|cancel$/.exec(collected.content)
+      if (!selected) return this.sendMessage(message, 'Invailid option! Action aborted.')
+      const option = selected[0]
+      if (option === 'cancel') {
+        this.sendMessage(message, '**`Canceled!`**')
+        this.deleteMessage(sentMessage)
+        return
+      } else {
+        const index = Number(option)
+        return this.vtuberStatSelectList({
+          message,
+          affiliation,
+          regionCode: regionCodes[index - 1] as any,
+        }).catch((err) => this.handleError(new Error(err)))
       }
-      return this.vtuberStatSelectList({ message, affiliation, regionCode: region }).catch((err) =>
-        this.handleError(new Error(err))
-      )
     })
 
     collector.on('end', (collected) => {
@@ -238,9 +261,11 @@ export class VtuberStatService {
     )
 
     const isBilibili = region === 'cn'
-    const service = affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
+    const service =
+      affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
+
     const holoStatData = await service
-      .getAllMembersChannelDetail(region)
+      .getAllMembersChannelDetail(region as any)
       .catch((error) => this.handleError(new Error(error)))
 
     const fieldsData: EmbedFieldData[] = holoStatData.map((item) => {
@@ -250,7 +275,9 @@ export class VtuberStatService {
         : `https://www.youtube.com/channel/${item.id}`
 
       const fieldData = `Channel: [${item.snippet.title}](${channelUrl})\nSubscribers: ${
-        isBilibili ? item.statistics.subscriberCount : subscriberCountFormatter(item.statistics.subscriberCount)
+        isBilibili
+          ? item.statistics.subscriberCount
+          : subscriberCountFormatter(item.statistics.subscriberCount)
       }\nViews: ${item.statistics.viewCount}\nVideos: ${item.statistics.videoCount}`
       return {
         name: fieldName,
@@ -266,7 +293,8 @@ export class VtuberStatService {
     const limit = 18
     const hasPaging = fieldsData.length > limit
     const sendPartial = async (index: number) => {
-      const currentPartLimit = index + limit >= fieldsData.length ? fieldsData.length : index + limit
+      const currentPartLimit =
+        index + limit >= fieldsData.length ? fieldsData.length : index + limit
 
       const sendingEmbed = await discordRichEmbedConstructor({
         author: {
@@ -291,11 +319,22 @@ export class VtuberStatService {
     sendPartial(0)
   }
 
-  private async sendMessage(message: Message, content: string | MessageEmbed | MessageOptions) {
+  private async sendMessage(
+    message: Message,
+    content: string | MessageEmbed | MessageOptions
+  ): Promise<Message> {
     return await message.channel.send(content).catch((err) => this.handleError(new Error(err)))
   }
 
+  private async deleteMessage(
+    message: Message,
+    option: { timeout?: number; reason?: string } = {}
+  ) {
+    return await message.delete(option).catch((err) => this.handleError(err))
+  }
+
   private handleError(error: Error | string) {
-    return errorLogger(error, LOG_SCOPE.HOLOSTAT_SERVICE)
+    YuiLogger.error(error, LOG_SCOPE.HOLOSTAT_SERVICE)
+    return null
   }
 }

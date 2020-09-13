@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { GuildMember, Message, Role } from 'discord.js'
-import { errorLogger, debugLogger } from '@/handlers/log.handler'
 import { Targets, Reason, ValidateCommand, GuildRoles, NickName, Executor } from '@/decorators/admin-action.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 import { AdminActionInitiator } from '@/decorators/admin-action.decorator'
+import { YuiLogger } from '@/log/logger.service'
 
 @AdminActionInitiator()
 export class AdminstrationActionCommands {
   constructor() {
-    debugLogger(LOG_SCOPE.ADMIN_ACTION_COMMAND)
+    YuiLogger.debug(`Created!`, LOG_SCOPE.ADMIN_ACTION_COMMAND)
   }
 
   @ValidateCommand()
@@ -181,6 +181,7 @@ export class AdminstrationActionCommands {
   }
 
   handleError(error: Error | string): null {
-    return errorLogger(error, 'ADMIN_ACTION_SERVICE')
+    YuiLogger.error(error, LOG_SCOPE.ADMIN_ACTION_COMMAND)
+    return null
   }
 }

@@ -3,10 +3,14 @@ import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interf
 import { BaseChannelService } from './base-channel.service'
 import { Injectable, Inject } from '@/dep-injection-ioc/decorators'
 import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
+import { YuiLogger } from '@/log/logger.service'
+import { LOG_SCOPE } from '@/constants/constants'
 
 @Injectable()
 export class YoutubeChannelService implements BaseChannelService {
-  constructor(@Inject(INJECT_TOKEN.YOUTUBE_API_KEY) private youtubeApiKey: string) {}
+  constructor(@Inject(INJECT_TOKEN.YOUTUBE_API_KEY) private youtubeApiKey: string) {
+    YuiLogger.debug(`Created!`, LOG_SCOPE.YOUTUBE_CHANNEL_SERVICE)
+  }
 
   private youtube: youtube_v3.Youtube = google.youtube({
     version: 'v3',
@@ -24,7 +28,7 @@ export class YoutubeChannelService implements BaseChannelService {
     }
 
     const { data } = await this.youtubeChannel.list(getDataOptions)
-    if (!data?.items?.length) throw new Error('Cannot get any data')
+    if (!data?.items?.length) return this.handleError('Cannot get any data')
 
     return data.items
   }
@@ -40,7 +44,7 @@ export class YoutubeChannelService implements BaseChannelService {
 
     const { data } = await this.youtubeChannel.list(getDataOptions)
 
-    if (!data?.items?.length) throw new Error('Cannot get any data')
+    if (!data?.items?.length) return this.handleError('Cannot get any data')
 
     return data.items
   }
@@ -56,7 +60,8 @@ export class YoutubeChannelService implements BaseChannelService {
 
     const featuredChannelsUrls = data?.items[0]?.brandingSettings?.channel?.featuredChannelsUrls
 
-    if (!featuredChannelsUrls?.length) throw new Error('Cannot find any related channels from Hololive Official')
+    if (!featuredChannelsUrls?.length)
+      return this.handleError('Cannot find any related channels from Hololive Official')
 
     return featuredChannelsUrls
   }
@@ -72,8 +77,13 @@ export class YoutubeChannelService implements BaseChannelService {
 
     const { data } = await this.youtubeChannel.list(getDataOptions)
 
-    if (!data?.items?.length) throw new Error('**Something went wrong, please try again**')
+    if (!data?.items?.length) return this.handleError('**Something went wrong, please try again**')
 
     return data.items[0]
+  }
+
+  private handleError(error: Error | string) {
+    YuiLogger.error(error, LOG_SCOPE.YOUTUBE_CHANNEL_SERVICE)
+    return null
   }
 }

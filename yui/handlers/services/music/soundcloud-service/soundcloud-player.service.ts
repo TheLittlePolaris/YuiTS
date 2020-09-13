@@ -3,8 +3,8 @@ import { parse } from 'url'
 import axios from 'axios'
 import m3u8stream, { Progress } from 'm3u8stream'
 import { PolarisSoundCloudService } from './soundcloud-info.service'
-import { errorLogger } from '@/handlers/log.handler'
 import { Injectable } from '@/dep-injection-ioc/decorators'
+import { YuiLogger } from '@/log/logger.service'
 
 @Injectable()
 export class PolarisSoundCloudPlayer {
@@ -43,7 +43,10 @@ export class PolarisSoundCloudPlayer {
         onDownloadProgress: (progressEvent) => stream.emit('info', progressEvent),
         responseType: 'stream',
       })
-      .catch((rejectedReason) => errorLogger(rejectedReason))
+      .catch((rejectedReason) => {
+        YuiLogger.error(rejectedReason)
+        return null
+      })
 
     if (promisedRequest?.status === 416) {
       // the file that is being resumed is complete.

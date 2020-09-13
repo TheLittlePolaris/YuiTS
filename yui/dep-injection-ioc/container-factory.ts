@@ -1,4 +1,9 @@
-import { Type, CustomValueProvider, CustomClassProvider, EntryComponent } from './interfaces/di-interfaces'
+import {
+  Type,
+  CustomValueProvider,
+  CustomClassProvider,
+  EntryComponent,
+} from './interfaces/di-interfaces'
 import {
   MODULE_METADATA,
   PARAMTYPES_METADATA,
@@ -9,11 +14,13 @@ import {
 import { YuiModule } from './module'
 import { isValueInjector, isValue, isFunction } from './helper-functions'
 import { DiscordEvent } from '@/constants/discord-events'
+import { YuiLogger } from '@/log/logger.service'
 
 export class YuiContainerFactory {
   static entryDetected = false
 
   private container = new YuiModule()
+  private logger = new YuiLogger('YuiContainerFactory')
 
   async create<T = any>(moduleMetadata: Type<any>): Promise<T> {
     await this.initialize(moduleMetadata)
@@ -28,23 +35,31 @@ export class YuiContainerFactory {
      */
 
     const entryComponent: Type<any> = this.container.entryComponent
-    const boundEvents = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryComponent.prototype)
+    const boundEvents = Reflect.getMetadata(
+      COMPONENT_METADATA.EVENT_LIST,
+      entryComponent.prototype
+    )
     const eventKeys = Object.keys(boundEvents)
     if (eventKeys.length) {
       eventKeys.forEach((eventKey: DiscordEvent) =>
         // const paramKey = paramKeyConstructor(key, boundEvents[key])
         // const paramList = Reflect.getMetadata(paramKey, entryComponent.prototype)
-        entryInstance.client.addListener(eventKey, (...args) => entryInstance[boundEvents[eventKey]](...args))
+        entryInstance.client.addListener(eventKey, (...args) =>
+          entryInstance[boundEvents[eventKey]](...args)
+        )
       )
     } else {
-      console.warn('No event listener detected!')
+      this.logger.warn('No event listener detected!')
     }
 
     return (entryInstance as unknown) as T
   }
 
   async initialize<T = any>(module: Type<T>) {
-    const providers: CustomValueProvider<T>[] = Reflect.getMetadata(MODULE_METADATA.PROVIDERS, module)
+    const providers: CustomValueProvider<T>[] = Reflect.getMetadata(
+      MODULE_METADATA.PROVIDERS,
+      module
+    )
     if (providers) {
       for (const provider of providers) this.injectValueProvider(module, provider)
     }
@@ -86,8 +101,13 @@ export class YuiContainerFactory {
         const customToken = this.container.getProvider(module, customTokens[paramIndex])
 
         /* TODO: class provider */
-        if (isValueInjector(customToken)) return (customToken as CustomValueProvider<T>).useValue
-        else return this.loadComponentInjection((customToken as CustomClassProvider<T>).useClass, module)
+        if (isValueInjector(customToken))
+          return (customToken as CustomValueProvider<T>).useValue
+        else
+          return this.loadComponentInjection(
+            (customToken as CustomClassProvider<T>).useClass,
+            module
+          )
       }
 
       const created = this.container.getInstance(token)
@@ -115,6 +135,7 @@ export class YuiContainerFactory {
     if (!entryInstance) throw new Error('No entry detected!')
     const { start, client } = entryInstance
     if (!client) throw new Error('Client for the instance has not been defined')
-    if (!(start && isFunction(start))) throw new Error(`Component's starting point not detected!`)
+    if (!(start && isFunction(start)))
+      throw new Error(`Component's starting point not detected!`)
   }
 }

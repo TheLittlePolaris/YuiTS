@@ -1,6 +1,5 @@
 import request from 'request'
 import { youtube_v3, google } from 'googleapis'
-import { errorLogger } from '@/handlers/log.handler'
 import {
   IYoutubeSearchResult,
   IYoutubeVideosResult,
@@ -9,6 +8,7 @@ import {
 import { LOG_SCOPE } from '@/constants/constants'
 import { Injectable, Inject } from '@/dep-injection-ioc/decorators'
 import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
+import { YuiLogger } from '@/log/logger.service'
 
 @Injectable()
 export class YoutubeRequestService {
@@ -62,6 +62,7 @@ export class YoutubeRequestService {
   }
 
   handleRequestErrors(error: string): null {
-    return errorLogger(error, LOG_SCOPE.YOUTUBE_REQUEST_SERVICE)
+    YuiLogger.error(error, LOG_SCOPE.YOUTUBE_REQUEST_SERVICE)
+    return null
   }
 }

@@ -1,7 +1,6 @@
-import { debugLogger, errorLogger } from '@/handlers/log.handler'
 import { Message, MessageEmbed } from 'discord.js'
 import { ADMIN_ACTION_TYPE } from './admin-interfaces/administration.interface'
-import { AdminstrationActionCommands } from './administration-actions/action.service'
+import { AdminstrationActionCommands } from './administration-actions/admin-action-command.service'
 import {
   Command,
   CommandValidator,
@@ -9,11 +8,12 @@ import {
   AdminPermissionValidator,
 } from '@/decorators/permission.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
+import { YuiLogger } from '@/log/logger.service'
 
 @AdministrationServiceInitiator()
 export class AdministrationService {
   constructor(private _adminActionCommands: AdminstrationActionCommands) {
-    debugLogger('AdministrationService')
+    YuiLogger.debug(`Created!`, LOG_SCOPE.ADMIN_SERVICE)
   }
 
   @CommandValidator()
@@ -31,6 +31,7 @@ export class AdministrationService {
   }
 
   private handleError(error: Error | string): null {
-    return errorLogger(error, LOG_SCOPE.ADMIN_SERVICE)
+    YuiLogger.error(error, LOG_SCOPE.ADMIN_SERVICE)
+    return null
   }
 }

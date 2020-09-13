@@ -9,7 +9,7 @@ import type {
 import { MusicQueue } from './music-queue'
 import { MusicStreamValue } from '../music-interfaces/music-stream.interface'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
-import { debugLogger } from '@/handlers/log.handler'
+import { YuiLogger } from '@/log/logger.service'
 
 export class MusicStream {
   private _id: string
@@ -42,7 +42,7 @@ export class MusicStream {
     this._boundVoiceChannel = boundVoiceChannel
     this._boundTextChannel = boundTextChannel
     this._queue = new MusicQueue()
-    debugLogger(this.constructor.name, this._name)
+    YuiLogger.debug(`[${this._name}] stream created!`, this.constructor.name)
   }
 
   /**

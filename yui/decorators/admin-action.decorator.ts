@@ -1,5 +1,4 @@
 import { LOG_SCOPE } from '@/constants/constants'
-import { decoratorLogger } from '@/handlers/log.handler'
 import { Message, GuildMember, Role } from 'discord.js'
 import {
   ADMIN_COMMANDS,
@@ -12,6 +11,7 @@ import {
   Prototype,
   GenericMethodDecorator,
 } from '../dep-injection-ioc/interfaces/di-interfaces'
+import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
 enum REFLECT_ADMIN_ACTION_SYMBOLS {
   REASON = 'reason',

@@ -1,11 +1,11 @@
 import { LOG_SCOPE } from '@/constants/constants'
 import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
-import { Client, Message } from 'discord.js'
-import { debugLogger, errorLogger } from './log.handler'
+import { Message } from 'discord.js'
 import { OwnerChannelService } from './owner-service/channel.service'
 import { AdministrationService } from './services/administration/administration.service'
 import { FeatureService } from './services/feature/feature.service'
 import { MusicService } from './services/music/music.service'
+import { YuiLogger } from '@/log/logger.service'
 
 @MessageHandlerInitiator()
 export class MessageHandler {
@@ -15,10 +15,14 @@ export class MessageHandler {
     private administrationService: AdministrationService,
     private ownerChannelService: OwnerChannelService
   ) {
-    debugLogger(LOG_SCOPE.MESSAGE_HANDLER)
+    YuiLogger.debug(`Created!`, LOG_SCOPE.MESSAGE_HANDLER)
   }
 
-  public async messageSwitchMap(message: Message, command: string, args?: Array<string>): Promise<unknown> {
+  public async messageSwitchMap(
+    message: Message,
+    command: string,
+    args?: Array<string>
+  ): Promise<unknown> {
     switch (command) {
       case 'play':
       case 'p':
@@ -125,7 +129,9 @@ export class MessageHandler {
         return this.featureService.help(message)
       }
       default: {
-        message.channel.send('What do you mean by `>' + command + '`? How about taking a look at `>help`?.')
+        message.channel.send(
+          'What do you mean by `>' + command + '`? How about taking a look at `>help`?.'
+        )
         break
       }
     }
@@ -143,6 +149,7 @@ export class MessageHandler {
   }
 
   handleError(error: Error | string): null {
-    return errorLogger(error, LOG_SCOPE.MESSAGE_HANDLER)
+    YuiLogger.error(error, LOG_SCOPE.MESSAGE_HANDLER)
+    return null
   }
 }

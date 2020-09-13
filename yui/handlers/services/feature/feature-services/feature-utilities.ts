@@ -1,21 +1,17 @@
 import request from 'request'
-import { errorLogger } from '@/handlers/log.handler'
 import { TenorApiQueryResult } from '../feature-interfaces/tenor-query.interface'
+import { YuiLogger } from '@/log/logger.service'
 
 export function isMyOwner(userId: string): boolean {
   return userId === global?.config?.ownerId
 }
 
-export function tenorRequestService(
-  query: string
-): Promise<TenorApiQueryResult> {
+export function tenorRequestService(query: string): Promise<TenorApiQueryResult> {
   return new Promise<TenorApiQueryResult>((resolve, reject) => {
     request(
-      `https://api.tenor.com/v1/search?q=${encodeURIComponent(
-        `anime ${query}`
-      )}&key=${global?.config?.tenorKey}&limit=10&media_filter=basic&anon_id=${
-        global?.config?.tenorAnonymousId
-      }`,
+      `https://api.tenor.com/v1/search?q=${encodeURIComponent(`anime ${query}`)}&key=${
+        global?.config?.tenorKey
+      }&limit=10&media_filter=basic&anon_id=${global?.config?.tenorAnonymousId}`,
       (err: string, _, body: string) => {
         if (err) return reject(err)
         const json = JSON.parse(body)
@@ -28,7 +24,8 @@ export function tenorRequestService(
 }
 
 function handleRequestErrors(error: string): null {
-  return errorLogger(error, 'UTILITY_SERVICE')
+  YuiLogger.error(error, 'UTILITY_SERVICE')
+  return null
 }
 
 export const subscriberCountFormatter = (number: number | string): string => {
@@ -36,10 +33,8 @@ export const subscriberCountFormatter = (number: number | string): string => {
   let result: string
 
   if (number > 0 && number <= 999) result = `${number}`
-  else if (number > 999 && number <= 999999)
-    result = `${(number / 1000).toFixed(2)}K`
-  else if (number > 999999 && number <= 999999999)
-    result = `${(number / 1000000).toFixed(2)}M`
+  else if (number > 999 && number <= 999999) result = `${(number / 1000).toFixed(2)}K`
+  else if (number > 999999 && number <= 999999999) result = `${(number / 1000000).toFixed(2)}M`
   else result = `${number}`
 
   return result.includes('.00') ? result.replace('.00', '') : result

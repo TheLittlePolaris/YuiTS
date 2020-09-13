@@ -3,10 +3,9 @@ import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
-import { LOG_SCOPE } from '@/constants/constants'
-import { decoratorLogger } from '@/handlers/log.handler'
 import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
 import { Type, GenericClassDecorator, Prototype } from '../dep-injection-ioc/interfaces/di-interfaces'
+import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
 enum REFLECT_PERMISSION_SYMBOLS {
   COMMAND = 'command',

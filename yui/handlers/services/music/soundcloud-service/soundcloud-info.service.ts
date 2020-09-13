@@ -1,9 +1,9 @@
 import { ISoundCloudSong } from '../music-interfaces/soundcloud-info.interface'
 import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
 import { spawnSync, SpawnSyncOptions, spawn } from 'child_process'
-import { errorLogger } from '@/handlers/log.handler'
 import { LOG_SCOPE } from '@/constants/constants'
 import { Injectable } from '@/dep-injection-ioc/decorators'
+import { YuiLogger } from '@/log/logger.service'
 
 enum FORMAT_URL {
   M3U8_64 = 0,
@@ -151,6 +151,7 @@ export class PolarisSoundCloudService {
   }
 
   handleError(error: string | Error): null {
-    return errorLogger(error, LOG_SCOPE.SOUNDCLOUD_INFO_SERICE)
+    YuiLogger.error(error, LOG_SCOPE.SOUNDCLOUD_INFO_SERICE)
+    return null
   }
 }

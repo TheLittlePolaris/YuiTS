@@ -26,6 +26,8 @@ export const OPTIONAL_PROPERTY_DEPS_METADATA = 'optional:properties_metadata'
 export const SCOPE_OPTIONS_METADATA = 'scope:options'
 export const DESIGN_TYPE = 'design:type'
 
+export const METHOD_PARAM_METADATA = 'method:params'
+
 export enum INJECT_TOKEN {
   BOT_TOKEN = 'bot-token',
   BOT_OPTION = 'bot-option',

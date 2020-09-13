@@ -1,12 +1,16 @@
 import bilibili from 'bili-api'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
-import { Constants } from '@/constants/constants'
-import { errorLogger } from '@/handlers/log.handler'
+import { Constants, LOG_SCOPE } from '@/constants/constants'
 import { BaseChannelService } from './base-channel.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'
+import { YuiLogger } from '@/log/logger.service'
 
 @Injectable()
 export class BilibiliChannelService implements BaseChannelService {
+  constructor() {
+    YuiLogger.debug(`Created!`, LOG_SCOPE.BILIBILI_CHANNEL_SERVICE)
+  }
+
   public async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(channelIds.map((id) => bilibili({ mid: id }, ['info'])))
     const data = results.map(this.mapToYoutubeChannel)
@@ -86,6 +90,7 @@ export class BilibiliChannelService implements BaseChannelService {
   })
 
   private handleError(error: Error | string): null {
-    return errorLogger(error)
+    YuiLogger.error(error, LOG_SCOPE.BILIBILI_CHANNEL_SERVICE)
+    return null
   }
 }

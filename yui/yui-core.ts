@@ -1,4 +1,3 @@
-import { debugLogger, errorLogger, infoLogger } from '@/handlers/log.handler'
 import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { Message, VoiceState } from 'discord.js'
@@ -8,6 +7,7 @@ import { YuiClient } from './yui-client'
 import { EntryComponent } from './dep-injection-ioc/interfaces/di-interfaces'
 import { Inject } from './dep-injection-ioc/decorators'
 import { INJECT_TOKEN } from './dep-injection-ioc/constants/di-connstants'
+import { YuiLogger } from './log/logger.service'
 
 @Yui()
 export class YuiCore implements EntryComponent {
@@ -18,18 +18,19 @@ export class YuiCore implements EntryComponent {
     @Inject(INJECT_TOKEN.BOT_TOKEN) private token: string,
     @Inject(INJECT_TOKEN.BOT_PREFIX) private prefix: string
   ) {
-    debugLogger(LOG_SCOPE.YUI_CORE)
+    YuiLogger.debug('Created!', LOG_SCOPE.YUI_CORE)
   }
 
   public async start(): Promise<void> {
-    infoLogger(LOG_SCOPE.YUI_CORE, 'Connecting... 📡')
-    this.yui.login(this.token).catch((err) => this.handleError(new Error(err)))
+    YuiLogger.log('Connecting... 📡', LOG_SCOPE.YUI_CORE)
+    this.yui.login(this.token)
   }
 
   @On('ready')
   async onReady(): Promise<void> {
-    if (!this.yui || !this.yui.user) throw new Error('Something went horribly wrong! Client is not defined!')
-    infoLogger(LOG_SCOPE.YUI_CORE, '🔗 🛰 Connected!')
+    if (!this.yui || !this.yui.user)
+      throw new Error('Something went horribly wrong! Client is not defined!')
+    YuiLogger.log('🔗 🛰 Connected!', LOG_SCOPE.YUI_CORE)
     await Promise.all([
       global.config.environment === 'development'
         ? this.yui.user.setActivity(`${this.prefix}help`, {
@@ -40,18 +41,22 @@ export class YuiCore implements EntryComponent {
             type: 'STREAMING',
           }),
     ]).catch((err) => this.handleError(new Error(err)))
-    infoLogger(LOG_SCOPE.YUI_CORE, '🚀 🔶Yui is online! 🚀')
+    YuiLogger.log('🚀 🔶Yui is online! 🚀', LOG_SCOPE.YUI_CORE)
   }
 
   @On('message')
   async onMessage(@EventMessage() message: Message): Promise<unknown> {
     try {
-      // owner feature
-      if (message.channel.type === 'dm' && message.author.id === global.config.ownerId) return this.onDM(message)
+      if (message.channel.type === 'dm' && message.author.id === global.config.ownerId)
+        return this.onDM(message)
 
-      if (!message.content.startsWith(this.prefix) || message.author.bot) return
+      if (
+        !message.content.startsWith(this.prefix) ||
+        message.author.bot ||
+        message.channel.type !== 'text'
+      )
+        return
 
-      if (message.channel.type !== 'text') return // only accept text channel message
       const args = message.content.slice(this.prefix.length).trim().split(/ +/g)
 
       const command = args.shift()
@@ -79,6 +84,7 @@ export class YuiCore implements EntryComponent {
   }
 
   private handleError(error: Error | string): null {
-    return errorLogger(error, LOG_SCOPE.YUI_CORE)
+    YuiLogger.error(error, LOG_SCOPE.YUI_CORE)
+    return null
   }
 }

@@ -1,19 +1,23 @@
-import { LOG_SCOPE } from '@/constants/constants'
 import { Message, TextChannel } from 'discord.js'
-import { decoratorLogger } from '@/handlers/log.handler'
-import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
-import { GlobalMusicStream } from '@/handlers/services/music/global-streams'
-import { Type, GenericClassDecorator, Prototype } from '../dep-injection-ioc/interfaces/di-interfaces'
+import {
+  INJECTABLE_METADATA,
+  METHOD_PARAM_METADATA,
+} from '@/dep-injection-ioc/constants/di-connstants'
+import {
+  Type,
+  GenericClassDecorator,
+  Prototype,
+} from '../dep-injection-ioc/interfaces/di-interfaces'
+import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
+import { YuiLogger } from '@/log/logger.service'
 
-enum REFLECT_MUSIC_SYMBOLS {
-  STREAM = 'STREAM',
-  CLIENT = 'CLIENT',
+enum MUSIC_PARAM {
+  CLIENT = 'client',
+  STREAM = 'stream',
 }
 
-const REFLECT_MUSIC_KEYS = {
-  STREAM_KEY: Symbol(REFLECT_MUSIC_SYMBOLS.STREAM),
-  CLIENT_KEY: Symbol(REFLECT_MUSIC_SYMBOLS.CLIENT),
-}
+export type MUSIC_PARAM_NAME = Record<MUSIC_PARAM, string>
+export type MUSIC_PARAM_KEY = keyof typeof MUSIC_PARAM
 
 export function MusicServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
@@ -31,66 +35,72 @@ export function AccessController(
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
     decoratorLogger(target.constructor.name, 'AccessController', propertyKey)
     const originalMethod = descriptor.value
-    descriptor.value = async function (...args: any[]) {
-      const streams = GlobalMusicStream.streams /* TODO: find a way to inject this ~.~ */
-      const [message] = args as [Message]
-      const { channel, guild, member } = message as Message
+    descriptor.value = async function (message: Message, ...args: any[]) {
+      const filteredArgs = <any[]>[message, ...args]
+      const { channel, guild, member } = message
 
       const voiceChannel = member.voice.channel
 
       if (!voiceChannel) {
-        message.reply('**please join a __`Voice Channel`__!**')
-        return
+        return this.replyMessage(message, '**please join a __`Voice Channel`__!**').catch(null)
       }
 
-      if (!streams) return
-      const stream = streams.has(guild.id) ? streams.get(guild.id) : null
-      const streamParamIndex: number = Reflect.getMetadata(REFLECT_MUSIC_KEYS.STREAM_KEY, target, propertyKey)
-      if (streamParamIndex !== undefined) args[streamParamIndex] = stream
+      if (!this.streams) return
 
-      const clientUserIndex: number = Reflect.getMetadata(REFLECT_MUSIC_KEYS.CLIENT_KEY, target, propertyKey)
+      const stream = this.streams.has(guild.id) ? this.streams.get(guild.id) : null
+      const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey)
+
+      const streamParamIndex: number = paramIndexes[MUSIC_PARAM.STREAM]
+
+      if (streamParamIndex !== undefined) filteredArgs[streamParamIndex] = stream
+
+      const clientUserIndex: number = paramIndexes[MUSIC_PARAM.CLIENT]
+
       if (clientUserIndex !== undefined) {
-        const client = await message.guild.members.fetch(global.config.yuiId)
-        args[clientUserIndex] = client
+        const client = await message.guild.members
+          .fetch(global.config.yuiId)
+          .catch((err) => handleError(err))
+        filteredArgs[clientUserIndex] = client
       }
 
       const boundVoiceChannel = stream?.boundVoiceChannel
       if (!boundVoiceChannel && join) {
         if (!silent) {
-          message.channel.send(
+          this.sendMessage(
+            message,
             `**Bound to Text Channel: \`${(channel as TextChannel).name}\` and Voice Channel: \`${
               voiceChannel?.name
             }\`**!`
           )
         }
-        return originalMethod.apply(this, args)
+        return originalMethod.apply(this, filteredArgs)
       }
+
       if (boundVoiceChannel) {
         const boundTextChannel = stream.boundTextChannel
         if (channel.id !== boundTextChannel.id || voiceChannel.id !== boundVoiceChannel.id) {
-          message.reply(`**I'm playing at \`${boundTextChannel.name}\` -- \` ${boundVoiceChannel.name}\`**`)
-
-          return
+          return this.replyMessage(
+            message,
+            `**I'm playing at \`${boundTextChannel.name}\` -- \` ${boundVoiceChannel.name}\`**`
+          )
         } else {
-          // final condition => All pass
-          return originalMethod.apply(this, args)
+          return originalMethod.apply(this, filteredArgs)
         }
       } else {
-        message.reply(`**\`I'm not in any voice channel.\`**`)
-        return
+        return this.replyMessage(message, `**\`I'm not in any voice channel.\`**`)
       }
     }
   }
 }
 
-export const GuildStream = () => {
+export const MusicParam = (key: MUSIC_PARAM_KEY) => {
   return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(REFLECT_MUSIC_KEYS.STREAM_KEY, paramIndex, target, propertyKey)
+    let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
+    definedParams = { [MUSIC_PARAM[key]]: paramIndex, ...definedParams }
+    Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
   }
 }
 
-export const CurrentGuildMember = () => {
-  return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(REFLECT_MUSIC_KEYS.CLIENT_KEY, paramIndex, target, propertyKey)
-  }
+function handleError(error: string | Error) {
+  return YuiLogger.error(error)
 }

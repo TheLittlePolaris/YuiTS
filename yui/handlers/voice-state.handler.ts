@@ -1,15 +1,15 @@
 import { LOG_SCOPE } from '@/constants/constants'
 import { VoiceStateInitiator } from '@/decorators/voice-state.decorator'
 import { VoiceState } from 'discord.js'
-import { debugLogger, errorLogger } from './log.handler'
 import { MusicStream } from './services/music/music-entities/music-stream'
 import { VoiceStateAction } from './services/music/music-interfaces/voice-state.interface'
 import { MusicService } from './services/music/music.service'
+import { YuiLogger } from '@/log/logger.service'
 
 @VoiceStateInitiator()
 export class VoiceStateHandler {
   constructor(private musicService: MusicService) {
-    debugLogger(LOG_SCOPE.VOICE_STATE_HANDLER)
+    YuiLogger.debug(`Created!`, LOG_SCOPE.VOICE_STATE_HANDLER)
   }
   public checkOnVoiceStateUpdate(oldVoiceState: VoiceState, newVoiceState: VoiceState): void {
     try {
@@ -36,7 +36,7 @@ export class VoiceStateHandler {
         }
       }
     } catch (err) {
-      errorLogger(new Error(err))
+      YuiLogger.error(new Error(err), LOG_SCOPE.VOICE_STATE_HANDLER)
     }
   }
 
@@ -60,7 +60,7 @@ export class VoiceStateHandler {
       this.musicService.resetStreamStatus(stream)
       this.musicService.deleteStream(stream)
     } catch (err) {
-      errorLogger(new Error(err))
+      YuiLogger.error(new Error(err), LOG_SCOPE.VOICE_STATE_HANDLER)
     }
   }
 }

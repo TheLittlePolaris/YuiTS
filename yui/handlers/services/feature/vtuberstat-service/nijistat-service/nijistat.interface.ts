@@ -10,23 +10,35 @@ export type REACTION_KEY = '1️⃣' | '2️⃣' | '3️⃣' // currently just h
 // | '8️⃣'
 // | '9️⃣'
 // | '🔟'
-export type NIJISTAT_PARAMS = 'jp' | 'japan' | 'id' | 'indonesia' | 'china' | 'cn' | 'detail' | 'd'
+export type NIJISTAT_PARAMS =
+  | 'jp'
+  | 'japan'
+  | 'id'
+  | 'indonesia'
+  | 'china'
+  | 'cn'
+  | 'detail'
+  | 'd'
 
 export interface REACTION_DATA {
+  icon: string
   name: string
   code: string
 }
 
-export const nijiStatReactionList: Record<REACTION_KEY, REACTION_DATA> = {
-  '1️⃣': {
+export const nijiStatList: Record<string, REACTION_DATA> = {
+  jp: {
+    icon: '1️⃣',
     name: 'Japan',
     code: 'jp',
   },
-  '2️⃣': {
+  id: {
+    icon: '2️⃣',
     name: 'Indonesia',
     code: 'id',
   },
-  '3️⃣': {
+  cn: {
+    icon: '3️⃣',
     name: 'China',
     code: 'cn',
   },
@@ -39,4 +51,3 @@ export enum NIJI_REGION_MAP {
 }
 
 export type NIJI_KNOWN_REGION = keyof typeof NIJI_REGION_MAP
-export type test = NIJI_KNOWN_REGION[]

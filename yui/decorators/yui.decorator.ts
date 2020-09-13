@@ -1,5 +1,3 @@
-import { LOG_SCOPE } from '@/constants/constants'
-import { decoratorLogger } from '@/handlers/log.handler'
 import { DiscordEvent } from '@/constants/discord-events'
 import {
   INJECTABLE_METADATA,
@@ -14,6 +12,7 @@ import {
   Prototype,
 } from '../dep-injection-ioc/interfaces/di-interfaces'
 import { isFunction } from '@/dep-injection-ioc/helper-functions'
+import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
 export function Yui<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
