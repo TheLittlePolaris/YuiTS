@@ -5,3 +5,4 @@ dist
 LICENCE
 *.pem
 *.txt
+package-lock.json
