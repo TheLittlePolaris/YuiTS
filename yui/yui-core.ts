@@ -6,7 +6,6 @@ import { Yui, On, EventMessage, EventVoiceState } from './decorators/yui.decorat
 import { YuiClient } from './yui-client'
 import { EntryComponent } from './dep-injection-ioc/interfaces/di-interfaces'
 import { Inject } from './dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from './dep-injection-ioc/constants/di-connstants'
 import { YuiLogger } from './log/logger.service'
 
 @Yui()
@@ -15,8 +14,8 @@ export class YuiCore implements EntryComponent {
     private yui: YuiClient,
     private messageHandler: MessageHandler,
     private voiceStateHandler: VoiceStateHandler,
-    @Inject(INJECT_TOKEN.BOT_TOKEN) private token: string,
-    @Inject(INJECT_TOKEN.BOT_PREFIX) private prefix: string
+    @Inject('BOT_TOKEN') private token: string,
+    @Inject('BOT_PREFIX') private prefix: string
   ) {
     YuiLogger.debug('Created!', LOG_SCOPE.YUI_CORE)
   }

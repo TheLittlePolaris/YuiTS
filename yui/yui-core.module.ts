@@ -2,16 +2,16 @@ import { YuiCore } from './yui-core'
 import { HandlerModule } from './handlers/handler.module'
 import { YuiClient } from './yui-client'
 import { YuiModule } from './dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from './dep-injection-ioc/constants/di-connstants'
+import { GlobalInjectToken } from './dep-injection-ioc/constants/di-connstants'
 
 @YuiModule({
   providers: [
     {
-      provide: INJECT_TOKEN.BOT_TOKEN,
+      provide: GlobalInjectToken.BOT_TOKEN,
       useValue: global.config.token,
     },
     {
-      provide: INJECT_TOKEN.BOT_PREFIX,
+      provide: GlobalInjectToken.BOT_PREFIX,
       useValue: global.config.prefix,
     },
   ],

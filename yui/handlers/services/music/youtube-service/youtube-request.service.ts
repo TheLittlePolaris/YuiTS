@@ -7,7 +7,7 @@ import {
 } from '../music-interfaces/youtube-info.interface'
 import { LOG_SCOPE } from '@/constants/constants'
 import { Injectable, Inject } from '@/dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
+import { GlobalInjectToken } from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiLogger } from '@/log/logger.service'
 
 @Injectable()
@@ -21,7 +21,7 @@ export class YoutubeRequestService {
   youtubeVideos: youtube_v3.Resource$Videos = this.youtube.videos
   youtubePlayListItems: youtube_v3.Resource$Playlistitems = this.youtube.playlistItems
 
-  constructor(@Inject(INJECT_TOKEN.YOUTUBE_API_KEY) private apiKey: string) {}
+  constructor(@Inject(GlobalInjectToken.YOUTUBE_API_KEY) private apiKey: string) {}
 
   public youtubeApiRequest<T>(url: string): Promise<T> {
     return new Promise<T>((resolve, reject) => {

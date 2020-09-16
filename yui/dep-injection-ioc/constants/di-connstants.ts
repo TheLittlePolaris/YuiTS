@@ -28,11 +28,14 @@ export const DESIGN_TYPE = 'design:type'
 
 export const METHOD_PARAM_METADATA = 'method:params'
 
-export enum INJECT_TOKEN {
-  BOT_TOKEN = 'bot-token',
-  BOT_OPTION = 'bot-option',
-  BOT_PREFIX = 'bot-prefix',
-  YOUTUBE_API_KEY = 'youtube-api-key',
-  CLIENT = 'client',
-  GLOBAL_STREAMS = 'global-streams',
+export enum GlobalInjectToken {
+  BOT_TOKEN = 'BOT_TOKEN',
+  BOT_OPTION = 'BOT_OPTION',
+  BOT_PREFIX = 'BOT_PREFIX',
+  YOUTUBE_API_KEY = 'YOUTUBE_API_KEY',
+  YUI_CLIENT = 'YUI_CLIENT',
+  GLOBAL_STREAMS = 'GLOBAL_STREAMS',
 }
+
+export type InjectTokenValue = Record<GlobalInjectToken, string>
+export type InjectTokenName = keyof typeof GlobalInjectToken

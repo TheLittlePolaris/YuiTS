@@ -24,6 +24,7 @@ import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holosta
 import { NIJI_KNOWN_REGION } from './vtuberstat-service/nijistat-service/nijistat.interface'
 import { YuiLogger } from '@/log/logger.service'
 import { YuiClient } from '@/yui-client'
+import Axios from 'axios'
 
 @FeatureServiceInitiator()
 export class FeatureService {
@@ -45,11 +46,6 @@ export class FeatureService {
     }
     const timeStart = message.createdTimestamp
     const timeEnd = sentMessage.createdTimestamp
-
-    // const image: Buffer = await pingImageGenerator(
-    //   yuiPing,
-    //   timeEnd - timeStart
-    // ).catch((err) => this.handleError(new Error(err)))
     const embed = await discordRichEmbedConstructor({
       title: 'Status',
       description: `:heartbeat: **Yui's ping: \`${yuiPing}ms\`**.\n:revolving_hearts: **Estimated message RTT: \`${
@@ -204,6 +200,21 @@ export class FeatureService {
       affiliation: 'Nijisanji',
       regionCode: region,
     })
+  }
+
+  public async getTest() {
+    const { data } = await Axios.get('https://panel.sendcloud.sc/api/v2/parcels', {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization:
+          'Basic ' +
+          Buffer.from('fbc8dac59dec4218a0c3ebcbb966df37:f80b8a335b034781ac24793ae59bbc1d').toString(
+            'base64'
+          ),
+      },
+    })
+
+    console.log(data)
   }
 
   private async sendMessage(
