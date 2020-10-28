@@ -4,7 +4,11 @@ import {
   ADMIN_ACTION_TYPE,
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
 import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
-import { Type, GenericClassDecorator, Prototype } from '../dep-injection-ioc/interfaces/di-interfaces'
+import {
+  Type,
+  GenericClassDecorator,
+  Prototype,
+} from '../dep-injection-ioc/interfaces/di-interfaces'
 import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
 enum REFLECT_PERMISSION_SYMBOLS {
@@ -28,8 +32,13 @@ export function AdminPermissionValidator() {
     const originalDescriptor = descriptor.value
 
     descriptor.value = async function (..._args: any[]) {
+      console.log('RUN THIS')
+
       const [message, args, command] = _args as [Message, Array<string>, string]
-      const [yui, actionMember] = [await message.guild.members.fetch(global.config.yuiId), message.member]
+      const [yui, actionMember] = [
+        await message.guild.members.fetch(global.config.yuiId),
+        message.member,
+      ]
       if (!command || !ADMIN_COMMANDS.includes(command)) return
 
       const isOwner: boolean = message.author.id === global.config.ownerId

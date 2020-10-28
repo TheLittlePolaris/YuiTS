@@ -4,7 +4,10 @@ import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/handlers/services/administration/admin-interfaces/administration.interface'
-import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
+import {
+  INJECTABLE_METADATA,
+  METHOD_PARAM_METADATA,
+} from '@/dep-injection-ioc/constants/di-connstants'
 import {
   GenericClassDecorator,
   Type,
@@ -13,7 +16,7 @@ import {
 } from '../dep-injection-ioc/interfaces/di-interfaces'
 import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
-enum REFLECT_ADMIN_ACTION_SYMBOLS {
+enum ADMIN_PARAMS {
   REASON = 'reason',
   TARGETS = 'targets',
   ROLES = 'roles',
@@ -21,13 +24,8 @@ enum REFLECT_ADMIN_ACTION_SYMBOLS {
   EXECUTOR = 'executor',
 }
 
-const REFLECT_PERMISSION_KEYS = {
-  REASON_KEY: Symbol(REFLECT_ADMIN_ACTION_SYMBOLS.REASON),
-  TARGETS_KEY: Symbol(REFLECT_ADMIN_ACTION_SYMBOLS.TARGETS),
-  ROLES: Symbol(REFLECT_ADMIN_ACTION_SYMBOLS.ROLES),
-  NICKNAME: Symbol(REFLECT_ADMIN_ACTION_SYMBOLS.NICKNAME),
-  EXECUTOR: Symbol(REFLECT_ADMIN_ACTION_SYMBOLS.EXECUTOR),
-}
+export type ADMIN_PARAM_NAME = Record<ADMIN_PARAMS, string>
+export type ADMIN_PARAM_KEY = keyof typeof ADMIN_PARAMS
 
 export function AdminActionInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return function (target: Type<T>) {
@@ -59,101 +57,62 @@ export function ValidateCommand<T = any>(): GenericMethodDecorator<T> {
         message.author.send('**Please mention at least one member for the action.**')
         return
       }
+      const reason = args.filter((arg) => !/^<@(?:!?)\d+>/i.test(arg))
 
-      const mentionedStrings = mentionedMembers.map((member) => member.id)
-      const reason = args.filter((arg) => {
-        return mentionedStrings.every((str) => {
-          return !new RegExp(str, 'i').test(arg)
-        })
-      })
+      const paramIndexes: { [key: string]: number } = Reflect.getMetadata(
+        METHOD_PARAM_METADATA,
+        target,
+        propertyKey
+      )
 
-      const [executorIndex, targetsIndex, reasonIndex] = [
-        Reflect.getMetadata(REFLECT_PERMISSION_KEYS.EXECUTOR, target, propertyKey),
-        Reflect.getMetadata(REFLECT_PERMISSION_KEYS.TARGETS_KEY, target, propertyKey),
-        Reflect.getMetadata(REFLECT_PERMISSION_KEYS.REASON_KEY, target, propertyKey),
+      const [targetsIndex, executorIndex, reasonIndex] = [
+        paramIndexes[ADMIN_PARAMS.TARGETS],
+        paramIndexes[ADMIN_PARAMS.EXECUTOR],
+        paramIndexes[ADMIN_PARAMS.REASON],
       ]
 
       if (!targetsIndex) return
 
-      if (executorIndex !== undefined) _args[executorIndex] = executor
+      if (paramIndexes[ADMIN_PARAMS.EXECUTOR] !== undefined) _args[executorIndex] = executor
       _args[targetsIndex] = mentionedMembers
-
       if (['addrole', 'removerole'].includes(subCommand)) {
-        const serverRoles = await (await message.guild.roles.fetch()).cache.array()
-        const selectedRoles: Role[] = serverRoles
-          .map((role) => {
-            const test = reason.filter((arg) => {
-              const idTest = new RegExp(role.id, 'i').test(arg)
-              const nameTest = new RegExp(role.name, 'i').test(arg)
-              return idTest || nameTest
-            })
-            return !!test.length && role
-          })
-          .filter(Boolean)
-
+        const serverRoles = (await message.guild.roles.fetch()).cache.array()
+        const selectedRoles: Role[] = serverRoles.filter((role) => {
+          const regexp = new RegExp(`^(?:<@&${role.id}>|${role.name})$`, 'gi')
+          const { length } = reason.filter(
+            (arg, i) => (regexp.test(arg) && delete reason[i]) || false
+          )
+          return !!length
+        })
         if (!selectedRoles) {
           message.author.send('**Please mention a role or type a role name**')
           return
         }
-
-        const updatedReason = reason.filter((arg) => {
-          const test = selectedRoles.filter((role) => {
-            const idTest = new RegExp(role.id, 'i').test(arg)
-            const nameTest = new RegExp(role.name, 'i').test(arg)
-            return idTest || nameTest
-          })
-          return !test.length
-        })
-
-        const rolesIndex = Reflect.getMetadata(REFLECT_PERMISSION_KEYS.ROLES, target, propertyKey)
-
-        if (rolesIndex === undefined) return
+        const updatedReason = reason.filter(Boolean)
+        const rolesIndex = paramIndexes[ADMIN_PARAMS.ROLES]
+        if (rolesIndex == null) return
         _args[rolesIndex] = selectedRoles
-
-        if (reasonIndex !== undefined) _args[reasonIndex] = updatedReason.join(' ')
-
+        if (reasonIndex != null) _args[reasonIndex] = updatedReason.join(' ')
         return originalDescriptor.apply(this, _args)
       } else if (['setnickname'].includes(subCommand)) {
-        const nicknameIndex = Reflect.getMetadata(REFLECT_PERMISSION_KEYS.NICKNAME, target, propertyKey)
+        const nicknameIndex = paramIndexes[ADMIN_PARAMS.NICKNAME]
 
-        if (nicknameIndex === undefined) return
+        if (nicknameIndex == null) return
         _args[nicknameIndex] = reason.join(' ')
 
         return originalDescriptor.apply(this, _args)
       }
 
-      if (reasonIndex !== undefined) _args[reasonIndex] = reason.join(' ')
+      if (reasonIndex != null) _args[reasonIndex] = reason.join(' ')
       return originalDescriptor.apply(this, _args)
     }
   }
 }
 
-export const Targets = () => {
+export const AdminParam = (key: ADMIN_PARAM_KEY) => {
   return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.TARGETS_KEY, paramIndex, target, propertyKey)
-  }
-}
-
-export const Reason = () => {
-  return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.REASON_KEY, paramIndex, target, propertyKey)
-  }
-}
-
-export const NickName = () => {
-  return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.NICKNAME, paramIndex, target, propertyKey)
-  }
-}
-
-export const GuildRoles = () => {
-  return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.ROLES, paramIndex, target, propertyKey)
-  }
-}
-
-export const Executor = () => {
-  return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.EXECUTOR, paramIndex, target, propertyKey)
+    let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
+    definedParams = { [ADMIN_PARAMS[key]]: paramIndex, ...definedParams }
+    Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
   }
 }

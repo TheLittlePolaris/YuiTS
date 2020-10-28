@@ -30,20 +30,12 @@ export function FeatureServiceInitiator<T = any>(): GenericClassDecorator<Type<T
 }
 
 export function FeaturePermissionValidator() {
-  return function (
-    target: Prototype,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
+  return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(target.constructor.name, 'FeaturePermissionValidator', propertyKey)
 
     const originalDescriptor: Function = descriptor.value
 
-    descriptor.value = async function (
-      message: Message,
-      params: string[],
-      ...args: any[]
-    ) {
+    descriptor.value = async function (message: Message, params: string[], ...args: any[]) {
       // let filteredArgs = []
       let filteredArgs = <any[]>[message, params, ...args]
       const requiredPermissions: PermissionString[] = ['SEND_MESSAGES']
@@ -77,12 +69,10 @@ export function FeaturePermissionValidator() {
       const actionIndex = paramIndexes[FEATURE_PROPERTY_PARAMS.ACTION]
       const requestIndex = paramIndexes[FEATURE_PROPERTY_PARAMS.REQUEST_PARAM]
 
-      // const arrayArgs = filteredArgs[1] as Array<string>
-
       if (mentioned.length) {
         filteredArgs[mentionIndex] = mentioned.toString().split(',')
         const mentionedIds = mentioned.map((member) => member.id)
-
+        console.log(params)
         const userAction = params.filter((arg) => {
           const test = mentionedIds.filter((id) => {
             return new RegExp(id, 'i').test(arg)
@@ -103,8 +93,7 @@ export function FeaturePermissionValidator() {
 
 export const FeatureParam = (key: FEATURE_PARAM_KEY) => {
   return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    let definedParams =
-      Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
+    let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
     definedParams = { [FEATURE_PROPERTY_PARAMS[key]]: paramIndex, ...definedParams }
     Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
   }

@@ -50,13 +50,13 @@ export function AccessController(
       const stream = this.streams.has(guild.id) ? this.streams.get(guild.id) : null
       const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey)
 
-      const streamParamIndex: number = paramIndexes[MUSIC_PARAM.STREAM]
+      const streamParamIndex: number | undefined = paramIndexes[MUSIC_PARAM.STREAM]
 
-      if (streamParamIndex !== undefined) filteredArgs[streamParamIndex] = stream
+      if (streamParamIndex != null) filteredArgs[streamParamIndex] = stream
 
       const clientUserIndex: number = paramIndexes[MUSIC_PARAM.CLIENT]
 
-      if (clientUserIndex !== undefined) {
+      if (clientUserIndex != null) {
         const client = await message.guild.members
           .fetch(global.config.yuiId)
           .catch((err) => handleError(err))
