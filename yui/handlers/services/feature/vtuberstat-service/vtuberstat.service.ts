@@ -165,9 +165,9 @@ export class VtuberStatService {
     const description = `**Description:** ${channelData.snippet.description}
     
     **Created date: \`${publishedDate}\`
-    Subscriber count: \`${subscriberCount}\`
-    View count: \`${channelData.statistics.viewCount}\`
-    Video count: \`${channelData.statistics.videoCount}\`${
+    Subscribers: \`${subscriberCount}\`
+    Views: \`${channelData.statistics.viewCount}\`
+    Videos: \`${channelData.statistics.videoCount}\`${
       isBilibili
         ? `
     Bilibili Live Room: [${channelData.bilibiliRoomInfo.title}](${channelData.bilibiliRoomInfo.url})`

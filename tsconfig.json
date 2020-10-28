@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "noImplicitAny": false,
     "noErrorTruncation": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "declaration": true,

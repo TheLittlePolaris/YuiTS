@@ -4,7 +4,7 @@ import { NijiStatRequestService } from './nijistat-service/nijistat-request.serv
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { VtuberStatService } from './vtuberstat.service'
-import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
+import { GlobalInjectToken } from '@/dep-injection-ioc/constants/di-connstants'
 
 @YuiModule({
   components: [
@@ -14,6 +14,6 @@ import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
     BilibiliChannelService,
     YoutubeChannelService,
   ],
-  providers: [{ provide: INJECT_TOKEN.YOUTUBE_API_KEY, useValue: global.config.youtubeApiKey }],
+  providers: [{ provide: GlobalInjectToken.YOUTUBE_API_KEY, useValue: global.config.youtubeApiKey }],
 })
 export class VTuberModule {}

@@ -13,7 +13,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
     jp: 'UCJFZiqLMntJufDCHc6bQixg',
     id: 'UCOyYb1c43VlX9rc_lT6NKQw',
     cn: ['456368455', '354411419', '427061218', '511613156', '511613155', '511613157'],
-    en: 'UCMwGHR0BTZuLsmjY_NT5Pwg',
+    en: 'UCotXwY6s8pWmuWd_snKYjhg',
   }
 
   constructor(
