@@ -21,7 +21,7 @@ export class YoutubeRequestService {
   youtubeVideos: youtube_v3.Resource$Videos = this.youtube.videos
   youtubePlayListItems: youtube_v3.Resource$Playlistitems = this.youtube.playlistItems
 
-  constructor(@Inject(GlobalInjectToken.YOUTUBE_API_KEY) private apiKey: string) {}
+  constructor(@Inject(GlobalInjectToken.YOUTUBE_API_KEY) private apiKey: string) { }
 
   public youtubeApiRequest<T>(url: string): Promise<T> {
     return new Promise<T>((resolve, reject) => {

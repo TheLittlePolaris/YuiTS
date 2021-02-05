@@ -323,7 +323,7 @@ export class VtuberStatService {
     message: Message,
     content: string | MessageEmbed | MessageOptions
   ): Promise<Message> {
-    return await message.channel.send(content).catch((err) => this.handleError(new Error(err)))
+    return await message.channel.send(content as any).catch((err) => this.handleError(new Error(err)))
   }
 
   private async deleteMessage(

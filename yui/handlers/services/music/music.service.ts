@@ -447,8 +447,7 @@ export class MusicService {
 
       const onStreamEnd = ({ error, reason }: { error?: string | Error; reason?: string }) => {
         // destroy ongoing stream (if there is)
-        if (readableStream) readableStream.destroy()
-
+        if (readableStream) readableStream.destroy()        
         if (error) {
           this.handleError(error as string)
         }

@@ -15,7 +15,7 @@ import {
   // RequestParams,
   // UserAction,
 } from '@/decorators/feature-permisson.decorator'
-import { GuildMember, Message, MessageAttachment, MessageEmbed, MessageOptions } from 'discord.js'
+import { APIMessage, GuildMember, Message, MessageAttachment, MessageEmbed, MessageOptions } from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
 import { tenorRequestService } from './feature-services/feature-utilities'
@@ -219,9 +219,9 @@ export class FeatureService {
 
   private async sendMessage(
     message: Message,
-    content: string | MessageEmbed | MessageOptions | MessageAttachment
+    content: string | MessageEmbed | MessageOptions | MessageAttachment | MessageOptions | APIMessage
   ): Promise<Message> {
-    return await message.channel.send(content).catch((error) => this.handleError(new Error(error)))
+    return await message.channel.send(content as any).catch((error) => this.handleError(new Error(error)))
   }
 
   private handleError(error: Error | string): null {
