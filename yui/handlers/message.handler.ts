@@ -6,8 +6,9 @@ import { AdministrationService } from './services/administration/administration.
 import { FeatureService } from './services/feature/feature.service'
 import { MusicService } from './services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@MessageHandlerInitiator()
+@Injectable()
 export class MessageHandler {
   constructor(
     private musicService: MusicService,

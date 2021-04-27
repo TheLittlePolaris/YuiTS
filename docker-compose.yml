@@ -1,8 +1,18 @@
 version: '3.3'
 services:
   yui:
+    environment:
+      - NODE_ENV=build
     image: yui-little-house:latest
     container_name: Yui-no-Ie
+    ports:
+      - '80:80'
+      - '443:443'
+    mem_limit: 500m
+    volumes:
+      - 'app:/yui'
     build:
-      context: ./
-      dockerfile: ./Dockerfile
+      context: .
+
+volumes:
+  app:

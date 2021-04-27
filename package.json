@@ -32,6 +32,7 @@
     "erlpack": "github:discordapp/erlpack",
     "ffmpeg-static": "^4.2.5",
     "fs": "^0.0.1-security",
+    "google-auth-library": "^7.0.4",
     "googleapis": "^52.1.0",
     "libsodium-wrappers": "^0.7.6",
     "log4js": "^6.1.2",
@@ -45,7 +46,7 @@
     "rimraf": "^3.0.2",
     "tslib": "^1.11.2",
     "utf-8-validate": "^5.0.2",
-    "ytdl-core": "^2.1.7",
+    "ytdl-core": "^4.5.0",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {

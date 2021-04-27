@@ -29,8 +29,9 @@ import { NijiStatRequestService } from './nijistat-service/nijistat-request.serv
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { YuiLogger } from '@/log/logger.service'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@VtuberStatServiceInitiator()
+@Injectable()
 export class VtuberStatService {
   constructor(
     private holostatRequestService: HoloStatRequestService,
@@ -59,7 +60,7 @@ export class VtuberStatService {
       affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
     const dataList = await service
       .getChannelList(regionCode as any)
-      .catch((err) => this.handleError(new Error(err)))
+      .catch((err) => this.handleError(err))
 
     if (!dataList || !dataList.length)
       return this.sendMessage(message, '**Something went wrong :(**')
@@ -321,7 +322,7 @@ export class VtuberStatService {
 
   private async sendMessage(
     message: Message,
-    content: string | MessageEmbed | MessageOptions
+    content: any
   ): Promise<Message> {
     return await message.channel.send(content).catch((err) => this.handleError(new Error(err)))
   }

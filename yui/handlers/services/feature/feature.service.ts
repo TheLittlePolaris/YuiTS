@@ -24,8 +24,9 @@ import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holosta
 import { NIJI_KNOWN_REGION } from './vtuberstat-service/nijistat-service/nijistat.interface'
 import { YuiLogger } from '@/log/logger.service'
 import { YuiClient } from '@/yui-client'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@FeatureServiceInitiator()
+@Injectable()
 export class FeatureService {
   constructor(private _vtuberStatService: VtuberStatService, public yui: YuiClient) {
     YuiLogger.debug(`Created!`, LOG_SCOPE.FEATURE_SERVICE)
@@ -208,7 +209,7 @@ export class FeatureService {
 
   private async sendMessage(
     message: Message,
-    content: string | MessageEmbed | MessageOptions | MessageAttachment
+    content: any
   ): Promise<Message> {
     return await message.channel.send(content).catch((error) => this.handleError(new Error(error)))
   }

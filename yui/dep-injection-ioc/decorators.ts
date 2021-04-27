@@ -8,6 +8,7 @@ import {
   DESIGN_TYPE,
 } from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiContainerFactory } from './container-factory'
+import { decoratorLogger } from './log/logger'
 
 // NestJS Inject function, edited
 export const Inject = (token: string) => {
@@ -30,6 +31,7 @@ export const Inject = (token: string) => {
 
 export function Injectable<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<any>) => {
+    decoratorLogger(target.name, 'ClassDecorator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }

@@ -24,7 +24,7 @@ export type FEATURE_PARAM_KEY = keyof typeof FEATURE_PROPERTY_PARAMS
 
 export function FeatureServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return function (target: Type<T>) {
-    decoratorLogger(target.name, 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
@@ -35,7 +35,7 @@ export function FeaturePermissionValidator() {
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
-    decoratorLogger(target.constructor.name, 'FeaturePermissionValidator', propertyKey)
+    decoratorLogger(target.constructor.name, propertyKey)
 
     const originalDescriptor: Function = descriptor.value
 

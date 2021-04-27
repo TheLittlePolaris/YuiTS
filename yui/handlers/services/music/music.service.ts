@@ -1,5 +1,5 @@
 import { Constants, LOG_SCOPE } from '@/constants/constants'
-import { AccessController, MusicServiceInitiator, MusicParam } from '@/decorators/music.decorator'
+import { AccessController, MusicParam } from '@/decorators/music.decorator'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import {
   GuildMember,
@@ -37,11 +37,11 @@ import {
   isYoutubeUrl,
   youtubeTimeConverter,
 } from './youtube-service/youtube-utilities'
-import { Inject } from '@/dep-injection-ioc/decorators'
+import { Inject, Injectable } from '@/dep-injection-ioc/decorators'
 import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiLogger } from '@/log/logger.service'
 
-@MusicServiceInitiator()
+@Injectable()
 export class MusicService {
   constructor(
     private youtubeInfoService: YoutubeInfoService,
@@ -416,8 +416,8 @@ export class MusicService {
       const { type, id, videoUrl } = stream.queue.at(0)
 
       const downloadOptions: ytdl.downloadOptions = {
-        quality: 'highestaudio',
         filter: 'audioonly',
+        quality: 'highestaudio',
         highWaterMark: 1 << 24, // max 16MB
         liveBuffer: 40000,
       }
@@ -430,7 +430,7 @@ export class MusicService {
       if (!readableStream) throw new Error('Stream not created.')
 
       this.playStream(stream, readableStream, {
-        volume: 0.8,
+        volume: 0.7,
         highWaterMark: 50,
       })
 

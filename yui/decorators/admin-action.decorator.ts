@@ -31,14 +31,14 @@ const REFLECT_PERMISSION_KEYS = {
 
 export function AdminActionInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return function (target: Type<T>) {
-    decoratorLogger(target.name, LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
+    decoratorLogger(target.name, 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
 export function ValidateCommand<T = any>(): GenericMethodDecorator<T> {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(target.constructor.name, 'ValidateCommand', propertyKey)
+    decoratorLogger(target.constructor.name, propertyKey)
 
     const originalDescriptor = descriptor.value
     descriptor.value = async function (..._args: any[]) {

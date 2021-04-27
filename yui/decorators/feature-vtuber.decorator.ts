@@ -32,14 +32,14 @@ export type VTUBER_PARAM_KEY = keyof typeof VTUBER_PARAMS
 
 export function VtuberStatServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
 
 export function HoloStatCommandValidator() {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    decoratorLogger(target.constructor.name, 'HoloStatCommandValidator', propertyKey)
+    decoratorLogger(target.constructor.name, propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = function (message: Message, params: string[], ...args: any[]) {
       let filteredArgs = <any[]>[message, params, ...args]
@@ -98,7 +98,7 @@ export function HoloStatCommandValidator() {
 
 export function NijiStatCommandValidator() {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    decoratorLogger(target.constructor.name, 'NijiStatCommandValidator', propertyKey)
+    decoratorLogger(target.constructor.name, propertyKey)
 
     const originalMethod = descriptor.value
 

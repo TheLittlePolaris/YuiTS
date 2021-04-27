@@ -16,7 +16,7 @@ import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
 export function Yui<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target['name'], 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
@@ -26,7 +26,7 @@ export const On = (event: DiscordEvent): MethodDecorator => {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
     const propertyDesignType = Reflect.getMetadata(DESIGN_TYPE, target, propertyKey)
     if (!isFunction(propertyDesignType)) throw new Error(`Client's event property has to be a method!`)
-    decoratorLogger(target.constructor.name, `On - ${event}`, propertyKey)
+    decoratorLogger(`On - ${event}`, propertyKey)
     let eventList: { [key: string]: string } = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, target) || []
     eventList = { ...eventList, [event]: propertyKey }
     Reflect.defineMetadata(COMPONENT_METADATA.EVENT_LIST, eventList, target)

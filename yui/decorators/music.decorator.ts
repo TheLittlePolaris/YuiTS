@@ -21,7 +21,7 @@ export type MUSIC_PARAM_KEY = keyof typeof MUSIC_PARAM
 
 export function MusicServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
@@ -33,7 +33,7 @@ export function AccessController(
   }
 ) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    decoratorLogger(target.constructor.name, 'AccessController', propertyKey)
+    decoratorLogger(target.constructor.name, propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = async function (message: Message, ...args: any[]) {
       const filteredArgs = <any[]>[message, ...args]

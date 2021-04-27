@@ -4,7 +4,7 @@ import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
 export function VoiceStateInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Initiator')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
