@@ -48,7 +48,8 @@ export function AccessController(
       if (!this.streams) return
 
       const stream = this.streams.has(guild.id) ? this.streams.get(guild.id) : null
-      const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey)
+    
+      const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
 
       const streamParamIndex: number | undefined = paramIndexes[MUSIC_PARAM.STREAM]
 
@@ -77,7 +78,7 @@ export function AccessController(
       }
 
       if (boundVoiceChannel) {
-        const boundTextChannel = stream.boundTextChannel
+        const boundTextChannel = stream?.boundTextChannel
         if (channel.id !== boundTextChannel.id || voiceChannel.id !== boundVoiceChannel.id) {
           return this.replyMessage(
             message,
@@ -95,7 +96,7 @@ export function AccessController(
 
 export const MusicParam = (key: MUSIC_PARAM_KEY) => {
   return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
+    let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
     definedParams = { [MUSIC_PARAM[key]]: paramIndex, ...definedParams }
     Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
   }

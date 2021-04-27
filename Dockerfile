@@ -15,9 +15,7 @@ RUN echo "<=========== Install build dependencies ===============>" &&\
   echo "<=========== Remove virtual dependencies ===============>" &&\
   apk del .build-deps &&\
   echo "<=========== Add runtime service youtube-dl ===============>" &&\
-  apk add youtube-dl &&\
-  ls -la
-
+  apk add youtube-dl
 
 CMD ["node", "./dist/yui.js"]
 

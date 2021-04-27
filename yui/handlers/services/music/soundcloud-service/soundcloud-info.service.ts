@@ -53,7 +53,6 @@ export class PolarisSoundCloudService {
             const parsedRaw = parseRawInfo(buffer.toString('utf-8'))
             if (!parsedRaw) return
             const parsed = this.mapToYoutubeVideoFormat(parsedRaw, getUrl)
-            results.push(parsed)
           })
           .on('end', () => {
             resolve(results.length > 1 ? results : results[0])
@@ -92,7 +91,6 @@ export class PolarisSoundCloudService {
     })
     const timeEnd = console.timeEnd('json')
     const rawInfo = result.stdout.trim().split(/\r?\n/)
-    console.log(rawInfo[0])
     if (!rawInfo || !rawInfo.length) return []
 
     const info = rawInfo

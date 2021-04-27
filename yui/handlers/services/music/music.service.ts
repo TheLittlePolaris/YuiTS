@@ -167,7 +167,7 @@ export class MusicService {
   @AccessController({ join: true })
   public async joinVoiceChannel(message: Message): Promise<void> {
     const connection = await this.createStream(message).catch((err) =>
-      this.handleError(new Error(err))
+      this.handleError(err)
     )
     if (connection) this.sendMessage(message, ' :loudspeaker: Kawaii **Yui-chan** is here~! xD')
     else {
@@ -175,7 +175,7 @@ export class MusicService {
         const stream = this.streams.get(message.guild.id)
         if (stream) this.leaveVoiceChannel(message, true)
       } catch (err) {
-        this.handleError(new Error(err))
+        this.handleError(err)
       }
       this.sendMessage(message, '**Connection could not be established. Please try again.**')
     }
@@ -316,7 +316,7 @@ export class MusicService {
     } else {
       const song = (await this.soundcloudService
         .getInfoUrl(args)
-        .catch((err) => this.handleError(new Error(err)))) as IYoutubeVideo
+        .catch((err) => this.handleError(err))) as IYoutubeVideo
       if (!song) {
         this.sendMessage(message, '**Something went wrong...**')
         return
@@ -900,7 +900,7 @@ export class MusicService {
   ): void {
     // stream = stream!
     if (!stream) {
-      this.handleError(new Error('Undefined stream value'))
+      this.handleError('Undefined stream value')
       return
     }
 
@@ -1025,7 +1025,6 @@ export class MusicService {
       .getInfoUrlTest(link)
       .catch((err) => this.handleError(new Error(err)))
 
-    console.log(info)
   }
 
   private async sendMessage(message: Message, content: string | MessageEmbed): Promise<Message> {

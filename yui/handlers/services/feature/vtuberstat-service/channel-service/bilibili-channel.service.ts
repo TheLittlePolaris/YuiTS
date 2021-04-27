@@ -20,7 +20,7 @@ export class BilibiliChannelService implements BaseChannelService {
   public async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(
       channelIds.map((id) => bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView']))
-    ).catch((err) => this.handleError(err))
+    )
     if (!results) return []
     const channelData = results.map(this.mapToYoutubeChannel)
     return channelData
@@ -29,7 +29,7 @@ export class BilibiliChannelService implements BaseChannelService {
   public async testgetAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(
       channelIds.map((id) => bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView']))
-    ).catch((err) => this.handleError(err))
+    )
     if (!results) return []
     const channelData = results.map(this.mapToYoutubeChannel)
     return channelData
@@ -42,7 +42,7 @@ export class BilibiliChannelService implements BaseChannelService {
       'video',
       'info',
       'archiveView',
-    ]).catch((err) => this.handleError(err))
+    ])
     if (!result) return null
     return this.mapToYoutubeChannel(result)
   }
