@@ -15,7 +15,7 @@ import {
   // RequestParams,
   // UserAction,
 } from '@/decorators/feature-permisson.decorator'
-import { GuildMember, Message, MessageAttachment, MessageEmbed, MessageOptions } from 'discord.js'
+import { APIMessage, APIMessageContentResolvable, GuildMember, Message, MessageAdditions, MessageAttachment, MessageEmbed, MessageOptions } from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
 import { tenorRequestService } from './feature-services/feature-utilities'
@@ -25,6 +25,7 @@ import { NIJI_KNOWN_REGION } from './vtuberstat-service/nijistat-service/nijista
 import { YuiLogger } from '@/log/logger.service'
 import { YuiClient } from '@/yui-client'
 import { Injectable } from '@/dep-injection-ioc/decorators'
+import Axios from 'axios'
 
 @Injectable()
 export class FeatureService {
@@ -46,11 +47,6 @@ export class FeatureService {
     }
     const timeStart = message.createdTimestamp
     const timeEnd = sentMessage.createdTimestamp
-
-    // const image: Buffer = await pingImageGenerator(
-    //   yuiPing,
-    //   timeEnd - timeStart
-    // ).catch((err) => this.handleError(new Error(err)))
     const embed = await discordRichEmbedConstructor({
       title: 'Status',
       description: `:heartbeat: **Yui's ping: \`${yuiPing}ms\`**.\n:revolving_hearts: **Estimated message RTT: \`${
@@ -207,9 +203,24 @@ export class FeatureService {
     })
   }
 
+  public async getTest() {
+    const { data } = await Axios.get('https://panel.sendcloud.sc/api/v2/parcels', {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization:
+          'Basic ' +
+          Buffer.from('fbc8dac59dec4218a0c3ebcbb966df37:f80b8a335b034781ac24793ae59bbc1d').toString(
+            'base64'
+          ),
+      },
+    })
+
+    // console.log(data)
+  }
+
   private async sendMessage(
     message: Message,
-    content: any
+    content: APIMessageContentResolvable | (MessageOptions & { split?: false }) | MessageAdditions
   ): Promise<Message> {
     return await message.channel.send(content).catch((error) => this.handleError(new Error(error)))
   }

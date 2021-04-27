@@ -166,9 +166,9 @@ export class VtuberStatService {
     const description = `**Description:** ${channelData.snippet.description}
     
     **Created date: \`${publishedDate}\`
-    Subscriber count: \`${subscriberCount}\`
-    View count: \`${channelData.statistics.viewCount}\`
-    Video count: \`${channelData.statistics.videoCount}\`${
+    Subscribers: \`${subscriberCount}\`
+    Views: \`${channelData.statistics.viewCount}\`
+    Videos: \`${channelData.statistics.videoCount}\`${
       isBilibili
         ? `
     Bilibili Live Room: [${channelData.bilibiliRoomInfo.title}](${channelData.bilibiliRoomInfo.url})`
@@ -324,7 +324,7 @@ export class VtuberStatService {
     message: Message,
     content: any
   ): Promise<Message> {
-    return await message.channel.send(content).catch((err) => this.handleError(new Error(err)))
+    return await message.channel.send(content as any).catch((err) => this.handleError(new Error(err)))
   }
 
   private async deleteMessage(

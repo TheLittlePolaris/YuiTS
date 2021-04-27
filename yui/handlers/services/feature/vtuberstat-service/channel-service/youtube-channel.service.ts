@@ -2,7 +2,7 @@ import { google, youtube_v3 } from 'googleapis'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { BaseChannelService } from './base-channel.service'
 import { Injectable, Inject } from '@/dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
+import { GlobalInjectToken } from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiLogger } from '@/log/logger.service'
 import { LOG_SCOPE } from '@/constants/constants'
 import clientSecret from '@/YuiTS_Client_Secrets.json'
@@ -11,7 +11,7 @@ import { join } from 'path'
 
 @Injectable()
 export class YoutubeChannelService implements BaseChannelService {
-  constructor(@Inject(INJECT_TOKEN.YOUTUBE_API_KEY) private youtubeApiKey: string) {
+  constructor(@Inject('YOUTUBE_API_KEY') private youtubeApiKey: string) {
     YuiLogger.debug(`Created!`, LOG_SCOPE.YOUTUBE_CHANNEL_SERVICE)
   }
 

@@ -38,7 +38,6 @@ import {
   youtubeTimeConverter,
 } from './youtube-service/youtube-utilities'
 import { Inject, Injectable } from '@/dep-injection-ioc/decorators'
-import { INJECT_TOKEN } from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiLogger } from '@/log/logger.service'
 
 @Injectable()
@@ -47,7 +46,7 @@ export class MusicService {
     private youtubeInfoService: YoutubeInfoService,
     private soundcloudService: PolarisSoundCloudService,
     private soundcloudPlayer: PolarisSoundCloudPlayer,
-    @Inject(INJECT_TOKEN.GLOBAL_STREAMS) public streams: Map<string, MusicStream>
+    @Inject('GLOBAL_STREAMS') public streams: Map<string, MusicStream>
   ) {
     YuiLogger.debug(`Created!`, LOG_SCOPE.MUSIC_SERVICE)
   }
@@ -447,8 +446,7 @@ export class MusicService {
 
       const onStreamEnd = ({ error, reason }: { error?: string | Error; reason?: string }) => {
         // destroy ongoing stream (if there is)
-        if (readableStream) readableStream.destroy()
-
+        if (readableStream) readableStream.destroy()        
         if (error) {
           this.handleError(error as string)
         }

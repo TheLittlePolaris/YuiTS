@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES2019",
+    "lib": ["ES2020", "ES2019", "ES2017", "ES2015", "esnext.asynciterable"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "noErrorTruncation": true,
+    "sourceMap": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "pretty": true,
+    "allowJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "incremental": true,
+    "paths": {
+      "@/*": ["./yui/*"],
+      "config-service/*": ["yui/config-service/*"]
+    }
+  },
+  "include": ["./yui/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

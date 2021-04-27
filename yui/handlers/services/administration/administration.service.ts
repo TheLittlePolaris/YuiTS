@@ -23,11 +23,14 @@ export class AdministrationService {
     message: Message,
     args: Array<string>,
     @Command() command?: ADMIN_ACTION_TYPE
-  ): Promise<void> {
-    return await this._adminActionCommands[command](message, args)
+  ) {
+    this._adminActionCommands[command](message, args)
   }
 
-  public sendMessage(message: Message, content: string | MessageEmbed): Promise<Message | Message[]> {
+  public sendMessage(
+    message: Message,
+    content: string | MessageEmbed
+  ): Promise<Message | Message[]> {
     return message.author.send(content).catch((err) => this.handleError(new Error(err)))
   }
 
