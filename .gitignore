@@ -6,3 +6,4 @@ LICENCE
 *.pem
 *.txt
 package-lock.json
+logs/

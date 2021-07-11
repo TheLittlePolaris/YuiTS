@@ -9,7 +9,7 @@ import { LOG_SCOPE } from '@/constants/constants'
 @Injectable()
 export class YoutubeChannelService implements BaseChannelService {
   constructor(@Inject('YOUTUBE_API_KEY') private youtubeApiKey: string) {
-    YuiLogger.debug(`Created!`, LOG_SCOPE.YOUTUBE_CHANNEL_SERVICE)
+    YuiLogger.info(`Created!`, LOG_SCOPE.YOUTUBE_CHANNEL_SERVICE)
   }
 
   private youtube: youtube_v3.Youtube = google.youtube({

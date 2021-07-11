@@ -17,7 +17,7 @@ export class YuiCore implements EntryComponent {
     @Inject('BOT_TOKEN') private token: string,
     @Inject('BOT_PREFIX') private prefix: string
   ) {
-    YuiLogger.debug('Created!', LOG_SCOPE.YUI_CORE)
+    YuiLogger.info('Created!', LOG_SCOPE.YUI_CORE)
   }
 
   public async start(): Promise<void> {
@@ -39,7 +39,7 @@ export class YuiCore implements EntryComponent {
             url: 'https://twitch.tv/onlypolaris',
             type: 'STREAMING',
           }),
-    ]).catch((err) => this.handleError(new Error(err)))
+    ]).catch((err) => this.handleError(err))
     YuiLogger.log('🚀 🔶Yui is online! 🚀', LOG_SCOPE.YUI_CORE)
   }
 

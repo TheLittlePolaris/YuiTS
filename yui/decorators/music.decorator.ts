@@ -21,7 +21,7 @@ export type MUSIC_PARAM_KEY = keyof typeof MUSIC_PARAM
 
 export function MusicServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Class')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }

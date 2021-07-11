@@ -24,7 +24,7 @@ export type FEATURE_PARAM_KEY = keyof typeof FEATURE_PROPERTY_PARAMS
 
 export function FeatureServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return function (target: Type<T>) {
-    decoratorLogger(target.name, 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Class')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
@@ -36,8 +36,8 @@ export function FeaturePermissionValidator() {
     const originalDescriptor: Function = descriptor.value
 
     descriptor.value = async function (message: Message, params: string[], ...args: any[]) {
-      // let filteredArgs = []
-      let filteredArgs = <any[]>[message, params, ...args]
+
+      const filteredArgs = [message, params, ...args]
       const requiredPermissions: PermissionString[] = ['SEND_MESSAGES']
       const [yui, actionMember] = await Promise.all([
         message.guild.members.fetch(global.config.yuiId),

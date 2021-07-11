@@ -77,7 +77,7 @@ export class NijiStatRequestService implements BaseRequestService<NIJI_KNOWN_REG
     private bilibiliChannelService: BilibiliChannelService,
     private youtubeChannelService: YoutubeChannelService
   ) {
-    YuiLogger.debug(`Created!`, this.constructor.name)
+    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   public async getChannelList(region: NIJI_KNOWN_REGION): Promise<IYoutubeChannel[]> {

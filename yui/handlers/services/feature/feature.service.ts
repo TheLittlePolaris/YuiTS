@@ -1,21 +1,23 @@
 import { LOG_SCOPE } from '@/constants/constants'
 import {
-  // Detail,
   HoloStatCommandValidator,
-  // Region,
   NijiStatCommandValidator,
   VTuberParam,
 } from '@/decorators/feature-vtuber.decorator'
 import {
-  // CurrentGuildMember,
   FeaturePermissionValidator,
   FeatureServiceInitiator,
   FeatureParam,
-  // MentionedUsers,
-  // RequestParams,
-  // UserAction,
+  FEATURE_PROPERTY_PARAMS,
 } from '@/decorators/feature-permisson.decorator'
-import { APIMessage, GuildMember, Message, MessageAttachment, MessageEmbed, MessageOptions } from 'discord.js'
+import {
+  APIMessage,
+  GuildMember,
+  Message,
+  MessageAttachment,
+  MessageEmbed,
+  MessageOptions,
+} from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
 import { tenorRequestService } from './feature-services/feature-utilities'
@@ -25,17 +27,19 @@ import { NIJI_KNOWN_REGION } from './vtuberstat-service/nijistat-service/nijista
 import { YuiLogger } from '@/log/logger.service'
 import { YuiClient } from '@/yui-client'
 import Axios from 'axios'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@FeatureServiceInitiator()
+@Injectable()
 export class FeatureService {
   constructor(private _vtuberStatService: VtuberStatService, public yui: YuiClient) {
-    YuiLogger.debug(`Created!`, LOG_SCOPE.FEATURE_SERVICE)
+    YuiLogger.info(`Created!`, LOG_SCOPE.FEATURE_SERVICE)
   }
 
+  getPing(message: Message, ...args: any[])
   @FeaturePermissionValidator()
   public async getPing(
     message: Message,
-    @FeatureParam('GUILD_MEMBER') yui?: GuildMember
+    @FeatureParam('GUILD_MEMBER') yui: GuildMember
   ): Promise<void> {
     const yuiPing = this.yui.ws.ping
     const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
@@ -59,11 +63,9 @@ export class FeatureService {
     this.sendMessage(message, embed)
   }
 
+  public async help(message: Message, ..._args: any[])
   @FeaturePermissionValidator()
-  public async help(
-    message: Message,
-    @FeatureParam('GUILD_MEMBER') yui?: GuildMember
-  ): Promise<void> {
+  public async help(message: Message, @FeatureParam('GUILD_MEMBER') yui: GuildMember) {
     const commands = `**__Music:__**
     \`play, p\`: Add to end
     \`playnext, pnext, pn\`: Add to next
@@ -90,7 +92,7 @@ export class FeatureService {
     \`say\`: Repeat
     \`holostat\` <?jp|id> <?detail|d>: Hololive member(s) channel status`
 
-    const embed = await discordRichEmbedConstructor({
+    const embed = discordRichEmbedConstructor({
       author: {
         authorName: yui.displayName || yui.user.username,
         avatarUrl: yui.user.avatarURL(),
@@ -104,20 +106,21 @@ export class FeatureService {
   }
 
   @FeaturePermissionValidator()
-  public async say(message: Message, args: Array<string>): Promise<void> {
-    const embed = await discordRichEmbedConstructor({
+  public say(message: Message, args: string[]) {
+    const embed = discordRichEmbedConstructor({
       description: `**${args.join(' ')}**`,
     })
     this.sendMessage(message, embed)
   }
 
+  public async tenorGif(message: Message, args: string[], ..._args: any[])
   @FeaturePermissionValidator()
   public async tenorGif(
     message: Message,
-    args: Array<string>,
-    @FeatureParam('MENTIONS') users?: GuildMember[],
-    @FeatureParam('ACTION') action?: string,
-    @FeatureParam('REQUEST_PARAM') params?: string
+    args: string[],
+    @FeatureParam('MENTIONS') users: GuildMember[],
+    @FeatureParam('ACTION') action: string,
+    @FeatureParam('REQUEST_PARAM') params: string
   ): Promise<void> {
     const num = await RNG(5)
     const result = await tenorRequestService(`${action} ${params ? params : ``}`).catch((error) =>
@@ -153,15 +156,15 @@ export class FeatureService {
       })
     )
   }
-
+  async getHoloStat(message: Message, args: string[], ..._args: any[])
   @FeaturePermissionValidator()
   @HoloStatCommandValidator()
   async getHoloStat(
     message: Message,
     args: Array<string>,
-    @FeatureParam('GUILD_MEMBER') yui?: GuildMember,
-    @VTuberParam('REGION') region?: HOLO_KNOWN_REGION,
-    @VTuberParam('DETAIL') detail?: boolean
+    @FeatureParam('GUILD_MEMBER') yui: GuildMember,
+    @VTuberParam('REGION') region: HOLO_KNOWN_REGION,
+    @VTuberParam('DETAIL') detail: boolean
   ): Promise<unknown> {
     if (!detail)
       return this._vtuberStatService.vtuberStatStatistics({
@@ -178,14 +181,15 @@ export class FeatureService {
     })
   }
 
+  async getNijiStat(message: Message, args: string[], ..._args: any[])
   @FeaturePermissionValidator()
   @NijiStatCommandValidator()
   async getNijiStat(
     message: Message,
     args: Array<string>,
-    @FeatureParam('GUILD_MEMBER') yui?: GuildMember,
-    @VTuberParam('REGION') region?: NIJI_KNOWN_REGION,
-    @VTuberParam('DETAIL') detail?: boolean
+    @FeatureParam('GUILD_MEMBER') yui: GuildMember,
+    @VTuberParam('REGION') region: NIJI_KNOWN_REGION,
+    @VTuberParam('DETAIL') detail: boolean
   ): Promise<unknown> {
     if (!detail)
       return this._vtuberStatService.vtuberStatStatistics({
@@ -219,9 +223,17 @@ export class FeatureService {
 
   private async sendMessage(
     message: Message,
-    content: string | MessageEmbed | MessageOptions | MessageAttachment | MessageOptions | APIMessage
+    content:
+      | string
+      | MessageEmbed
+      | MessageOptions
+      | MessageAttachment
+      | MessageOptions
+      | APIMessage
   ): Promise<Message> {
-    return await message.channel.send(content as any).catch((error) => this.handleError(new Error(error)))
+    return await message.channel
+      .send(content as any)
+      .catch((error) => this.handleError(new Error(error)))
   }
 
   private handleError(error: Error | string): null {

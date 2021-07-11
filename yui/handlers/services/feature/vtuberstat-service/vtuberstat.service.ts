@@ -29,8 +29,9 @@ import { NijiStatRequestService } from './nijistat-service/nijistat-request.serv
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { YuiLogger } from '@/log/logger.service'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@VtuberStatServiceInitiator()
+@Injectable()
 export class VtuberStatService {
   constructor(
     private holostatRequestService: HoloStatRequestService,
@@ -38,7 +39,7 @@ export class VtuberStatService {
     private youtubeRequestService: YoutubeChannelService,
     private bilibiliRequestService: BilibiliChannelService
   ) {
-    YuiLogger.debug('Created!', LOG_SCOPE.VTUBER_STAT_SERVICE)
+    YuiLogger.info('Created!', LOG_SCOPE.VTUBER_STAT_SERVICE)
   }
 
   public async vtuberStatSelectList({
@@ -323,7 +324,9 @@ export class VtuberStatService {
     message: Message,
     content: string | MessageEmbed | MessageOptions
   ): Promise<Message> {
-    return await message.channel.send(content as any).catch((err) => this.handleError(new Error(err)))
+    return await message.channel
+      .send(content as any)
+      .catch((err) => this.handleError(new Error(err)))
   }
 
   private async deleteMessage(

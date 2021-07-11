@@ -4,16 +4,16 @@ import { AdminstrationActionCommands } from './administration-actions/admin-acti
 import {
   Command,
   CommandValidator,
-  AdministrationServiceInitiator,
   AdminPermissionValidator,
 } from '@/decorators/permission.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiLogger } from '@/log/logger.service'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@AdministrationServiceInitiator()
+@Injectable()
 export class AdministrationService {
   constructor(private _adminActionCommands: AdminstrationActionCommands) {
-    YuiLogger.debug(`Created!`, LOG_SCOPE.ADMIN_SERVICE)
+    YuiLogger.info(`Created!`, LOG_SCOPE.ADMIN_SERVICE)
   }
 
   @CommandValidator()

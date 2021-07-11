@@ -16,7 +16,7 @@ import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
 export function Yui<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target['name'], 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Class')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }

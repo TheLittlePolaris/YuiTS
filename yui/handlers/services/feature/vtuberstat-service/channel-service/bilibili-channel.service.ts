@@ -8,7 +8,7 @@ import { YuiLogger } from '@/log/logger.service'
 @Injectable()
 export class BilibiliChannelService implements BaseChannelService {
   constructor() {
-    YuiLogger.debug(`Created!`, LOG_SCOPE.BILIBILI_CHANNEL_SERVICE)
+    YuiLogger.info(`Created!`, LOG_SCOPE.BILIBILI_CHANNEL_SERVICE)
   }
 
   public async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {

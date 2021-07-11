@@ -1,5 +1,6 @@
 import { Injectable } from '@/dep-injection-ioc/decorators'
 import { Instance, Chalk } from 'chalk'
+import { createLogger, format, Logger as WinstonLogger, transports } from 'winston'
 
 // Nestjs logger
 export interface LoggerService {
@@ -10,16 +11,53 @@ export interface LoggerService {
 }
 
 export const isObject = (fn: any): fn is object => !isNil(fn) && typeof fn === 'object'
-export const isNil = (obj: any): obj is null | undefined =>
-  isUndefined(obj) || obj === null
+export const isNil = (obj: any): obj is null | undefined => isUndefined(obj) || obj === null
 export const isUndefined = (obj: any): obj is undefined => typeof obj === 'undefined'
 
-@Injectable()
+
 export class YuiLogger implements LoggerService {
   private static chalk = new Instance({ level: 2 })
   private context: string
   private static instance?: typeof YuiLogger | LoggerService = YuiLogger
 
+  private static winstonLogger: WinstonLogger = createLogger({
+    format: format.json(),
+
+    transports: [
+      new transports.File({
+        filename: `logs/${YuiLogger.buildPath('error')}`,
+        level: 'error',
+      }),
+      new transports.File({
+        filename: `logs/${YuiLogger.buildPath('warn')}`,
+        level: 'warn',
+      }),
+      new transports.Console({
+        level: 'info',
+        format: format.combine(
+          format.colorize(),
+          format.combine(
+            format.colorize({
+              all: true,
+            }),
+            format.label({
+              label: '[Yui]',
+            }),
+            format.timestamp({
+              format: 'YY-MM-DD HH:MM:SS',
+            }),
+            format.printf(
+              (info) => ` ${info.label}  ${info.timestamp}  ${info.level} : ${info.message}`
+            )
+          )
+        ),
+      }),
+    ],
+  })
+  private static buildPath(type: string) {
+    const [m, d, y] = new Date().toLocaleDateString().split('/')
+    return `${d}-${m}-${y}_${type}.log`
+  }
   // context = class name: target.name || target.constructor.name
   constructor(context?: string) {
     this.context = context
@@ -56,23 +94,23 @@ export class YuiLogger implements LoggerService {
   }
 
   static log(message: string, context?: string) {
-    return this.printMessage(message, this.chalk.hex('#00ff00'), context)
+    return this.winstonLogger.info(this.printMessage(message, this.chalk.hex('#00ff00'), context))
   }
 
   static info(message: string, context?: string) {
-    return this.printMessage(message, this.chalk.green, context)
+    return this.winstonLogger.info(this.printMessage(message, this.chalk.green, context))
   }
 
   static warn(message: string, context?: string) {
-    return this.printMessage(message, this.chalk.yellow)
+    return this.winstonLogger.warn(this.printMessage(message, this.chalk.yellow, context))
   }
 
   static error(error: Error | string, context?: string) {
-    this.printMessage(`${error}`, this.chalk.red, context)
+    return this.winstonLogger.error(this.printMessage(error, this.chalk.red, context))
   }
 
   static debug(message: string, context?: string) {
-    this.printMessage(message, this.chalk.cyan, context)
+    return this.winstonLogger.debug(this.printMessage(message, this.chalk.cyan, context))
   }
 
   private getInstance(): typeof YuiLogger | LoggerService {
@@ -94,8 +132,8 @@ export class YuiLogger implements LoggerService {
       month: '2-digit',
     }
     const timestamp = new Date(Date.now()).toLocaleString(undefined, localeStringOptions)
-    const pid = this.chalk.keyword('orange')(`[Yui - ${process.pid}]`)
-    const msgContext = context ? this.chalk.hex('#00ffff')(`[${context}] - `) : ``
-    process.stdout.write(`[${timestamp}]${pid} - ${msgContext}${output}\n`)
+    const pid = `[${process.pid}]` // this.chalk.keyword('orange')(`[Yui - ${process.pid}]`)
+    const msgContext = context || '' // ? this.chalk.hex('#00ffff')(`[${context}] - `) : ``
+    return `[${timestamp}]${pid} - ${msgContext} ${output}\n`
   }
 }

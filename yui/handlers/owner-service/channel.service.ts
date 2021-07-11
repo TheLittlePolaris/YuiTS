@@ -2,8 +2,9 @@ import { OwnerServiceInitiator } from '@/decorators/owner-service.decorator'
 import { Message, DMChannel, Client, EmbedField, EmbedFieldData } from 'discord.js'
 import { discordRichEmbedConstructor } from '../services/utilities/discord-embed-constructor'
 import { YuiClient } from '@/yui-client'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@OwnerServiceInitiator()
+@Injectable()
 export class OwnerChannelService {
   constructor(private yuiClient: YuiClient) {}
 

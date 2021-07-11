@@ -37,11 +37,11 @@ import {
   isYoutubeUrl,
   youtubeTimeConverter,
 } from './youtube-service/youtube-utilities'
-import { Inject } from '@/dep-injection-ioc/decorators'
+import { Inject, Injectable } from '@/dep-injection-ioc/decorators'
 import { GlobalInjectToken } from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiLogger } from '@/log/logger.service'
 
-@MusicServiceInitiator()
+@Injectable()
 export class MusicService {
   constructor(
     private youtubeInfoService: YoutubeInfoService,
@@ -49,7 +49,7 @@ export class MusicService {
     private soundcloudPlayer: PolarisSoundCloudPlayer,
     @Inject('GLOBAL_STREAMS') public streams: Map<string, MusicStream>
   ) {
-    YuiLogger.debug(`Created!`, LOG_SCOPE.MUSIC_SERVICE)
+    YuiLogger.info(`Created!`, LOG_SCOPE.MUSIC_SERVICE)
   }
 
   private async createStream(message: Message): Promise<MusicStream | null> {

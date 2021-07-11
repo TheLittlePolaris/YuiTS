@@ -1,6 +1,8 @@
 import 'module-alias/register'
 import 'reflect-metadata'
 import 'config-service'
+import { decoratorLogger } from './dep-injection-ioc/log/logger'
+
 
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiContainerFactory } from './dep-injection-ioc/container-factory'
@@ -9,6 +11,7 @@ import { YuiCore } from './yui-core'
 import { YuiLogger } from './log/logger.service'
 
 const bootstrap = async (): Promise<YuiCore> => {
+
   const yuiContainerFactory = new YuiContainerFactory()
   const yuiCore = await yuiContainerFactory.create<YuiCore>(YuiMainModule)
   return yuiCore

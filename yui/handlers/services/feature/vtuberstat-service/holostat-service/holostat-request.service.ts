@@ -20,7 +20,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
     private bilibiliChannelService: BilibiliChannelService,
     private youtubeChannelService: YoutubeChannelService
   ) {
-    YuiLogger.debug('Created!', LOG_SCOPE.HOLOSTAT_REQUEST_SERVICE)
+    YuiLogger.info('Created!', LOG_SCOPE.HOLOSTAT_REQUEST_SERVICE)
   }
 
   public async getChannelList(region: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {

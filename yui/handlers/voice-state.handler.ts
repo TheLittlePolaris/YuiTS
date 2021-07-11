@@ -5,11 +5,12 @@ import { MusicStream } from './services/music/music-entities/music-stream'
 import { VoiceStateAction } from './services/music/music-interfaces/voice-state.interface'
 import { MusicService } from './services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@VoiceStateInitiator()
+@Injectable()
 export class VoiceStateHandler {
   constructor(private musicService: MusicService) {
-    YuiLogger.debug(`Created!`, LOG_SCOPE.VOICE_STATE_HANDLER)
+    YuiLogger.info(`Created!`, LOG_SCOPE.VOICE_STATE_HANDLER)
   }
   public checkOnVoiceStateUpdate(oldVoiceState: VoiceState, newVoiceState: VoiceState): void {
     try {

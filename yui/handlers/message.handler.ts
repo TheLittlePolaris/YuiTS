@@ -6,8 +6,9 @@ import { AdministrationService } from './services/administration/administration.
 import { FeatureService } from './services/feature/feature.service'
 import { MusicService } from './services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 
-@MessageHandlerInitiator()
+@Injectable()
 export class MessageHandler {
   constructor(
     private musicService: MusicService,
@@ -15,7 +16,7 @@ export class MessageHandler {
     private administrationService: AdministrationService,
     private ownerChannelService: OwnerChannelService
   ) {
-    YuiLogger.debug(`Created!`, LOG_SCOPE.MESSAGE_HANDLER)
+    YuiLogger.info(`Created!`, LOG_SCOPE.MESSAGE_HANDLER)
   }
 
   public async messageSwitchMap(

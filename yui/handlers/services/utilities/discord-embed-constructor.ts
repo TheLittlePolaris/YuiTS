@@ -14,28 +14,20 @@ interface IEmbedConstructor {
   footer?: string
 }
 
-export function discordRichEmbedConstructor(
-  records: IEmbedConstructor
-): Promise<MessageEmbed> {
-  return new Promise((resolve, reject) => {
-    const embed = new MessageEmbed()
-      .setColor(records.color || Constants.YUI_COLOR_CODE)
-      .setDescription(records.description)
+export function discordRichEmbedConstructor(records: IEmbedConstructor) {
+  const embed = new MessageEmbed()
+    .setColor(records.color || Constants.YUI_COLOR_CODE)
+    .setDescription(records.description)
 
-    if (records.title) embed.setTitle(records.title)
-    if (records.author)
-      embed.setAuthor(
-        records.author.authorName,
-        records.author.avatarUrl || null
-      )
+  if (records.title) embed.setTitle(records.title)
+  if (records.author) embed.setAuthor(records.author.authorName, records.author.avatarUrl || null)
 
-    if (records?.fields?.length) embed.addFields(...records.fields)
-    if (records.thumbnailUrl) embed.setThumbnail(records.thumbnailUrl)
-    if (records.appendTimeStamp) embed.setTimestamp()
-    if (records.titleUrl) embed.setURL(records.titleUrl)
-    if (records.footer) embed.setFooter(records.footer)
-    if (records.imageUrl) embed.setImage(records.imageUrl)
+  if (records?.fields?.length) embed.addFields(...records.fields)
+  if (records.thumbnailUrl) embed.setThumbnail(records.thumbnailUrl)
+  if (records.appendTimeStamp) embed.setTimestamp()
+  if (records.titleUrl) embed.setURL(records.titleUrl)
+  if (records.footer) embed.setFooter(records.footer)
+  if (records.imageUrl) embed.setImage(records.imageUrl)
 
-    resolve(embed)
-  })
+  return embed
 }

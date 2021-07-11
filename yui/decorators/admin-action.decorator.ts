@@ -29,7 +29,7 @@ export type ADMIN_PARAM_KEY = keyof typeof ADMIN_PARAMS
 
 export function AdminActionInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return function (target: Type<T>) {
-    decoratorLogger(target.name, LOG_SCOPE.ADMIN_ACTION_COMMAND, 'Initiator')
+    decoratorLogger(target.name, LOG_SCOPE.ADMIN_ACTION_COMMAND)
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }

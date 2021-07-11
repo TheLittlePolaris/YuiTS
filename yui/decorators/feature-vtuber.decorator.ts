@@ -32,7 +32,7 @@ export type VTUBER_PARAM_KEY = keyof typeof VTUBER_PARAMS
 
 export function VtuberStatServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class', 'Initiator')
+    decoratorLogger(target.name, 'Class')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
@@ -42,7 +42,7 @@ export function HoloStatCommandValidator() {
     decoratorLogger(target.constructor.name, 'HoloStatCommandValidator', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = function (message: Message, params: string[], ...args: any[]) {
-      let filteredArgs = <any[]>[message, params, ...args]
+      const filteredArgs = [message, params, ...args]
       const holoStatCommands = [...holoStatRegionSubCommand, ...defaultDetailSubCommand]
       const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey)
 
@@ -82,7 +82,7 @@ export function HoloStatCommandValidator() {
         return originalMethod.apply(this, filteredArgs)
       }
 
-      ;`      // else sub command is a region, try if there is a 'detail' param`
+      // else sub command is a region, try if there is a 'detail' param`
       filteredArgs[regionIndex] = getRegion(subCommand)
       if (!params.length) return originalMethod.apply(this, filteredArgs)
 
@@ -103,7 +103,7 @@ export function NijiStatCommandValidator() {
     const originalMethod = descriptor.value
 
     descriptor.value = function (message: Message, params: string[], ...args: any[]) {
-      let filteredArgs = <any[]>[message, params, ...args]
+      const filteredArgs = <any[]>[message, params, ...args]
 
       const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey)
       const nijiStatCommand = [...nijiStatRegionSubCommand, ...nijiStatDetailSubCommand]

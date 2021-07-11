@@ -42,7 +42,7 @@ export class MusicStream {
     this._boundVoiceChannel = boundVoiceChannel
     this._boundTextChannel = boundTextChannel
     this._queue = new MusicQueue()
-    YuiLogger.debug(`[${this._name}] stream created!`, this.constructor.name)
+    YuiLogger.info(`[${this._name}] stream created!`, this.constructor.name)
   }
 
   /**

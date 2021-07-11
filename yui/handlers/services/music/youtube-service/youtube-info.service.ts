@@ -8,7 +8,7 @@ import { YuiLogger } from '@/log/logger.service'
 @Injectable()
 export class YoutubeInfoService {
   constructor(private youtubeRequestService: YoutubeRequestService) {
-    YuiLogger.debug(`Created!`, LOG_SCOPE.YOUTUBE_INFO_SERVICE)
+    YuiLogger.info(`Created!`, LOG_SCOPE.YOUTUBE_INFO_SERVICE)
   }
 
   public getYoutubePlaylistId(query: string) {
