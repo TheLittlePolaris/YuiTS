@@ -1,8 +1,9 @@
-import { CustomValueProvider, Provider, EntryComponent, Type } from './interfaces/di-interfaces'
+import { Collection } from 'discord.js'
+import { CustomValueProvider, Provider, Type } from './interfaces/di-interfaces'
 export class YuiModule {
-  private _modules: Map<string, Type<any>> = new Map()
-  private _providers: Map<string, Provider<any>> = new Map()
-  private _instances: Map<string, any> = new Map()
+  private _modules: Collection<string, Type<any>> = new Collection<string, Type<any>>()
+  private _providers: Collection<string, Provider<any>> = new Collection<string, any>()
+  private _instances: Collection<string, any> = new Collection<string, any>()
   private _entryComponent: Type<any> = null
 
   get providers() {
@@ -35,34 +36,36 @@ export class YuiModule {
     return this._instances.get(this.entryComponent.name)
   }
 
-  setEntryComponent(component: Type<any>) {
+  setEntryComponent<T>(component: Type<T>) {
     this._entryComponent = component
   }
 
-  addInstance(target: Type<any>, compiledInstance: any) {
+  addInstance<T>(target: Type<T>, compiledInstance: T) {
     this.components.set(target.name, compiledInstance)
   }
 
   setValueProvider(module: Type<any>, provider: CustomValueProvider<any>) {
-    const key = `${module.name}_${provider.provide}`
-    this._providers.set(key, provider)
+    this._providers.set(this.providerNameConstructor(module, provider.provide), provider)
   }
 
   importModules(modules: Type<any>[]) {
-    modules.map((module) => this.addModule(module.name, module))
+    modules.map((module) => this.addModule(module))
   }
 
-  getInstance(forTarget: Type<any>) {
+  getInstance<T = any>(forTarget: Type<T>): T {
     return this._instances.get(forTarget.name)
   }
 
   getProvider(forModule: Type<any>, paramName: string) {
-    const name = `${forModule.name}_${paramName}`
-    return this._providers.get(name)
+    return this._providers.get(this.providerNameConstructor(forModule, paramName))
   }
 
-  addModule(key: string, module: Type<any>) {
-    this._modules.set(key, module)
+  private providerNameConstructor(module: Type<any>, paramName: string) {
+    return `${module.name}_${paramName}`
+  }
+
+  addModule(module: Type<any>) {
+    this._modules.set(module.name, module)
   }
 
   clear() {

@@ -1,5 +1,5 @@
 import { LOG_SCOPE } from '@/constants/constants'
-import { MessageHandlerInitiator } from '@/decorators/handler.decorator'
+
 import { Message } from 'discord.js'
 import { OwnerChannelService } from './owner-service/channel.service'
 import { AdministrationService } from './services/administration/administration.service'
@@ -98,9 +98,6 @@ export class MessageHandler {
       }
       case 'holostat': {
         return this.featureService.getHoloStat(message, args)
-      }
-      case 'nijistat': {
-        return this.featureService.getNijiStat(message, args)
       }
       case 'tenor': {
         try {

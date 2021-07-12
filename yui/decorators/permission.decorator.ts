@@ -19,12 +19,6 @@ const REFLECT_PERMISSION_KEYS = {
   COMMAND: Symbol(REFLECT_PERMISSION_SYMBOLS.COMMAND),
 }
 
-export function AdministrationServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
-  return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class')
-    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
-  }
-}
 
 export function AdminPermissionValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {

@@ -22,11 +22,6 @@ export const holoStatList: Record<string, REACTION_DATA> = {
     name: 'Indonesia',
     code: 'id',
   },
-  cn: {
-    icon: '3️⃣',
-    name: 'China',
-    code: 'cn',
-  },
   en: {
     icon: '4️⃣',
     name: 'English',
@@ -38,8 +33,6 @@ export const holoStatRegionSubCommand = [
   'jp',
   'japan',
   'id',
-  'indonesia',
-  'cn',
   'china',
   'en',
   'english',
@@ -51,15 +44,12 @@ export type HOLOSTAT_PARAMS =
   | 'japan'
   | 'id'
   | 'indonesia'
-  | 'china'
-  | 'cn'
   | 'detail'
   | 'd'
   | 'english'
   | 'en'
 
 export enum HOLO_REGION_MAP {
-  cn = 'China',
   jp = 'Japan',
   id = 'Indonesia',
   en = 'English',

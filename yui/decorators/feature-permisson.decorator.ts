@@ -22,12 +22,7 @@ export enum FEATURE_PROPERTY_PARAMS {
 export type FEATURE_PARAM_NAME = Record<FEATURE_PROPERTY_PARAMS, string>
 export type FEATURE_PARAM_KEY = keyof typeof FEATURE_PROPERTY_PARAMS
 
-export function FeatureServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
-  return function (target: Type<T>) {
-    decoratorLogger(target.name, 'Class')
-    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
-  }
-}
+
 
 export function FeaturePermissionValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {

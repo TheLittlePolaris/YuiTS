@@ -1,5 +1,5 @@
 import { Constants, LOG_SCOPE } from '@/constants/constants'
-import { AccessController, MusicServiceInitiator, MusicParam } from '@/decorators/music.decorator'
+import { AccessController, MusicParam } from '@/decorators/music.decorator'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import {
   GuildMember,
@@ -38,16 +38,17 @@ import {
   youtubeTimeConverter,
 } from './youtube-service/youtube-utilities'
 import { Inject, Injectable } from '@/dep-injection-ioc/decorators'
-import { GlobalInjectToken } from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiLogger } from '@/log/logger.service'
-
+import { GlobalMusicStream } from './global-music-streams'
+import { ConfigService } from '@/config-service/config.service'
 @Injectable()
 export class MusicService {
   constructor(
     private youtubeInfoService: YoutubeInfoService,
     private soundcloudService: PolarisSoundCloudService,
     private soundcloudPlayer: PolarisSoundCloudPlayer,
-    @Inject('GLOBAL_STREAMS') public streams: Map<string, MusicStream>
+    public  streams: GlobalMusicStream,
+    public configService: ConfigService
   ) {
     YuiLogger.info(`Created!`, LOG_SCOPE.MUSIC_SERVICE)
   }
@@ -1029,7 +1030,7 @@ export class MusicService {
     console.log(info)
   }
 
-  private async sendMessage(message: Message, content: string | MessageEmbed): Promise<Message> {
+  public async sendMessage(message: Message, content: string | MessageEmbed): Promise<Message> {
     return await message.channel.send(content).catch((err) => this.handleError(new Error(err)))
   }
 
@@ -1042,11 +1043,11 @@ export class MusicService {
       .catch((err) => this.handleError(new Error(err)))
   }
 
-  private async replyMessage(message: Message, content: string | MessageEmbed) {
+  public async replyMessage(message: Message, content: string | MessageEmbed) {
     return await message.reply(content).catch((error) => this.handleError(error))
   }
 
-  private async deleteMessage(
+  public async deleteMessage(
     message: Message,
     option: { timeout?: number; reason?: string } = {}
   ) {

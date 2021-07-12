@@ -1,4 +1,4 @@
-import { VtuberStatServiceInitiator } from '@/decorators/feature-vtuber.decorator'
+
 import {
   Message,
   GuildMember,
@@ -19,13 +19,8 @@ import {
   HOLO_REGION_MAP,
   holoStatList,
 } from './holostat-service/holostat.interface'
-import {
-  nijiStatList,
-  NIJI_REGION_MAP,
-  NIJI_KNOWN_REGION,
-} from './nijistat-service/nijistat.interface'
+
 import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
-import { NijiStatRequestService } from './nijistat-service/nijistat-request.service'
 import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { YuiLogger } from '@/log/logger.service'
@@ -35,7 +30,6 @@ import { Injectable } from '@/dep-injection-ioc/decorators'
 export class VtuberStatService {
   constructor(
     private holostatRequestService: HoloStatRequestService,
-    private nijistatRequestService: NijiStatRequestService,
     private youtubeRequestService: YoutubeChannelService,
     private bilibiliRequestService: BilibiliChannelService
   ) {
@@ -49,15 +43,13 @@ export class VtuberStatService {
   }: {
     message: Message
     affiliation: KNOWN_AFFILIATION
-    regionCode?: HOLO_KNOWN_REGION | NIJI_KNOWN_REGION
+    regionCode?: HOLO_KNOWN_REGION
   }): Promise<unknown> {
     if (!regionCode) {
       return this.getRegion({ message, affiliation })
     }
 
-    const isBilibili = regionCode === 'cn'
-    const service =
-      affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
+    const service = this.holostatRequestService
     const dataList = await service
       .getChannelList(regionCode as any)
       .catch((err) => this.handleError(new Error(err)))
@@ -125,7 +117,6 @@ export class VtuberStatService {
         return this.getChannelDetail({
           message,
           channelId: dataList[selectedNumber - 1]?.id,
-          isBilibili,
         })
       }
     })
@@ -139,41 +130,28 @@ export class VtuberStatService {
   public async getChannelDetail({
     message,
     channelId,
-    isBilibili,
   }: {
     message: Message
     channelId: string
-    isBilibili: boolean
   }): Promise<void> {
-    const service = isBilibili ? this.bilibiliRequestService : this.youtubeRequestService
+    const service = this.youtubeRequestService
     const channelData = await service.getSelectedChannelDetail(channelId)
     if (!channelData) {
       this.sendMessage(message, 'Something went wrong, please try again.')
     }
 
-    const [subscriberCount, channelUrl, publishedDate] = isBilibili
-      ? [
-          channelData.statistics.subscriberCount,
-          `https://space.bilibili.com/${channelData.id}`,
-          `N/A`,
-        ]
-      : [
-          subscriberCountFormatter(channelData.statistics.subscriberCount),
-          `https://www.youtube.com/channel/${channelData.id}`,
-          dateTimeJSTFormatter(channelData.snippet.publishedAt),
-        ]
+    const [subscriberCount, channelUrl, publishedDate] = [
+      subscriberCountFormatter(channelData.statistics.subscriberCount),
+      `https://www.youtube.com/channel/${channelData.id}`,
+      dateTimeJSTFormatter(channelData.snippet.publishedAt),
+    ]
 
     const description = `**Description:** ${channelData.snippet.description}
     
     **Created date: \`${publishedDate}\`
     Subscribers: \`${subscriberCount}\`
     Views: \`${channelData.statistics.viewCount}\`
-    Videos: \`${channelData.statistics.videoCount}\`${
-      isBilibili
-        ? `
-    Bilibili Live Room: [${channelData.bilibiliRoomInfo.title}](${channelData.bilibiliRoomInfo.url})`
-        : ``
-    }**`
+    Videos: \`${channelData.statistics.videoCount}\`**`
 
     const embed = await discordRichEmbedConstructor({
       title: channelData.snippet.title,
@@ -196,7 +174,7 @@ export class VtuberStatService {
     message: Message
     affiliation?: KNOWN_AFFILIATION
   }): Promise<void> {
-    const reactionList = affiliation === 'Hololive' ? holoStatList : nijiStatList
+    const reactionList = holoStatList
 
     const regionCodes = Object.keys(reactionList)
 
@@ -261,25 +239,20 @@ export class VtuberStatService {
       ':hourglass_flowing_sand: **_Hold on while i go grab some data!_**'
     )
 
-    const isBilibili = region === 'cn'
-    const service =
-      affiliation === 'Hololive' ? this.holostatRequestService : this.nijistatRequestService
+    const service = this.holostatRequestService
 
-    const holoStatData = await service
-      .getAllMembersChannelDetail(region as any)
-      .catch((error) => this.handleError(new Error(error)))
+    console.log(service, `<======= service [vtuberstat.service.ts - 268]`)
+    const holoStatData = await service.getAllMembersChannelDetail(region as any)
 
     const fieldsData: EmbedFieldData[] = holoStatData.map((item) => {
       const fieldName = `${item.snippet.title}`
-      const channelUrl = isBilibili
-        ? `https://space.bilibili.com/${item.id}`
-        : `https://www.youtube.com/channel/${item.id}`
+      const channelUrl = `https://www.youtube.com/channel/${item.id}`
 
-      const fieldData = `Channel: [${item.snippet.title}](${channelUrl})\nSubscribers: ${
-        isBilibili
-          ? item.statistics.subscriberCount
-          : subscriberCountFormatter(item.statistics.subscriberCount)
-      }\nViews: ${item.statistics.viewCount}\nVideos: ${item.statistics.videoCount}`
+      const fieldData = `Channel: [${
+        item.snippet.title
+      }](${channelUrl})\nSubscribers: ${subscriberCountFormatter(
+        item.statistics.subscriberCount
+      )}\nViews: ${item.statistics.viewCount}\nVideos: ${item.statistics.videoCount}`
       return {
         name: fieldName,
         value: fieldData,
@@ -289,7 +262,7 @@ export class VtuberStatService {
 
     if (fieldsData) waitingMessage.delete().catch((err) => this.handleError(new Error(err)))
 
-    const regionMap = affiliation === 'Hololive' ? HOLO_REGION_MAP : NIJI_REGION_MAP
+    const regionMap = HOLO_REGION_MAP
 
     const limit = 18
     const hasPaging = fieldsData.length > limit

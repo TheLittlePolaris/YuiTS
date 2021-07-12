@@ -6,12 +6,6 @@ import {
   holoStatList,
 } from '@/handlers/services/feature/vtuberstat-service/holostat-service/holostat.interface'
 import {
-  NIJISTAT_PARAMS,
-  nijiStatRegionSubCommand,
-  nijiStatDetailSubCommand,
-  nijiStatList,
-} from '@/handlers/services/feature/vtuberstat-service/nijistat-service/nijistat.interface'
-import {
   INJECTABLE_METADATA,
   METHOD_PARAM_METADATA,
 } from '@/dep-injection-ioc/constants/di-connstants'
@@ -30,12 +24,7 @@ export enum VTUBER_PARAMS {
 export type VTUBER_PARAM_NAME = Record<VTUBER_PARAMS, string>
 export type VTUBER_PARAM_KEY = keyof typeof VTUBER_PARAMS
 
-export function VtuberStatServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
-  return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class')
-    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
-  }
-}
+
 
 export function HoloStatCommandValidator() {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
@@ -96,67 +85,7 @@ export function HoloStatCommandValidator() {
   }
 }
 
-export function NijiStatCommandValidator() {
-  return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    decoratorLogger(target.constructor.name, 'NijiStatCommandValidator', propertyKey)
 
-    const originalMethod = descriptor.value
-
-    descriptor.value = function (message: Message, params: string[], ...args: any[]) {
-      const filteredArgs = <any[]>[message, params, ...args]
-
-      const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey)
-      const nijiStatCommand = [...nijiStatRegionSubCommand, ...nijiStatDetailSubCommand]
-
-      const regionIndex = paramIndexes[VTUBER_PARAMS.REGION]
-
-      if (!params.length) {
-        if (regionIndex) filteredArgs[regionIndex] = 'jp'
-        return originalMethod.apply(this, filteredArgs)
-      }
-
-      const subCommand: NIJISTAT_PARAMS = params.shift().toLowerCase() as NIJISTAT_PARAMS
-      if (!nijiStatCommand.includes(subCommand)) {
-        message.channel.send(`*${subCommand} is not recognized as an option.*`)
-        return
-      }
-
-      const detailIndex = paramIndexes[VTUBER_PARAMS.DETAIL]
-
-      const getRegion = (region: NIJISTAT_PARAMS) => {
-        if (nijiStatList[region]) return nijiStatList[region].code
-        const key = Object.keys(nijiStatList).find(
-          (k) => nijiStatList[k].name.toLowerCase() === region
-        )
-        if (!key) return 'jp' // default
-        return nijiStatList[key].code
-      }
-
-      if (defaultDetailSubCommand.includes(subCommand)) {
-        filteredArgs[detailIndex] = true
-        if (!params.length) return originalMethod.apply(this, filteredArgs)
-        const regionArg = params.shift().toLowerCase() as Exclude<
-          NIJISTAT_PARAMS,
-          'd' | 'detail'
-        >
-        filteredArgs[regionIndex] = getRegion(regionArg)
-        return originalMethod.apply(this, filteredArgs)
-      }
-
-      // else sub command is a region, try if there is a 'detail' param
-      filteredArgs[regionIndex] = getRegion(subCommand)
-
-      if (!params.length) return originalMethod.apply(this, filteredArgs)
-
-      const detailArg = params.shift().toLowerCase()
-      if (!defaultDetailSubCommand.includes(detailArg)) {
-        return originalMethod.apply(this, filteredArgs)
-      }
-      filteredArgs[detailIndex] = true
-      return originalMethod.apply(this, filteredArgs)
-    }
-  }
-}
 
 export const VTuberParam = (key: VTUBER_PARAM_KEY) => {
   return (target: Prototype, propertyKey: string, paramIndex: number) => {

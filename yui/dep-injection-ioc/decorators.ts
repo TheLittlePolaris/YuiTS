@@ -5,7 +5,9 @@ import {
   SELF_DECLARED_DEPS_METADATA,
   PROPERTY_DEPS_METADATA,
   INJECTABLE_METADATA,
-  DESIGN_TYPE, InjectTokenValue, InjectTokenName
+  DESIGN_TYPE,
+  InjectTokenValue,
+  InjectTokenName,
 } from '@/dep-injection-ioc/constants/di-connstants'
 import { YuiContainerFactory } from './container-factory'
 import { decoratorLogger } from './log/logger'
@@ -14,7 +16,7 @@ import { decoratorLogger } from './log/logger'
 export const Inject = (token: InjectTokenName) => {
   return (target: object, key: string | symbol, index?: number) => {
     token = token || Reflect.getMetadata(DESIGN_TYPE, target, key)
-    const type = token && isFunction(token) ? ((token as any) as Function).name : token
+    const type = token && isFunction(token) ? (token as any as Function).name : token
 
     if (!isUndefined(index)) {
       let dependencies = Reflect.getMetadata(SELF_DECLARED_DEPS_METADATA, target) || []
@@ -38,18 +40,23 @@ export function Injectable<T = any>(): GenericClassDecorator<Type<T>> {
 
 export function YuiModule<T = any>(options: ModuleOption): GenericClassDecorator<Type<T>> {
   const propKeys = Object.keys(options)
-  propKeys.map((k: string) => {
-    if (!options[k].length) delete options[k]
+  propKeys.map((key: string) => {
+    if (key === 'entryComponent') return
+    if (!options[key].length) return delete options[key]
+    options[key].map((record) => {
+      if (!record) throw new Error(`Cannot resolve ${record} of property ${key} in module metadata`)
+    })
   })
-  return (target: Type<any>) => {
+  return function (target: Type<any>) {
     for (const property in options) {
       if (property === 'entryComponent') {
-        if (YuiContainerFactory.entryDetected) throw new Error('Multiple entry detected: ' + target['name'])
+        if (YuiContainerFactory.entryDetected)
+          throw new Error('Multiple entry detected: ' + target['name'])
         YuiContainerFactory.entryDetected = true
       }
 
       if (options.hasOwnProperty(property)) {
-        Reflect.defineMetadata(property, (options as any)[property], target)
+        Reflect.defineMetadata(property, options[property], target)
       }
     }
   }

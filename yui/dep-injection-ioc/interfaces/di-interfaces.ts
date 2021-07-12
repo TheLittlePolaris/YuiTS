@@ -33,7 +33,7 @@ export type CustomProviderToken = { [key: string]: number | string }
 export interface ModuleOption {
   providers?: CustomValueProvider<any>[]
   modules?: Type<any>[]
-  components: Type<any>[]
+  components?: Type<any>[]
   entryComponent?: Type<any>
 }
 

@@ -27,12 +27,6 @@ enum ADMIN_PARAMS {
 export type ADMIN_PARAM_NAME = Record<ADMIN_PARAMS, string>
 export type ADMIN_PARAM_KEY = keyof typeof ADMIN_PARAMS
 
-export function AdminActionInitiator<T = any>(): GenericClassDecorator<Type<T>> {
-  return function (target: Type<T>) {
-    decoratorLogger(target.name, LOG_SCOPE.ADMIN_ACTION_COMMAND)
-    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
-  }
-}
 
 export function ValidateCommand<T = any>(): GenericMethodDecorator<T> {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {

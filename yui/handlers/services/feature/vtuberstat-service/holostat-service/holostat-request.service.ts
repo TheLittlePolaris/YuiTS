@@ -10,10 +10,9 @@ import { LOG_SCOPE } from '@/constants/constants'
 @Injectable()
 export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REGION> {
   private featuredChannels: { [key: string]: string | string[] } = {
-    jp: 'UCJFZiqLMntJufDCHc6bQixg',
-    id: 'UCOyYb1c43VlX9rc_lT6NKQw',
-    cn: ['456368455', '354411419', '427061218', '511613156', '511613155', '511613157'],
-    en: 'UCotXwY6s8pWmuWd_snKYjhg',
+    jp: 'UCJFZiqLMntJufDCHc6bQixg.aqsRo9JYx5M',
+    id: 'UCfrWoRGlawPQDQxxeIDRP0Q.iJLXf_7B368',
+    en: 'UCotXwY6s8pWmuWd_snKYjhg.LeAltgu_pbM',
   }
 
   constructor(
@@ -24,11 +23,6 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
   }
 
   public async getChannelList(region: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
-    if (region === 'cn')
-      return await this.bilibiliChannelService.getChannelList(
-        this.featuredChannels[region] as string[]
-      )
-
     const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(
       this.featuredChannels[region] as string
     )
@@ -43,17 +37,15 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
 
   public async getAllMembersChannelDetail(
     region?: HOLO_KNOWN_REGION
-  ): Promise<IYoutubeChannel[]> {
-    if (region === 'cn')
-      return await this.bilibiliChannelService.getAllMembersChannelDetail(
-        this.featuredChannels[region] as string[]
-      )
+  ) {
+
 
     const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(
       this.featuredChannels[region] as string
     )
+
     if (!featuredChannelIds) return this.handleError('No featured channels')
-    return await this.youtubeChannelService.getAllMembersChannelDetail([
+    return this.youtubeChannelService.getAllMembersChannelDetail([
       ...featuredChannelIds,
       this.featuredChannels[region] as string,
     ])

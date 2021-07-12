@@ -1,12 +1,11 @@
 import { LOG_SCOPE } from '@/constants/constants'
 import {
   HoloStatCommandValidator,
-  NijiStatCommandValidator,
+
   VTuberParam,
 } from '@/decorators/feature-vtuber.decorator'
 import {
   FeaturePermissionValidator,
-  FeatureServiceInitiator,
   FeatureParam,
   FEATURE_PROPERTY_PARAMS,
 } from '@/decorators/feature-permisson.decorator'
@@ -23,7 +22,6 @@ import { RNG } from '../utilities/util-function'
 import { tenorRequestService } from './feature-services/feature-utilities'
 import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
-import { NIJI_KNOWN_REGION } from './vtuberstat-service/nijistat-service/nijistat.interface'
 import { YuiLogger } from '@/log/logger.service'
 import { YuiClient } from '@/yui-client'
 import Axios from 'axios'
@@ -181,30 +179,7 @@ export class FeatureService {
     })
   }
 
-  async getNijiStat(message: Message, args: string[], ..._args: any[])
-  @FeaturePermissionValidator()
-  @NijiStatCommandValidator()
-  async getNijiStat(
-    message: Message,
-    args: Array<string>,
-    @FeatureParam('GUILD_MEMBER') yui: GuildMember,
-    @VTuberParam('REGION') region: NIJI_KNOWN_REGION,
-    @VTuberParam('DETAIL') detail: boolean
-  ): Promise<unknown> {
-    if (!detail)
-      return this._vtuberStatService.vtuberStatStatistics({
-        message,
-        yui,
-        affiliation: 'Nijisanji',
-        region,
-      })
-
-    return this._vtuberStatService.vtuberStatSelectList({
-      message,
-      affiliation: 'Nijisanji',
-      regionCode: region,
-    })
-  }
+  
 
   public async getTest() {
     const { data } = await Axios.get('https://panel.sendcloud.sc/api/v2/parcels', {

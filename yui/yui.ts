@@ -30,7 +30,8 @@ const bootstrap = async (): Promise<YuiCore> => {
     const yui = await bootstrap()
     await yui.start()
   } catch (error) {
-    YuiLogger.error(error, LOG_SCOPE.YUI_MAIN)
-    process.abort()
+    console.log(error, `<======= error [yui.ts - 33]`);
+    YuiLogger.error(error.message, LOG_SCOPE.YUI_MAIN)
+
   }
 })()

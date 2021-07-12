@@ -5,8 +5,8 @@ import { LOG_SCOPE } from './constants/constants'
 import { Yui, On, EventMessage, EventVoiceState } from './decorators/yui.decorator'
 import { YuiClient } from './yui-client'
 import { EntryComponent } from './dep-injection-ioc/interfaces/di-interfaces'
-import { Inject } from './dep-injection-ioc/decorators'
 import { YuiLogger } from './log/logger.service'
+import { ConfigService } from './config-service/config.service'
 
 @Yui()
 export class YuiCore implements EntryComponent {
@@ -14,15 +14,14 @@ export class YuiCore implements EntryComponent {
     private yui: YuiClient,
     private messageHandler: MessageHandler,
     private voiceStateHandler: VoiceStateHandler,
-    @Inject('BOT_TOKEN') private token: string,
-    @Inject('BOT_PREFIX') private prefix: string
+    private configService: ConfigService
   ) {
     YuiLogger.info('Created!', LOG_SCOPE.YUI_CORE)
   }
 
   public async start(): Promise<void> {
     YuiLogger.log('Connecting... 📡', LOG_SCOPE.YUI_CORE)
-    this.yui.login(this.token)
+    this.yui.login(this.configService.token)
   }
 
   @On('ready')
@@ -31,11 +30,11 @@ export class YuiCore implements EntryComponent {
       throw new Error('Something went horribly wrong! Client is not defined!')
     YuiLogger.log('🔗 🛰 Connected!', LOG_SCOPE.YUI_CORE)
     await Promise.all([
-      global.config.environment === 'development'
-        ? this.yui.user.setActivity(`${this.prefix}help`, {
+      this.configService.environment === 'development'
+        ? this.yui.user.setActivity(`${this.configService.prefix}help`, {
             type: 'LISTENING',
           })
-        : this.yui.user.setActivity(`📻 Radio Happy (${this.prefix}help)`, {
+        : this.yui.user.setActivity(`📻 Radio Happy (${this.configService.prefix}help)`, {
             url: 'https://twitch.tv/onlypolaris',
             type: 'STREAMING',
           }),
@@ -45,24 +44,21 @@ export class YuiCore implements EntryComponent {
 
   @On('message')
   async onMessage(@EventMessage() message: Message): Promise<unknown> {
+    const { content, author, channel } = message
     try {
-      if (message.channel.type === 'dm' && message.author.id === global.config.ownerId)
+      if (channel.type === 'dm' && author.id === this.configService.ownerId)
         return this.onDM(message)
 
-      if (
-        !message.content.startsWith(this.prefix) ||
-        message.author.bot ||
-        message.channel.type !== 'text'
-      )
+      if (!content.startsWith(this.configService.prefix) || author.bot || channel.type !== 'text')
         return
 
-      const args = message.content.slice(this.prefix.length).trim().split(/ +/g)
+      const args = message.content.slice(this.configService.prefix.length).trim().split(/ +/g)
 
       const command = args.shift()
 
       return this.messageHandler.messageSwitchMap(message, command, args)
     } catch (err) {
-      this.handleError(new Error(err))
+      this.handleError(err)
     }
   }
 

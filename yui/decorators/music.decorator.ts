@@ -10,6 +10,7 @@ import {
 } from '../dep-injection-ioc/interfaces/di-interfaces'
 import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 import { YuiLogger } from '@/log/logger.service'
+import { MusicService } from '@/handlers/services/music/music.service'
 
 enum MUSIC_PARAM {
   CLIENT = 'client',
@@ -18,13 +19,6 @@ enum MUSIC_PARAM {
 
 export type MUSIC_PARAM_NAME = Record<MUSIC_PARAM, string>
 export type MUSIC_PARAM_KEY = keyof typeof MUSIC_PARAM
-
-export function MusicServiceInitiator<T = any>(): GenericClassDecorator<Type<T>> {
-  return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class')
-    Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
-  }
-}
 
 export function AccessController(
   { join, silent }: { join?: boolean; silent?: boolean } = {
@@ -35,7 +29,7 @@ export function AccessController(
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
     decoratorLogger(target.constructor.name, 'AccessController', propertyKey)
     const originalMethod = descriptor.value
-    descriptor.value = async function (message: Message, ...args: any[]) {
+    descriptor.value = async function (this: MusicService, message: Message, ...args: any[]) {
       const filteredArgs = <any[]>[message, ...args]
       const { channel, guild, member } = message
 
@@ -49,18 +43,16 @@ export function AccessController(
 
       const stream = this.streams.has(guild.id) ? this.streams.get(guild.id) : null
       const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey)
-
-      const streamParamIndex: number | undefined = paramIndexes[MUSIC_PARAM.STREAM]
-
-      if (streamParamIndex != null) filteredArgs[streamParamIndex] = stream
-
-      const clientUserIndex: number = paramIndexes[MUSIC_PARAM.CLIENT]
-
-      if (clientUserIndex != null) {
-        const client = await message.guild.members
-          .fetch(global.config.yuiId)
-          .catch((err) => handleError(err))
-        filteredArgs[clientUserIndex] = client
+      if (paramIndexes != null) {
+        const streamParamIndex: number | undefined = paramIndexes[MUSIC_PARAM.STREAM]
+        if (streamParamIndex != null) filteredArgs[streamParamIndex] = stream
+        const clientUserIndex: number = paramIndexes[MUSIC_PARAM.CLIENT]
+        if (clientUserIndex != null) {
+          const client = await message.guild.members
+            .fetch(this.configService.yuiId)
+            .catch((err) => handleError(err))
+          filteredArgs[clientUserIndex] = client
+        }
       }
 
       const boundVoiceChannel = stream?.boundVoiceChannel
