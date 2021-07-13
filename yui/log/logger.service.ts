@@ -132,8 +132,8 @@ export class YuiLogger implements LoggerService {
       month: '2-digit',
     }
     const timestamp = new Date(Date.now()).toLocaleString(undefined, localeStringOptions)
-    const pid = `[${process.pid}]` // this.chalk.keyword('orange')(`[Yui - ${process.pid}]`)
-    const msgContext = context || '' // ? this.chalk.hex('#00ffff')(`[${context}] - `) : ``
+    const pid = this.chalk.keyword('orange')(`[${process.pid}]`)
+    const msgContext = context ? this.chalk.hex('#00ffff')(`[${context}]`) : ``
     return `[${timestamp}]${pid} - ${msgContext} ${output}\n`
   }
 }

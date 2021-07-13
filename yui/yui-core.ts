@@ -7,6 +7,7 @@ import { YuiClient } from './yui-client'
 import { EntryComponent } from './dep-injection-ioc/interfaces/di-interfaces'
 import { YuiLogger } from './log/logger.service'
 import { ConfigService } from './config-service/config.service'
+import { RedisService } from './redis-adapter/redis.service'
 
 @Yui()
 export class YuiCore implements EntryComponent {
@@ -14,7 +15,8 @@ export class YuiCore implements EntryComponent {
     private yui: YuiClient,
     private messageHandler: MessageHandler,
     private voiceStateHandler: VoiceStateHandler,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private redis: RedisService
   ) {
     YuiLogger.info('Created!', LOG_SCOPE.YUI_CORE)
   }

@@ -21,7 +21,6 @@ import {
 } from './holostat-service/holostat.interface'
 
 import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
-import { BilibiliChannelService } from './channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { YuiLogger } from '@/log/logger.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'
@@ -31,7 +30,6 @@ export class VtuberStatService {
   constructor(
     private holostatRequestService: HoloStatRequestService,
     private youtubeRequestService: YoutubeChannelService,
-    private bilibiliRequestService: BilibiliChannelService
   ) {
     YuiLogger.info('Created!', LOG_SCOPE.VTUBER_STAT_SERVICE)
   }
@@ -51,7 +49,7 @@ export class VtuberStatService {
 
     const service = this.holostatRequestService
     const dataList = await service
-      .getChannelList(regionCode as any)
+      .getChannelList(regionCode)
       .catch((err) => this.handleError(new Error(err)))
 
     if (!dataList || !dataList.length)
@@ -238,11 +236,7 @@ export class VtuberStatService {
       message,
       ':hourglass_flowing_sand: **_Hold on while i go grab some data!_**'
     )
-
-    const service = this.holostatRequestService
-
-    console.log(service, `<======= service [vtuberstat.service.ts - 268]`)
-    const holoStatData = await service.getAllMembersChannelDetail(region as any)
+    const holoStatData = await this.holostatRequestService.getAllMembersChannelDetail(region as any)
 
     const fieldsData: EmbedFieldData[] = holoStatData.map((item) => {
       const fieldName = `${item.snippet.title}`

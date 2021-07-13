@@ -1,6 +1,6 @@
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 
-export class BaseRequestService<T> {
+export abstract class BaseRequestService<T> {
   constructor() {}
 
   public async getChannelList(region: T): Promise<IYoutubeChannel[]> {

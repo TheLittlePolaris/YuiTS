@@ -6,8 +6,7 @@ import {
   IYoutubePlaylistResult,
 } from '../music-interfaces/youtube-info.interface'
 import { LOG_SCOPE } from '@/constants/constants'
-import { Injectable, Inject } from '@/dep-injection-ioc/decorators'
-import { GlobalInjectToken } from '@/dep-injection-ioc/constants/di-connstants'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 import { YuiLogger } from '@/log/logger.service'
 import { ConfigService } from '@/config-service/config.service'
 

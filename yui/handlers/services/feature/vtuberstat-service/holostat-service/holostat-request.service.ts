@@ -1,7 +1,6 @@
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { HOLO_KNOWN_REGION } from './holostat.interface'
 import { BaseRequestService } from '../channel-service/base-request.service'
-import { BilibiliChannelService } from '../channel-service/bilibili-channel.service'
 import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'
 import { YuiLogger } from '@/log/logger.service'
@@ -16,7 +15,6 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
   }
 
   constructor(
-    private bilibiliChannelService: BilibiliChannelService,
     private youtubeChannelService: YoutubeChannelService
   ) {
     YuiLogger.info('Created!', LOG_SCOPE.HOLOSTAT_REQUEST_SERVICE)
@@ -51,12 +49,9 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
     ])
   }
   public async getSelectedChannelDetail(
-    channelId: string,
-    isBilibili: boolean
-  ): Promise<IYoutubeChannel> {
-    if (isBilibili)
-      return await this.bilibiliChannelService.getSelectedChannelDetail(channelId)
-    else return await this.youtubeChannelService.getSelectedChannelDetail(channelId)
+    channelId: string
+  ) {
+    return await this.youtubeChannelService.getSelectedChannelDetail(channelId)
   }
 
   private handleError(error: Error | string) {

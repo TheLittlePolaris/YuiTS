@@ -1,21 +1,12 @@
 import { LOG_SCOPE } from '@/constants/constants'
-import {
-  HoloStatCommandValidator,
-
-  VTuberParam,
-} from '@/decorators/feature-vtuber.decorator'
+import { HoloStatCommandValidator, VTuberParam } from '@/decorators/feature-vtuber.decorator'
 import {
   FeaturePermissionValidator,
   FeatureParam,
-  FEATURE_PROPERTY_PARAMS,
 } from '@/decorators/feature-permisson.decorator'
 import {
-  APIMessage,
   GuildMember,
   Message,
-  MessageAttachment,
-  MessageEmbed,
-  MessageOptions,
 } from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
@@ -121,9 +112,7 @@ export class FeatureService {
     @FeatureParam('REQUEST_PARAM') params: string
   ): Promise<void> {
     const num = await RNG(5)
-    const result = await tenorRequestService(`${action} ${params ? params : ``}`).catch((error) =>
-      this.handleError(new Error(error))
-    )
+    const { results = [] } = (await tenorRequestService(`${action} ${params ? params : ``}`)) || {}
 
     let mentionString
     if (users?.length) {
@@ -148,9 +137,9 @@ export class FeatureService {
 
     this.sendMessage(
       message,
-      await discordRichEmbedConstructor({
+      discordRichEmbedConstructor({
         description,
-        imageUrl: result?.results[num]?.media[0]?.gif?.url,
+        imageUrl: results[num]?.media[0]?.gif?.url,
       })
     )
   }
@@ -179,8 +168,6 @@ export class FeatureService {
     })
   }
 
-  
-
   public async getTest() {
     const { data } = await Axios.get('https://panel.sendcloud.sc/api/v2/parcels', {
       headers: {
@@ -198,16 +185,10 @@ export class FeatureService {
 
   private async sendMessage(
     message: Message,
-    content:
-      | string
-      | MessageEmbed
-      | MessageOptions
-      | MessageAttachment
-      | MessageOptions
-      | APIMessage
+    content: any
   ): Promise<Message> {
     return await message.channel
-      .send(content as any)
+      .send(content)
       .catch((error) => this.handleError(new Error(error)))
   }
 

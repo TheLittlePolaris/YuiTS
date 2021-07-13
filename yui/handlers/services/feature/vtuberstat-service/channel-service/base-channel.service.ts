@@ -1,6 +1,6 @@
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 
-export class BaseChannelService {
+export abstract class BaseChannelService {
   public static async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     return Promise.resolve([])
   }

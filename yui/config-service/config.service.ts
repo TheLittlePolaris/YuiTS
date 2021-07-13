@@ -3,6 +3,7 @@ import { LOG_SCOPE } from '@/constants/constants'
 import { existsSync } from 'fs'
 import { YuiLogger } from '@/log/logger.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'
+import { RedisOptions } from 'ioredis'
 
 interface EnvConfig {
   [key: string]: string
@@ -68,5 +69,8 @@ export class ConfigService {
   public get environment(): 'development' | 'build' {
     return this.envConfig['ENVIRONMENT'] as 'development' | 'build'
   }
+
+  public get redisConfig(): RedisOptions {
+    return { host: this.envConfig['REDIS_HOST'], port: +this.envConfig['REDIS_PORT'] }
+  }
 }
-global['config'] = new ConfigService()
