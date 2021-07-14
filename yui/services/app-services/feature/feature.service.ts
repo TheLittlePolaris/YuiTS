@@ -14,9 +14,9 @@ import { tenorRequestService } from './feature-services/feature-utilities'
 import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
 import { YuiLogger } from '@/log/logger.service'
-import { YuiClient } from '@/yui-client'
 import Axios from 'axios'
 import { Injectable } from '@/dep-injection-ioc/decorators'
+import { YuiClient } from '@/custom-classes/yui-client'
 
 @Injectable()
 export class FeatureService {

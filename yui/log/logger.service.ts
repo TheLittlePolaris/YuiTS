@@ -1,4 +1,3 @@
-import { Injectable } from '@/dep-injection-ioc/decorators'
 import { Instance, Chalk } from 'chalk'
 import { createLogger, format, Logger as WinstonLogger, transports } from 'winston'
 

@@ -4,7 +4,7 @@ import {
   defaultDetailSubCommand,
   HOLOSTAT_PARAMS,
   holoStatList,
-} from '@/handlers/services/feature/vtuberstat-service/holostat-service/holostat.interface'
+} from '@/services/app-services/feature/vtuberstat-service/holostat-service/holostat.interface'
 import {
   INJECTABLE_METADATA,
   METHOD_PARAM_METADATA,

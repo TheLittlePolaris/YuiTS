@@ -1,13 +1,13 @@
 import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { Message, VoiceState } from 'discord.js'
-import { LOG_SCOPE } from './constants/constants'
-import { Yui, On, EventMessage, EventVoiceState } from './decorators/yui.decorator'
-import { YuiClient } from './yui-client'
-import { EntryComponent } from './dep-injection-ioc/interfaces/di-interfaces'
-import { YuiLogger } from './log/logger.service'
-import { ConfigService } from './config-service/config.service'
-import { RedisService } from './redis-adapter/redis.service'
+import { LOG_SCOPE } from '../constants/constants'
+import { Yui, On, EventMessage, EventVoiceState } from '../decorators/yui.decorator'
+import { YuiClient } from '../custom-classes/yui-client'
+import { EntryComponent } from '../dep-injection-ioc/interfaces/di-interfaces'
+import { YuiLogger } from '../log/logger.service'
+import { ConfigService } from '../config-service/config.service'
+import { RedisService } from '../redis-adapter/redis.service'
 
 @Yui()
 export class YuiCore implements EntryComponent {

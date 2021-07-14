@@ -1,8 +1,8 @@
 
-import { Message, DMChannel, Client, EmbedField, EmbedFieldData } from 'discord.js'
-import { discordRichEmbedConstructor } from '../services/utilities/discord-embed-constructor'
-import { YuiClient } from '@/yui-client'
+import { Message,  EmbedFieldData } from 'discord.js'
+import { discordRichEmbedConstructor } from '../app-services/utilities/discord-embed-constructor'
 import { Injectable } from '@/dep-injection-ioc/decorators'
+import { YuiClient } from '@/custom-classes/yui-client'
 
 @Injectable()
 export class OwnerChannelService {

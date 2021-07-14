@@ -39,7 +39,7 @@ import {
 } from './youtube-service/youtube-utilities'
 import { Inject, Injectable } from '@/dep-injection-ioc/decorators'
 import { YuiLogger } from '@/log/logger.service'
-import { GlobalMusicStream } from './global-music-streams'
+import { GlobalMusicStream } from '../../../custom-classes/global-music-streams'
 import { ConfigService } from '@/config-service/config.service'
 @Injectable()
 export class MusicService {

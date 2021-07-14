@@ -1,9 +1,8 @@
 import { LOG_SCOPE } from '@/constants/constants'
-
 import { VoiceState } from 'discord.js'
-import { MusicStream } from './services/music/music-entities/music-stream'
-import { VoiceStateAction } from './services/music/music-interfaces/voice-state.interface'
-import { MusicService } from './services/music/music.service'
+import { MusicStream } from '../services/app-services/music/music-entities/music-stream'
+import { VoiceStateAction } from '../services/app-services/music/music-interfaces/voice-state.interface'
+import { MusicService } from '../services/app-services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'
 

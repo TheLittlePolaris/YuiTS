@@ -7,7 +7,7 @@ import { decoratorLogger } from './dep-injection-ioc/log/logger'
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiContainerFactory } from './dep-injection-ioc/container-factory'
 import { YuiMainModule } from './yui.module'
-import { YuiCore } from './yui-core'
+import { YuiCore } from './entry-point/yui-core.entrypoint'
 import { YuiLogger } from './log/logger.service'
 
 const bootstrap = async (): Promise<YuiCore> => {
