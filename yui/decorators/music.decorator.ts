@@ -10,7 +10,7 @@ import {
 } from '../dep-injection-ioc/interfaces/di-interfaces'
 import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 import { YuiLogger } from '@/log/logger.service'
-import { MusicService } from '@/handlers/services/music/music.service'
+import { MusicService } from '@/services/app-services/music/music.service'
 
 enum MUSIC_PARAM {
   CLIENT = 'client',

@@ -3,7 +3,7 @@ import { Message, GuildMember, Role } from 'discord.js'
 import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
-} from '@/handlers/services/administration/admin-interfaces/administration.interface'
+} from '@/services/app-services/administration/admin-interfaces/administration.interface'
 import {
   INJECTABLE_METADATA,
   METHOD_PARAM_METADATA,
