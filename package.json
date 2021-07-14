@@ -32,7 +32,7 @@
     "erlpack": "github:discordapp/erlpack",
     "ffmpeg-static": "^4.2.5",
     "fs": "^0.0.1-security",
-    "googleapis": "^52.1.0",
+    "googleapis": "^81.0.0",
     "ioredis": "^4.27.6",
     "libsodium-wrappers": "^0.7.9",
     "log4js": "^6.1.2",

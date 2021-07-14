@@ -1,5 +1,5 @@
 import { Constants, LOG_SCOPE } from '@/constants/constants'
-import { AccessController, MusicParam } from '@/decorators/music.decorator'
+import { AccessController, MusicParam } from '@/dep-injection-ioc/decorators/music.decorator'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import {
   GuildMember,
@@ -37,7 +37,7 @@ import {
   isYoutubeUrl,
   youtubeTimeConverter,
 } from './youtube-service/youtube-utilities'
-import { Inject, Injectable } from '@/dep-injection-ioc/decorators'
+import { Injectable } from '@/dep-injection-ioc/decorators'
 import { YuiLogger } from '@/log/logger.service'
 import { GlobalMusicStream } from '../../../custom-classes/global-music-streams'
 import { ConfigService } from '@/config-service/config.service'

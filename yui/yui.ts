@@ -7,7 +7,7 @@ import { decoratorLogger } from './dep-injection-ioc/log/logger'
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiContainerFactory } from './dep-injection-ioc/container-factory'
 import { YuiMainModule } from './yui.module'
-import { YuiCore } from './entry-point/yui-core.entrypoint'
+import { YuiCore } from './entrypoint/yui-core.entrypoint'
 import { YuiLogger } from './log/logger.service'
 
 const bootstrap = async (): Promise<YuiCore> => {
@@ -27,8 +27,7 @@ const bootstrap = async (): Promise<YuiCore> => {
       )
     }
     YuiLogger.info('🔸 Yui is starting...', LOG_SCOPE.YUI_MAIN)
-    const yui = await bootstrap()
-    await yui.start()
+    await bootstrap()
   } catch (error) {
     console.log(error, `<======= error [yui.ts - 33]`);
     YuiLogger.error(error.message, LOG_SCOPE.YUI_MAIN)

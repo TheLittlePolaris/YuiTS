@@ -2,28 +2,22 @@ import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { Message, VoiceState } from 'discord.js'
 import { LOG_SCOPE } from '../constants/constants'
-import { Yui, On, EventMessage, EventVoiceState } from '../decorators/yui.decorator'
+import { Yui, On, EventMessage, EventVoiceState } from '../dep-injection-ioc/decorators/yui.decorator'
 import { YuiClient } from '../custom-classes/yui-client'
-import { EntryComponent } from '../dep-injection-ioc/interfaces/di-interfaces'
 import { YuiLogger } from '../log/logger.service'
 import { ConfigService } from '../config-service/config.service'
-import { RedisService } from '../redis-adapter/redis.service'
+import { EntryComponent } from '@/dep-injection-ioc/entrypoint/entry-component'
 
 @Yui()
-export class YuiCore implements EntryComponent {
+export class YuiCore extends EntryComponent {
   constructor(
     private yui: YuiClient,
     private messageHandler: MessageHandler,
     private voiceStateHandler: VoiceStateHandler,
     private configService: ConfigService,
-    private redis: RedisService
-  ) {
+    ) {
+    super(yui, configService.token)
     YuiLogger.info('Created!', LOG_SCOPE.YUI_CORE)
-  }
-
-  public async start(): Promise<void> {
-    YuiLogger.log('Connecting... 📡', LOG_SCOPE.YUI_CORE)
-    this.yui.login(this.configService.token)
   }
 
   @On('ready')
@@ -74,10 +68,6 @@ export class YuiCore implements EntryComponent {
     @EventVoiceState('new') newVoiceState: VoiceState
   ): Promise<void> {
     this.voiceStateHandler.checkOnVoiceStateUpdate(oldVoiceState, newVoiceState)
-  }
-
-  get client() {
-    return this.yui
   }
 
   private handleError(error: Error | string): null {

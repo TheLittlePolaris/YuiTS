@@ -23,17 +23,16 @@ export class YuiContainerFactory {
 
   async create<T = any>(moduleMetadata: Type<any>): Promise<T> {
     await this.initialize(moduleMetadata)
-
-    const entryInstance: EntryComponent = this.container.entryInstance
+    const { entryInstance, entryComponent } = this.container
     this.testEntryInstance(entryInstance)
 
     /**
      * IMPORTANT:
-     *  - Required the entry component to implement EntryComponent interface
+     *  - Required the entry component to extends EntryComponent class
      *  - Require events to be defined within entry component
      */
 
-    const entryComponent: Type<any> = this.container.entryComponent
+   
     const boundEvents = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryComponent.prototype)
     const eventKeys = Object.keys(boundEvents)
     if (eventKeys.length) {
@@ -46,6 +45,8 @@ export class YuiContainerFactory {
       this.logger.warn('No event listener detected!')
     }
 
+
+    await entryInstance.start()
     return entryInstance as unknown as T
   }
 

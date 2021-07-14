@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { GuildMember, Message, Role, MessageEmbed } from 'discord.js'
-import { ValidateCommand, AdminParam } from '@/decorators/admin-action.decorator'
+import { ValidateCommand, AdminParam } from '@/dep-injection-ioc/decorators/admin-action.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiLogger } from '@/log/logger.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'

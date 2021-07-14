@@ -10,7 +10,7 @@ import {
   GenericClassDecorator,
   EventParamMetadata,
   Prototype,
-} from '../dep-injection-ioc/interfaces/di-interfaces'
+} from '../interfaces/di-interfaces'
 import { isFunction } from '@/dep-injection-ioc/helper-functions'
 import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 

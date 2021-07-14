@@ -1,9 +1,9 @@
 import { LOG_SCOPE } from '@/constants/constants'
-import { HoloStatCommandValidator, VTuberParam } from '@/decorators/feature-vtuber.decorator'
+import { HoloStatCommandValidator, VTuberParam } from '@/dep-injection-ioc/decorators/feature-vtuber.decorator'
 import {
   FeaturePermissionValidator,
   FeatureParam,
-} from '@/decorators/feature-permisson.decorator'
+} from '@/dep-injection-ioc/decorators/feature-permisson.decorator'
 import {
   GuildMember,
   Message,

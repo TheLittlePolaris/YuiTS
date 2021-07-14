@@ -5,7 +5,7 @@ import {
   Command,
   CommandValidator,
   AdminPermissionValidator,
-} from '@/decorators/permission.decorator'
+} from '@/dep-injection-ioc/decorators/permission.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiLogger } from '@/log/logger.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'

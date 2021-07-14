@@ -39,3 +39,11 @@ export enum GlobalInjectToken {
 
 export type InjectTokenValue = Record<GlobalInjectToken, string>
 export type InjectTokenName = keyof typeof GlobalInjectToken
+
+export const EVENT_HANDLER = 'event:handler'
+
+export enum HANDLE_PARAMS {
+  MESSAGE = 'message',
+  AUTHOR = 'author',
+  ARGS = 'args',
+}

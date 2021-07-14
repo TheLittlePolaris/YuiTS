@@ -7,7 +7,7 @@ import {
   Type,
   GenericClassDecorator,
   Prototype,
-} from '../dep-injection-ioc/interfaces/di-interfaces'
+} from '../interfaces/di-interfaces'
 import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 import { YuiLogger } from '@/log/logger.service'
 import { MusicService } from '@/services/app-services/music/music.service'

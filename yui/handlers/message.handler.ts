@@ -7,8 +7,10 @@ import { FeatureService } from '../services/app-services/feature/feature.service
 import { MusicService } from '../services/app-services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'
+import { Handle } from '@/dep-injection-ioc/decorators/handle.decorator'
 
 @Injectable()
+@Handle('message')
 export class MessageHandler {
   constructor(
     private musicService: MusicService,
