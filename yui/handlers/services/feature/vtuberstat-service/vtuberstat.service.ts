@@ -8,7 +8,7 @@ import {
   MessageOptions,
 } from 'discord.js'
 import { LOG_SCOPE } from '@/constants/constants'
-import { discordRichEmbedConstructor } from '@/services/app-services/utilities/discord-embed-constructor'
+import { discordRichEmbedConstructor } from '@/handlers/services/utilities/discord-embed-constructor'
 import { HoloStatRequestService } from './holostat-service/holostat-request.service'
 import {
   subscriberCountFormatter,

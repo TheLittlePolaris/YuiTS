@@ -7,3 +7,4 @@ LICENCE
 *.txt
 package-lock.json
 logs/
+google-apis-client-secret.json

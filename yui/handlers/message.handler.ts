@@ -1,10 +1,10 @@
 import { LOG_SCOPE } from '@/constants/constants'
 
 import { Message } from 'discord.js'
-import { OwnerChannelService } from '../services/owner-service/channel.service'
-import { AdministrationService } from '../services/app-services/administration/administration.service'
-import { FeatureService } from '../services/app-services/feature/feature.service'
-import { MusicService } from '../services/app-services/music/music.service'
+import { OwnerChannelService } from './owner-service/channel.service'
+import { AdministrationService } from './services/administration/administration.service'
+import { FeatureService } from './services/feature/feature.service'
+import { MusicService } from './services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
 import { Injectable } from '@/dep-injection-ioc/decorators'
 

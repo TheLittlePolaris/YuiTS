@@ -2,7 +2,7 @@ import { GuildMember, Message, Role } from 'discord.js'
 import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
-} from '@/services/app-services/administration/admin-interfaces/administration.interface'
+} from '@/handlers/services/administration/admin-interfaces/administration.interface'
 import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
 import {
   Type,

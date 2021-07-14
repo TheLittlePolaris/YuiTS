@@ -4,16 +4,9 @@ import {
   defaultDetailSubCommand,
   HOLOSTAT_PARAMS,
   holoStatList,
-} from '@/services/app-services/feature/vtuberstat-service/holostat-service/holostat.interface'
-import {
-  INJECTABLE_METADATA,
-  METHOD_PARAM_METADATA,
-} from '@/dep-injection-ioc/constants/di-connstants'
-import {
-  Type,
-  GenericClassDecorator,
-  Prototype,
-} from '../dep-injection-ioc/interfaces/di-interfaces'
+} from '@/handlers/services/feature/vtuberstat-service/holostat-service/holostat.interface'
+import { METHOD_PARAM_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
+import { Prototype } from '../dep-injection-ioc/interfaces/di-interfaces'
 import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
 
 export enum VTUBER_PARAMS {
@@ -23,8 +16,6 @@ export enum VTUBER_PARAMS {
 
 export type VTUBER_PARAM_NAME = Record<VTUBER_PARAMS, string>
 export type VTUBER_PARAM_KEY = keyof typeof VTUBER_PARAMS
-
-
 
 export function HoloStatCommandValidator() {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
@@ -63,10 +54,7 @@ export function HoloStatCommandValidator() {
       if (defaultDetailSubCommand.includes(subCommand)) {
         filteredArgs[detailIndex] = true
         if (!params.length) return originalMethod.apply(this, filteredArgs)
-        const regionArg = params.shift().toLowerCase() as Exclude<
-          HOLOSTAT_PARAMS,
-          'd' | 'detail'
-        >
+        const regionArg = params.shift().toLowerCase() as Exclude<HOLOSTAT_PARAMS, 'd' | 'detail'>
         filteredArgs[regionIndex] = getRegion(regionArg)
         return originalMethod.apply(this, filteredArgs)
       }
@@ -85,12 +73,9 @@ export function HoloStatCommandValidator() {
   }
 }
 
-
-
 export const VTuberParam = (key: VTUBER_PARAM_KEY) => {
   return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    let definedParams =
-      Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
+    let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
     definedParams = { [VTUBER_PARAMS[key]]: paramIndex, ...definedParams }
     Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
   }
