@@ -2,7 +2,7 @@ import { config } from 'dotenv'
 import { LOG_SCOPE } from '@/constants/constants'
 import { existsSync } from 'fs'
 import { YuiLogger } from '@/log/logger.service'
-import { Injectable } from '@/dep-injection-ioc/decorators'
+import { Injectable } from '@/ioc-container/decorators'
 import { RedisOptions } from 'ioredis'
 
 interface EnvConfig {

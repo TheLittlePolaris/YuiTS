@@ -1,10 +1,11 @@
 import { DiscordEvent } from '@/constants/discord-events'
 
 export const MODULE_METADATA = {
-  MODULES: 'modules',
-  PROVIDERS: 'providers',
-  COMPONENTS: 'components',
-  ENTRY_COMPONENT: 'entryComponent',
+  MODULES: 'self:metadata:modules',
+  PROVIDERS: 'self:metadata:providers',
+  COMPONENTS: 'self:metadata:components',
+  INJECTORS: 'self:metadata:injectors',
+  ENTRY_COMPONENT: 'self:metadata:entry_component',
 }
 
 export const COMPONENT_METADATA = {
@@ -28,6 +29,10 @@ export const DESIGN_TYPE = 'design:type'
 
 export const METHOD_PARAM_METADATA = 'method:params'
 
+
+export const APP_INTERCEPTOR = 'design:interceptor'
+
+
 export enum GlobalInjectToken {
   BOT_TOKEN = 'BOT_TOKEN',
   BOT_OPTION = 'BOT_OPTION',
@@ -40,10 +45,25 @@ export enum GlobalInjectToken {
 export type InjectTokenValue = Record<GlobalInjectToken, string>
 export type InjectTokenName = keyof typeof GlobalInjectToken
 
-export const EVENT_HANDLER = 'event:handler'
+// Event handlers
+export const BOUND_EVENTS = 'self:bound_events'
+export const EVENT_HANDLER = 'self:event_handler'
+export const COMMAND_HANDLER = 'self:command_handler'
+export const COMMAND_HANDLER_PARAMS = 'self:command_handler:params'
 
 export enum HANDLE_PARAMS {
-  MESSAGE = 'message',
-  AUTHOR = 'author',
-  ARGS = 'args',
+  MESSAGE = 'params:message',
+  AUTHOR = 'params:author',
+  ARGS = 'params:args',
+  GUILD = 'params:guild',
 }
+
+
+export enum DEFAULT_PARAM_INDEX {
+  MESSAGE,
+  AUTHOR,
+  ARGS,
+  GUILD
+}
+
+export const INTERCEPTOR_TARGET = 'self:interceptor_target'

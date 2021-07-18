@@ -1,9 +1,9 @@
 import { LOG_SCOPE } from '@/constants/constants'
-import { HoloStatCommandValidator, VTuberParam } from '@/dep-injection-ioc/decorators/feature-vtuber.decorator'
+import { HoloStatCommandValidator, VTuberParam } from '@/ioc-container/decorators/feature-vtuber.decorator'
 import {
   FeaturePermissionValidator,
   FeatureParam,
-} from '@/dep-injection-ioc/decorators/feature-permisson.decorator'
+} from '@/ioc-container/decorators/feature-permisson.decorator'
 import {
   GuildMember,
   Message,
@@ -15,7 +15,7 @@ import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
 import { YuiLogger } from '@/log/logger.service'
 import Axios from 'axios'
-import { Injectable } from '@/dep-injection-ioc/decorators'
+import { Injectable } from '@/ioc-container/decorators'
 import { YuiClient } from '@/custom-classes/yui-client'
 
 @Injectable()

@@ -5,9 +5,9 @@ import {
   HOLOSTAT_PARAMS,
   holoStatList,
 } from '@/services/app-services/feature/vtuberstat-service/holostat-service/holostat.interface'
-import { METHOD_PARAM_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
+import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/di-connstants'
 import { Prototype } from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
+import { decoratorLogger } from '@/ioc-container/log/logger'
 
 export enum VTUBER_PARAMS {
   REGION = 'region',

@@ -1,5 +1,5 @@
 import { ConfigService } from '@/config-service/config.service'
-import { Injectable } from '@/dep-injection-ioc/decorators'
+import { Injectable } from '@/ioc-container/decorators'
 import { YuiLogger } from '@/log/logger.service'
 import { default as IORedis, Redis } from 'ioredis'
 

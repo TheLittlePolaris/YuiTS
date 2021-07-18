@@ -1,14 +1,11 @@
 import { Message, TextChannel } from 'discord.js'
 import {
-  INJECTABLE_METADATA,
   METHOD_PARAM_METADATA,
-} from '@/dep-injection-ioc/constants/di-connstants'
+} from '@/ioc-container/constants/di-connstants'
 import {
-  Type,
-  GenericClassDecorator,
   Prototype,
 } from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
+import { decoratorLogger } from '@/ioc-container/log/logger'
 import { YuiLogger } from '@/log/logger.service'
 import { MusicService } from '@/services/app-services/music/music.service'
 

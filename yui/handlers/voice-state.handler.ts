@@ -4,7 +4,7 @@ import { MusicStream } from '../services/app-services/music/music-entities/music
 import { VoiceStateAction } from '../services/app-services/music/music-interfaces/voice-state.interface'
 import { MusicService } from '../services/app-services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
-import { Injectable } from '@/dep-injection-ioc/decorators'
+import { Injectable } from '@/ioc-container/decorators'
 
 @Injectable()
 export class VoiceStateHandler {

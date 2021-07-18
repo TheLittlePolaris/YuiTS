@@ -8,9 +8,11 @@ import {
   DESIGN_TYPE,
   InjectTokenValue,
   InjectTokenName,
-} from '@/dep-injection-ioc/constants/di-connstants'
+  APP_INTERCEPTOR,
+} from '@/ioc-container/constants/di-connstants'
 import { YuiContainerFactory } from './container-factory'
 import { decoratorLogger } from './log/logger'
+import { DiscordEvent } from '@/constants/discord-events'
 
 // NestJS Inject function, edited
 export const Inject = (token: InjectTokenName) => {
@@ -37,6 +39,15 @@ export function Injectable<T = any>(): GenericClassDecorator<Type<T>> {
     decoratorLogger(target.name, 'Class')
   }
 }
+
+
+export function Interceptor<T = any>(forEvent: DiscordEvent): GenericClassDecorator<Type<T>> {
+  return (target: Type<any>) => {
+    decoratorLogger(target.name, 'Class')
+    Reflect.defineMetadata(APP_INTERCEPTOR, forEvent, target)
+  }
+}
+
 
 export function YuiModule<T = any>(options: ModuleOption): GenericClassDecorator<Type<T>> {
   const propKeys = Object.keys(options)

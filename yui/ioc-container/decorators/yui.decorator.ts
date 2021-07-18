@@ -4,15 +4,15 @@ import {
   DESIGN_TYPE,
   COMPONENT_METADATA,
   paramKeyConstructor,
-} from '@/dep-injection-ioc/constants/di-connstants'
+} from '@/ioc-container/constants/di-connstants'
 import {
   Type,
   GenericClassDecorator,
   EventParamMetadata,
   Prototype,
 } from '../interfaces/di-interfaces'
-import { isFunction } from '@/dep-injection-ioc/helper-functions'
-import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
+import { isFunction } from '@/ioc-container/helper-functions'
+import { decoratorLogger } from '@/ioc-container/log/logger'
 
 export function Yui<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
@@ -29,7 +29,7 @@ export const On = (event: DiscordEvent): MethodDecorator => {
     decoratorLogger(target.constructor.name, `On - ${event}`, propertyKey)
     let eventList: { [key: string]: string } = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, target) || []
     eventList = { ...eventList, [event]: propertyKey }
-    Reflect.defineMetadata(COMPONENT_METADATA.EVENT_LIST, eventList, target)
+    Reflect.defineMetadata(COMPONENT_METADATA.EVENT_LIST, eventList, target.constructor)
   }
 }
 

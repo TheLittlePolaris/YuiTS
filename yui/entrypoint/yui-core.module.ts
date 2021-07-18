@@ -1,7 +1,7 @@
 import { YuiCore } from './yui-core.entrypoint'
 import { YuiClient } from '../custom-classes/yui-client'
 import { RedisModule } from '@/redis-adapter/redis.module'
-import { YuiModule } from '@/dep-injection-ioc/decorators'
+import { YuiModule } from '@/ioc-container/decorators'
 import { HandlerModule } from '@/handlers/handler.module'
 
 

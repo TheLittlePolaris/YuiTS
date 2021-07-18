@@ -5,14 +5,16 @@ import {
   Command,
   CommandValidator,
   AdminPermissionValidator,
-} from '@/dep-injection-ioc/decorators/permission.decorator'
+} from '@/ioc-container/decorators/permission.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiLogger } from '@/log/logger.service'
-import { Injectable } from '@/dep-injection-ioc/decorators'
+import { Injectable } from '@/ioc-container/decorators'
+import { ConfigService } from '@/config-service/config.service'
+import { YuiClient } from '@/custom-classes/yui-client'
 
 @Injectable()
 export class AdministrationService {
-  constructor(private _adminActionCommands: AdminstrationActionCommands) {
+  constructor(private _adminActionCommands: AdminstrationActionCommands, public configService: ConfigService, public yui: YuiClient) {
     YuiLogger.info(`Created!`, LOG_SCOPE.ADMIN_SERVICE)
   }
 

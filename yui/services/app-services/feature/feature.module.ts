@@ -1,4 +1,4 @@
-import { YuiModule } from '@/dep-injection-ioc/decorators'
+import { YuiModule } from '@/ioc-container/decorators'
 import { FeatureService } from './feature.service'
 import { VTuberModule } from './vtuberstat-service/vtuber.module'
 

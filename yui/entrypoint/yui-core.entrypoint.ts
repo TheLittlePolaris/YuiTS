@@ -2,14 +2,14 @@ import { MessageHandler } from '@/handlers/message.handler'
 import { VoiceStateHandler } from '@/handlers/voice-state.handler'
 import { Message, VoiceState } from 'discord.js'
 import { LOG_SCOPE } from '../constants/constants'
-import { Yui, On, EventMessage, EventVoiceState } from '../dep-injection-ioc/decorators/yui.decorator'
+import { Yui, On, EventMessage, EventVoiceState } from '../ioc-container/decorators/yui.decorator'
 import { YuiClient } from '../custom-classes/yui-client'
 import { YuiLogger } from '../log/logger.service'
 import { ConfigService } from '../config-service/config.service'
-import { EntryComponent } from '@/dep-injection-ioc/entrypoint/entry-component'
+import { EntryPointComponent } from '@/ioc-container/entrypoint/entrypoint.component'
 
 @Yui()
-export class YuiCore extends EntryComponent {
+export class YuiCore extends EntryPointComponent {
   constructor(
     private yui: YuiClient,
     private messageHandler: MessageHandler,

@@ -1,15 +1,11 @@
-import { GuildMember, Message, Role } from 'discord.js'
+import { Message } from 'discord.js'
 import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/services/app-services/administration/admin-interfaces/administration.interface'
-import { INJECTABLE_METADATA } from '@/dep-injection-ioc/constants/di-connstants'
-import {
-  Type,
-  GenericClassDecorator,
-  Prototype,
-} from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
+import { Prototype } from '../interfaces/di-interfaces'
+import { decoratorLogger } from '@/ioc-container/log/logger'
+import { AdministrationService } from '@/services/app-services/administration/administration.service'
 
 enum REFLECT_PERMISSION_SYMBOLS {
   COMMAND = 'command',
@@ -19,23 +15,20 @@ const REFLECT_PERMISSION_KEYS = {
   COMMAND: Symbol(REFLECT_PERMISSION_SYMBOLS.COMMAND),
 }
 
-
 export function AdminPermissionValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
     decoratorLogger(target.constructor.name, 'AdminPermissionValidator', propertyKey)
     const originalDescriptor = descriptor.value
 
-    descriptor.value = async function (..._args: any[]) {
-      console.log('RUN THIS')
-
+    descriptor.value = async function (this: AdministrationService, ..._args: any[]) {
       const [message, args, command] = _args as [Message, Array<string>, string]
-      const [yui, actionMember] = [
-        await message.guild.members.fetch(global.config.yuiId),
-        message.member,
-      ]
+      const [yui, actionMember] = await Promise.all([
+        this.yui.getMember(message),
+        Promise.resolve(message.member),
+      ])
       if (!command || !ADMIN_COMMANDS.includes(command)) return
 
-      const isOwner: boolean = message.author.id === global.config.ownerId
+      const isOwner: boolean = message.author.id === this.configService.ownerId
 
       let yuiPermission, memberPermission: boolean
       switch (command as ADMIN_ACTION_TYPE) {

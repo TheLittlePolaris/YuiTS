@@ -1,4 +1,4 @@
-import { YuiModule } from '@/dep-injection-ioc/decorators'
+import { YuiModule } from '@/ioc-container/decorators'
 import { MusicService } from './music.service'
 import { GlobalMusicStream } from '../../../custom-classes/global-music-streams'
 import { YoutubeInfoService } from './youtube-service/youtube-info.service'

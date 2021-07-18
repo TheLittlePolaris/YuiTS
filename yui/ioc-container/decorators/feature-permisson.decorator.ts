@@ -1,16 +1,13 @@
 import { Message, PermissionString } from 'discord.js'
 import {
-  INJECTABLE_METADATA,
-  DESIGN_TYPE,
-  PARAMTYPES_METADATA,
   METHOD_PARAM_METADATA,
-} from '@/dep-injection-ioc/constants/di-connstants'
+} from '@/ioc-container/constants/di-connstants'
 import {
-  Type,
-  GenericClassDecorator,
+
   Prototype,
 } from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/dep-injection-ioc/log/logger'
+import { decoratorLogger } from '@/ioc-container/log/logger'
+import { FeatureService } from '@/services/app-services/feature/feature.service'
 
 export enum FEATURE_PROPERTY_PARAMS {
   GUILD_MEMBER = 'guildMember',
@@ -30,12 +27,12 @@ export function FeaturePermissionValidator() {
 
     const originalDescriptor: Function = descriptor.value
 
-    descriptor.value = async function (message: Message, params: string[], ...args: any[]) {
+    descriptor.value = async function (this: FeatureService, message: Message, params: string[], ...args: any[]) {
 
       const filteredArgs = [message, params, ...args]
       const requiredPermissions: PermissionString[] = ['SEND_MESSAGES']
       const [yui, actionMember] = await Promise.all([
-        message.guild.members.fetch(global.config.yuiId),
+        message.guild.members.fetch(this.yui.user.id),
         message.member,
       ])
       const [yuiPermission, memberPermission, isOwner] = [
@@ -46,7 +43,7 @@ export function FeaturePermissionValidator() {
           checkAdmin: true,
           checkOwner: true,
         }),
-        actionMember.user.id === global.config.ownerId,
+        actionMember.user.id === this.yui.user.id,
       ]
       if (!(yuiPermission && (memberPermission || isOwner))) return
 

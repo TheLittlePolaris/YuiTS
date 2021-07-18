@@ -1,15 +1,20 @@
 import { LOG_SCOPE } from '@/constants/constants'
 
-import { Message } from 'discord.js'
+import { GuildMember, Message } from 'discord.js'
 import { OwnerChannelService } from '../services/owner-service/channel.service'
 import { AdministrationService } from '../services/app-services/administration/administration.service'
 import { FeatureService } from '../services/app-services/feature/feature.service'
 import { MusicService } from '../services/app-services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
-import { Injectable } from '@/dep-injection-ioc/decorators'
-import { Handle } from '@/dep-injection-ioc/decorators/handle.decorator'
+import {
+  Args,
+  Author,
+  Handle,
+  HandleMessage,
+  MessageParam,
+} from '@/ioc-container/decorators/handle.decorator'
 
-@Injectable()
+
 @Handle('message')
 export class MessageHandler {
   constructor(
@@ -119,17 +124,6 @@ export class MessageHandler {
         }
         return this.administrationService.executeCommand(message, args)
       }
-      case 'test': {
-        // if (global.config.environment !== 'development') return
-        // this.musicService.soundcloudGetSongInfo(args[0])
-
-        // this.musicService.scPlaySong(message, args[0])
-
-
-        this.featureService.getTest()
-
-        break
-      }
       case 'help': {
         return this.featureService.help(message)
       }
@@ -151,6 +145,28 @@ export class MessageHandler {
       case 'stat':
         return this.ownerChannelService.statistics(message, content)
     }
+  }
+
+  @HandleMessage('test')
+  public async handleTest(
+    @MessageParam() message: Message,
+    @Author() author: GuildMember,
+    @Args() args: string[]
+  ) {
+    console.log(message, `<======= message [message.handler.ts - 167]`);
+    console.log(author, `<======= author [message.handler.ts - 168]`);
+    console.log(args, `<======= args [message.handler.ts - 169]`);
+  }
+
+  @HandleMessage('test2')
+  public async handleTest2(
+    @MessageParam() message: Message,
+    @Author() author: GuildMember,
+    @Args() args: string[]
+  ) {
+    console.log(message, `<======= message [message.handler.ts - 167]`);
+    console.log(author, `<======= author [message.handler.ts - 168]`);
+    console.log(args, `<======= args [message.handler.ts - 169]`);
   }
 
   handleError(error: Error | string): null {

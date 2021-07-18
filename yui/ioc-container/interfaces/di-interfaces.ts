@@ -34,6 +34,7 @@ export interface ModuleOption {
   providers?: CustomValueProvider<any>[]
   modules?: Type<any>[]
   components?: Type<any>[]
+  interceptors?: Type<any>[]
   entryComponent?: Type<any>
 }
 

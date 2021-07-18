@@ -1,4 +1,4 @@
-import { YuiModule } from '@/dep-injection-ioc/decorators'
+import { YuiModule } from '@/ioc-container/decorators'
 import { AdministrationService } from './administration.service'
 import { AdminstrationActionCommands } from './administration-actions/admin-action-command.service'
 
