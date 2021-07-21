@@ -1,5 +1,4 @@
 import { YuiClient } from '@/custom-classes/yui-client'
-import { YuiLogger } from '@/log/logger.service'
 
 export class EntryPointComponent {
   private _bot: YuiClient
@@ -10,7 +9,6 @@ export class EntryPointComponent {
   }
 
   public async start() {
-    YuiLogger.log('Connecting... 📡', EntryPointComponent.name)
     return this._bot.login(this._token)
   }
 

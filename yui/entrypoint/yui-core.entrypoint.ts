@@ -22,6 +22,7 @@ export class YuiCore extends EntryPointComponent {
 
   @On('ready')
   async onReady(): Promise<void> {
+   
     if (!this.yui || !this.yui.user)
       throw new Error('Something went horribly wrong! Client is not defined!')
     YuiLogger.log('🔗 🛰 Connected!', LOG_SCOPE.YUI_CORE)
@@ -38,25 +39,25 @@ export class YuiCore extends EntryPointComponent {
     YuiLogger.log('🚀 🔶Yui is online! 🚀', LOG_SCOPE.YUI_CORE)
   }
 
-  @On('message')
-  async onMessage(@EventMessage() message: Message): Promise<unknown> {
-    const { content, author, channel } = message
-    try {
-      if (channel.type === 'dm' && author.id === this.configService.ownerId)
-        return this.onDM(message)
+  // @On('message')
+  // async onMessage(@EventMessage() message: Message): Promise<unknown> {
+  //   const { content, author, channel } = message
+  //   try {
+  //     if (channel.type === 'dm' && author.id === this.configService.ownerId)
+  //       return this.onDM(message)
 
-      if (!content.startsWith(this.configService.prefix) || author.bot || channel.type !== 'text')
-        return
+  //     if (!content.startsWith(this.configService.prefix) || author.bot || channel.type !== 'text')
+  //       return
 
-      const args = message.content.slice(this.configService.prefix.length).trim().split(/ +/g)
+  //     const args = message.content.slice(this.configService.prefix.length).trim().split(/ +/g)
 
-      const command = args.shift()
+  //     const command = args.shift()
 
-      return this.messageHandler.messageSwitchMap(message, command, args)
-    } catch (err) {
-      this.handleError(err)
-    }
-  }
+  //     return this.messageHandler.messageSwitchMap(message, command, args)
+  //   } catch (err) {
+  //     this.handleError(err)
+  //   }
+  // }
 
   async onDM(message: Message): Promise<void> {
     return this.messageHandler.specialExecute(message)

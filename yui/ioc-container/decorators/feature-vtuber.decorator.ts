@@ -19,7 +19,7 @@ export type VTUBER_PARAM_KEY = keyof typeof VTUBER_PARAMS
 
 export function HoloStatCommandValidator() {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    decoratorLogger(target.constructor.name, 'HoloStatCommandValidator', propertyKey)
+    // decoratorLogger(target.constructor.name, 'HoloStatCommandValidator', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = function (message: Message, params: string[], ...args: any[]) {
       const filteredArgs = [message, params, ...args]

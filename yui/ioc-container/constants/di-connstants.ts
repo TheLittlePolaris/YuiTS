@@ -1,13 +1,21 @@
 import { DiscordEvent } from '@/constants/discord-events'
+import { ModuleOption } from '../interfaces/di-interfaces'
 
-export const MODULE_METADATA = {
-  MODULES: 'self:metadata:modules',
-  PROVIDERS: 'self:metadata:providers',
-  COMPONENTS: 'self:metadata:components',
-  INJECTORS: 'self:metadata:injectors',
-  ENTRY_COMPONENT: 'self:metadata:entry_component',
+export enum MODULE_METADATA_KEY {
+  MODULES = 'modules',
+  PROVIDERS = 'providers',
+  COMPONENTS = 'components',
+  INTERCEPTOR = 'interceptors',
+  ENTRY_COMPONENT = 'entryComponent',
 }
 
+export const MODULE_METADATA = {
+  [MODULE_METADATA_KEY.MODULES]: 'self:metadata:modules',
+  [MODULE_METADATA_KEY.PROVIDERS]: 'self:metadata:providers',
+  [MODULE_METADATA_KEY.COMPONENTS]: 'self:metadata:components',
+  [MODULE_METADATA_KEY.INTERCEPTOR]: 'self:metadata:interceptors',
+  [MODULE_METADATA_KEY.ENTRY_COMPONENT]: 'self:metadata:entry_component',
+}
 export const COMPONENT_METADATA = {
   EVENT_LIST: 'custom_metadata:event_list',
   PROPERT: 'custom_type:property',
@@ -29,9 +37,7 @@ export const DESIGN_TYPE = 'design:type'
 
 export const METHOD_PARAM_METADATA = 'method:params'
 
-
 export const APP_INTERCEPTOR = 'design:interceptor'
-
 
 export enum GlobalInjectToken {
   BOT_TOKEN = 'BOT_TOKEN',
@@ -58,12 +64,14 @@ export enum HANDLE_PARAMS {
   GUILD = 'params:guild',
 }
 
-
 export enum DEFAULT_PARAM_INDEX {
   MESSAGE,
   AUTHOR,
   ARGS,
-  GUILD
+  GUILD,
+  CHANNEL,
+  COMMAND
 }
+
 
 export const INTERCEPTOR_TARGET = 'self:interceptor_target'

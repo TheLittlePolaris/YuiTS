@@ -17,7 +17,7 @@ const REFLECT_PERMISSION_KEYS = {
 
 export function AdminPermissionValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(target.constructor.name, 'AdminPermissionValidator', propertyKey)
+    // decoratorLogger(target.constructor.name, 'AdminPermissionValidator', propertyKey)
     const originalDescriptor = descriptor.value
 
     descriptor.value = async function (this: AdministrationService, ..._args: any[]) {
@@ -104,7 +104,7 @@ export function AdminPermissionValidator() {
 
 export function CommandValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(target.constructor.name, 'CommandValidator', propertyKey)
+    // decoratorLogger(target.constructor.name, 'CommandValidator', propertyKey)
     const originalDescriptor = descriptor.value
     descriptor.value = function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]

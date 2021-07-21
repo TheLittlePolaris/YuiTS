@@ -23,7 +23,7 @@ export type FEATURE_PARAM_KEY = keyof typeof FEATURE_PROPERTY_PARAMS
 
 export function FeaturePermissionValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(target.constructor.name, 'FeaturePermissionValidator', propertyKey)
+    // decoratorLogger(target.constructor.name, 'FeaturePermissionValidator', propertyKey)
 
     const originalDescriptor: Function = descriptor.value
 

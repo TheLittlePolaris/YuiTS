@@ -1,6 +1,6 @@
 import { LOG_SCOPE } from '@/constants/constants'
 
-import { GuildMember, Message } from 'discord.js'
+import { Channel, GuildMember, Message, TextChannel } from 'discord.js'
 import { OwnerChannelService } from '../services/owner-service/channel.service'
 import { AdministrationService } from '../services/app-services/administration/administration.service'
 import { FeatureService } from '../services/app-services/feature/feature.service'
@@ -9,132 +9,155 @@ import { YuiLogger } from '@/log/logger.service'
 import {
   Args,
   Author,
+  MessageChannel,
   Handle,
   HandleMessage,
   MessageParam,
+  Command,
 } from '@/ioc-container/decorators/handle.decorator'
-
+import { UseInterceptor } from '@/ioc-container/decorators/interceptor.decorator'
+import { MessageInterceptor } from '@/interceptors/message.interceptor'
+import { ConfigService } from '@/config-service/config.service'
 
 @Handle('message')
+@UseInterceptor(MessageInterceptor)
 export class MessageHandler {
   constructor(
     private musicService: MusicService,
     private featureService: FeatureService,
     private administrationService: AdministrationService,
-    private ownerChannelService: OwnerChannelService
+    private ownerChannelService: OwnerChannelService,
+    private configService: ConfigService
   ) {
     YuiLogger.info(`Created!`, LOG_SCOPE.MESSAGE_HANDLER)
   }
 
-  public async messageSwitchMap(
-    message: Message,
-    command: string,
-    args?: Array<string>
-  ): Promise<unknown> {
-    switch (command) {
-      case 'play':
-      case 'p':
-        return this.musicService.play(message, args, false)
-
-      case 'playnext':
-      case 'pnext':
-      case 'pn':
-        return this.musicService.play(message, args, true)
-
-      case 'skip':
-      case 'next':
-        return this.musicService.skipSongs(message, args)
-
-      case 'join':
-      case 'come':
-        return this.musicService.joinVoiceChannel(message)
-
-      case 'leave':
-      case 'bye':
-        return this.musicService.leaveVoiceChannel(message)
-
-      case 'np':
-      case 'nowplaying':
-        return this.musicService.getNowPlayingData(message)
-
-      case 'queue':
-      case 'q':
-        return this.musicService.printQueue(message, args)
-
-      case 'pause':
-        return this.musicService.musicController(message, true)
-
-      case 'resume':
-        return this.musicService.musicController(message, false)
-
-      case 'stop':
-        return this.musicService.stopPlaying(message)
-
-      case 'loop':
-        return this.musicService.loopSettings(message, args)
-
-      case 'shuffle':
-        return this.musicService.shuffleQueue(message)
-
-      case 'remove':
-        return this.musicService.removeSongs(message, args)
-
-      case 'clear':
-        return this.musicService.clearQueue(message)
-
-      case 'search':
-        return this.musicService.searchSong(message, args)
-
-      case 'autoplay':
-      case 'ap':
-        return this.musicService.autoPlay(message)
-
-      case 'volume':
-        return this.musicService.setVolume(message, args)
-
-      //end of music command batch
-      case 'ping': {
-        return this.featureService.getPing(message)
-      }
-      case 'say': {
-        message.delete().catch((error) => {
-          message.author.send(`Something went wrong, i couldn't delete the message`)
-          this.handleError(new Error(error))
-        })
-        return this.featureService.say(message, args)
-      }
-      case 'holostat': {
-        return this.featureService.getHoloStat(message, args)
-      }
-      case 'tenor': {
-        try {
-          message.delete()
-        } catch (err) {
-          message.author.send(`Sorry i couldn't delete the message`)
-        }
-        return this.featureService.tenorGif(message, args)
-      }
-      case 'admin': {
-        const deletedMessage = await message.delete().catch((error) => {
-          message.author.send(`Something went wrong, i couldn't delete the message`)
-          this.handleError(new Error(error))
-        })
-        if (!deletedMessage) {
-          return
-        }
-        return this.administrationService.executeCommand(message, args)
-      }
-      case 'help': {
-        return this.featureService.help(message)
-      }
-      default: {
-        message.channel.send(
-          'What do you mean by `>' + command + '`? How about taking a look at `>help`?.'
-        )
-        break
-      }
-    }
+  @HandleMessage('play', 'p')
+  public async playMusic(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.play(message, args, false)
   }
+
+  @HandleMessage('playnext', 'pnext', 'pn')
+  public async playNext(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.play(message, args, true)
+  }
+
+  @HandleMessage('skip', 'next')
+  async skipSong(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.skipSongs(message, args)
+  }
+
+  @HandleMessage('join', 'come')
+  async join(@MessageParam() message: Message) {
+    return this.musicService.joinVoiceChannel(message)
+  }
+
+  @HandleMessage('leave', 'bye')
+  async leave(@MessageParam() message: Message) {
+    return this.musicService.leaveVoiceChannel(message)
+  }
+
+  @HandleMessage('np', 'nowplaying')
+  async nowPlaying(@MessageParam() message: Message) {
+    return this.musicService.getNowPlayingData(message)
+  }
+
+  @HandleMessage('queue', 'q')
+  async getQueue(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.printQueue(message, args)
+  }
+
+  @HandleMessage('pause')
+  async pause(@MessageParam() message: Message) {
+    return this.musicService.musicController(message, true)
+  }
+
+  @HandleMessage('pause')
+  async resume(@MessageParam() message: Message) {
+    return this.musicService.musicController(message, true)
+  }
+
+  @HandleMessage('stop')
+  async stopPlaying(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.stopPlaying(message)
+  }
+  @HandleMessage('loop')
+  async loopSong(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.loopSettings(message, args)
+  }
+
+  @HandleMessage('shuffle')
+  async shuffle(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.shuffleQueue(message)
+  }
+
+  @HandleMessage('remove', 'rm')
+  async removeSong(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.removeSongs(message, args)
+  }
+
+  @HandleMessage('clear')
+  async clearQueue(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.setVolume(message, args)
+  }
+
+  @HandleMessage('search', 's')
+  async searchSong(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.searchSong(message, args)
+  }
+
+  @HandleMessage('autoplay', 'ap')
+  async autoplay(@MessageParam() message: Message) {
+    return this.musicService.autoPlay(message)
+  }
+
+  @HandleMessage('volume', 'v')
+  async volume(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.musicService.setVolume(message, args)
+  }
+
+  @HandleMessage('say', 'repeat')
+  async repeat(@MessageParam() message: Message, @Args() args: string[]) {
+    message
+      .delete()
+      .catch((err) => message.author.send(`Something went wrong, i couldn't delete the message`))
+    return this.featureService.say(message, args)
+  }
+
+  @HandleMessage('ping')
+  async ping(@MessageParam() message: Message) {
+    return this.featureService.getPing(message)
+  }
+
+  @HandleMessage('holostat')
+  async getHolostat(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.featureService.getHoloStat(message, args)
+  }
+
+  @HandleMessage('tenor')
+  async sendGif(@MessageParam() message: Message, @Args() args: string[]) {
+    message.delete().catch((err) => null)
+    return this.featureService.tenorGif(message, args)
+  }
+
+  @HandleMessage('admin', 'management')
+  async managementaction(@MessageParam() message: Message, @Args() args: string[]) {
+    message.delete().catch((err) => null)
+    return this.administrationService.executeCommand(message, args)
+  }
+
+  @HandleMessage('help')
+  async sendManual(@MessageParam() message: Message, @Args() args: string[]) {
+    return this.featureService.help(message)
+  }
+
+  @HandleMessage()
+  async defaultResponse(@MessageChannel() channel: TextChannel, @Command() command: string) {
+    channel.send(
+      `I cannot recognize command \`${command}\`. How about taking a look at \`${this.configService.prefix}help\` ?`
+    )
+  }
+
 
   async specialExecute(message: Message): Promise<void> {
     const content = message.content.trim().split(/ +/g)
@@ -147,27 +170,27 @@ export class MessageHandler {
     }
   }
 
-  @HandleMessage('test')
-  public async handleTest(
-    @MessageParam() message: Message,
-    @Author() author: GuildMember,
-    @Args() args: string[]
-  ) {
-    console.log(message, `<======= message [message.handler.ts - 167]`);
-    console.log(author, `<======= author [message.handler.ts - 168]`);
-    console.log(args, `<======= args [message.handler.ts - 169]`);
-  }
+  // @HandleMessage('test') // it works
+  // public async handleTest(
+  //   @MessageParam() message: Message,
+  //   @Author() author: GuildMember,
+  //   @Args() args: string[]
+  // ) {
+  //   console.log(message, `<======= message [message.handler.ts - 167]`)
+  //   console.log(author, `<======= author [message.handler.ts - 168]`)
+  //   console.log(args, `<======= args [message.handler.ts - 169]`)
+  // }
 
-  @HandleMessage('test2')
-  public async handleTest2(
-    @MessageParam() message: Message,
-    @Author() author: GuildMember,
-    @Args() args: string[]
-  ) {
-    console.log(message, `<======= message [message.handler.ts - 167]`);
-    console.log(author, `<======= author [message.handler.ts - 168]`);
-    console.log(args, `<======= args [message.handler.ts - 169]`);
-  }
+  // @HandleMessage('test2')
+  // public async handleTest2(
+  //   @MessageParam() message: Message,
+  //   @Author() author: GuildMember,
+  //   @Args() args: string[]
+  // ) {
+  //   console.log(message, `<======= message [message.handler.ts - 167]`)
+  //   console.log(author, `<======= author [message.handler.ts - 168]`)
+  //   console.log(args, `<======= args [message.handler.ts - 169]`)
+  // }
 
   handleError(error: Error | string): null {
     YuiLogger.error(error, LOG_SCOPE.MESSAGE_HANDLER)

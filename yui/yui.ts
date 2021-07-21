@@ -9,9 +9,10 @@ import { YuiMainModule } from './yui.module'
 import { YuiCore } from './entrypoint/yui-core.entrypoint'
 import { YuiLogger } from './log/logger.service'
 
-const bootstrap = () => {
+const  bootstrap = async () => {
   const yuiContainerFactory = new YuiContainerFactory()
-  yuiContainerFactory.createRootModule(YuiMainModule)
+  await yuiContainerFactory.createRootModule(YuiMainModule)
+
 }
 
 YuiLogger.info('🔸 Starting...', LOG_SCOPE.YUI_MAIN)

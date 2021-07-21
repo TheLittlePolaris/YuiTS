@@ -1,9 +1,4 @@
-import {
-  Type,
-  CustomValueProvider,
-  CustomClassProvider,
-  EntryComponent,
-} from './interfaces/di-interfaces'
+import { Type, CustomValueProvider, CustomClassProvider } from './interfaces/di-interfaces'
 import {
   MODULE_METADATA,
   PARAMTYPES_METADATA,
@@ -12,8 +7,8 @@ import {
   EVENT_HANDLER,
   COMMAND_HANDLER,
   COMMAND_HANDLER_PARAMS,
-  APP_INTERCEPTOR,
   INTERCEPTOR_TARGET,
+  MODULE_METADATA_KEY,
 } from '@/ioc-container/constants/di-connstants'
 import { EntryInstance, YuiModule } from './module'
 import { isValueInjector, isValue, isFunction } from './helper-functions'
@@ -22,12 +17,12 @@ import { YuiLogger } from '@/log/logger.service'
 import { ClientEvents, Message } from 'discord.js'
 import { ICommandHandlerMetadata } from './interfaces/di-command-handler.interface'
 import { YuiCore } from '@/entrypoint/yui-core.entrypoint'
+import { MessageInterceptor } from '../interceptors/message.interceptor'
+import { ConfigService } from '@/config-service/config.service'
+import { IBaseInterceptor } from './interfaces/interceptor.interface'
 
 type CommandHandler = {
-  [command: string]: (_arguments: ClientEvents[DiscordEvent]) => {
-    handler: () => Promise<any>
-    paramList: number[]
-  }
+  [command: string]: (originalArgument: ClientEvents[DiscordEvent]) => Promise<any>
 }
 
 export class YuiContainerFactory {
@@ -35,20 +30,22 @@ export class YuiContainerFactory {
 
   private container = new YuiModule()
   private logger = new YuiLogger('YuiContainerFactory')
+
+  private configService: ConfigService
+
   private eventHandlers: {
     [key in DiscordEvent]?: CommandHandler
   } = {}
 
   async createRootModule(moduleMetadata: Type<any>) {
     await this.compileModule(moduleMetadata)
-    const { entryInstance, entryComponent } = this.container
-    this.testEntryInstance(entryInstance)
-
     /**
      * IMPORTANT:
      *  - Required the entry component to extends EntryComponent class
      *  - Require events to be defined within entry component
      */
+    const { entryInstance, entryComponent } = this.container
+
     const { client } = entryInstance
     const boundEvents = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryComponent) || {}
     const eventKeys = Object.keys(boundEvents)
@@ -60,38 +57,42 @@ export class YuiContainerFactory {
       this.logger.warn('No event listener detected!')
     }
 
-    client.addListener('message', (message: Message) => {})
-
+    client.addListener('message', (...args: ClientEvents['message']) =>
+      this.getHandlerForEvent('message', args)
+    )
     await entryInstance.start()
     return entryInstance
   }
 
   async compileModule<T = any>(module: Type<T>) {
-    const entryComponent = Reflect.getMetadata(MODULE_METADATA.ENTRY_COMPONENT, module)
-    if (entryComponent) this.container.entryComponent = entryComponent
+    const entryComponent = Reflect.getMetadata(MODULE_METADATA['entryComponent'], module)
+    if (entryComponent) this.container.setEntryComponent(entryComponent)
 
-    const providers: CustomValueProvider<T>[] = Reflect.getMetadata(
-      MODULE_METADATA.PROVIDERS,
-      module
-    )
+    const getKey = (key: MODULE_METADATA_KEY) => Reflect.getMetadata(MODULE_METADATA[key], module)
+
+    const [providers, modules, interceptors, components] = [
+      getKey(MODULE_METADATA_KEY.PROVIDERS),
+      getKey(MODULE_METADATA_KEY.MODULES),
+      getKey(MODULE_METADATA_KEY.INTERCEPTOR),
+      getKey(MODULE_METADATA_KEY.COMPONENTS),
+    ]
     if (providers) {
-      for (const provider of providers) this.injectValueProvider(module, provider)
+      providers.map((provider) => this.container.setValueProvider(module, provider))
     }
 
-    const modules: Type<T>[] = Reflect.getMetadata(MODULE_METADATA.MODULES, module)
     if (modules) {
       await Promise.all(modules.map((m) => this.compileModule(m)))
       this.container.importModules(modules)
     }
 
-    const interceptors: Type<T>[] = Reflect.getMetadata(MODULE_METADATA.INJECTORS, module)
     if (interceptors) {
-      interceptors.map((interceptor) => this.compileInterceptor(interceptor, module))
+      await Promise.all(
+        interceptors.map((interceptor) => this.compileInterceptor(interceptor, module))
+      )
     }
 
-    const components: Type<T>[] = Reflect.getMetadata(MODULE_METADATA.COMPONENTS, module)
     if (components) {
-      components.map((component) => this.compileComponent(component, module))
+      await Promise.all(components.map((component) => this.compileComponent(component, module)))
     }
   }
 
@@ -109,23 +110,25 @@ export class YuiContainerFactory {
 
     const eventHandler = Reflect.getMetadata(EVENT_HANDLER, target)
     if (eventHandler) {
-      const useIntercept: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target) // TODO
       this.defineHandler(eventHandler, target, newInstance)
+    }
+    if (!this.configService && target.name === ConfigService.name) {
+      this.configService = newInstance as unknown as ConfigService
     }
 
     return newInstance
   }
 
   compileInterceptor<T = any>(interceptorTarget: Type<T>, module: Type<T>): T {
-    const interceptor = this.container.getInterceptor<T>(interceptorTarget)
+    const interceptor = this.container.getInterceptorInstance<T>(interceptorTarget.name)
     if (interceptor) return interceptor
 
     const injections = this.loadInjections(module, interceptorTarget)
-    const newInterceptorInstance: T = Reflect.construct(interceptorTarget, injections)
+    const newInterceptor: T = Reflect.construct(interceptorTarget, injections)
     if (isValue(interceptorTarget)) return
-    this.container.addInterceptor(interceptorTarget, newInterceptorInstance)
-    
-    return newInterceptorInstance
+    this.container.addInterceptor(interceptorTarget, newInterceptor)
+
+    return newInterceptor
   }
 
   private loadInjections<T>(module: Type<T>, target: Type<T>) {
@@ -140,11 +143,7 @@ export class YuiContainerFactory {
 
         /* TODO: class provider */
         if (isValueInjector(customToken)) return (customToken as CustomValueProvider<T>).useValue
-        else
-          return this.compileComponent(
-            (customToken as CustomClassProvider<T>).useClass,
-            module
-          )
+        else return this.compileComponent((customToken as CustomClassProvider<T>).useClass, module)
       }
       const created = this.container.getInstance(token)
       if (created) return created
@@ -153,51 +152,78 @@ export class YuiContainerFactory {
   }
 
   private defineHandler<T>(onEvent: DiscordEvent, target: Type<T>, handleInstance: T) {
-    const commandHandlerMetadata: ICommandHandlerMetadata[] =
+    const commandHandlersMetadata: ICommandHandlerMetadata[] =
       Reflect.getMetadata(COMMAND_HANDLER, target) || []
-    const commandHandlerParams = Reflect.getMetadata(COMMAND_HANDLER, target) || []
 
-    const handlers = commandHandlerMetadata.reduce(
-      (acc: CommandHandler, { command, propertyKey }) => ({
-        ...acc,
-        [command]: (_arguments: ClientEvents[DiscordEvent]) => ({
-          handler: handleInstance[propertyKey].bind(handleInstance, _arguments),
-          paramList: Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target, propertyKey) || [],
-        }),
-      }),
+    const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
+    const interceptorInstance: IBaseInterceptor =
+      (useInterceptor && this.container.getInterceptorInstance(useInterceptor)) || null
+
+    const compileCommand = (propertyKey: string) => {
+      // bind: passive when go through interceptor, active when call directly
+      const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) => {
+        if (bind)
+          return (handleInstance[propertyKey] as Function).bind(
+            handleInstance,
+            _eventArgs,
+            this.configService
+          )
+        return (handleInstance[propertyKey] as Function).apply(handleInstance, [
+          _eventArgs,
+          this.configService,
+        ])
+      }
+      return interceptorInstance
+        ? (_eventArgs: ClientEvents[DiscordEvent]) =>
+            interceptorInstance.intercept(_eventArgs, handler(_eventArgs, true))
+        : handler
+    }
+
+    const commandHandlers = commandHandlersMetadata.reduce(
+      (acc: CommandHandler, { command, propertyKey, commandAliases }) => {
+        const commandFn = compileCommand(propertyKey)
+        const aliases = commandAliases.reduce(
+          (accAliases, curr) => ({ ...accAliases, [curr]: commandFn }),
+          {}
+        )
+        return { ...acc, [command]: commandFn, ...aliases }
+      },
       {}
     )
+
     this.eventHandlers[onEvent] = {
       ...(this.eventHandlers[onEvent] || {}),
-      ...handlers,
+      ...commandHandlers,
     }
   }
 
-  private getHandler(
-    handleEvent: DiscordEvent,
-    forCommand: string,
-    _arguments: ClientEvents[typeof handleEvent]
-  ) {
-    console.log('RUN', `<======= "RUN" [container-factory.ts - 154]`)
-    // const [] =  Reflect.defineMetadata(HANDLE_PARAMS.MESSAGE, paramIndex, target, propertyKey)
-    const { [forCommand]: commandExecutor = null } = this.eventHandlers[handleEvent] || {}
-    return commandExecutor && commandExecutor(_arguments).handler()
+  public getHandlerForEvent(event: DiscordEvent, args: ClientEvents[typeof event]) {
+    const command = this.commandSelector[event](args)
+    if (command === false) return
+    const { [command]: compiledCommand = null, ['default']: defaultAction } =
+      this.eventHandlers[event]
+
+    if (compiledCommand) compiledCommand(args)
+    else defaultAction(args)
   }
 
-  private getPresetHandlerForEvent(event: DiscordEvent) {}
-
-  private getPresetHandlerForMessage() {}
-
-  injectValueProvider<T = any>(module: Type<T>, provider: CustomValueProvider<T>) {
-    this.container.setValueProvider(module, provider)
+  private get commandSelector(): {
+    [event in DiscordEvent]: (args: ClientEvents[DiscordEvent]) => any
+  } {
+    return {
+      message: ([
+        {
+          channel: { type: channelType },
+          author: { bot },
+          content,
+        },
+      ]: ClientEvents['message']) => {
+        if (!content.startsWith(this.configService.prefix) || bot || channelType !== 'text')
+          return false
+        return content.replace(this.configService.prefix, '').trim().split(/ +/g)[0]
+      },
+    } as any
   }
 
   injectClassProvider<T = any>(module: Type<T>, provider: CustomClassProvider<T>) {}
-
-  testEntryInstance(entryInstance: EntryInstance<Type<YuiCore>>) {
-    if (!entryInstance) throw new Error('No entry detected!')
-    const { start, client } = entryInstance
-    if (!client) throw new Error('Client for the instance has not been defined')
-    if (!(start && isFunction(start))) throw new Error(`Component's starting point not detected!`)
-  }
 }

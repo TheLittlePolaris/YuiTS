@@ -24,10 +24,10 @@ export class YuiModule {
     return this._interceptors
   }
 
-  public get entryComponent(): Type<any> {
+  public get entryComponent(): Type<EntryComponent> {
     return this._entryComponent
   }
-  public set entryComponent(component: Type<EntryComponent>) {
+  public setEntryComponent(component: Type<EntryComponent>) {
     this._entryComponent = component
   }
   public get entryInstance(): EntryInstance<Type<YuiCore>> {
@@ -59,8 +59,8 @@ export class YuiModule {
     return this._providers.get(this.providerNameConstructor(forModule, paramName))
   }
 
-  public getInterceptor<T>(interceptorTarget: Type<T>) {
-    return this._interceptors.get(interceptorTarget.name)
+  public getInterceptorInstance<T>(interceptorName: string) {
+    return this._interceptors.get(interceptorName)
   }
 
   private providerNameConstructor(module: Type<any>, paramName: string) {

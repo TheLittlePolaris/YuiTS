@@ -24,7 +24,7 @@ export function AccessController(
   }
 ) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    decoratorLogger(target.constructor.name, 'AccessController', propertyKey)
+    // decoratorLogger(target.constructor.name, 'AccessController', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = async function (this: MusicService, message: Message, ...args: any[]) {
       const filteredArgs = <any[]>[message, ...args]

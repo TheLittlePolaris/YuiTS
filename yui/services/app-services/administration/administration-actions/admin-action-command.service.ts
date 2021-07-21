@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { GuildMember, Message, Role, MessageEmbed } from 'discord.js'
-import { ValidateCommand, AdminParam } from '@/ioc-container/decorators/admin-action.decorator'
+import { AdminCommandValidator, AdminParam } from '@/ioc-container/decorators/admin-action.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiLogger } from '@/log/logger.service'
 import { Injectable } from '@/ioc-container/decorators'
@@ -11,7 +11,7 @@ export class AdminstrationActionCommands {
     YuiLogger.info(`Created!`, LOG_SCOPE.ADMIN_ACTION_COMMAND)
   }
 
-  @ValidateCommand()
+  @AdminCommandValidator()
   async kick(
     message: Message,
     args: Array<string>,
@@ -32,7 +32,7 @@ export class AdminstrationActionCommands {
       : this.sendMessage(message, 'author', `Unable to kick the member(s).`)
   }
 
-  @ValidateCommand()
+  @AdminCommandValidator()
   async ban(
     message: Message,
     args: Array<string>,
@@ -51,7 +51,7 @@ export class AdminstrationActionCommands {
       : this.sendMessage(message, 'author', `Unable to ban the member(s).`)
   }
 
-  @ValidateCommand()
+  @AdminCommandValidator()
   async addrole(
     message: Message,
     args: Array<string>,
@@ -73,7 +73,7 @@ export class AdminstrationActionCommands {
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
   }
 
-  @ValidateCommand()
+  @AdminCommandValidator()
   async removerole(
     message: Message,
     args: Array<string>,
@@ -97,7 +97,7 @@ export class AdminstrationActionCommands {
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
   }
 
-  @ValidateCommand()
+  @AdminCommandValidator()
   async mute(
     message: Message,
     args: Array<string>,
@@ -120,7 +120,7 @@ export class AdminstrationActionCommands {
       : this.sendMessage(message, 'author', `Unable to mute the member.`)
   }
 
-  @ValidateCommand()
+  @AdminCommandValidator()
   async unmute(
     message: Message,
     args: Array<string>,
@@ -145,7 +145,7 @@ export class AdminstrationActionCommands {
     return
   }
 
-  @ValidateCommand()
+  @AdminCommandValidator()
   async setnickname(
     message: Message,
     args: Array<string>,

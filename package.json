@@ -46,7 +46,7 @@
     "tslib": "^1.14.1",
     "utf-8-validate": "^5.0.4",
     "winston": "^3.3.3",
-    "ytdl-core": "^4.5.0",
+    "ytdl-core": "^4.9.0",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {

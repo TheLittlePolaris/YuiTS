@@ -5,7 +5,7 @@ import { MusicModule } from '../services/app-services/music/music.module'
 import { FeatureModule } from '../services/app-services/feature/feature.module'
 import { AdminModule } from '../services/app-services/administration/admin.module'
 import { OwnerServiceModule } from '../services/owner-service/owner-service.module'
-import { MessageInterceptor } from '@/ioc-container/interceptors/message.interceptor'
+import { MessageInterceptor } from '@/interceptors/message.interceptor'
 
 @YuiModule({
   modules: [MusicModule, FeatureModule, AdminModule, OwnerServiceModule],

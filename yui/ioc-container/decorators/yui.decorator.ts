@@ -16,7 +16,7 @@ import { decoratorLogger } from '@/ioc-container/log/logger'
 
 export function Yui<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    decoratorLogger(target.name, 'Class')
+    // decoratorLogger(target.name, 'Class')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
@@ -25,9 +25,11 @@ export function Yui<T = any>(): GenericClassDecorator<Type<T>> {
 export const On = (event: DiscordEvent): MethodDecorator => {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
     const propertyDesignType = Reflect.getMetadata(DESIGN_TYPE, target, propertyKey)
-    if (!isFunction(propertyDesignType)) throw new Error(`Client's event property has to be a method!`)
+    if (!isFunction(propertyDesignType))
+      throw new Error(`Client's event property has to be a method!`)
     decoratorLogger(target.constructor.name, `On - ${event}`, propertyKey)
-    let eventList: { [key: string]: string } = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, target) || []
+    let eventList: { [key: string]: string } =
+      Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, target.constructor) || []
     eventList = { ...eventList, [event]: propertyKey }
     Reflect.defineMetadata(COMPONENT_METADATA.EVENT_LIST, eventList, target.constructor)
   }
@@ -48,7 +50,12 @@ export const EventVoiceState = (additionalParam: 'old' | 'new'): ParameterDecora
   return (target: Prototype, propertyKey: string, index: number) => {
     const metadataKey = paramKeyConstructor('voiceStateUpdate', propertyKey)
     let paramList = Reflect.getMetadata(metadataKey, target) || []
-    const paramMetadata: EventParamMetadata = { event: 'voiceStateUpdate', propertyKey, index, additionalParam }
+    const paramMetadata: EventParamMetadata = {
+      event: 'voiceStateUpdate',
+      propertyKey,
+      index,
+      additionalParam,
+    }
     paramList = [paramMetadata, ...paramList]
     Reflect.defineMetadata(metadataKey, paramList, target)
   }

@@ -25,9 +25,9 @@ export type ADMIN_PARAM_NAME = Record<ADMIN_PARAMS, string>
 export type ADMIN_PARAM_KEY = keyof typeof ADMIN_PARAMS
 
 
-export function ValidateCommand<T = any>(): GenericMethodDecorator<T> {
+export function AdminCommandValidator(): GenericMethodDecorator<any> {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    decoratorLogger(target.constructor.name, 'ValidateCommand', propertyKey)
+    // decoratorLogger(target.constructor.name, 'AdminCommandValidator', propertyKey)
 
     const originalDescriptor = descriptor.value
     descriptor.value = async function (..._args: any[]) {
