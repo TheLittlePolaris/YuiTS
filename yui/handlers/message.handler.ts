@@ -1,6 +1,5 @@
 import { LOG_SCOPE } from '@/constants/constants'
-
-import { Channel, GuildMember, Message, TextChannel } from 'discord.js'
+import { Message, TextChannel } from 'discord.js'
 import { OwnerChannelService } from '../services/owner-service/channel.service'
 import { AdministrationService } from '../services/app-services/administration/administration.service'
 import { FeatureService } from '../services/app-services/feature/feature.service'
@@ -8,25 +7,23 @@ import { MusicService } from '../services/app-services/music/music.service'
 import { YuiLogger } from '@/log/logger.service'
 import {
   Args,
-  Author,
   MessageChannel,
-  Handle,
   HandleMessage,
   MessageParam,
   Command,
-} from '@/ioc-container/decorators/handle.decorator'
+} from '@/ioc-container/decorators/command-handlers/message-handle.decorator'
 import { UseInterceptor } from '@/ioc-container/decorators/interceptor.decorator'
-import { MessageInterceptor } from '@/interceptors/message.interceptor'
+import { TextMessageInterceptor } from '@/interceptors/message.interceptor'
 import { ConfigService } from '@/config-service/config.service'
+import { Handle } from '@/ioc-container/decorators/command-handlers/handle.decorator'
 
 @Handle('message')
-@UseInterceptor(MessageInterceptor)
+@UseInterceptor(TextMessageInterceptor)
 export class MessageHandler {
   constructor(
     private musicService: MusicService,
     private featureService: FeatureService,
     private administrationService: AdministrationService,
-    private ownerChannelService: OwnerChannelService,
     private configService: ConfigService
   ) {
     YuiLogger.info(`Created!`, LOG_SCOPE.MESSAGE_HANDLER)
@@ -157,40 +154,6 @@ export class MessageHandler {
       `I cannot recognize command \`${command}\`. How about taking a look at \`${this.configService.prefix}help\` ?`
     )
   }
-
-
-  async specialExecute(message: Message): Promise<void> {
-    const content = message.content.trim().split(/ +/g)
-    const command = content.shift().toLowerCase()
-
-    switch (command) {
-      case 'statistics':
-      case 'stat':
-        return this.ownerChannelService.statistics(message, content)
-    }
-  }
-
-  // @HandleMessage('test') // it works
-  // public async handleTest(
-  //   @MessageParam() message: Message,
-  //   @Author() author: GuildMember,
-  //   @Args() args: string[]
-  // ) {
-  //   console.log(message, `<======= message [message.handler.ts - 167]`)
-  //   console.log(author, `<======= author [message.handler.ts - 168]`)
-  //   console.log(args, `<======= args [message.handler.ts - 169]`)
-  // }
-
-  // @HandleMessage('test2')
-  // public async handleTest2(
-  //   @MessageParam() message: Message,
-  //   @Author() author: GuildMember,
-  //   @Args() args: string[]
-  // ) {
-  //   console.log(message, `<======= message [message.handler.ts - 167]`)
-  //   console.log(author, `<======= author [message.handler.ts - 168]`)
-  //   console.log(args, `<======= args [message.handler.ts - 169]`)
-  // }
 
   handleError(error: Error | string): null {
     YuiLogger.error(error, LOG_SCOPE.MESSAGE_HANDLER)

@@ -6,18 +6,15 @@ import {
   COMPONENT_METADATA,
   EVENT_HANDLER,
   COMMAND_HANDLER,
-  COMMAND_HANDLER_PARAMS,
   INTERCEPTOR_TARGET,
   MODULE_METADATA_KEY,
 } from '@/ioc-container/constants/di-connstants'
-import { EntryInstance, YuiModule } from './module'
-import { isValueInjector, isValue, isFunction } from './helper-functions'
+import { YuiModule } from './module'
+import { isValueInjector, isValue } from './helper-functions'
 import { DiscordEvent } from '@/constants/discord-events'
 import { YuiLogger } from '@/log/logger.service'
 import { ClientEvents, Message } from 'discord.js'
 import { ICommandHandlerMetadata } from './interfaces/di-command-handler.interface'
-import { YuiCore } from '@/entrypoint/yui-core.entrypoint'
-import { MessageInterceptor } from '../interceptors/message.interceptor'
 import { ConfigService } from '@/config-service/config.service'
 import { IBaseInterceptor } from './interfaces/interceptor.interface'
 
@@ -162,16 +159,16 @@ export class YuiContainerFactory {
     const compileCommand = (propertyKey: string) => {
       // bind: passive when go through interceptor, active when call directly
       const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) => {
-        if (bind)
-          return (handleInstance[propertyKey] as Function).bind(
-            handleInstance,
-            _eventArgs,
-            this.configService
-          )
-        return (handleInstance[propertyKey] as Function).apply(handleInstance, [
-          _eventArgs,
-          this.configService,
-        ])
+        return bind
+          ? (handleInstance[propertyKey] as Function).bind(
+              handleInstance,
+              _eventArgs,
+              this.configService
+            )
+          : (handleInstance[propertyKey] as Function).apply(handleInstance, [
+              _eventArgs,
+              this.configService,
+            ])
       }
       return interceptorInstance
         ? (_eventArgs: ClientEvents[DiscordEvent]) =>
@@ -197,32 +194,30 @@ export class YuiContainerFactory {
     }
   }
 
-  public getHandlerForEvent(event: DiscordEvent, args: ClientEvents[typeof event]) {
-    const command = this.commandSelector[event](args)
+  public getHandlerForEvent(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
+    const command = this.getCommandHandler(event, args)
     if (command === false) return
     const { [command]: compiledCommand = null, ['default']: defaultAction } =
       this.eventHandlers[event]
 
     if (compiledCommand) compiledCommand(args)
-    else defaultAction(args)
+    else if (defaultAction) defaultAction(args)
   }
 
-  private get commandSelector(): {
-    [event in DiscordEvent]: (args: ClientEvents[DiscordEvent]) => any
-  } {
-    return {
-      message: ([
-        {
-          channel: { type: channelType },
+  private getCommandHandler(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
+    switch (event) {
+      case 'message': {
+        const {
           author: { bot },
           content,
-        },
-      ]: ClientEvents['message']) => {
-        if (!content.startsWith(this.configService.prefix) || bot || channelType !== 'text')
-          return false
+        } = args[0] as Message
+        if (!content.startsWith(this.configService.prefix) || bot) return false
         return content.replace(this.configService.prefix, '').trim().split(/ +/g)[0]
-      },
-    } as any
+      }
+
+      default:
+        return 'default'
+    }
   }
 
   injectClassProvider<T = any>(module: Type<T>, provider: CustomClassProvider<T>) {}

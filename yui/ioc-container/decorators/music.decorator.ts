@@ -1,10 +1,6 @@
 import { Message, TextChannel } from 'discord.js'
-import {
-  METHOD_PARAM_METADATA,
-} from '@/ioc-container/constants/di-connstants'
-import {
-  Prototype,
-} from '../interfaces/di-interfaces'
+import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/di-connstants'
+import { Prototype } from '../interfaces/di-interfaces'
 import { decoratorLogger } from '@/ioc-container/log/logger'
 import { YuiLogger } from '@/log/logger.service'
 import { MusicService } from '@/services/app-services/music/music.service'
@@ -39,20 +35,18 @@ export function AccessController(
       if (!this.streams) return
 
       const stream = this.streams.has(guild.id) ? this.streams.get(guild.id) : null
-      const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey)
-      if (paramIndexes != null) {
-        const streamParamIndex: number | undefined = paramIndexes[MUSIC_PARAM.STREAM]
-        if (streamParamIndex != null) filteredArgs[streamParamIndex] = stream
-        const clientUserIndex: number = paramIndexes[MUSIC_PARAM.CLIENT]
-        if (clientUserIndex != null) {
-          const client = await message.guild.members
-            .fetch(this.configService.yuiId)
-            .catch((err) => handleError(err))
-          filteredArgs[clientUserIndex] = client
-        }
+      const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
+
+      const streamParamIndex: number | undefined = paramIndexes[MUSIC_PARAM.STREAM]
+      if (streamParamIndex) filteredArgs[streamParamIndex] = stream
+
+      const clientUserIndex: number = paramIndexes[MUSIC_PARAM.CLIENT]
+      if (clientUserIndex) {
+        const client = await message.guild.members.fetch(this.configService.yuiId)
+        filteredArgs[clientUserIndex] = client
       }
 
-      const boundVoiceChannel = stream?.boundVoiceChannel
+      const { boundVoiceChannel } = stream || {}
       if (!boundVoiceChannel && join) {
         if (!silent) {
           this.sendMessage(
@@ -84,7 +78,7 @@ export function AccessController(
 
 export const MusicParam = (key: MUSIC_PARAM_KEY) => {
   return (target: Prototype, propertyKey: string, paramIndex: number) => {
-    let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
+    let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
     definedParams = { [MUSIC_PARAM[key]]: paramIndex, ...definedParams }
     Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
   }

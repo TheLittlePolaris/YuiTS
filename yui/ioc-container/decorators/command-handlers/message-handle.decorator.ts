@@ -1,21 +1,12 @@
 import { ConfigService } from '@/config-service/config.service'
-import { Prototype, Type } from '@/ioc-container/interfaces/di-interfaces'
-import { decoratorLogger } from '@/ioc-container/log/logger'
+import { ICommandHandlerMetadata } from '@/ioc-container/interfaces/di-command-handler.interface'
+import { Prototype } from '@/ioc-container/interfaces/di-interfaces'
 import { ClientEvents } from 'discord.js'
 import {
-  EVENT_HANDLER,
   COMMAND_HANDLER,
   COMMAND_HANDLER_PARAMS,
   DEFAULT_PARAM_INDEX,
-} from '../constants/di-connstants'
-import { ICommandHandlerMetadata } from '../interfaces/di-command-handler.interface'
-
-export function Handle(event: keyof ClientEvents) {
-  return (target: Type<any>) => {
-    // decoratorLogger(target.constructor.name, 'Class')
-    Reflect.defineMetadata(EVENT_HANDLER, event, target)
-  }
-}
+} from '@/ioc-container/constants/di-connstants'
 
 export function HandleMessage(command = 'default', ...aliases: string[]) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {

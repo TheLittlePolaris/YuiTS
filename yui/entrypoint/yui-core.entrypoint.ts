@@ -12,7 +12,6 @@ import { EntryPointComponent } from '@/ioc-container/entrypoint/entrypoint.compo
 export class YuiCore extends EntryPointComponent {
   constructor(
     private yui: YuiClient,
-    private messageHandler: MessageHandler,
     private voiceStateHandler: VoiceStateHandler,
     private configService: ConfigService,
     ) {
@@ -37,30 +36,6 @@ export class YuiCore extends EntryPointComponent {
           }),
     ]).catch((err) => this.handleError(err))
     YuiLogger.log('🚀 🔶Yui is online! 🚀', LOG_SCOPE.YUI_CORE)
-  }
-
-  // @On('message')
-  // async onMessage(@EventMessage() message: Message): Promise<unknown> {
-  //   const { content, author, channel } = message
-  //   try {
-  //     if (channel.type === 'dm' && author.id === this.configService.ownerId)
-  //       return this.onDM(message)
-
-  //     if (!content.startsWith(this.configService.prefix) || author.bot || channel.type !== 'text')
-  //       return
-
-  //     const args = message.content.slice(this.configService.prefix.length).trim().split(/ +/g)
-
-  //     const command = args.shift()
-
-  //     return this.messageHandler.messageSwitchMap(message, command, args)
-  //   } catch (err) {
-  //     this.handleError(err)
-  //   }
-  // }
-
-  async onDM(message: Message): Promise<void> {
-    return this.messageHandler.specialExecute(message)
   }
 
   @On('voiceStateUpdate')

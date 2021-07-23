@@ -5,11 +5,13 @@ import { MusicModule } from '../services/app-services/music/music.module'
 import { FeatureModule } from '../services/app-services/feature/feature.module'
 import { AdminModule } from '../services/app-services/administration/admin.module'
 import { OwnerServiceModule } from '../services/owner-service/owner-service.module'
-import { MessageInterceptor } from '@/interceptors/message.interceptor'
+import { TextMessageInterceptor } from '@/interceptors/message.interceptor'
+import { DMInterceptor } from '@/interceptors/dm-interceptor'
+import { DMHandler } from './dm.handler'
 
 @YuiModule({
   modules: [MusicModule, FeatureModule, AdminModule, OwnerServiceModule],
-  interceptors: [MessageInterceptor],
-  components: [MessageHandler, VoiceStateHandler],
+  components: [MessageHandler, VoiceStateHandler, DMHandler],
+  interceptors: [TextMessageInterceptor, DMInterceptor],
 })
 export class HandlerModule {}

@@ -60,19 +60,16 @@ export class MusicService {
     )
 
     const { guild, channel, member } = message
-    const voiceChannel = member?.voice?.channel
-
-    if (!guild || !channel || !voiceChannel) throw new Error('No voice channel')
+    const voiceChannel = member.voice?.channel
     const existingStream = this.streams.get(guild.id)
 
     if (existingStream) return existingStream
     const stream = new MusicStream(guild, voiceChannel, channel as TextChannel)
-    const connection = (await this.createVoiceConnection(message, stream).catch((err) =>
-      this.handleError(new Error(err))
-    )) as IVoiceConnection
-
+    const connection = await this.createVoiceConnection(message)
+    
     if (!connection) throw new Error('Could not create voice connection')
-
+    
+    stream.set('voiceConnection', connection)
     this.streams.set(guild.id, stream)
 
     const onConnectionError = (error: unknown) => {
@@ -94,8 +91,8 @@ export class MusicService {
       }
     }
 
-    stream.voiceConnection?.on('error', (error) => onConnectionError(error))
-    stream.voiceConnection?.on('failed', (error) => onConnectionError(error))
+    stream.voiceConnection.on('error', (error) => onConnectionError(error))
+    stream.voiceConnection.on('failed', (error) => onConnectionError(error))
 
     this.deleteMessage(sentMessage)
 
@@ -103,8 +100,7 @@ export class MusicService {
   }
 
   private async createVoiceConnection(
-    message: Message,
-    stream: MusicStream
+    message: Message
   ): Promise<IVoiceConnection> {
     const voiceChannel = message?.member?.voice?.channel
     if (!voiceChannel) throw new Error('Voice channel not found')
@@ -114,8 +110,7 @@ export class MusicService {
       .catch((err) => this.handleError(new Error(err)))) as IVoiceConnection
     if (!connection) throw new Error('Could not join the voice channel')
 
-    stream.set('voiceConnection', connection)
-    // stream.set('voiceBroadcast', message.client.voice.createBroadcast())
+    
 
     return connection
   }
@@ -126,7 +121,6 @@ export class MusicService {
     args?: Array<string>,
     next = false,
     @MusicParam('STREAM') stream?: MusicStream,
-    @MusicParam('CLIENT') member?: GuildMember
   ): Promise<void> {
     stream =
       stream ?? (await this.createStream(message).catch((err) => this.handleError(new Error(err))))
@@ -590,7 +584,7 @@ export class MusicService {
     }
     if (!stream?.isAutoPlaying) {
       stream.set('isAutoPlaying', true)
-      this.sendMessage(message, "**`📻 YUI's PABX MODE - ON! 🎵`**")
+      this.sendMessage(message, discordRichEmbedConstructor({ title: "📻 Yui's PABX mode - ON! 🎵", description: ""}))
       if (stream?.queue?.isEmpty) {
         this.sendMessage(
           message,
