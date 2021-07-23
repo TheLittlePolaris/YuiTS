@@ -1,7 +1,7 @@
 import { google, youtube_v3 } from 'googleapis'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { BaseChannelService } from './base-channel.service'
-import { Injectable } from '@/ioc-container/decorators'
+import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/log/logger.service'
 import { LOG_SCOPE } from '@/constants/constants'
 import { ConfigService } from '@/config-service/config.service'

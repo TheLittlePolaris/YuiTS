@@ -4,13 +4,13 @@ import 'config-service'
 import { decoratorLogger } from './ioc-container/log/logger'
 
 import { LOG_SCOPE } from '@/constants/constants'
-import { YuiContainerFactory } from './ioc-container/container-factory'
+import { ContainerFactory } from './ioc-container/container-factory'
 import { YuiMainModule } from './yui.module'
 import { YuiCore } from './entrypoint/yui-core.entrypoint'
 import { YuiLogger } from './log/logger.service'
 
 const  bootstrap = async () => {
-  const yuiContainerFactory = new YuiContainerFactory()
+  const yuiContainerFactory = new ContainerFactory()
   await yuiContainerFactory.createRootModule(YuiMainModule)
 
 }

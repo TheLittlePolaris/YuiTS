@@ -15,7 +15,7 @@ import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
 import { YuiLogger } from '@/log/logger.service'
 import Axios from 'axios'
-import { Injectable } from '@/ioc-container/decorators'
+import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiClient } from '@/custom-classes/yui-client'
 
 @Injectable()

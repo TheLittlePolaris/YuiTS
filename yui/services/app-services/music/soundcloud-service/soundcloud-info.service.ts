@@ -2,7 +2,7 @@ import { ISoundCloudSong } from '../music-interfaces/soundcloud-info.interface'
 import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
 import { spawnSync, SpawnSyncOptions, spawn } from 'child_process'
 import { LOG_SCOPE } from '@/constants/constants'
-import { Injectable } from '@/ioc-container/decorators'
+import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/log/logger.service'
 
 enum FORMAT_URL {

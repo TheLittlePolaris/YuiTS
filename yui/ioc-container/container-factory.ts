@@ -9,8 +9,8 @@ import {
   INTERCEPTOR_TARGET,
   MODULE_METADATA_KEY,
 } from '@/ioc-container/constants/di-connstants'
-import { YuiModule } from './module'
-import { isValueInjector, isValue } from './helper-functions'
+import { ModuleContainer } from './module'
+import { isValueInjector, isValue } from './helpers/helper-functions'
 import { DiscordEvent } from '@/constants/discord-events'
 import { YuiLogger } from '@/log/logger.service'
 import { ClientEvents, Message } from 'discord.js'
@@ -22,11 +22,11 @@ type CommandHandler = {
   [command: string]: (originalArgument: ClientEvents[DiscordEvent]) => Promise<any>
 }
 
-export class YuiContainerFactory {
+export class ContainerFactory {
   static entryDetected = false
 
-  private container = new YuiModule()
-  private logger = new YuiLogger('YuiContainerFactory')
+  private container = new ModuleContainer()
+  private logger = new YuiLogger(ContainerFactory.name)
 
   private configService: ConfigService
 

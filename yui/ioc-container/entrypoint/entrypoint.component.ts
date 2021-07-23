@@ -1,6 +1,6 @@
 import { YuiClient } from '@/custom-classes/yui-client'
 
-export class EntryPointComponent {
+export class EntrypointComponent {
   private _bot: YuiClient
   private _token: string
   constructor(yui: YuiClient, token: string) {

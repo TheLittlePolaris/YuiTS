@@ -4,7 +4,7 @@ import { CustomValueProvider, EntryComponent, Provider, Type } from './interface
 
 export type EntryInstance<T extends Type<any>> = InstanceType<T>
 
-export class YuiModule {
+export class ModuleContainer {
   private _modules: Collection<string, Type<any>> = new Collection<string, Type<any>>()
   private _providers: Collection<string, Provider<any>> = new Collection<string, any>()
   private _interceptors: Collection<string, InstanceType<Type<any>>> = new Collection<string, InstanceType<Type<any>>>()

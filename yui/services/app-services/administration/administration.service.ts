@@ -2,13 +2,13 @@ import { Message, MessageEmbed } from 'discord.js'
 import { ADMIN_ACTION_TYPE } from './admin-interfaces/administration.interface'
 import { AdminstrationActionCommands } from './administration-actions/admin-action-command.service'
 import {
-  Command,
+  AdminCommand,
   CommandValidator,
   AdminPermissionValidator,
 } from '@/ioc-container/decorators/permission.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
 import { YuiLogger } from '@/log/logger.service'
-import { Injectable } from '@/ioc-container/decorators'
+import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { ConfigService } from '@/config-service/config.service'
 import { YuiClient } from '@/custom-classes/yui-client'
 
@@ -23,7 +23,7 @@ export class AdministrationService {
   public async executeCommand(
     message: Message,
     args: Array<string>,
-    @Command() command?: ADMIN_ACTION_TYPE
+    @AdminCommand() command?: ADMIN_ACTION_TYPE
   ) {
     this._adminActionCommands[command](message, args)
   }

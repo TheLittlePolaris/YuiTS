@@ -125,7 +125,7 @@ export function CommandValidator() {
   }
 }
 
-export const Command = () => {
+export const AdminCommand = () => {
   return function (target: Prototype, propertyKey: string, paramIndex: number) {
     Reflect.defineMetadata(REFLECT_PERMISSION_KEYS.COMMAND, paramIndex, target, propertyKey)
   }

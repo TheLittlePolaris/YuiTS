@@ -11,10 +11,10 @@ import {
   EventParamMetadata,
   Prototype,
 } from '../interfaces/di-interfaces'
-import { isFunction } from '@/ioc-container/helper-functions'
+import { isFunction } from '@/ioc-container/helpers/helper-functions'
 import { decoratorLogger } from '@/ioc-container/log/logger'
 
-export function Yui<T = any>(): GenericClassDecorator<Type<T>> {
+export function Entrypoint<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
     // decoratorLogger(target.name, 'Class')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)

@@ -1,4 +1,4 @@
-import { Injectable } from '@/ioc-container/decorators'
+import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { Client, Message } from 'discord.js'
 
 @Injectable()

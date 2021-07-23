@@ -1,7 +1,7 @@
 
 import { Message,  EmbedFieldData } from 'discord.js'
 import { discordRichEmbedConstructor } from '../app-services/utilities/discord-embed-constructor'
-import { Injectable } from '@/ioc-container/decorators'
+import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiClient } from '@/custom-classes/yui-client'
 
 @Injectable()

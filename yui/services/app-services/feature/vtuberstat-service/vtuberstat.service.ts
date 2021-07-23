@@ -23,7 +23,7 @@ import {
 import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { YuiLogger } from '@/log/logger.service'
-import { Injectable } from '@/ioc-container/decorators'
+import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 
 @Injectable()
 export class VtuberStatService {

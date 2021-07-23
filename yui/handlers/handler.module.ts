@@ -1,6 +1,5 @@
 import { VoiceStateHandler } from './voice-state.handler'
-import { MessageHandler } from './message.handler'
-import { YuiModule } from '@/ioc-container/decorators'
+import { TextMessageHandler } from './message.handler'
 import { MusicModule } from '../services/app-services/music/music.module'
 import { FeatureModule } from '../services/app-services/feature/feature.module'
 import { AdminModule } from '../services/app-services/administration/admin.module'
@@ -8,10 +7,11 @@ import { OwnerServiceModule } from '../services/owner-service/owner-service.modu
 import { TextMessageInterceptor } from '@/interceptors/message.interceptor'
 import { DMInterceptor } from '@/interceptors/dm-interceptor'
 import { DMHandler } from './dm.handler'
+import { YuiModule } from '@/ioc-container/decorators'
 
 @YuiModule({
   modules: [MusicModule, FeatureModule, AdminModule, OwnerServiceModule],
-  components: [MessageHandler, VoiceStateHandler, DMHandler],
+  components: [TextMessageHandler, VoiceStateHandler, DMHandler],
   interceptors: [TextMessageInterceptor, DMInterceptor],
 })
 export class HandlerModule {}

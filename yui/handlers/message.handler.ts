@@ -1,6 +1,5 @@
 import { LOG_SCOPE } from '@/constants/constants'
 import { Message, TextChannel } from 'discord.js'
-import { OwnerChannelService } from '../services/owner-service/channel.service'
 import { AdministrationService } from '../services/app-services/administration/administration.service'
 import { FeatureService } from '../services/app-services/feature/feature.service'
 import { MusicService } from '../services/app-services/music/music.service'
@@ -12,14 +11,13 @@ import {
   MessageParam,
   Command,
 } from '@/ioc-container/decorators/command-handlers/message-handle.decorator'
-import { UseInterceptor } from '@/ioc-container/decorators/interceptor.decorator'
-import { TextMessageInterceptor } from '@/interceptors/message.interceptor'
 import { ConfigService } from '@/config-service/config.service'
-import { Handle } from '@/ioc-container/decorators/command-handlers/handle.decorator'
+import { Handle, UseInterceptor } from '@/ioc-container/decorators'
+import { TextMessageInterceptor } from '@/interceptors/message.interceptor'
 
 @Handle('message')
 @UseInterceptor(TextMessageInterceptor)
-export class MessageHandler {
+export class TextMessageHandler {
   constructor(
     private musicService: MusicService,
     private featureService: FeatureService,

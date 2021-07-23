@@ -1,11 +1,10 @@
 import { DMInterceptor } from '@/interceptors/dm-interceptor'
-import { Handle } from '@/ioc-container/decorators/command-handlers/handle.decorator'
+import { Handle, UseInterceptor } from '@/ioc-container/decorators'
 import {
   Args,
   HandleMessage,
   MessageParam,
 } from '@/ioc-container/decorators/command-handlers/message-handle.decorator'
-import { UseInterceptor } from '@/ioc-container/decorators/interceptor.decorator'
 import { OwnerChannelService } from '@/services/owner-service/channel.service'
 import { Message } from 'discord.js'
 
