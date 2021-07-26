@@ -1,7 +1,7 @@
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { ClientEvents } from 'discord.js'
-import { Interceptor } from '../ioc-container/decorators/interceptor.decorator'
-import { IBaseInterceptor } from '../ioc-container/interfaces/interceptor.interface'
+import { Interceptor } from '../../ioc-container/decorators/interceptor.decorator'
+import { IBaseInterceptor } from '../../ioc-container/interfaces/interceptor.interface'
 
 @Interceptor('message')
 export class TextMessageInterceptor implements IBaseInterceptor {
@@ -15,6 +15,7 @@ export class TextMessageInterceptor implements IBaseInterceptor {
       })
       .catch((err) => {
         YuiLogger.error(err, TextMessageInterceptor.name)
+        message.channel.send("Something went wrong (╥_╥)")
       })
   }
 }

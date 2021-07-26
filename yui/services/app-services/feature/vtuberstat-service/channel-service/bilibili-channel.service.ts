@@ -3,7 +3,7 @@ import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interf
 import { Constants, LOG_SCOPE } from '@/constants/constants'
 import { BaseChannelService } from './base-channel.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()
 export class BilibiliChannelService implements BaseChannelService {

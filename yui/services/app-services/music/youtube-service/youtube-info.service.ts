@@ -3,7 +3,7 @@ import { YoutubeRequestService } from './youtube-request.service'
 import { IYoutubePlaylistResult, IYoutubeVideo, IYoutubeSearchResult } from '../music-interfaces/youtube-info.interface'
 import { LOG_SCOPE } from '@/constants/constants'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()
 export class YoutubeInfoService {

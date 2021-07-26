@@ -26,7 +26,6 @@ export function FeaturePermissionValidator() {
     // decoratorLogger(target.constructor.name, 'FeaturePermissionValidator', propertyKey)
 
     const originalDescriptor: Function = descriptor.value
-
     descriptor.value = async function (this: FeatureService, message: Message, params: string[], ...args: any[]) {
 
       const filteredArgs = [message, params, ...args]
@@ -64,7 +63,6 @@ export function FeaturePermissionValidator() {
       if (mentioned.length) {
         filteredArgs[mentionIndex] = mentioned.toString().split(',')
         const mentionedIds = mentioned.map((member) => member.id)
-        console.log(params)
         const userAction = params.filter((arg) => {
           const test = mentionedIds.filter((id) => {
             return new RegExp(id, 'i').test(arg)

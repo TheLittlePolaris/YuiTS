@@ -1,10 +1,10 @@
-import { TextMessageHandler } from '@/handlers/message.handler'
-import { VoiceStateHandler } from '@/handlers/voice-state.handler'
+import { TextMessageHandler } from '@/event-handlers/message.handler'
+import { VoiceStateHandler } from '@/event-handlers/voice-state.handler'
 import { Message, VoiceState } from 'discord.js'
 import { LOG_SCOPE } from '../constants/constants'
 import { Entrypoint, On, EventMessage, EventVoiceState } from '../ioc-container/decorators/entrypoint.decorator'
 import { YuiClient } from '../custom-classes/yui-client'
-import { YuiLogger } from '../log/logger.service'
+import { YuiLogger } from '../services/logger/logger.service'
 import { ConfigService } from '../config-service/config.service'
 import { EntrypointComponent } from '@/ioc-container/entrypoint/entrypoint.component'
 

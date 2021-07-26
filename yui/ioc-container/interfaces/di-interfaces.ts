@@ -16,7 +16,7 @@ export interface Prototype {
   constructor: Function
 }
 
-export type Provider<T = any> = CustomValueProvider<T> | CustomClassProvider<T>
+export type Provider<T = any> = CustomValueProvider<T> & CustomClassProvider<T> & CustomFactoryProvider<T>
 
 export interface CustomValueProvider<T> {
   provide: string
@@ -26,6 +26,11 @@ export interface CustomValueProvider<T> {
 export interface CustomClassProvider<T> {
   provide: string
   useClass: Type<T>
+}
+
+export interface CustomFactoryProvider<T> {
+  provide: string
+  useFactory: Function
 }
 
 export type CustomProviderToken = { [key: string]: number | string }

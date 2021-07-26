@@ -1,22 +1,5 @@
-import { YuiLogger } from '@/log/logger.service'
-import Axios from 'axios'
-
 export function isMyOwner(userId: string): boolean {
   return userId === global?.config?.ownerId
-}
-
-export async function tenorRequestService(query: string) {
-  const { data = null } =
-    (await Axios.get(
-      `https://api.tenor.com/v1/search?q=${encodeURIComponent(`anime ${query}`)}&key=${
-        global?.config?.tenorKey
-      }&limit=10&media_filter=basic&anon_id=${global?.config?.tenorAnonymousId}`
-    ).catch(handleRequestErrors)) || {}
-  return data
-}
-function handleRequestErrors(error: string): null {
-  YuiLogger.error(error, 'UTILITY_SERVICE')
-  return null
 }
 
 export const subscriberCountFormatter = (number: number | string): string => {

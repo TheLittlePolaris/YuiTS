@@ -3,7 +3,7 @@ import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
 import { spawnSync, SpawnSyncOptions, spawn } from 'child_process'
 import { LOG_SCOPE } from '@/constants/constants'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 
 enum FORMAT_URL {
   M3U8_64 = 0,

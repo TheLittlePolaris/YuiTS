@@ -3,7 +3,7 @@ import { VoiceState } from 'discord.js'
 import { MusicStream } from '../services/app-services/music/music-entities/music-stream'
 import { VoiceStateAction } from '../services/app-services/music/music-interfaces/voice-state.interface'
 import { MusicService } from '../services/app-services/music/music.service'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 
 @Injectable()

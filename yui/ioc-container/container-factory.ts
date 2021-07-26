@@ -1,4 +1,9 @@
-import { Type, CustomValueProvider, CustomClassProvider } from './interfaces/di-interfaces'
+import {
+  Type,
+  CustomValueProvider,
+  CustomClassProvider,
+  Provider,
+} from './interfaces/di-interfaces'
 import {
   MODULE_METADATA,
   PARAMTYPES_METADATA,
@@ -10,9 +15,9 @@ import {
   MODULE_METADATA_KEY,
 } from '@/ioc-container/constants/di-connstants'
 import { ModuleContainer } from './module'
-import { isValueInjector, isValue } from './helpers/helper-functions'
+import { isValueInjector, isValue, isFunction } from './helpers/helper-functions'
 import { DiscordEvent } from '@/constants/discord-events'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { ClientEvents, Message } from 'discord.js'
 import { ICommandHandlerMetadata } from './interfaces/di-command-handler.interface'
 import { ConfigService } from '@/config-service/config.service'
@@ -73,23 +78,36 @@ export class ContainerFactory {
       getKey(MODULE_METADATA_KEY.INTERCEPTOR),
       getKey(MODULE_METADATA_KEY.COMPONENTS),
     ]
-    if (providers) {
-      providers.map((provider) => this.container.setValueProvider(module, provider))
-    }
 
     if (modules) {
       await Promise.all(modules.map((m) => this.compileModule(m)))
       this.container.importModules(modules)
     }
 
+    if (providers) {
+      await Promise.all(providers.map((provider) => this.compileProvider(module, provider)))
+    }
+
     if (interceptors) {
-      await Promise.all(
-        interceptors.map((interceptor) => this.compileInterceptor(interceptor, module))
-      )
+      interceptors.map((interceptor) => this.compileInterceptor(interceptor, module))
     }
 
     if (components) {
-      await Promise.all(components.map((component) => this.compileComponent(component, module)))
+      components.map((component) => this.compileComponent(component, module))
+    }
+  }
+
+  private async compileProvider(module: Type<any>, provider: Provider) {
+    if (provider.useValue) {
+      this.container.setValueProvider(module, provider)
+    } else if (provider.useFactory) {
+      const { provide, useFactory } = provider
+      const useValue = (isFunction(useFactory) && (await useFactory(this.configService))) || null
+      this.container.setValueProvider(module, <Provider>{ provide, useValue })
+    } else if (provider.useClass) {
+      const { useClass, provide } = provider
+      const useValue = this.compileComponent(useClass, module)
+      this.container.setValueProvider(module, <Provider>{ provide, useValue })
     }
   }
 

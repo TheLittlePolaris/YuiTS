@@ -3,7 +3,7 @@ import { Message, TextChannel } from 'discord.js'
 import { AdministrationService } from '../services/app-services/administration/administration.service'
 import { FeatureService } from '../services/app-services/feature/feature.service'
 import { MusicService } from '../services/app-services/music/music.service'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import {
   Args,
   MessageChannel,
@@ -13,7 +13,7 @@ import {
 } from '@/ioc-container/decorators/command-handlers/message-handle.decorator'
 import { ConfigService } from '@/config-service/config.service'
 import { Handle, UseInterceptor } from '@/ioc-container/decorators'
-import { TextMessageInterceptor } from '@/interceptors/message.interceptor'
+import { TextMessageInterceptor } from '@/event-handlers/event-interceptors/message.interceptor'
 
 @Handle('message')
 @UseInterceptor(TextMessageInterceptor)

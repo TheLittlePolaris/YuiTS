@@ -7,7 +7,7 @@ import { LOG_SCOPE } from '@/constants/constants'
 import { ContainerFactory } from './ioc-container/container-factory'
 import { YuiMainModule } from './yui.module'
 import { YuiCore } from './entrypoint/yui-core.entrypoint'
-import { YuiLogger } from './log/logger.service'
+import { YuiLogger } from './services/logger/logger.service'
 
 const  bootstrap = async () => {
   const yuiContainerFactory = new ContainerFactory()

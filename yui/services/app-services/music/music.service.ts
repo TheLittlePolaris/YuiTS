@@ -38,7 +38,7 @@ import {
   youtubeTimeConverter,
 } from './youtube-service/youtube-utilities'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { GlobalMusicStream } from '../../../custom-classes/global-music-streams'
 import { ConfigService } from '@/config-service/config.service'
 @Injectable()

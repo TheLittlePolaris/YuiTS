@@ -9,7 +9,7 @@ import type {
 import { MusicQueue } from './music-queue'
 import { MusicStreamValue } from '../music-interfaces/music-stream.interface'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 
 export class MusicStream {
   private _id: string

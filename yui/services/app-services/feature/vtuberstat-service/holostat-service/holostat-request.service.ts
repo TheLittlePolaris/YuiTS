@@ -3,7 +3,7 @@ import { HOLO_KNOWN_REGION } from './holostat.interface'
 import { BaseRequestService } from '../channel-service/base-request.service'
 import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { LOG_SCOPE } from '@/constants/constants'
 
 @Injectable()

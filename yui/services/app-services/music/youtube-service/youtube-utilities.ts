@@ -1,4 +1,4 @@
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 
 export function isYoutubeUrl(link: string): boolean {
   return /^(https?:\/\/)?(www\.)?(music\.)?(youtube\.com|youtu\.be)\//i.test(link)

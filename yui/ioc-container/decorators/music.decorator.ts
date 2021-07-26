@@ -2,7 +2,7 @@ import { Message, TextChannel } from 'discord.js'
 import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/di-connstants'
 import { Prototype } from '../interfaces/di-interfaces'
 import { decoratorLogger } from '@/ioc-container/log/logger'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { MusicService } from '@/services/app-services/music/music.service'
 
 enum MUSIC_PARAM {

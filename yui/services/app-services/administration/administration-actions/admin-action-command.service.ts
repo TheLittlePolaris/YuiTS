@@ -2,7 +2,7 @@
 import { GuildMember, Message, Role, MessageEmbed } from 'discord.js'
 import { AdminCommandValidator, AdminParam } from '@/ioc-container/decorators/admin-action.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 
 @Injectable()

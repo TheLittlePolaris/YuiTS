@@ -43,7 +43,7 @@ export class ModuleContainer {
     this.interceptors.set(target.name, instance)
   }
 
-  public setValueProvider(module: Type<any>, provider: CustomValueProvider<any>) {
+  public setValueProvider(module: Type<any>, provider: Provider) {
     this._providers.set(this.providerNameConstructor(module, provider.provide), provider)
   }
 

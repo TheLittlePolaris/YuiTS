@@ -1,4 +1,4 @@
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { yellow, cyan, green } from 'chalk'
 
 export const decoratorLogger = (type: string, scope: string, propertyName?: string): void => {

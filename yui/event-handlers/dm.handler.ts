@@ -1,4 +1,4 @@
-import { DMInterceptor } from '@/interceptors/dm-interceptor'
+import { DMInterceptor } from '@/event-handlers/event-interceptors/dm-interceptor'
 import { Handle, UseInterceptor } from '@/ioc-container/decorators'
 import {
   Args,

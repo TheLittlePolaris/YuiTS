@@ -1,35 +1,35 @@
+import Queue from 'bull'
+import Axios from 'axios'
 import { LOG_SCOPE } from '@/constants/constants'
-import { HoloStatCommandValidator, VTuberParam } from '@/ioc-container/decorators/feature-vtuber.decorator'
 import {
   FeaturePermissionValidator,
   FeatureParam,
 } from '@/ioc-container/decorators/feature-permisson.decorator'
-import {
-  GuildMember,
-  Message,
-} from 'discord.js'
+import { GuildMember, Message } from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
-import { tenorRequestService } from './feature-services/feature-utilities'
 import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
-import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
-import { YuiLogger } from '@/log/logger.service'
-import Axios from 'axios'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiClient } from '@/custom-classes/yui-client'
-
+import { ConfigService } from '@/config-service/config.service'
+import { HoloStatCommandValidator, VTuberParam } from '@/ioc-container/decorators'
+import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
 @Injectable()
 export class FeatureService {
-  constructor(private _vtuberStatService: VtuberStatService, public yui: YuiClient) {
+  queue = new Queue('test')
+
+  constructor(
+    public yui: YuiClient,
+    private vtuberStatService: VtuberStatService,
+    private configService: ConfigService
+  ) {
     YuiLogger.info(`Created!`, LOG_SCOPE.FEATURE_SERVICE)
+
   }
 
-  getPing(message: Message, ...args: any[])
   @FeaturePermissionValidator()
-  public async getPing(
-    message: Message,
-    @FeatureParam('GUILD_MEMBER') yui: GuildMember
-  ): Promise<void> {
+  public async getPing(message: Message): Promise<void> {
     const yuiPing = this.yui.ws.ping
     const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
 
@@ -112,7 +112,16 @@ export class FeatureService {
     @FeatureParam('REQUEST_PARAM') params: string
   ): Promise<void> {
     const num = await RNG(5)
-    const { results = [] } = (await tenorRequestService(`${action} ${params ? params : ``}`)) || {}
+
+    const { data = null } = await Axios.get(
+      `https://api.tenor.com/v1/search?q=${encodeURIComponent(
+        `anime ${action} ${params ? params : ``}`
+      )}&key=${this.configService.tenorKey}&limit=10&media_filter=basic&anon_id=${
+        this.configService.tenorAnonymousId
+      }`
+    )
+
+    const { results = [] } = data || {}
 
     let mentionString
     if (users?.length) {
@@ -154,46 +163,21 @@ export class FeatureService {
     @VTuberParam('DETAIL') detail: boolean
   ): Promise<unknown> {
     if (!detail)
-      return this._vtuberStatService.vtuberStatStatistics({
+      return this.vtuberStatService.vtuberStatStatistics({
         message,
         yui,
         affiliation: 'Hololive',
         region,
       })
 
-    return this._vtuberStatService.vtuberStatSelectList({
+    return this.vtuberStatService.vtuberStatSelectList({
       message,
       affiliation: 'Hololive',
       regionCode: region,
     })
   }
 
-  public async getTest() {
-    const { data } = await Axios.get('https://panel.sendcloud.sc/api/v2/parcels', {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization:
-          'Basic ' +
-          Buffer.from('fbc8dac59dec4218a0c3ebcbb966df37:f80b8a335b034781ac24793ae59bbc1d').toString(
-            'base64'
-          ),
-      },
-    })
-
-    console.log(data)
-  }
-
-  private async sendMessage(
-    message: Message,
-    content: any
-  ): Promise<Message> {
-    return await message.channel
-      .send(content)
-      .catch((error) => this.handleError(new Error(error)))
-  }
-
-  private handleError(error: Error | string): null {
-    YuiLogger.error(error, LOG_SCOPE.FEATURE_SERVICE)
-    return null
+  private async sendMessage(message: Message, content: any): Promise<Message> {
+    return await message.channel.send(content)
   }
 }

@@ -7,7 +7,7 @@ import {
   AdminPermissionValidator,
 } from '@/ioc-container/decorators/permission.decorator'
 import { LOG_SCOPE } from '@/constants/constants'
-import { YuiLogger } from '@/log/logger.service'
+import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { ConfigService } from '@/config-service/config.service'
 import { YuiClient } from '@/custom-classes/yui-client'
