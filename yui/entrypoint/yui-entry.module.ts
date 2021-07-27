@@ -3,11 +3,12 @@ import { YuiClient } from '../custom-classes/yui-client'
 import { HandlerModule } from '@/event-handlers/handler.module'
 import { YuiModule } from '@/ioc-container/decorators'
 import { RedisModule } from '@/services/redis-adapter/redis.module'
+import { ConfigModule } from '@/config-service/config.module'
 
 
 @YuiModule({
-  modules: [RedisModule, HandlerModule],
+  modules: [ConfigModule, RedisModule, HandlerModule],
   components: [YuiCore, YuiClient],
-  entryComponent: YuiCore, // Only define once
+  entryComponent: YuiCore,
 })
-export class YuiCoreModule {}
+export class YuiEntryModule {}

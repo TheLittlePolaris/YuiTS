@@ -1,6 +1,3 @@
-export function isMyOwner(userId: string): boolean {
-  return userId === global?.config?.ownerId
-}
 
 export const subscriberCountFormatter = (number: number | string): string => {
   number = typeof number === 'string' ? Number(number) : number

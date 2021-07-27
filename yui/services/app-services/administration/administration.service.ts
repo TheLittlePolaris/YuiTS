@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from 'discord.js'
 import { ADMIN_ACTION_TYPE } from './admin-interfaces/administration.interface'
-import { AdminstrationActionCommands } from './administration-actions/admin-action-command.service'
+import { AdminCommandComponent } from './administration-actions/admin-action-command.service'
 import {
   AdminCommand,
   CommandValidator,
@@ -14,7 +14,7 @@ import { YuiClient } from '@/custom-classes/yui-client'
 
 @Injectable()
 export class AdministrationService {
-  constructor(private _adminActionCommands: AdminstrationActionCommands, public configService: ConfigService, public yui: YuiClient) {
+  constructor(private adminCommands: AdminCommandComponent, public configService: ConfigService, public yui: YuiClient) {
     YuiLogger.info(`Created!`, LOG_SCOPE.ADMIN_SERVICE)
   }
 
@@ -25,7 +25,7 @@ export class AdministrationService {
     args: Array<string>,
     @AdminCommand() command?: ADMIN_ACTION_TYPE
   ) {
-    this._adminActionCommands[command](message, args)
+    this.adminCommands[command](message, args)
   }
 
   public sendMessage(

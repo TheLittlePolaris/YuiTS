@@ -1,7 +1,7 @@
 import { ConfigService } from '@/config-service/config.service'
 import { ICommandHandlerMetadata } from '@/ioc-container/interfaces/di-command-handler.interface'
 import { Prototype } from '@/ioc-container/interfaces/di-interfaces'
-import { ClientEvents } from 'discord.js'
+import { ClientEvents, Message, PermissionResolvable, Role } from 'discord.js'
 import {
   COMMAND_HANDLER,
   COMMAND_HANDLER_PARAMS,
@@ -24,7 +24,61 @@ export function HandleMessage(command = 'default', ...aliases: string[]) {
       const { channel, author, guild } = message
       const defaultIndex = [message, author, _args, guild, channel, command]
       const compiledArgs = (paramList.length && paramList.map((i) => defaultIndex[i])) || [message]
+      compiledArgs.push(message, config)
       return originalHandler.apply(this, compiledArgs)
+    }
+  }
+}
+
+export function DeleteOriginalMessage(strategy?: 'send' | 'reply', responseMessage?: string) {
+  return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
+    const originalHandler = descriptor.value as Function
+    descriptor.value = function (...args: any[]) {
+      const [message, config] = args.slice(-2) as [Message, ConfigService]
+      const { guild, author } = message
+
+      const yuiMember = guild.member(config.yuiId)
+      const yuiCanDelete = yuiMember.hasPermission('MANAGE_MESSAGES')
+
+      if (yuiCanDelete) {
+        message
+          .delete()
+          .then(() => {
+            if (!strategy) return
+            if (strategy === 'reply') message.reply(responseMessage)
+            else author.send(responseMessage)
+          })
+          .catch(null)
+      }
+
+      return originalHandler.apply(this, args)
+    }
+  }
+}
+
+export function MemberPermissions(...permissions: PermissionResolvable[]) {
+  return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
+    const originalHandler = descriptor.value as Function
+    descriptor.value = function (...args: any[]) {
+      const [message, config] = args.slice(-2) as [Message, ConfigService]
+      const { author, member, guild } = message
+
+      const yuiMember = guild.member(config.yuiId)
+      const [hasPermissions, yuiHasPermission] = [
+        member.hasPermission(permissions),
+        yuiMember.hasPermission(permissions),
+      ]
+
+      if (!hasPermissions) {
+        author.send('You dont have permission to use this function')
+        return null
+      }
+      if (!yuiHasPermission) {
+        author.send('I dont have permission to perform this action')
+        return null
+      }
+
+      return originalHandler.apply(this, args)
     }
   }
 }

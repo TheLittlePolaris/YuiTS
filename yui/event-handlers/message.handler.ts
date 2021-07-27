@@ -10,6 +10,8 @@ import {
   HandleMessage,
   MessageParam,
   Command,
+  MemberPermissions,
+  DeleteOriginalMessage,
 } from '@/ioc-container/decorators/command-handlers/message-handle.decorator'
 import { ConfigService } from '@/config-service/config.service'
 import { Handle, UseInterceptor } from '@/ioc-container/decorators'
@@ -144,6 +146,14 @@ export class TextMessageHandler {
   @HandleMessage('help')
   async sendManual(@MessageParam() message: Message, @Args() args: string[]) {
     return this.featureService.help(message)
+  }
+
+  @HandleMessage('test')
+  @DeleteOriginalMessage()
+  @MemberPermissions('KICK_MEMBERS', 'BAN_MEMBERS')
+  async configurePrefix(@Args() args: string[], @MessageParam() message: Message, ) {
+    console.log(message.id, `<======= message.id [message.handler.ts - 153]`);
+    console.log(args, `<======= args [message.handler.ts - 154]`);
   }
 
   @HandleMessage()

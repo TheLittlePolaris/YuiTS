@@ -8,6 +8,6 @@ export class YuiClient extends Client {
   }
 
   public async getMember(message: Message) {
-    return message.guild.members.fetch(this.id)
+    return message.guild.member(this.id)
   }
 }

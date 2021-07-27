@@ -197,11 +197,11 @@ export class ContainerFactory {
     const commandHandlers = commandHandlersMetadata.reduce(
       (acc: CommandHandler, { command, propertyKey, commandAliases }) => {
         const commandFn = compileCommand(propertyKey)
-        const aliases = commandAliases.reduce(
+        const compiled = [command,...commandAliases].reduce(
           (accAliases, curr) => ({ ...accAliases, [curr]: commandFn }),
           {}
         )
-        return { ...acc, [command]: commandFn, ...aliases }
+        return { ...acc, ...compiled }
       },
       {}
     )

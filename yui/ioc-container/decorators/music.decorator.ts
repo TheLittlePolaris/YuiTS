@@ -42,7 +42,7 @@ export function AccessController(
 
       const clientUserIndex: number = paramIndexes[MUSIC_PARAM.CLIENT]
       if (clientUserIndex) {
-        const client = await message.guild.members.fetch(this.configService.yuiId)
+        const client = message.guild.member(this.configService.yuiId)
         filteredArgs[clientUserIndex] = client
       }
 

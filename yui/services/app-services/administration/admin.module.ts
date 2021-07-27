@@ -1,8 +1,8 @@
 import { AdministrationService } from './administration.service'
-import { AdminstrationActionCommands } from './administration-actions/admin-action-command.service'
+import { AdminCommandComponent } from './administration-actions/admin-action-command.service'
 import { YuiModule } from '@/ioc-container/decorators'
 
 @YuiModule({
-  components: [AdministrationService, AdminstrationActionCommands],
+  components: [AdministrationService, AdminCommandComponent],
 })
 export class AdminModule {}
