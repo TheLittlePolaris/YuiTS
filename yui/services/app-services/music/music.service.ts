@@ -47,7 +47,7 @@ export class MusicService {
     private youtubeInfoService: YoutubeInfoService,
     private soundcloudService: PolarisSoundCloudService,
     private soundcloudPlayer: PolarisSoundCloudPlayer,
-    public  streams: GlobalMusicStream,
+    public streams: GlobalMusicStream,
     public configService: ConfigService
   ) {
     YuiLogger.info(`Created!`, LOG_SCOPE.MUSIC_SERVICE)
@@ -66,9 +66,9 @@ export class MusicService {
     if (existingStream) return existingStream
     const stream = new MusicStream(guild, voiceChannel, channel as TextChannel)
     const connection = await this.createVoiceConnection(message)
-    
+
     if (!connection) throw new Error('Could not create voice connection')
-    
+
     stream.set('voiceConnection', connection)
     this.streams.set(guild.id, stream)
 
@@ -99,19 +99,16 @@ export class MusicService {
     return stream
   }
 
-  private async createVoiceConnection(
-    message: Message
-  ): Promise<IVoiceConnection> {
+  private async createVoiceConnection(message: Message): Promise<IVoiceConnection> {
     const voiceChannel = message?.member?.voice?.channel
     if (!voiceChannel) throw new Error('Voice channel not found')
 
     const connection = (await voiceChannel
       .join()
-      .catch((err) => this.handleError(new Error(err)))) as IVoiceConnection
+      .catch((err) => this.handleError(err))) as IVoiceConnection
     if (!connection) throw new Error('Could not join the voice channel')
-
     
-
+    connection.voice?.setSelfDeaf(true).catch(null)
     return connection
   }
 
@@ -120,7 +117,7 @@ export class MusicService {
     message: Message,
     args?: Array<string>,
     next = false,
-    @MusicParam('STREAM') stream?: MusicStream,
+    @MusicParam('STREAM') stream?: MusicStream
   ): Promise<void> {
     stream =
       stream ?? (await this.createStream(message).catch((err) => this.handleError(new Error(err))))
@@ -320,7 +317,7 @@ export class MusicService {
       itemInfo = [song]
     }
 
-    await this.pushToQueue({
+    this.pushToQueue({
       queue,
       data: itemInfo,
       requester,
@@ -328,38 +325,44 @@ export class MusicService {
       type,
     })
 
+    const sendInfoToChannelCallback = (forQueue: MusicQueue) => {
+      const queuedSong = next ? forQueue.firstInQueue : forQueue.last
+      if (!queuedSong) return
+      const nowPlayingDescription = `*\`Channel\`*: **\`${
+        queuedSong.channelTitle
+      }\`**\n*\`Duration\`*: **\`${timeConverter(queuedSong.duration)}\`**${
+        forQueue.length === 1 ? `` : `\n*\`Position in queue\`*: **\`${forQueue.length - 1}\`**`
+      }`
+
+      const embed = discordRichEmbedConstructor({
+        title: queuedSong.title,
+        author: {
+          authorName: tempStatus,
+          avatarUrl: message.author.avatarURL(),
+        },
+        description: nowPlayingDescription,
+        color: Constants.YUI_COLOR_CODE,
+        thumbnailUrl: queuedSong.videoThumbnail,
+        appendTimeStamp: true,
+        titleUrl: queuedSong.videoUrl,
+        footer: `Requested by ${requester}`,
+      })
+
+      this.sendMessage(message, embed)
+    }
+
     if (!stream.isPlaying) {
       stream.set('isPlaying', true)
-      this.playMusic(stream)
       tempStatus = '♫ Now Playing ♫'
-    } else tempStatus = '♬ Added To QUEUE ♬'
-
-    const queuedSong = next ? queue.firstInQueue : queue.last
-
-    const nowPlayingDescription = `*\`Channel\`*: **\`${
-      queuedSong.channelTitle
-    }\`**\n*\`Duration\`*: **\`${await timeConverter(queuedSong.duration)}\`**${
-      queue.length === 1 ? `` : `\n*\`Position in queue\`*: **\`${queue.length - 1}\`**`
-    }`
-
-    const embed = await discordRichEmbedConstructor({
-      title: queuedSong.title,
-      author: {
-        authorName: tempStatus,
-        avatarUrl: message.author.avatarURL(),
-      },
-      description: nowPlayingDescription,
-      color: Constants.YUI_COLOR_CODE,
-      thumbnailUrl: queuedSong.videoThumbnail,
-      appendTimeStamp: true,
-      titleUrl: queuedSong.videoUrl,
-      footer: `Requested by ${requester}`,
-    })
-
-    this.sendMessage(message, embed)
+      await this.playMusic(stream)
+      sendInfoToChannelCallback(queue)
+    } else {
+      tempStatus = '♬ Added To QUEUE ♬'
+      sendInfoToChannelCallback(queue)
+    }
   }
 
-  private async pushToQueue({
+  private pushToQueue({
     queue,
     data,
     requester,
@@ -371,42 +374,54 @@ export class MusicService {
     requester: string
     next?: boolean
     type?: 'youtube' | 'soundcloud'
-  }): Promise<boolean> {
-    if (!data || !data.length) {
-      this.handleError(new Error('No data was supplied'))
-      return Promise.resolve(false)
-    } else {
-      const promises = data.map(async (_song: IYoutubeVideo) => {
-        if (!_song.id) {
-          return this.handleError(new Error('Song id was undefined.'))
-        }
-        const { id, snippet, contentDetails, songUrl } = _song
-        const { title, channelId, channelTitle, thumbnails } = snippet
-        const song: ISong = {
-          id,
-          title: title,
-          channelId,
-          channelTitle,
-          duration:
-            type === 'youtube'
-              ? await youtubeTimeConverter(contentDetails.duration)
-              : contentDetails.rawDuration,
-          requester,
-          videoUrl: type === 'youtube' ? `https://www.youtube.com/watch?v=${id}` : songUrl,
-          videoThumbnail: thumbnails.default.url,
-          type: type || 'youtube',
-        }
-        if (next) return queue.addNext(song)
-        return queue.addSong(song)
-      })
+  }) {
+    if (!data || !data.length) this.handleError('No data was supplied')
 
-      await Promise.all(promises)
+    data.map((song: IYoutubeVideo) => {
+      if (!song.id) return this.handleError('Song id was undefined.')
 
-      return Promise.resolve(true)
-    }
+      const { id, snippet, contentDetails, songUrl } = song
+      const { title, channelId, channelTitle, thumbnails } = snippet
+      const toAddSong: ISong = {
+        id,
+        title: title,
+        channelId,
+        channelTitle,
+        duration:
+          type === 'youtube'
+            ? youtubeTimeConverter(contentDetails.duration)
+            : contentDetails.rawDuration,
+        requester,
+        videoUrl: type === 'youtube' ? `https://www.youtube.com/watch?v=${id}` : songUrl,
+        videoThumbnail: thumbnails.default.url,
+        type: type || 'youtube',
+      }
+      if (next) return queue.addNext(toAddSong)
+      queue.addSong(toAddSong)
+    })
   }
 
   private async playMusic(stream: MusicStream): Promise<void> {
+    let deleteTrigger: (timeout: number) => any = null
+    let inputStream: Readable | PassThrough
+    const onStreamEnd = ({ error, reason }: { error?: string | Error; reason?: string }) => {
+      if (inputStream && !inputStream.destroyed) inputStream.destroy()
+      if (error) this.handleError(error as string)
+
+      const { isLooping, queue, isAutoPlaying, isQueueLooping } = stream
+      if (!isLooping && deleteTrigger) deleteTrigger(200)
+
+      const endedSong = queue.first
+      if (!stream.isLooping) queue.removeFirst()
+      else if (isQueueLooping) queue.addSong(queue.removeFirst())
+
+      if (queue.isEmpty) {
+        if (!isAutoPlaying) return this.resetStreamStatus(stream)
+        else return this.autoPlaySong(stream, endedSong)
+      }
+
+      return this.playMusic(stream)
+    }
     try {
       const { type, id, videoUrl } = stream.queue.at(0)
 
@@ -417,66 +432,39 @@ export class MusicService {
         liveBuffer: 40000,
       }
 
-      const readableStream: Readable | PassThrough =
+      inputStream =
         type === 'youtube'
           ? ytdl(`https://www.youtube.com/watch?v=${id}`, downloadOptions)
           : await this.soundcloudPlayer.createMusicStream(videoUrl, downloadOptions)
 
-      if (!readableStream) throw new Error('Stream not created.')
+      if (!inputStream) throw new Error('Stream not created.')
 
-      this.playStream(stream, readableStream, {
+      this.playStream(stream, inputStream, {
         volume: 0.8,
         highWaterMark: 50,
       })
 
-      let sent: Message
       stream.streamDispatcher.on('start', async () => {
-        stream.voiceConnection.player.streamingData.pausedTime = 0
+        try {
+          stream.voiceConnection.player.streamingData.pausedTime = 0
+        } catch (e) {}
         if (!stream.isLooping) {
-          sent = await this.sendMessageChannel(
+          deleteTrigger = await this.sendMessageChannel(
             stream,
-            '**` 🎧 Now Playing: ' + stream.queue.at(0).title + '`**'
-          )
+            discordRichEmbedConstructor({
+              title: `${!stream.isAutoPlaying ? '🎧  Now Playing' : ':infinity: Autoplaying'}: ${
+                stream.queue.first.title
+              }`,
+              description: '',
+            })
+          ).then((message) => (timeout: number) => message.delete({ timeout }))
         }
       })
 
-      const onStreamEnd = ({ error, reason }: { error?: string | Error; reason?: string }) => {
-        // destroy ongoing stream (if there is)
-        if (readableStream) readableStream.destroy()        
-        if (error) {
-          this.handleError(error as string)
-        }
-
-        if (sent && !stream.isLooping) {
-          this.deleteMessage(sent, { timeout: 200 })
-        }
-
-        const endedSong = stream.queue.removeFirst()
-        if (stream.isLooping) {
-          stream.queue.addFirst(endedSong)
-        } else if (stream.isQueueLooping) {
-          stream.queue.addSong(endedSong)
-        }
-
-        if (stream.queue.isEmpty) {
-          if (!stream.isAutoPlaying) {
-            return this.resetStreamStatus(stream)
-          } else {
-            return this.autoPlaySong(stream, endedSong)
-          }
-        }
-
-        return this.playMusic(stream)
-      }
-
       stream.streamDispatcher.on('finish', (reason) => onStreamEnd({ reason }))
       stream.streamDispatcher.on('error', (error) => onStreamEnd({ error }))
-    } catch (err) {
-      if (!stream.queue.isEmpty) {
-        stream.queue.removeFirst()
-        this.playMusic(stream)
-      } else this.resetStreamStatus(stream)
-      this.handleError(err)
+    } catch (error) {
+      onStreamEnd({ error })
     }
   }
 
@@ -498,9 +486,11 @@ export class MusicService {
     input: Readable | string,
     options: StreamOptions
   ): StreamDispatcher {
-    const streamDispatcher = stream.voiceConnection.play(input, options)
-    stream.set('streamDispatcher', streamDispatcher)
-    return streamDispatcher
+    if (stream.streamDispatcher && !stream.streamDispatcher.destroyed)
+      stream.streamDispatcher.destroy()
+    const newDispatcher = stream.voiceConnection.play(input, options)
+    stream.set('streamDispatcher', newDispatcher)
+    return newDispatcher
   }
 
   @AccessController()
@@ -546,11 +536,12 @@ export class MusicService {
     }
   }
 
+  setVolume(message: Message, args: Array<string>, ...otherArgs)
   @AccessController({ join: false, silent: true })
   public setVolume(
     message: Message,
     args: Array<string>,
-    @MusicParam('STREAM') stream?: MusicStream
+    @MusicParam('STREAM') stream: MusicStream
   ): void {
     if (!args.length) {
       this.sendMessage(message, '**Please choose a specific volume number!**')
@@ -574,17 +565,23 @@ export class MusicService {
     )
   }
 
+  autoPlay(message: Message, ...args)
   @AccessController({ join: true })
   public async autoPlay(
     message: Message,
     @MusicParam('STREAM') stream?: MusicStream
   ): Promise<void> {
-    if (!stream) {
-      stream = await this.createStream(message)
-    }
+    if (!stream) stream = await this.createStream(message)
+
     if (!stream?.isAutoPlaying) {
       stream.set('isAutoPlaying', true)
-      this.sendMessage(message, discordRichEmbedConstructor({ title: "📻 Yui's PABX mode - ON! 🎵", description: ""}))
+      this.sendMessage(
+        message,
+        discordRichEmbedConstructor({
+          title: ":infinity: Yui's PABX mode - ON! 🎵",
+          description: '',
+        })
+      )
       if (stream?.queue?.isEmpty) {
         this.sendMessage(
           message,
@@ -594,7 +591,10 @@ export class MusicService {
       return
     } else {
       stream.set('isAutoPlaying', false)
-      this.sendMessage(message, "**`📻 YUI's PABX MODE - OFF! 🎵`**")
+      this.sendMessage(
+        message,
+        discordRichEmbedConstructor({ title: "Yui's PABX mode - OFF~", description: '' })
+      )
       return
     }
   }
@@ -615,10 +615,10 @@ export class MusicService {
     )
     const { nextPageToken, items } = videoInfo
     stream.set('nextPage', nextPageToken)
-    const rand = await RNG(items.length)
+    const rand = RNG(items.length)
     const songMetadata = await this.youtubeInfoService.getInfoIds(items[rand].id.videoId)
 
-    await this.pushToQueue({
+    this.pushToQueue({
       queue: stream.queue,
       data: songMetadata,
       requester: endedSong.requester,
@@ -629,25 +629,23 @@ export class MusicService {
     this.playMusic(stream)
   }
 
+  getNowPlayingData(message: Message, ...otherargs) // override definition
   @AccessController()
   public async getNowPlayingData(
     message: Message,
-    @MusicParam('STREAM') stream?: MusicStream,
-    @MusicParam('CLIENT') member?: GuildMember
+    @MusicParam('STREAM') stream: MusicStream,
+    @MusicParam('CLIENT') member: GuildMember
   ): Promise<void> {
-    // stream = stream!
     if (stream.queue.isEmpty) {
       this.sendMessage(message, `**Nothing is playing!**`)
       return
     }
     const currSong = stream.queue.at(0)
     const streamingTime = Math.round((stream?.streamDispatcher?.streamTime || 0) / 1000)
-    const content = `**\`${await timeConverter(streamingTime)}\`𝗹${createProgressBar(
+    const content = `**\`${timeConverter(streamingTime)}\`𝗹${createProgressBar(
       streamingTime,
       currSong.duration
-    )}𝗹\`${await timeConverter(currSong.duration)}\`**\n__\`Channel\`__: **\`${
-      currSong.channelTitle
-    }\`**`
+    )}𝗹\`${timeConverter(currSong.duration)}\`**\n__\`Channel\`__: **\`${currSong.channelTitle}\`**`
     const embed = await discordRichEmbedConstructor({
       title: currSong.title,
       author: {
@@ -961,22 +959,7 @@ export class MusicService {
   }
 
   public resetStreamStatus(stream: MusicStream): void {
-    if (stream?.id) {
-      stream.set('isAutoPlaying', false)
-      stream.set('isQueueLooping', false)
-      stream.set('isLooping', false)
-      stream.set('isPaused', false)
-      stream.set('nextPage', null)
-      stream.queue.deleteQueue()
-      if (stream.isPlaying) {
-        if (stream.streamDispatcher) {
-          stream.streamDispatcher.destroy()
-        }
-        stream.set('isPlaying', false)
-      }
-    } else {
-      this.handleError(new Error('<stream> as undefined'))
-    }
+    stream?.reset()
   }
 
   @AccessController()
@@ -996,55 +979,47 @@ export class MusicService {
     this.streams.delete(stream.id)
   }
 
+  leaveVoiceChannel(message: Message, isError?: boolean, ...args)
   @AccessController({ silent: true })
   public async leaveVoiceChannel(
     message: Message,
     isError = false,
-    @MusicParam('STREAM') stream?: MusicStream
+    @MusicParam('STREAM') stream: MusicStream
   ): Promise<void> {
-    try {
-      if (!stream) throw new Error('[leaveVoiceChannel] Stream not found!')
+    if (!stream) return this.handleError('Stream not found!')
 
-      stream.boundVoiceChannel.leave()
+    stream.boundVoiceChannel?.leave()
 
-      this.resetStreamStatus(stream)
-      this.deleteStream(stream)
+    this.resetStreamStatus(stream)
+    this.deleteStream(stream)
 
-      if (!isError) this.sendMessage(message, '**_Bye bye~! Matta nee~!_**')
-    } catch (err) {
-      this.handleError(err)
-    }
+    if (!isError) this.sendMessage(message, '**_Bye bye~! Matta nee~!_**')
   }
 
   public async soundcloudGetSongInfo(link: string): Promise<void> {
     const info = await this.soundcloudService
       .getInfoUrlTest(link)
-      .catch((err) => this.handleError(new Error(err)))
+      .catch((err) => this.handleError(err))
 
     console.log(info)
   }
 
   public async sendMessage(message: Message, content: string | MessageEmbed): Promise<Message> {
-    return await message.channel.send(content).catch((err) => this.handleError(new Error(err)))
+    return await message.channel.send(content).catch((err) => this.handleError(err))
   }
 
   private async sendMessageChannel(
     stream: MusicStream,
     content: string | MessageEmbed
   ): Promise<Message> {
-    return await stream.boundTextChannel
-      .send(content)
-      .catch((err) => this.handleError(new Error(err)))
+    return await stream.boundTextChannel.send(content).catch((err) => this.handleError(err))
   }
 
   public async replyMessage(message: Message, content: string | MessageEmbed) {
     return await message.reply(content).catch((error) => this.handleError(error))
   }
 
-  public async deleteMessage(
-    message: Message,
-    option: { timeout?: number; reason?: string } = {}
-  ) {
+  public async deleteMessage(message: Message, option: { timeout?: number; reason?: string } = {}) {
     return await message.delete(option).catch((err) => this.handleError(err))
   }
 

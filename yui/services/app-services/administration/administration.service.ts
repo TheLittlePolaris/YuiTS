@@ -14,16 +14,21 @@ import { YuiClient } from '@/custom-classes/yui-client'
 
 @Injectable()
 export class AdministrationService {
-  constructor(private adminCommands: AdminCommandComponent, public configService: ConfigService, public yui: YuiClient) {
+  constructor(
+    private adminCommands: AdminCommandComponent,
+    public configService: ConfigService,
+    public yui: YuiClient
+  ) {
     YuiLogger.info(`Created!`, LOG_SCOPE.ADMIN_SERVICE)
   }
 
+  public async executeCommand(message: Message, args: string[], ..._args)
   @CommandValidator()
   @AdminPermissionValidator()
   public async executeCommand(
     message: Message,
     args: Array<string>,
-    @AdminCommand() command?: ADMIN_ACTION_TYPE
+    @AdminCommand() command: ADMIN_ACTION_TYPE
   ) {
     this.adminCommands[command](message, args)
   }

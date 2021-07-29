@@ -119,7 +119,7 @@ export class YuiLogger implements LoggerService {
 
   private static printMessage(message: string | Error, color: Chalk, context?: string) {
     const output = isObject(message)
-      ? `${color('Object:')}\n${JSON.stringify(message, null, 2)}\n`
+      ? `${JSON.stringify(message, null, 2)}\n`
       : color(message)
 
     const localeStringOptions: Intl.DateTimeFormatOptions = {

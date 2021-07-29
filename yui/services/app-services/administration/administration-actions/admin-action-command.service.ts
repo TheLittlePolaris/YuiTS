@@ -14,7 +14,7 @@ export class AdminCommandComponent {
     YuiLogger.info(`Created!`, LOG_SCOPE.ADMIN_ACTION_COMMAND)
   }
 
-  async kick(message: Message, args: Array<string>, ...otherArgs: any[])
+  async kick(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async kick(
     message: Message,
@@ -36,7 +36,7 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to kick the member(s).`)
   }
 
-  async ban(message: Message, args: Array<string>, ...otherArgs: any[])
+  async ban(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async ban(
     message: Message,
@@ -56,7 +56,7 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to ban the member(s).`)
   }
 
-  async addrole(message: Message, args: Array<string>, ...otherArgs: any[])
+  async addrole(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async addrole(
     message: Message,
@@ -79,7 +79,7 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
   }
 
-  async removerole(message: Message, args: Array<string>, ...otherArgs: any[])
+  async removerole(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async removerole(
     message: Message,
@@ -104,7 +104,7 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
   }
 
-  async mute(message: Message, args: Array<string>, ...otherArgs: any[])
+  async mute(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async mute(
     message: Message,
@@ -128,7 +128,7 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to mute the member.`)
   }
 
-  async unmute(message: Message, args: Array<string>, ...otherArgs: any[])
+  async unmute(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async unmute(
     message: Message,
@@ -154,7 +154,7 @@ export class AdminCommandComponent {
     return
   }
 
-  async setnickname(message: Message, args: Array<string>, ...otherArgs: any[])
+  async setnickname(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async setnickname(
     message: Message,

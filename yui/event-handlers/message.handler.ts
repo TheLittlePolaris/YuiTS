@@ -114,10 +114,8 @@ export class TextMessageHandler {
   }
 
   @HandleMessage('say', 'repeat')
+  @DeleteOriginalMessage()
   async repeat(@MessageParam() message: Message, @Args() args: string[]) {
-    message
-      .delete()
-      .catch((err) => message.author.send(`Something went wrong, i couldn't delete the message`))
     return this.featureService.say(message, args)
   }
 
@@ -132,14 +130,14 @@ export class TextMessageHandler {
   }
 
   @HandleMessage('tenor')
+  @DeleteOriginalMessage()
   async sendGif(@MessageParam() message: Message, @Args() args: string[]) {
-    message.delete().catch((err) => null)
     return this.featureService.tenorGif(message, args)
   }
 
   @HandleMessage('admin', 'management')
+  @DeleteOriginalMessage()
   async managementaction(@MessageParam() message: Message, @Args() args: string[]) {
-    message.delete().catch((err) => null)
     return this.administrationService.executeCommand(message, args)
   }
 
@@ -148,13 +146,13 @@ export class TextMessageHandler {
     return this.featureService.help(message)
   }
 
-  @HandleMessage('test')
-  @DeleteOriginalMessage()
-  @MemberPermissions('KICK_MEMBERS', 'BAN_MEMBERS')
-  async configurePrefix(@Args() args: string[], @MessageParam() message: Message, ) {
-    console.log(message.id, `<======= message.id [message.handler.ts - 153]`);
-    console.log(args, `<======= args [message.handler.ts - 154]`);
-  }
+  // @HandleMessage('test')
+  // @DeleteOriginalMessage()
+  // @MemberPermissions('KICK_MEMBERS', 'BAN_MEMBERS')
+  // async configurePrefix(@Args() args: string[], @MessageParam() message: Message) {
+  //   console.log(message.id, `<======= message.id [message.handler.ts - 153]`)
+  //   console.log(args, `<======= args [message.handler.ts - 154]`)
+  // }
 
   @HandleMessage()
   async defaultResponse(@MessageChannel() channel: TextChannel, @Command() command: string) {

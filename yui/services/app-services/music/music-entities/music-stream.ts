@@ -129,4 +129,19 @@ export class MusicStream {
     this[`_${value}`] = data
     return this[`_${value}`]
   }
+
+  public reset() {
+    this._isAutoPlaying = false
+    this._isQueueLooping = false
+    this._isLooping = false
+    this._isPaused = false
+    this._nextPage = null
+    this.queue.deleteQueue()
+    if (this.isPlaying) {
+      if (this.streamDispatcher && !this.streamDispatcher.destroyed) {
+        this.streamDispatcher.destroy()
+      }
+      this._isPlaying = false
+    }
+  }
 }
