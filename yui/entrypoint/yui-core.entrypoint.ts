@@ -11,6 +11,6 @@ import { EntrypointComponent } from '@/ioc-container/entrypoint/entrypoint.compo
 export class YuiCore extends EntrypointComponent {
   constructor(private yui: YuiClient, private configService: ConfigService) {
     super(yui, configService.token)
-    YuiLogger.info('Created!', LOG_SCOPE.YUI_CORE)
+    YuiLogger.info('Created!', YuiCore.name)
   }
 }
