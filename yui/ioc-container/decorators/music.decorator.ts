@@ -26,15 +26,16 @@ export function AccessController(
       const filteredArgs = <any[]>[message, ...args]
       const { channel, guild, member } = message
 
-      const voiceChannel = member.voice.channel
-
+      const {
+        voice: { channel: voiceChannel },
+      } = member || {}
       if (!voiceChannel) {
         return this.replyMessage(message, '**please join a __`Voice Channel`__!**').catch(null)
       }
 
       if (!this.streams) return
 
-      const stream = this.streams.has(guild.id) ? this.streams.get(guild.id) : null
+      const stream = this.streams.get(guild.id) || null
       const paramIndexes = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
 
       const streamParamIndex: number | undefined = paramIndexes[MUSIC_PARAM.STREAM]
@@ -48,14 +49,6 @@ export function AccessController(
 
       const { boundVoiceChannel } = stream || {}
       if (!boundVoiceChannel && join) {
-        if (!silent) {
-          this.sendMessage(
-            message,
-            `**Bound to Text Channel: \`${(channel as TextChannel).name}\` and Voice Channel: \`${
-              voiceChannel?.name
-            }\`**!`
-          )
-        }
         return originalMethod.apply(this, filteredArgs)
       }
 

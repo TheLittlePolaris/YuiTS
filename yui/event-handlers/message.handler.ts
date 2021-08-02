@@ -10,7 +10,6 @@ import {
   HandleMessage,
   MessageParam,
   Command,
-  MemberPermissions,
   DeleteOriginalMessage,
 } from '@/ioc-container/decorators/command-handlers/message-handle.decorator'
 import { ConfigService } from '@/config-service/config.service'

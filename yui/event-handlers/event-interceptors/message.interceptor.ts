@@ -8,13 +8,13 @@ export class TextMessageInterceptor implements IBaseInterceptor {
 
   async intercept([message]: ClientEvents['message'], next: () => Promise<any>) {
     if (!(message.channel.type === 'text')) return
-    console.time(`Text command handler`)
+    console.time(`handle_m_${message.id}`)
     next()
       .then(() => {
-        console.timeEnd(`Text command handler`)
+        console.timeEnd(`handle_m_${message.id}`)
       })
-      .catch((err) => {
-        YuiLogger.error(err, TextMessageInterceptor.name)
+      .catch((error) => {
+        YuiLogger.error(error, TextMessageInterceptor.name)
         message.channel.send("Something went wrong (╥_╥)")
       })
   }

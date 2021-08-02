@@ -19,7 +19,7 @@ export function youtubeTimeConverter(duration: string): number {
       (parseInt(match[2], 10) || 0) // seconds
     return result
   } catch (err) {
-    YuiLogger.error(new Error(err))
+    YuiLogger.error(err)
     return 0
   }
 }

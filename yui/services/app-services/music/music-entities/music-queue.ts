@@ -114,9 +114,11 @@ export class MusicQueue {
    * @param {Number} index - start position in queue
    * @param {Number} length - the amount of songs to be removed
    */
-  public removeSongs(index: number, length = 1): void {
-    this.songs.splice(index, length)
+  public removeSongs(index: number, length = 1) {
+    return this.songs.splice(index, length)
   }
+
+  
 
   private swapData(i: number, j: number) {
     const temp = this.songs[i]
