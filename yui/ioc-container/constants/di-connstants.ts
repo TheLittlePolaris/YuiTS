@@ -57,21 +57,20 @@ export const EVENT_HANDLER = 'self:event_handler'
 export const COMMAND_HANDLER = 'self:command_handler'
 export const COMMAND_HANDLER_PARAMS = 'self:command_handler:params'
 
-export enum HANDLE_PARAMS {
-  MESSAGE = 'params:message',
-  AUTHOR = 'params:author',
-  ARGS = 'params:args',
-  GUILD = 'params:guild',
-}
-
-export enum DEFAULT_PARAM_INDEX {
+export enum MESSAGE_PARAMS {
   MESSAGE,
   AUTHOR,
   ARGS,
   GUILD,
   CHANNEL,
-  COMMAND
+  COMMAND,
 }
 
+export enum VOICESTATE_PARAMS {
+  OLD_STATE,
+  NEW_STATE,
+  OLD_CHANNEL,
+  NEW_CHANNEL,
+}
 
 export const INTERCEPTOR_TARGET = 'self:interceptor_target'

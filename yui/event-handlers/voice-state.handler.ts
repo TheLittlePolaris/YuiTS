@@ -1,66 +1,33 @@
-import { LOG_SCOPE } from '@/constants/constants'
-import { VoiceState } from 'discord.js'
-import { MusicStream } from '../services/app-services/music/music-entities/music-stream'
-import { VoiceStateAction } from '../services/app-services/music/music-interfaces/voice-state.interface'
+import { VoiceChannel } from 'discord.js'
 import { MusicService } from '../services/app-services/music/music.service'
+import { OnEvent } from '@/ioc-container/decorators'
+import {
+  HandleVoiceState,
+  StateChannel,
+} from '@/ioc-container/decorators/event-handlers/voicestate-handle.decorator'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 
-@Injectable()
+@OnEvent('voiceStateUpdate')
 export class VoiceStateHandler {
   constructor(private musicService: MusicService) {
-    YuiLogger.info(`Created!`, LOG_SCOPE.VOICE_STATE_HANDLER)
-  }
-  public checkOnVoiceStateUpdate(oldVoiceState: VoiceState, newVoiceState: VoiceState): void {
-    try {
-      if (!oldVoiceState && !newVoiceState) return
-      const { action, stream } = this.checkOnLeave(oldVoiceState, newVoiceState)
-      switch (action) {
-        case 'clearTimeout': {
-          if (stream.leaveOnTimeOut) {
-            clearTimeout(stream.leaveOnTimeOut)
-            stream.set('leaveOnTimeout', null)
-          }
-          break
-        }
-        case 'setLeaveTimeout': {
-          const timeout = setTimeout(() => {
-            this.leaveOnTimeout(stream)
-          }, 30000)
-          stream.set('leaveOnTimeout', timeout)
-          break
-        }
-        default:
-        case 'ignore': {
-          break
-        }
-      }
-    } catch (err) {
-      YuiLogger.error(new Error(err), LOG_SCOPE.VOICE_STATE_HANDLER)
-    }
+    YuiLogger.info(`Created!`, VoiceStateHandler.name)
   }
 
-  public checkOnLeave(oldState: VoiceState, newState: VoiceState): VoiceStateAction {
-    const stream = this.musicService.streams.get(oldState.guild.id)
-    const boundVoiceChannel = stream && stream.boundVoiceChannel
-    if (!boundVoiceChannel) return { stream, action: 'ignore' }
-    const [oldStateChannel, newStateChannel] = [oldState.channel, newState.channel]
-    if (newStateChannel === boundVoiceChannel) {
-      return { stream, action: 'clearTimeout' }
-    } else if ((!newStateChannel || newStateChannel !== boundVoiceChannel) && oldStateChannel.members.size === 1) {
-      return { stream, action: 'setLeaveTimeout' }
-    }
-    return { stream, action: 'ignore' }
-  }
+  @HandleVoiceState()
+  public onVoiceStateUpdate(
+    @StateChannel('old') oldChannel: VoiceChannel,
+    @StateChannel('new') newChannel: VoiceChannel
+  ) {
+    const stream = this.musicService.streams.get(oldChannel?.guild.id)
+    const boundVC = stream?.boundVoiceChannel
+    if (!boundVC) return
 
-  public leaveOnTimeout(stream: MusicStream): void {
-    try {
-      stream.boundVoiceChannel.leave()
-      stream.boundTextChannel.send("**_There's no one around so I'll leave too. Bye~!_**")
-      this.musicService.resetStreamStatus(stream)
-      this.musicService.deleteStream(stream)
-    } catch (err) {
-      YuiLogger.error(new Error(err), LOG_SCOPE.VOICE_STATE_HANDLER)
+    if (newChannel?.id === boundVC.id && stream.leaveOnTimeOut) {
+      clearTimeout(stream.leaveOnTimeOut)
+      stream.set('leaveOnTimeout', null)
+    } else if ((!newChannel || newChannel.id !== boundVC.id) && oldChannel?.members.size === 1) {
+      const timeout = setTimeout(() => this.musicService.timeoutLeaveChannel(stream), 30000)
+      stream.set('leaveOnTimeout', timeout)
     }
   }
 }

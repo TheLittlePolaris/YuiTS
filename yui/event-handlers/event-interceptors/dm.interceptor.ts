@@ -8,7 +8,7 @@ import { IBaseInterceptor } from '../../ioc-container/interfaces/interceptor.int
 export class DMInterceptor implements IBaseInterceptor {
   constructor(private configService: ConfigService) {}
 
-  async intercept([message]: ClientEvents['message'], next: () => Promise<any>) {
+  intercept([message]: ClientEvents['message'], next: () => Promise<any>) {
     if (!(message.channel.type === 'dm' && message.author.id === this.configService.ownerId)) return
     
     console.time(`handle_m_${message.id}`)

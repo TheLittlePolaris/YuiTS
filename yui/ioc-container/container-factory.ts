@@ -44,26 +44,24 @@ export class ContainerFactory {
     /**
      * IMPORTANT:
      *  - Required the entry component to extends EntryComponent class
-     *  - Require events to be defined within entry component
      */
     const { entryInstance, entryComponent } = this.container
 
     const { client } = entryInstance
     const boundEvents = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryComponent) || {}
-    const eventKeys = Object.keys(boundEvents)
-    if (eventKeys.length) {
-      eventKeys.forEach((eventKey: DiscordEvent) =>
+    const { length: hasEvents, ...events } = Object.keys(boundEvents)
+    if (hasEvents) {
+      events.forEach((eventKey: DiscordEvent) =>
         client.addListener(eventKey, (...args) => entryInstance[boundEvents[eventKey]](...args))
       )
-    } else {
-      this.logger.warn('No event listener detected!')
     }
 
-    client.addListener('message', (...args: ClientEvents['message']) =>
-      this.getHandlerForEvent('message', args)
+    Object.keys(this.eventHandlers).map((handler: DiscordEvent) =>
+      client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
+        this.getHandlerForEvent(handler, args)
+      )
     )
     await entryInstance.start()
-    return entryInstance
   }
 
   async compileModule<T = any>(module: Type<T>) {
@@ -197,7 +195,7 @@ export class ContainerFactory {
     const commandHandlers = commandHandlersMetadata.reduce(
       (acc: CommandHandler, { command, propertyKey, commandAliases }) => {
         const commandFn = compileCommand(propertyKey)
-        const compiled = [command,...commandAliases].reduce(
+        const compiled = [command, ...(commandAliases || [])].reduce(
           (accAliases, curr) => ({ ...accAliases, [curr]: commandFn }),
           {}
         )

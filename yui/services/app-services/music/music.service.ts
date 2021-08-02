@@ -39,16 +39,17 @@ import {
 } from './youtube-service/youtube-utilities'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { GlobalMusicStream } from '../../../custom-classes/global-music-streams'
+import { GlobalMusicStream } from '@/custom-classes/global-music-streams'
 import { ConfigService } from '@/config-service/config.service'
+
 @Injectable()
 export class MusicService {
   constructor(
-    private youtubeInfoService: YoutubeInfoService,
     private soundcloudService: PolarisSoundCloudService,
     private soundcloudPlayer: PolarisSoundCloudPlayer,
-    public streams: GlobalMusicStream,
-    public configService: ConfigService
+    private youtubeInfoService: YoutubeInfoService,
+    public configService: ConfigService,
+    public streams: GlobalMusicStream
   ) {
     YuiLogger.info(`Created!`, LOG_SCOPE.MUSIC_SERVICE)
   }
@@ -943,6 +944,17 @@ export class MusicService {
     this.deleteStream(stream)
 
     if (!isError) this.sendMessage(message, '**_Bye bye~! Matta nee~!_**')
+  }
+
+  public timeoutLeaveChannel(stream: MusicStream) {
+    try {
+      stream.boundVoiceChannel.leave()
+      stream.boundTextChannel.send("**_There's no one around so I'll leave too. Bye~!_**")
+      this.resetStreamStatus(stream)
+      this.deleteStream(stream)
+    } catch (err) {
+      this.handleError(err)
+    }
   }
 
   public async sendMessage(message: Message, content: string | MessageEmbed): Promise<Message> {

@@ -5,10 +5,10 @@ import { ClientEvents, Message, PermissionResolvable, Role } from 'discord.js'
 import {
   COMMAND_HANDLER,
   COMMAND_HANDLER_PARAMS,
-  DEFAULT_PARAM_INDEX,
+  MESSAGE_PARAMS,
 } from '@/ioc-container/constants/di-connstants'
 
-export function HandleMessage(command = 'default', ...aliases: string[]) {
+export function HandleCommand(command = 'default', ...aliases: string[]) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
     let commands: ICommandHandlerMetadata[] =
       Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
@@ -87,7 +87,7 @@ export const Author = () => {
   return function (target: Prototype, propertyKey: string, paramIndex: number) {
     const paramList: number[] =
       Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
-    paramList.unshift(DEFAULT_PARAM_INDEX.AUTHOR)
+    paramList.unshift(MESSAGE_PARAMS.AUTHOR)
     Reflect.defineMetadata(COMMAND_HANDLER_PARAMS, paramList, target.constructor, propertyKey)
   }
 }
@@ -96,7 +96,7 @@ export const MessageParam = () => {
   return function (target: Prototype, propertyKey: string, paramIndex: number) {
     const paramList: number[] =
       Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
-    paramList.unshift(DEFAULT_PARAM_INDEX.MESSAGE)
+    paramList.unshift(MESSAGE_PARAMS.MESSAGE)
     Reflect.defineMetadata(COMMAND_HANDLER_PARAMS, paramList, target.constructor, propertyKey)
   }
 }
@@ -105,7 +105,7 @@ export const Args = () => {
   return function (target: Prototype, propertyKey: string, paramIndex: number) {
     const paramList: number[] =
       Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
-    paramList.unshift(DEFAULT_PARAM_INDEX.ARGS)
+    paramList.unshift(MESSAGE_PARAMS.ARGS)
     Reflect.defineMetadata(COMMAND_HANDLER_PARAMS, paramList, target.constructor, propertyKey)
   }
 }
@@ -114,7 +114,7 @@ export const MessageGuild = () => {
   return function (target: Prototype, propertyKey: string, paramIndex: number) {
     const paramList: number[] =
       Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
-    paramList.unshift(DEFAULT_PARAM_INDEX.GUILD)
+    paramList.unshift(MESSAGE_PARAMS.GUILD)
     Reflect.defineMetadata(COMMAND_HANDLER_PARAMS, paramList, target.constructor, propertyKey)
   }
 }
@@ -123,7 +123,7 @@ export const MessageChannel = () => {
   return function (target: Prototype, propertyKey: string, paramIndex: number) {
     const paramList: number[] =
       Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
-    paramList.unshift(DEFAULT_PARAM_INDEX.CHANNEL)
+    paramList.unshift(MESSAGE_PARAMS.CHANNEL)
     Reflect.defineMetadata(COMMAND_HANDLER_PARAMS, paramList, target.constructor, propertyKey)
   }
 }
@@ -132,7 +132,7 @@ export const Command = () => {
   return function (target: Prototype, propertyKey: string, paramIndex: number) {
     const paramList: number[] =
       Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
-    paramList.unshift(DEFAULT_PARAM_INDEX.COMMAND)
+    paramList.unshift(MESSAGE_PARAMS.COMMAND)
     Reflect.defineMetadata(COMMAND_HANDLER_PARAMS, paramList, target.constructor, propertyKey)
   }
 }
