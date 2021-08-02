@@ -29,10 +29,7 @@ type CommandHandler = {
 
 export class ContainerFactory {
   static entryDetected = false
-
   private container = new ModuleContainer()
-  private logger = new YuiLogger(ContainerFactory.name)
-
   private configService: ConfigService
 
   private eventHandlers: {
