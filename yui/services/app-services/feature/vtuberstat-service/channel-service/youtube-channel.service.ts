@@ -29,7 +29,6 @@ export class YoutubeChannelService implements BaseChannelService {
 
     const { data } = await this.youtubeChannel.list(getDataOptions)
     if (!data?.items?.length) return this.handleError('Cannot get any data')
-    console.log(data, `<======= data [youtube-channel.service.ts - 32]`);
     return data.items
   }
 
@@ -45,7 +44,6 @@ export class YoutubeChannelService implements BaseChannelService {
     const { data } = await this.youtubeChannel.list(getDataOptions)
 
     if (!data?.items?.length) return this.handleError('Cannot get any data')
-    console.log(data, `<======= data [youtube-channel.service.ts - 48]`);
     return data.items
   }
 
@@ -59,7 +57,6 @@ export class YoutubeChannelService implements BaseChannelService {
     const { data } = await this.youtubeChannelSections.list(getChannelsOptions)
     // TODO: 
     const featuredChannelsUrls = data?.items[0]?.contentDetails.channels
-    // console.log(data?.items[0]?.contentDetails.channels, `<======= data?.items[0]?.brandingSettings?.channel [youtube-channel.service.ts - 63]`);
     if (!featuredChannelsUrls?.length)
       return this.handleError('Cannot find any related channels from Hololive Official')
 

@@ -150,7 +150,7 @@ export class TextMessageHandler {
   @HandleCommand()
   async defaultResponse(@MessageChannel() channel: TextChannel, @Command() command: string) {
     channel.send(
-      `I cannot recognize command \`${command}\`. How about taking a look at \`${this.configService.prefix}help\` ?`
+      `I cannot recognize that command. How about taking a look at \`${this.configService.prefix}help\` ?`
     )
   }
 

@@ -1,6 +1,6 @@
 import { PassThrough, TransformOptions, Readable } from 'stream'
-import { parse } from 'url'
-import axios from 'axios'
+import { URL } from 'url'
+import axios, { AxiosResponse } from 'axios'
 import m3u8stream, { Progress } from 'm3u8stream'
 import { PolarisSoundCloudService } from './soundcloud-info.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
@@ -17,26 +17,20 @@ export class PolarisSoundCloudPlayer {
     if (!videoUrl) throw new Error('Undefined url')
 
     const { url, type } = await this.getDownloadLink(videoUrl)
-
-    switch (type) {
-      case 'm3u8_native': {
-        return Promise.resolve(this.m3u8Stream(url, options))
-      }
-      case 'http': {
-        return await this.axiosHttpStream(url, options)
-      }
-      default:
-        break
+    if (type === 'm3u8_native') {
+      return Promise.resolve(this.m3u8Stream(url, options))
+    } else {
+      return this.axiosHttpStream(url, options)
     }
   }
 
   async axiosHttpStream(url: string, options?: TransformOptions): Promise<PassThrough> {
     const stream = new PassThrough()
-
+    const whatwgUrl = new URL(url)
     // fix for pause/resume downloads
-    const headers = { Host: parse(url).hostname }
+    const headers = { Host: whatwgUrl.hostname, Origin: whatwgUrl.origin }
 
-    const promisedRequest = await axios
+    const promisedRequest: AxiosResponse<Readable> = await axios
       .get<Readable>(url, {
         headers,
         timeout: 30000,
@@ -57,13 +51,19 @@ export class PolarisSoundCloudPlayer {
     if (promisedRequest?.status !== 200 && promisedRequest?.status !== 206) {
       stream.emit(
         'error',
-        new Error(`Status code: ${promisedRequest?.status}. Status message: ${promisedRequest?.statusText}`)
+        new Error(
+          `Status code: ${promisedRequest?.status}. Status message: ${promisedRequest?.statusText}`
+        )
       )
     }
 
     if (!promisedRequest?.data) {
       stream.emit('error', new Error('Something went wrong'))
-    } else promisedRequest.data.pipe(stream)
+      stream.end()
+      return null
+    }
+
+    promisedRequest.data.pipe(stream)
 
     return stream
   }
@@ -98,13 +98,11 @@ export class PolarisSoundCloudPlayer {
     return stream
   }
 
-  public async getDownloadLink(
-    videoUrl: string
-  ): Promise<{
+  public async getDownloadLink(videoUrl: string): Promise<{
     url: string
     type: string
   }> {
-    const soundcloudDll = (await this.soundcloudService.getInfoUrl(videoUrl, {
+    const soundcloudDll = (await this.soundcloudService.getSoundcloudInfoFromUrl(videoUrl, {
       getUrl: true,
     })) as {
       url: string

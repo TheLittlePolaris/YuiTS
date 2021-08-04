@@ -242,7 +242,7 @@ export class MusicService {
         ':hourglass_flowing_sand: **_Loading playlist from SoundCloud, this may take some times, please wait..._**'
       )
 
-      const playlistSongs: IYoutubeVideo[] = (await this.soundcloudService.getInfoUrl(
+      const playlistSongs: IYoutubeVideo[] = (await this.soundcloudService.getSoundcloudInfoFromUrl(
         playlistLink,
         {
           getUrl: false,
@@ -289,7 +289,7 @@ export class MusicService {
       data = await this.youtubeInfoService.getInfoIds(videoId)
     } else {
       const song = (await this.soundcloudService
-        .getInfoUrl(args)
+        .getSoundcloudInfoFromUrl(args)
         .catch((err) => this.handleError(err))) as IYoutubeVideo
       if (!song) {
         this.sendMessage(message, '**Something went wrong...**')
@@ -306,7 +306,7 @@ export class MusicService {
       type,
     })
 
-    const sendInfoToChannelCallback = (forQueue: MusicQueue) => {
+    const sendInfoToChannel = (forQueue: MusicQueue) => {
       const queuedSong = next ? forQueue.firstInQueue : forQueue.last
       if (!queuedSong) return
       const nowPlayingDescription = `*\`Channel\`*: **\`${
@@ -336,10 +336,10 @@ export class MusicService {
       stream.set('isPlaying', true)
       tempStatus = '♫ Now Playing ♫'
       await this.playMusic(stream)
-      sendInfoToChannelCallback(queue)
+      sendInfoToChannel(queue)
     } else {
       tempStatus = '♬ Added To QUEUE ♬'
-      sendInfoToChannelCallback(queue)
+      sendInfoToChannel(queue)
     }
   }
 
@@ -448,19 +448,6 @@ export class MusicService {
       onStreamEnd({ error })
     }
   }
-
-  // private playBroadcast(
-  //   stream: MusicStream,
-  //   input: Readable | string,
-  //   options: StreamOptions
-  // ): BroadcastDispatcher {
-
-  //   const broadcast = stream.voiceBroadcast.play(input, options)
-  //   const streamDispatcher = stream.voiceConnection.play(stream.voiceBroadcast)
-  //   stream.set('streamDispatcher', streamDispatcher)
-  //   stream.set('broadcastDispatcher', broadcast)
-  //   return broadcast
-  // }
 
   private playStream(
     stream: MusicStream,
@@ -815,7 +802,6 @@ export class MusicService {
       }
     })
     collector.on('end', (collected, reason) => {
-      console.log(reason, `<======= reason [music.service.ts - 817]`)
       if (sentContent) this.deleteMessage(sentContent)
       if (collected.size < 1) this.sendMessage(message, ':ok_hand: Action aborted.')
     })

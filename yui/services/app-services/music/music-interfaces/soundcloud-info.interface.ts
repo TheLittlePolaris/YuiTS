@@ -1,7 +1,6 @@
-export type YoutubeDLSoundcloudFormatId =
-  | 'hls_opus_64'
-  | 'hls_mp3_128'
-  | 'http_mp3_128'
+import { IYoutubeVideo } from './youtube-info.interface'
+
+export type YoutubeDLSoundcloudFormatId = 'hls_opus_64' | 'hls_mp3_128' | 'http_mp3_128'
 
 export type IYoutubeDLFormat =
   | 'http_mp3_128 - audio only'
@@ -85,3 +84,6 @@ export interface ISoundCloudSong {
   thumbnail: string // 'https://i1.sndcdn.com/artworks-000327927942-hpumgb-original.jpg',
   webpage_url_basename: string
 }
+
+export type SoundcloudInfoRecord = IYoutubeVideo | { url: string; type: string }
+export type SoundcloudGetUrlInfoType = SoundcloudInfoRecord | SoundcloudInfoRecord[]
