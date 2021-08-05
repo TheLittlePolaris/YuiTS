@@ -25,7 +25,6 @@ export class FeatureService {
     private configService: ConfigService
   ) {
     YuiLogger.info(`Created!`, LOG_SCOPE.FEATURE_SERVICE)
-
   }
 
   @FeaturePermissionValidator()
@@ -178,6 +177,6 @@ export class FeatureService {
   }
 
   private async sendMessage(message: Message, content: any): Promise<Message> {
-    return await message.channel.send(content)
+    return (await message.channel.send(content).catch((err) => YuiLogger.error(err))) as Message
   }
 }
