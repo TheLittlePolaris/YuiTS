@@ -1,9 +1,18 @@
+import { ModuleContainer } from './module'
+import { isValueInjector, isValue, isFunction } from './helpers/helper-functions'
+import { DiscordEvent } from '@/constants/discord-events'
+import { ClientEvents, Message } from 'discord.js'
+import { ConfigService } from '@/config-service/config.service'
+import { IBaseInterceptor } from './interfaces/interceptor.interface'
+import { HandleFunction } from './interfaces'
+
 import {
   Type,
   CustomValueProvider,
   CustomClassProvider,
   Provider,
-} from './interfaces/dependencies-injection.interfaces'
+  ICommandHandlerMetadata,
+} from './interfaces'
 import {
   MODULE_METADATA,
   PARAMTYPES_METADATA,
@@ -13,15 +22,7 @@ import {
   COMMAND_HANDLER,
   INTERCEPTOR_TARGET,
   MODULE_METADATA_KEY,
-} from '@/ioc-container/constants/dependencies-injection.constant'
-import { ModuleContainer } from './module'
-import { isValueInjector, isValue, isFunction } from './helpers/helper-functions'
-import { DiscordEvent } from '@/constants/discord-events'
-import { ClientEvents, Message } from 'discord.js'
-import { ICommandHandlerMetadata } from './interfaces/event-handler-dep-injection.interface'
-import { ConfigService } from '@/config-service/config.service'
-import { IBaseInterceptor } from './interfaces/interceptor.interface'
-import { HandleFunction } from './interfaces'
+} from '@/ioc-container/constants'
 
 export class ContainerFactory {
   static entryDetected = false

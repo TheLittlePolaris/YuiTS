@@ -1,6 +1,3 @@
-import { DiscordEvent } from '@/constants/discord-events'
-import { ModuleOption } from '../interfaces/dependencies-injection.interfaces'
-
 export enum MODULE_METADATA_KEY {
   MODULES = 'modules',
   PROVIDERS = 'providers',
@@ -22,9 +19,6 @@ export const COMPONENT_METADATA = {
   METHOD: 'custom_type:method',
   CLIENT: 'custom_param:client',
 }
-
-export const paramKeyConstructor = (eventName: DiscordEvent, propertyKey: string) =>
-  `event_key:${eventName}:${propertyKey}`
 
 export const INJECTABLE_METADATA = 'injectable-metadata'
 export const PARAMTYPES_METADATA = 'design:paramtypes'
@@ -53,6 +47,7 @@ export type InjectTokenName = keyof typeof GlobalInjectToken
 
 // Event handlers
 export const BOUND_EVENTS = 'self:bound_events'
+
 export const EVENT_HANDLER = 'self:event_handler'
 export const COMMAND_HANDLER = 'self:command_handler'
 export const COMMAND_HANDLER_PARAMS = 'self:command_handler:params'

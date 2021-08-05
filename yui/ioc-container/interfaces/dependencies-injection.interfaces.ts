@@ -60,4 +60,11 @@ export interface EventParamMetadata {
   propertyKey: string | symbol
   additionalParam?: string
 }
+
+export interface ICommandHandlerMetadata {
+  propertyKey: string
+  command: string
+  commandAliases?: string[]
+}
+
 /**************************************************************************************/

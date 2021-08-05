@@ -3,7 +3,6 @@ import {
   INJECTABLE_METADATA,
   DESIGN_TYPE,
   COMPONENT_METADATA,
-  paramKeyConstructor,
 } from '@/ioc-container/constants/dependencies-injection.constant'
 import {
   Type,
