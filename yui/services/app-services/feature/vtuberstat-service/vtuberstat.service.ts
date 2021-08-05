@@ -7,7 +7,6 @@ import {
   MessageEmbed,
   MessageOptions,
 } from 'discord.js'
-import { LOG_SCOPE } from '@/constants/constants'
 import { discordRichEmbedConstructor } from '@/services/app-services/utilities/discord-embed-constructor'
 import { HoloStatRequestService } from './holostat-service/holostat-request.service'
 import {
@@ -31,7 +30,7 @@ export class VtuberStatService {
     private holostatRequestService: HoloStatRequestService,
     private youtubeRequestService: YoutubeChannelService,
   ) {
-    YuiLogger.info('Created!', LOG_SCOPE.VTUBER_STAT_SERVICE)
+    YuiLogger.info('Created!', this.constructor.name)
   }
 
   public async vtuberStatSelectList({
@@ -304,7 +303,7 @@ export class VtuberStatService {
   }
 
   private handleError(error: Error | string) {
-    YuiLogger.error(error, LOG_SCOPE.HOLOSTAT_SERVICE)
+    YuiLogger.error(error, this.constructor.name)
     return null
   }
 }

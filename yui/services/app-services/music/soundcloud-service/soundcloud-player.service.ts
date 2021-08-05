@@ -1,7 +1,7 @@
 import { PassThrough, TransformOptions, Readable } from 'stream'
 import { URL } from 'url'
 import axios, { AxiosResponse } from 'axios'
-import m3u8stream, { Progress } from 'm3u8stream'
+import { default as M3U8Stream, Progress, Options as M3U8Options } from 'm3u8stream'
 import { PolarisSoundCloudService } from './soundcloud-info.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
@@ -12,19 +12,22 @@ export class PolarisSoundCloudPlayer {
 
   public async createMusicStream(
     videoUrl: string,
-    options?: TransformOptions | m3u8stream.Options
+    options?: TransformOptions | M3U8Options
   ): Promise<PassThrough> {
     if (!videoUrl) throw new Error('Undefined url')
 
     const { url, type } = await this.getDownloadLink(videoUrl)
     if (type === 'm3u8_native') {
-      return Promise.resolve(this.m3u8Stream(url, options))
+      return Promise.resolve(this.generateM3U8Stream(url, options))
     } else {
-      return this.axiosHttpStream(url, options)
+      return this.generateAxiosHttpStream(url, options)
     }
   }
 
-  async axiosHttpStream(url: string, options?: TransformOptions): Promise<PassThrough> {
+  private async generateAxiosHttpStream(
+    url: string,
+    options?: TransformOptions
+  ): Promise<PassThrough> {
     const stream = new PassThrough()
     const whatwgUrl = new URL(url)
     // fix for pause/resume downloads
@@ -34,7 +37,7 @@ export class PolarisSoundCloudPlayer {
       .get<Readable>(url, {
         headers,
         timeout: 30000,
-        onDownloadProgress: (progressEvent) => stream.emit('info', progressEvent),
+        onDownloadProgress: (progressEvent) => stream.emit('progress', progressEvent),
         responseType: 'stream',
       })
       .catch((rejectedReason) => {
@@ -68,11 +71,11 @@ export class PolarisSoundCloudPlayer {
     return stream
   }
 
-  m3u8Stream(url: string, options?: m3u8stream.Options): PassThrough {
+  private generateM3U8Stream(url: string, options?: M3U8Options): PassThrough {
     const stream: PassThrough = new PassThrough()
 
     const { highWaterMark } = options
-    const m3u8Stream = m3u8stream(url, {
+    const m3u8Stream = M3U8Stream(url, {
       parser: 'm3u8',
       chunkReadahead: 10,
       highWaterMark,
@@ -82,11 +85,8 @@ export class PolarisSoundCloudPlayer {
       },
     })
 
-    m3u8Stream.on('progress', (data: Progress) => {
-      stream.emit('progress', data)
-    })
-
-    m3u8Stream.on('error', (error) => stream.emit('error', error))
+    m3u8Stream.on('progress', (data: Progress) => stream.emit('progress', data))
+    m3u8Stream.on('error', (error: Error) => stream.emit('error', error))
 
     m3u8Stream.on('end', () => {
       stream.emit('end')

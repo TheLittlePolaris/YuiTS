@@ -3,13 +3,12 @@ import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interf
 import { BaseChannelService } from './base-channel.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { LOG_SCOPE } from '@/constants/constants'
 import { ConfigService } from '@/config-service/config.service'
 
 @Injectable()
 export class YoutubeChannelService implements BaseChannelService {
   constructor(private configService: ConfigService) {
-    YuiLogger.info(`Created!`, LOG_SCOPE.YOUTUBE_CHANNEL_SERVICE)
+    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   private youtube: youtube_v3.Youtube = google.youtube({
@@ -80,7 +79,7 @@ export class YoutubeChannelService implements BaseChannelService {
   }
 
   private handleError(error: Error | string) {
-    YuiLogger.error(error, LOG_SCOPE.YOUTUBE_CHANNEL_SERVICE)
+    YuiLogger.error(error, this.constructor.name)
     return null
   }
 }

@@ -1,9 +1,7 @@
 import 'module-alias/register'
 import 'reflect-metadata'
 
-import { LOG_SCOPE } from '@/constants/constants'
 import { ContainerFactory } from './ioc-container/container-factory'
-
 import { YuiLogger } from './services/logger/logger.service'
 import { YuiEntryModule } from './entrypoint/yui-entry.module'
 
@@ -14,11 +12,12 @@ const bootstrap = async () => {
       `Incompatible node version: You are using node version ${nodeVersion[0]}. Yui require node version >=12.00 and <13.00.`
     )
   }
-  const containerFactory = new ContainerFactory()
+  const container = new ContainerFactory()
 
-  YuiLogger.info('🔸 Yui is starting...', LOG_SCOPE.YUI_MAIN)
+  const app = await container.createRootModule(YuiEntryModule)
 
-  containerFactory.createRootModule(YuiEntryModule)
+  YuiLogger.info('🔸 Yui is starting...', 'BOOTSTRAP')
+  app.start(container.config.token)
 }
 
 bootstrap()

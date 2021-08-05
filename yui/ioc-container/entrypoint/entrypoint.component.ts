@@ -1,16 +1,7 @@
-import { YuiClient } from '@/custom-classes/yui-client'
-
+import { Client } from 'discord.js'
 export class EntrypointComponent {
-  private _bot: YuiClient
   private _token: string
-  constructor(yui: YuiClient, token: string) {
-    this._bot = yui
-    this._token = token
-  }
-
-  public async start() {
-    return this._bot.login(this._token)
-  }
+  constructor(private _bot: Client) {}
 
   public get token() {
     return this._token
@@ -18,5 +9,10 @@ export class EntrypointComponent {
 
   public get client() {
     return this._bot
+  }
+
+  public async start(botToken: string) {
+    this._token = botToken
+    this._bot.login(this._token)
   }
 }

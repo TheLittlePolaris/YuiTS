@@ -1,6 +1,5 @@
 import Queue from 'bull'
 import Axios from 'axios'
-import { LOG_SCOPE } from '@/constants/constants'
 import {
   FeaturePermissionValidator,
   FeatureParam,
@@ -24,7 +23,7 @@ export class FeatureService {
     private vtuberStatService: VtuberStatService,
     private configService: ConfigService
   ) {
-    YuiLogger.info(`Created!`, LOG_SCOPE.FEATURE_SERVICE)
+    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   @FeaturePermissionValidator()

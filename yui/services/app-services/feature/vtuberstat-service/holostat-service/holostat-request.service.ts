@@ -4,7 +4,6 @@ import { BaseRequestService } from '../channel-service/base-request.service'
 import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { LOG_SCOPE } from '@/constants/constants'
 
 @Injectable()
 export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REGION> {
@@ -17,7 +16,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
   constructor(
     private youtubeChannelService: YoutubeChannelService
   ) {
-    YuiLogger.info('Created!', LOG_SCOPE.HOLOSTAT_REQUEST_SERVICE)
+    YuiLogger.info('Created!', this.constructor.name)
   }
 
   public async getChannelList(region: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
@@ -55,7 +54,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
   }
 
   private handleError(error: Error | string) {
-    YuiLogger.error(error, LOG_SCOPE.HOLOSTAT_REQUEST_SERVICE)
+    YuiLogger.error(error, this.constructor.name)
     return null
   }
 }

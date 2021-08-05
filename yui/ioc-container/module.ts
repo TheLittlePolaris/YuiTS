@@ -1,6 +1,5 @@
-import { YuiCore } from '@/entrypoint/yui-core.entrypoint'
 import { Collection } from 'discord.js'
-import { CustomValueProvider, EntryComponent, Provider, Type } from './interfaces/di-interfaces'
+import { EntryComponent, Provider, Type } from './interfaces/di-interfaces'
 
 export type EntryInstance<T extends Type<any>> = InstanceType<T>
 
@@ -9,7 +8,7 @@ export class ModuleContainer {
   private _providers: Collection<string, Provider<any>> = new Collection<string, any>()
   private _interceptors: Collection<string, InstanceType<Type<any>>> = new Collection<string, InstanceType<Type<any>>>()
   private _instances: Collection<string, InstanceType<any>> = new Collection<string,  InstanceType<any>>()
-  private _entryComponent: Type<any> = null
+  private _entryComponent: Type<EntryComponent> = null
 
   public get providers() {
     return this._providers
@@ -30,7 +29,7 @@ export class ModuleContainer {
   public setEntryComponent(component: Type<EntryComponent>) {
     this._entryComponent = component
   }
-  public get entryInstance(): EntryInstance<Type<YuiCore>> {
+  public get entryInstance(): EntryInstance<Type<EntryComponent>> {
     return this._instances.get(this.entryComponent.name)
   }
 

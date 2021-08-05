@@ -1,4 +1,4 @@
-import { Constants, LOG_SCOPE } from '@/constants/constants'
+import { Constants } from '@/constants/constants'
 import { AccessController, MusicParam } from '@/ioc-container/decorators/music.decorator'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import {
@@ -51,7 +51,7 @@ export class MusicService {
     public configService: ConfigService,
     public streams: GlobalMusicStream
   ) {
-    YuiLogger.info(`Created!`, LOG_SCOPE.MUSIC_SERVICE)
+    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   private async createStream(message: Message): Promise<MusicStream | null> {
@@ -393,8 +393,9 @@ export class MusicService {
       if (!isLooping && deleteTrigger) deleteTrigger(200)
 
       const endedSong = queue.first
-      if (!stream.isLooping) queue.removeFirst()
-      else if (isQueueLooping) queue.addSong(queue.removeFirst())
+
+      if (isQueueLooping) queue.addSong(queue.removeFirst())
+      else if (!isLooping) queue.removeFirst()
 
       if (queue.isEmpty) {
         if (!isAutoPlaying) return this.resetStreamStatus(stream)
@@ -481,21 +482,21 @@ export class MusicService {
         return this.sendMessage(message, ' :fast_forward: **Skipped!**')
       }
     } else {
-      const firstParam = +firstArg
-      if (!Number.isNaN(firstParam)) {
-        if (firstParam < 0 || firstParam > stream.queue.length)
+      const removeLength = +firstArg
+      if (!Number.isNaN(removeLength)) {
+        if (removeLength < 0 || removeLength > stream.queue.length)
           return this.sendMessage(
             message,
             '**The number you gave is bigger than the current queue!**'
           )
 
-        stream.queue.removeSongs(1, firstParam)
+        stream.queue.removeSongs(1, removeLength)
 
         if (stream.isLooping) stream.set('isLooping', false)
 
         if (stream.streamDispatcher) {
           stream.streamDispatcher.end()
-          return this.sendMessage(message, ` :fast_forward: **Skipped ${firstParam} songs!**`)
+          return this.sendMessage(message, ` :fast_forward: **Skipped ${removeLength} songs!**`)
         }
       }
     }
@@ -625,74 +626,84 @@ export class MusicService {
     await this.sendMessage(message, embed)
   }
 
+  printQueue(message: Message, args: Array<string>, ...otherArgs)
   @AccessController()
   public async printQueue(
     message: Message,
     args: Array<string>,
-    @MusicParam('STREAM') stream?: MusicStream
-  ): Promise<void> {
+    @MusicParam('STREAM') stream: MusicStream
+  ) {
     // stream = stream!
     if (stream?.queue?.isEmpty) {
-      this.sendMessage(message, `**Nothing in queue!**`)
-      return
+      return this.sendMessage(message, `**Nothing in queue!**`)
     }
     const songsInQueue = stream.queue.length - 1 // exclude now playing
     const limit = 10
     const tabs = Math.ceil(songsInQueue / limit) || 1
-    const firstArg = (args.length && Number(args.shift().toLowerCase())) || 1
-    if (firstArg > tabs) {
-      this.sendMessage(
+    const { [0]: firstArg = '1' } = args || ['1']
+
+    const selectedTabNumber = isNaN(+firstArg) ? 1 : +firstArg
+
+    if (selectedTabNumber > tabs) {
+      return this.sendMessage(
         message,
         'Index out of range! Please choose a valid one, use `>queue` for checking.'
       )
-      return
     }
-    if (firstArg === 1) {
+    if (+firstArg === 1) {
       const nowPlaying = stream.queue.first
-      let data = `**__NOW PLAYING:__\n\`🎶\`${nowPlaying.title}\`🎶\`** - \`(${await timeConverter(
-        nowPlaying.duration
-      )})\`\n*Requested by \`${nowPlaying.requester}\`*\n\n`
-      const start = 1
-      const end = songsInQueue <= 10 ? songsInQueue : limit
+
+      const queueHeader = `**__NOW PLAYING:__\n\`🎶\`${
+        nowPlaying.title
+      }\`🎶\`** - \`(${timeConverter(nowPlaying.duration)})\`\n*Requested by \`${
+        nowPlaying.requester
+      }\`*\n\n`
+
+      let queueBody = ''
+      const queueList = printQueueList(stream.queue, 1, songsInQueue <= 10 ? songsInQueue : limit)
+      const queueLength = this.getQueueLength(stream)
       if (songsInQueue > 1) {
-        data += `**__QUEUE LIST:__**\n
-          ${await printQueueList(stream.queue, start, end)}
+        queueBody += `**__QUEUE LIST:__**\n
+          ${queueList}
           ${songsInQueue > 11 ? `\`And another ${songsInQueue - limit - 1} songs.\`` : ``}\n`
       }
-      data += `**${stream.name}'s** total queue duration: \`${await this.getQueueLength(
-        stream
-      )}\` -- Tab: \`1/${tabs}\``
+
+      const queueFooter = `**${stream.name}'s** total queue duration: \`${queueLength}\` -- Tab: \`1/${tabs}\``
+
       this.sendMessage(
         message,
-        await discordRichEmbedConstructor({
-          description: data,
+        discordRichEmbedConstructor({
+          description: queueHeader + queueBody + queueFooter,
         })
       )
     } else {
-      const startPosition = (firstArg - 1) * limit + 1
+      const startPosition = (selectedTabNumber - 1) * limit + 1
       const endPos = startPosition + limit - 1
       const endPosition = endPos > songsInQueue ? songsInQueue : endPos
-      const data = `**__QUEUE LIST:__**\n${await printQueueList(
-        stream.queue,
-        startPosition,
-        endPosition
-      )}**${stream.name}'s** total queue duration: \`${await this.getQueueLength(
+
+      const queueList = printQueueList(stream.queue, startPosition, endPosition)
+
+      const queueBody = `**__QUEUE LIST:__**\n${queueList}**${
+        stream.name
+      }'s** total queue duration: \`${this.getQueueLength(
         stream
-      )}\` -- Tab: \`${firstArg}/${tabs}\``
+      )}\` -- Tab: \`${selectedTabNumber}/${tabs}\``
+
       this.sendMessage(
         message,
-        await discordRichEmbedConstructor({
-          description: data,
+        discordRichEmbedConstructor({
+          description: queueBody,
         })
       )
     }
   }
 
-  private async getQueueLength(stream: MusicStream): Promise<string | number> {
+  private getQueueLength(stream: MusicStream): string | number {
     if (stream.isLooping) return STREAM_STATUS.LOOPING
     if (stream.isQueueLooping) return STREAM_STATUS.QUEUE_LOOPING
-    return await timeConverter(await stream.queue.totalDuration)
+    return timeConverter(stream.queue.totalDuration)
   }
+
   public async removeSongs(message: Message, args: Array<string>, ...otherArgs)
   @AccessController()
   public async removeSongs(

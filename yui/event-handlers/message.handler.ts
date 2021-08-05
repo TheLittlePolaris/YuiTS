@@ -1,4 +1,3 @@
-import { LOG_SCOPE } from '@/constants/constants'
 import { Message, TextChannel } from 'discord.js'
 import { AdministrationService } from '../services/app-services/administration/administration.service'
 import { FeatureService } from '../services/app-services/feature/feature.service'
@@ -155,7 +154,7 @@ export class TextMessageHandler {
   }
 
   handleError(error: Error | string): null {
-    YuiLogger.error(error, LOG_SCOPE.MESSAGE_HANDLER)
+    YuiLogger.error(error, this.constructor.name)
     return null
   }
 }

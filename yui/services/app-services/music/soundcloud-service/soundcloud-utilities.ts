@@ -2,7 +2,8 @@ export const isSoundCloudUrl = (url: string): boolean =>
   /^(https:\/\/)?(soundcloud\.com)\//g.test(url)
 
 export const isSoundCloudSongUrl = (url: string): boolean => {
-  const scSongRegexp = /^(https:\/\/)?(soundcloud\.com)\/(?!you|discover|stations|stream)([a-zA-Z0-9-_]+)\/(?!sets|popular-tracks|tracks|albums|reposts|likes)([a-zA-Z0-9-_]+$)/g
+  const scSongRegexp =
+    /^(https:\/\/)?(soundcloud\.com)\/(?!you|discover|stations|stream)([a-zA-Z0-9-_]+)\/(?!sets|popular-tracks|tracks|albums|reposts|likes)([a-zA-Z0-9-_]+$)/g
   return scSongRegexp.test(url)
 }
 
@@ -13,6 +14,7 @@ export const isSoundCloudSongUrl = (url: string): boolean => {
  * 4) https://soundcloud.com/polaris-nguyen/likes
  */
 export const isSoundCloudPlaylistUrl = (url: string): boolean => {
-  const scPlaylistRegexp = /^(https:\/\/)?(soundcloud\.com)\/(?!discover|you|stations|stream)([a-zA-Z0-9-_]+)(\/)?((sets\/[a-zA-Z0-9-_]+)|(popular-tracks|tracks|reposts)|(likes)?)?$/g
+  const scPlaylistRegexp =
+    /^(https:\/\/)?(soundcloud\.com)\/(?!discover|you|stations|stream)([a-zA-Z0-9-_]+)(\/)?((sets\/[a-zA-Z0-9-_]+)|(popular-tracks|tracks|reposts|likes))?$/g
   return scPlaylistRegexp.test(url)
 }

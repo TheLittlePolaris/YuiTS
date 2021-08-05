@@ -3,9 +3,7 @@ import {
   SoundcloudGetUrlInfoType,
   SoundcloudInfoRecord,
 } from '../music-interfaces/soundcloud-info.interface'
-import { IYoutubeVideo } from '../music-interfaces/youtube-info.interface'
-import { spawnSync, SpawnSyncOptions, spawn } from 'child_process'
-import { LOG_SCOPE } from '@/constants/constants'
+import { spawn } from 'child_process'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
 

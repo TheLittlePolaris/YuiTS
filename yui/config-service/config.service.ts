@@ -1,5 +1,4 @@
 import { config } from 'dotenv'
-import { LOG_SCOPE } from '@/constants/constants'
 import { existsSync } from 'fs'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
@@ -19,7 +18,7 @@ export class ConfigService {
     nodeEnv &&
       YuiLogger.info(
         `Using ${nodeEnv?.toUpperCase() || 'DEVELOPMENT'} environment`,
-        LOG_SCOPE.CONFIG_SERVICE
+        this.constructor.name
       )
     this.envConfig = config({ path }).parsed
     const { error } = this.envConfig
@@ -27,7 +26,7 @@ export class ConfigService {
       throw new Error(`Fatal: CANNOT READ CONFIG ENVIRONMENT: ${error}`)
     }
 
-    YuiLogger.info(`Created!`, LOG_SCOPE.CONFIG_SERVICE)
+    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   public get token(): string {
@@ -71,6 +70,10 @@ export class ConfigService {
   }
 
   public get redisConfig(): RedisOptions {
-    return { host: this.envConfig['REDIS_HOST'], port: +this.envConfig['REDIS_PORT'] }
+    return {
+      host: this.envConfig['REDIS_HOST'],
+      port: +this.envConfig['REDIS_PORT'],
+      retryStrategy: (times = 5) => Math.min(times * 1000, 5000),
+    }
   }
 }

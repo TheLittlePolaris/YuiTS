@@ -84,11 +84,6 @@ export class MusicQueue {
    * @returns {number} Total duration of the queue
    */
   public get totalDuration(): number {
-    // return new Promise(async (resolve, _) => {
-    //   let totalTime = 0
-    //   await Promise.all(this.songs.map((song) => (totalTime += song.duration)))
-    //   resolve(totalTime)
-    // })
     const value = this.songs.reduce(
       (acc: number, curr: ISong) => (acc += curr.duration),
       0

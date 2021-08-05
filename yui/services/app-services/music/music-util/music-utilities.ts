@@ -30,16 +30,13 @@ export function createProgressBar(currentProgress: number, total: number): strin
   return `${temp.substr(0, index)}⦿${temp.substr(index + 1)}`
 }
 
-export function printQueueList(queue: MusicQueue, start: number, end: number): Promise<string> {
-  // eslint-disable-next-line no-async-promise-executor
-  return new Promise<string>(async (resolve, _) => {
-    let result = ''
-    for (let i = start; i <= end; i++) {
-      const song = queue.at(i)
-      result += `#${i}: **${song.title}** - \`(${await timeConverter(
-        song.duration
-      )})\`\n*Requested by \`${song.requester}\`*\n\n`
-    }
-    resolve(result)
-  })
+export function printQueueList(queue: MusicQueue, start: number, end: number): string {
+  let result = ''
+  for (let i = start; i <= end; i++) {
+    const song = queue.at(i)
+    result += `#${i}: **${song.title}** - \`(${timeConverter(song.duration)})\`\n*Requested by \`${
+      song.requester
+    }\`*\n\n`
+  }
+  return result
 }

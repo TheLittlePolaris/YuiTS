@@ -17,23 +17,22 @@ import {
 import { ModuleContainer } from './module'
 import { isValueInjector, isValue, isFunction } from './helpers/helper-functions'
 import { DiscordEvent } from '@/constants/discord-events'
-import { YuiLogger } from '@/services/logger/logger.service'
 import { ClientEvents, Message } from 'discord.js'
 import { ICommandHandlerMetadata } from './interfaces/di-command-handler.interface'
 import { ConfigService } from '@/config-service/config.service'
 import { IBaseInterceptor } from './interfaces/interceptor.interface'
 
-type CommandHandler = {
+type HandleFunction = {
   [command: string]: (originalArgument: ClientEvents[DiscordEvent]) => Promise<any>
 }
 
 export class ContainerFactory {
   static entryDetected = false
   private container = new ModuleContainer()
-  private configService: ConfigService
+  public config: ConfigService
 
   private eventHandlers: {
-    [key in DiscordEvent]?: CommandHandler
+    [key in DiscordEvent]?: HandleFunction
   } = {}
 
   async createRootModule(moduleMetadata: Type<any>) {
@@ -42,23 +41,26 @@ export class ContainerFactory {
      * IMPORTANT:
      *  - Required the entry component to extends EntryComponent class
      */
-    const { entryInstance, entryComponent } = this.container
+    const { entryInstance } = this.container
 
-    const { client } = entryInstance
-    const boundEvents = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryComponent) || {}
+    const boundEvents =
+      Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryInstance['constructor']) || {}
     const { length: hasEvents, ...events } = Object.keys(boundEvents)
     if (hasEvents) {
       events.forEach((eventKey: DiscordEvent) =>
-        client.addListener(eventKey, (...args) => entryInstance[boundEvents[eventKey]](...args))
+        entryInstance.client.addListener(eventKey, (...args) =>
+          entryInstance[boundEvents[eventKey]](...args)
+        )
       )
     }
 
     Object.keys(this.eventHandlers).map((handler: DiscordEvent) =>
-      client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
+      entryInstance.client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
         this.getHandlerForEvent(handler, args)
       )
     )
-    await entryInstance.start()
+
+    return entryInstance
   }
 
   async compileModule<T = any>(module: Type<T>) {
@@ -97,7 +99,7 @@ export class ContainerFactory {
       this.container.setValueProvider(module, provider)
     } else if (provider.useFactory) {
       const { provide, useFactory } = provider
-      const useValue = (isFunction(useFactory) && (await useFactory(this.configService))) || null
+      const useValue = (isFunction(useFactory) && (await useFactory(this.config))) || null
       this.container.setValueProvider(module, <Provider>{ provide, useValue })
     } else if (provider.useClass) {
       const { useClass, provide } = provider
@@ -122,8 +124,8 @@ export class ContainerFactory {
     if (eventHandler) {
       this.defineHandler(eventHandler, target, newInstance)
     }
-    if (!this.configService && target.name === ConfigService.name) {
-      this.configService = newInstance as unknown as ConfigService
+    if (!this.config && target.name === ConfigService.name) {
+      this.config = newInstance as unknown as ConfigService
     }
 
     return newInstance
@@ -173,14 +175,10 @@ export class ContainerFactory {
       // bind: passive when go through interceptor, active when call directly
       const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) => {
         return bind
-          ? (handleInstance[propertyKey] as Function).bind(
-              handleInstance,
-              _eventArgs,
-              this.configService
-            )
+          ? (handleInstance[propertyKey] as Function).bind(handleInstance, _eventArgs, this.config)
           : (handleInstance[propertyKey] as Function).apply(handleInstance, [
               _eventArgs,
-              this.configService,
+              this.config,
             ])
       }
       return interceptorInstance
@@ -190,7 +188,7 @@ export class ContainerFactory {
     }
 
     const commandHandlers = commandHandlersMetadata.reduce(
-      (acc: CommandHandler, { command, propertyKey, commandAliases }) => {
+      (acc: HandleFunction, { command, propertyKey, commandAliases }) => {
         const commandFn = compileCommand(propertyKey)
         const compiled = [command, ...(commandAliases || [])].reduce(
           (accAliases, curr) => ({ ...accAliases, [curr]: commandFn }),
@@ -224,8 +222,8 @@ export class ContainerFactory {
           author: { bot },
           content,
         } = args[0] as Message
-        if (!content.startsWith(this.configService.prefix) || bot) return false
-        return content.replace(this.configService.prefix, '').trim().split(/ +/g)[0]
+        if (!content.startsWith(this.config.prefix) || bot) return false
+        return content.replace(this.config.prefix, '').trim().split(/ +/g)[0]
       }
 
       default:

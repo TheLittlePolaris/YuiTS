@@ -6,7 +6,6 @@ import {
   CommandValidator,
   AdminPermissionValidator,
 } from '@/ioc-container/decorators/permission.decorator'
-import { LOG_SCOPE } from '@/constants/constants'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { ConfigService } from '@/config-service/config.service'
@@ -19,7 +18,7 @@ export class AdministrationService {
     public configService: ConfigService,
     public yui: YuiClient
   ) {
-    YuiLogger.info(`Created!`, LOG_SCOPE.ADMIN_SERVICE)
+    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   public async executeCommand(message: Message, args: string[], ..._args)
@@ -41,7 +40,7 @@ export class AdministrationService {
   }
 
   private handleError(error: Error | string): null {
-    YuiLogger.error(error, LOG_SCOPE.ADMIN_SERVICE)
+    YuiLogger.error(error, this.constructor.name)
     return null
   }
 }

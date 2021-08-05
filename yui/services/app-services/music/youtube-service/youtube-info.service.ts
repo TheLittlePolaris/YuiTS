@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { YoutubeRequestService } from './youtube-request.service'
 import { IYoutubePlaylistResult, IYoutubeVideo, IYoutubeSearchResult } from '../music-interfaces/youtube-info.interface'
-import { LOG_SCOPE } from '@/constants/constants'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()
 export class YoutubeInfoService {
   constructor(private youtubeRequestService: YoutubeRequestService) {
-    YuiLogger.info(`Created!`, LOG_SCOPE.YOUTUBE_INFO_SERVICE)
+    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   public getYoutubePlaylistId(query: string) {
@@ -103,7 +102,7 @@ export class YoutubeInfoService {
   }
 
   handleError(error: string | Error): null {
-    YuiLogger.error(error, LOG_SCOPE.YOUTUBE_INFO_SERVICE)
+    YuiLogger.error(error, this.constructor.name)
     return null
   }
 }

@@ -44,7 +44,7 @@ export interface ModuleOption {
 }
 
 export interface EntryComponent {
-  start: (...args: any) => void | Promise<void>
+  start: (token: string) => void | Promise<void>
   client: Client
 }
 

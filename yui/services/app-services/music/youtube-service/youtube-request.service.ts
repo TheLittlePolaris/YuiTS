@@ -5,7 +5,6 @@ import {
   IYoutubeVideosResult,
   IYoutubePlaylistResult,
 } from '../music-interfaces/youtube-info.interface'
-import { LOG_SCOPE } from '@/constants/constants'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ConfigService } from '@/config-service/config.service'
@@ -69,7 +68,7 @@ export class YoutubeRequestService {
   }
 
   handleRequestErrors(error: string): null {
-    YuiLogger.error(error, LOG_SCOPE.YOUTUBE_REQUEST_SERVICE)
+    YuiLogger.error(error, this.constructor.name)
     return null
   }
 }

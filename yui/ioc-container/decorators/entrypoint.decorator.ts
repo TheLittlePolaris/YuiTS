@@ -34,18 +34,3 @@ export const On = (event: DiscordEvent): MethodDecorator => {
     Reflect.defineMetadata(COMPONENT_METADATA.EVENT_LIST, eventList, target.constructor)
   }
 }
-
-export const EventVoiceState = (additionalParam: 'old' | 'new'): ParameterDecorator => {
-  return (target: Prototype, propertyKey: string, index: number) => {
-    const metadataKey = paramKeyConstructor('voiceStateUpdate', propertyKey)
-    let paramList = Reflect.getMetadata(metadataKey, target) || []
-    const paramMetadata: EventParamMetadata = {
-      event: 'voiceStateUpdate',
-      propertyKey,
-      index,
-      additionalParam,
-    }
-    paramList = [paramMetadata, ...paramList]
-    Reflect.defineMetadata(metadataKey, paramList, target)
-  }
-}

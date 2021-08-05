@@ -4,14 +4,13 @@ import {
   AdminCommandValidator,
   AdminParam,
 } from '@/ioc-container/decorators/admin-action.decorator'
-import { LOG_SCOPE } from '@/constants/constants'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 
 @Injectable()
 export class AdminCommandComponent {
   constructor() {
-    YuiLogger.info(`Created!`, LOG_SCOPE.ADMIN_ACTION_COMMAND)
+    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   async kick(message: Message, args: Array<string>, ...otherArgs)
@@ -189,7 +188,7 @@ export class AdminCommandComponent {
   }
 
   handleError(error: Error | string): null {
-    YuiLogger.error(error, LOG_SCOPE.ADMIN_ACTION_COMMAND)
+    YuiLogger.error(error, this.constructor.name)
     return null
   }
 }
