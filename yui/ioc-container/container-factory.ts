@@ -109,51 +109,57 @@ export class ContainerFactory {
   /**
    * Find the instance for injection, if exists then inject it, if not create it and store it
    */
-  compileComponent<T = any>(target: Type<T>, module: Type<T>): T {
-    const createdInstance = this.container.getInstance<T>(target)
+  compileComponent(target: Type<any>, module: Type<any>) {
+    if (isValue(target)) return
+
+    const createdInstance = this.container.getInstance(target)
     if (createdInstance) return createdInstance
 
-    const injections = this.loadInjections(module, target)
-    const newInstance: T = Reflect.construct(target, injections)
-    if (isValue(target)) return
-    this.container.addInstance(target, newInstance)
+    const injections = this.loadInjectionsForTarget(module, target)
+    const compiledInstance = Reflect.construct(target, injections)
+
+    this.container.addInstance(target, compiledInstance)
+
+    if (isFunction(compiledInstance.onComponentInit)) compiledInstance.onComponentInit()
 
     const eventHandler = Reflect.getMetadata(EVENT_HANDLER, target)
     if (eventHandler) {
-      this.defineHandler(eventHandler, target, newInstance)
-    }
-    if (!this.configService && target.name === ConfigService.name) {
-      this.configService = newInstance as unknown as ConfigService
+      this.defineHandler(eventHandler, target, compiledInstance)
     }
 
-    return newInstance
+    if (!this.configService && target.name === 'ConfigService') {
+      this.configService = compiledInstance as ConfigService
+    }
+
+    return compiledInstance
   }
 
-  compileInterceptor<T = any>(interceptorTarget: Type<T>, module: Type<T>): T {
-    const interceptor = this.container.getInterceptorInstance<T>(interceptorTarget.name)
+  compileInterceptor(interceptorTarget: Type<any>, module: Type<any>) {
+    if (isValue(interceptorTarget)) return
+    const interceptor = this.container.getInterceptorInstance(interceptorTarget.name)
     if (interceptor) return interceptor
 
-    const injections = this.loadInjections(module, interceptorTarget)
-    const newInterceptor: T = Reflect.construct(interceptorTarget, injections)
-    if (isValue(interceptorTarget)) return
+    const injections = this.loadInjectionsForTarget(module, interceptorTarget)
+    const newInterceptor = Reflect.construct(interceptorTarget, injections)
     this.container.addInterceptor(interceptorTarget, newInterceptor)
 
     return newInterceptor
   }
 
-  private loadInjections<T>(module: Type<T>, target: Type<T>) {
-    const tokens: Type<T>[] = Reflect.getMetadata(PARAMTYPES_METADATA, target) || []
+  private loadInjectionsForTarget(module: Type<any>, target: Type<any>) {
+    const tokens: Type<any>[] = Reflect.getMetadata(PARAMTYPES_METADATA, target) || []
     const customTokens: { [paramIndex: string]: /* param name */ string } =
       Reflect.getMetadata(SELF_DECLARED_DEPS_METADATA, target) || []
 
-    return tokens.map((token: Type<T>, paramIndex: number) => {
+    return tokens.map((token: Type<any>, paramIndex: number) => {
       if (customTokens && customTokens[paramIndex]) {
         // module-based value provider
         const customToken = this.container.getProvider(module, customTokens[paramIndex])
 
         /* TODO: class provider */
-        if (isValueInjector(customToken)) return (customToken as CustomValueProvider<T>).useValue
-        else return this.compileComponent((customToken as CustomClassProvider<T>).useClass, module)
+        if (isValueInjector(customToken)) return (customToken as CustomValueProvider<any>).useValue
+        else
+          return this.compileComponent((customToken as CustomClassProvider<any>).useClass, module)
       }
       const created = this.container.getInstance(token)
       if (created) return created
@@ -161,7 +167,7 @@ export class ContainerFactory {
     })
   }
 
-  private defineHandler<T>(onEvent: DiscordEvent, target: Type<T>, handleInstance: T) {
+  private defineHandler(onEvent: DiscordEvent, target: Type<any>, handleInstance: any) {
     const commandHandlersMetadata: ICommandHandlerMetadata[] =
       Reflect.getMetadata(COMMAND_HANDLER, target) || []
 

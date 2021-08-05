@@ -48,6 +48,10 @@ export interface EntryComponent {
   client: Client
 }
 
+export interface OnComponentInit {
+  onComponentInit: () => any
+}
+
 export interface IEvent {
   eventName: DiscordEvent
   propertyKey: string

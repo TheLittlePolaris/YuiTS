@@ -12,20 +12,24 @@ interface EnvConfig {
 export class ConfigService {
   public envConfig: EnvConfig
   constructor() {
+    
     const nodeEnv = process.env.NODE_ENV
-    const filePath = `.env${(nodeEnv && `.${nodeEnv}`) || ``}`
-    const path = existsSync(filePath) ? filePath : `.env`
-    nodeEnv &&
+    if (nodeEnv)
       YuiLogger.info(
         `Using ${nodeEnv?.toUpperCase() || 'DEVELOPMENT'} environment`,
         this.constructor.name
       )
-    this.envConfig = config({ path }).parsed
-    const { error } = this.envConfig
+    else YuiLogger.info('NODE_ENV not detected, using default')
+
+    const filePath = `.env${(nodeEnv && `.${nodeEnv}`) || ``}`
+    const path = existsSync(filePath) ? filePath : `.env`
+    const dotEnvConfig = config({ path })
+    const { error, parsed } = dotEnvConfig || {}
+
     if (error) {
       throw new Error(`Fatal: CANNOT READ CONFIG ENVIRONMENT: ${error}`)
     }
-
+    this.envConfig = parsed
     YuiLogger.info(`Created!`, this.constructor.name)
   }
 
