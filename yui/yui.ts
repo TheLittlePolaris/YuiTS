@@ -17,7 +17,7 @@ const bootstrap = async () => {
   const app = await container.createRootModule(YuiEntryModule)
 
   YuiLogger.info('🔸 Yui is starting...', 'BOOTSTRAP')
-  app.start(container.config.token)
+  app.start(container.configService.token)
 }
 
 bootstrap()

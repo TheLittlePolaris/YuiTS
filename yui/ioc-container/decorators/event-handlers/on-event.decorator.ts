@@ -1,5 +1,5 @@
 import { EVENT_HANDLER } from "@/ioc-container/constants/di-connstants"
-import { Type } from "@/ioc-container/interfaces/di-interfaces"
+import { Type } from "@/ioc-container/interfaces/dependencies-injection.interfaces"
 import { ClientEvents } from "discord.js"
 
 export function OnEvent(event: keyof ClientEvents) {

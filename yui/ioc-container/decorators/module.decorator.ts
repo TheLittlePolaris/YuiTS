@@ -1,6 +1,6 @@
 import { MODULE_METADATA } from "../constants/di-connstants"
 import { ContainerFactory } from "../container-factory"
-import { GenericClassDecorator, ModuleOption, Type } from "../interfaces/di-interfaces"
+import { GenericClassDecorator, ModuleOption, Type } from "../interfaces/dependencies-injection.interfaces"
 
 
 

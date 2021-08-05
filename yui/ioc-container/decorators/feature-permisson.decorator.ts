@@ -5,8 +5,7 @@ import {
 import {
 
   Prototype,
-} from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/ioc-container/log/logger'
+} from '../interfaces/dependencies-injection.interfaces'
 import { FeatureService } from '@/services/app-services/feature/feature.service'
 
 export enum FEATURE_PROPERTY_PARAMS {
@@ -23,7 +22,6 @@ export type FEATURE_PARAM_KEY = keyof typeof FEATURE_PROPERTY_PARAMS
 
 export function FeaturePermissionValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    // decoratorLogger(target.constructor.name, 'FeaturePermissionValidator', propertyKey)
 
     const originalDescriptor: Function = descriptor.value
     descriptor.value = async function (this: FeatureService, message: Message, params: string[], ...args: any[]) {

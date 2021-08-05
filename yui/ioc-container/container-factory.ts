@@ -3,7 +3,7 @@ import {
   CustomValueProvider,
   CustomClassProvider,
   Provider,
-} from './interfaces/di-interfaces'
+} from './interfaces/dependencies-injection.interfaces'
 import {
   MODULE_METADATA,
   PARAMTYPES_METADATA,
@@ -18,18 +18,15 @@ import { ModuleContainer } from './module'
 import { isValueInjector, isValue, isFunction } from './helpers/helper-functions'
 import { DiscordEvent } from '@/constants/discord-events'
 import { ClientEvents, Message } from 'discord.js'
-import { ICommandHandlerMetadata } from './interfaces/di-command-handler.interface'
+import { ICommandHandlerMetadata } from './interfaces/event-handler-dep-injection.interface'
 import { ConfigService } from '@/config-service/config.service'
 import { IBaseInterceptor } from './interfaces/interceptor.interface'
-
-type HandleFunction = {
-  [command: string]: (originalArgument: ClientEvents[DiscordEvent]) => Promise<any>
-}
+import { HandleFunction } from './interfaces'
 
 export class ContainerFactory {
   static entryDetected = false
   private container = new ModuleContainer()
-  public config: ConfigService
+  public configService: ConfigService
 
   private eventHandlers: {
     [key in DiscordEvent]?: HandleFunction
@@ -99,7 +96,7 @@ export class ContainerFactory {
       this.container.setValueProvider(module, provider)
     } else if (provider.useFactory) {
       const { provide, useFactory } = provider
-      const useValue = (isFunction(useFactory) && (await useFactory(this.config))) || null
+      const useValue = (isFunction(useFactory) && (await useFactory(this.configService))) || null
       this.container.setValueProvider(module, <Provider>{ provide, useValue })
     } else if (provider.useClass) {
       const { useClass, provide } = provider
@@ -124,8 +121,8 @@ export class ContainerFactory {
     if (eventHandler) {
       this.defineHandler(eventHandler, target, newInstance)
     }
-    if (!this.config && target.name === ConfigService.name) {
-      this.config = newInstance as unknown as ConfigService
+    if (!this.configService && target.name === ConfigService.name) {
+      this.configService = newInstance as unknown as ConfigService
     }
 
     return newInstance
@@ -175,10 +172,14 @@ export class ContainerFactory {
       // bind: passive when go through interceptor, active when call directly
       const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) => {
         return bind
-          ? (handleInstance[propertyKey] as Function).bind(handleInstance, _eventArgs, this.config)
+          ? (handleInstance[propertyKey] as Function).bind(
+              handleInstance,
+              _eventArgs,
+              this.configService
+            )
           : (handleInstance[propertyKey] as Function).apply(handleInstance, [
               _eventArgs,
-              this.config,
+              this.configService,
             ])
       }
       return interceptorInstance
@@ -222,8 +223,8 @@ export class ContainerFactory {
           author: { bot },
           content,
         } = args[0] as Message
-        if (!content.startsWith(this.config.prefix) || bot) return false
-        return content.replace(this.config.prefix, '').trim().split(/ +/g)[0]
+        if (!content.startsWith(this.configService.prefix) || bot) return false
+        return content.replace(this.configService.prefix, '').trim().split(/ +/g)[0]
       }
 
       default:

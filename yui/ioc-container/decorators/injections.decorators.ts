@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { isUndefined, isFunction } from '../helpers/helper-functions'
-import { GenericClassDecorator, Type } from '../interfaces/di-interfaces'
+import { GenericClassDecorator, Type } from '../interfaces/dependencies-injection.interfaces'
 import {
   SELF_DECLARED_DEPS_METADATA,
   PROPERTY_DEPS_METADATA,
@@ -33,6 +33,5 @@ export const Inject = (token: InjectTokenName) => {
 export function Injectable<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<any>) => {
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
-    // decoratorLogger(target.name, 'Class')
   }
 }

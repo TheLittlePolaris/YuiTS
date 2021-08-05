@@ -3,8 +3,7 @@ import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/services/app-services/administration/admin-interfaces/administration.interface'
-import { Prototype } from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/ioc-container/log/logger'
+import { Prototype } from '../interfaces/dependencies-injection.interfaces'
 import { AdministrationService } from '@/services/app-services/administration/administration.service'
 
 enum REFLECT_PERMISSION_SYMBOLS {
@@ -17,7 +16,6 @@ const REFLECT_PERMISSION_KEYS = {
 
 export function AdminPermissionValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    // decoratorLogger(target.constructor.name, 'AdminPermissionValidator', propertyKey)
     const originalDescriptor = descriptor.value
 
     descriptor.value = async function (this: AdministrationService, ..._args: any[]) {
@@ -104,7 +102,6 @@ export function AdminPermissionValidator() {
 
 export function CommandValidator() {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    // decoratorLogger(target.constructor.name, 'CommandValidator', propertyKey)
     const originalDescriptor = descriptor.value
     descriptor.value = function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]

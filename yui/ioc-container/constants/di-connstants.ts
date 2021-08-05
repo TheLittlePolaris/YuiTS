@@ -1,5 +1,5 @@
 import { DiscordEvent } from '@/constants/discord-events'
-import { ModuleOption } from '../interfaces/di-interfaces'
+import { ModuleOption } from '../interfaces/dependencies-injection.interfaces'
 
 export enum MODULE_METADATA_KEY {
   MODULES = 'modules',

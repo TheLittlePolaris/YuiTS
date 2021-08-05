@@ -1,7 +1,6 @@
 import { Message, TextChannel } from 'discord.js'
 import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/di-connstants'
-import { Prototype } from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/ioc-container/log/logger'
+import { Prototype } from '../interfaces/dependencies-injection.interfaces'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { MusicService } from '@/services/app-services/music/music.service'
 
@@ -20,7 +19,6 @@ export function AccessController(
   }
 ) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    // decoratorLogger(target.constructor.name, 'AccessController', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = async function (this: MusicService, message: Message, ...args: any[]) {
       const filteredArgs = <any[]>[message, ...args]

@@ -10,8 +10,7 @@ import {
 import {
   Prototype,
   GenericMethodDecorator,
-} from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/ioc-container/log/logger'
+} from '../interfaces/dependencies-injection.interfaces'
 
 enum ADMIN_PARAMS {
   REASON = 'reason',
@@ -27,7 +26,6 @@ export type ADMIN_PARAM_KEY = keyof typeof ADMIN_PARAMS
 
 export function AdminCommandValidator(): GenericMethodDecorator<any> {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-    // decoratorLogger(target.constructor.name, 'AdminCommandValidator', propertyKey)
 
     const originalDescriptor = descriptor.value
     descriptor.value = async function (..._args: any[]) {

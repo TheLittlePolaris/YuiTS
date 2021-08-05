@@ -6,8 +6,7 @@ import {
   holoStatList,
 } from '@/services/app-services/feature/vtuberstat-service/holostat-service/holostat.interface'
 import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/di-connstants'
-import { Prototype } from '../interfaces/di-interfaces'
-import { decoratorLogger } from '@/ioc-container/log/logger'
+import { Prototype } from '../interfaces/dependencies-injection.interfaces'
 
 export enum VTUBER_PARAMS {
   REGION = 'region',
@@ -19,7 +18,6 @@ export type VTUBER_PARAM_KEY = keyof typeof VTUBER_PARAMS
 
 export function HoloStatCommandValidator() {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    // decoratorLogger(target.constructor.name, 'HoloStatCommandValidator', propertyKey)
     const originalMethod = descriptor.value
     descriptor.value = function (message: Message, params: string[], ...args: any[]) {
       const filteredArgs = [message, params, ...args]

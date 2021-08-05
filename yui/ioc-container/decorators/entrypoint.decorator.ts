@@ -10,13 +10,11 @@ import {
   GenericClassDecorator,
   EventParamMetadata,
   Prototype,
-} from '../interfaces/di-interfaces'
+} from '../interfaces/dependencies-injection.interfaces'
 import { isFunction } from '@/ioc-container/helpers/helper-functions'
-import { decoratorLogger } from '@/ioc-container/log/logger'
 
 export function Entrypoint<T = any>(): GenericClassDecorator<Type<T>> {
   return (target: Type<T>) => {
-    // decoratorLogger(target.name, 'Class')
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
@@ -27,7 +25,6 @@ export const On = (event: DiscordEvent): MethodDecorator => {
     const propertyDesignType = Reflect.getMetadata(DESIGN_TYPE, target, propertyKey)
     if (!isFunction(propertyDesignType))
       throw new Error(`Client's event property has to be a method!`)
-    decoratorLogger(target.constructor.name, `On - ${event}`, propertyKey)
     let eventList: { [key: string]: string } =
       Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, target.constructor) || []
     eventList = { ...eventList, [event]: propertyKey }
