@@ -8,7 +8,7 @@ import {
   DESIGN_TYPE,
   InjectTokenName,
 
-} from '@/ioc-container/constants/di-connstants'
+} from '@/ioc-container/constants/dependencies-injection.constant'
 
 
 // NestJS Inject function, edited

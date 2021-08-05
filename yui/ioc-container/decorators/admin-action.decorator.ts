@@ -6,7 +6,7 @@ import {
 } from '@/services/app-services/administration/admin-interfaces/administration.interface'
 import {
   METHOD_PARAM_METADATA,
-} from '@/ioc-container/constants/di-connstants'
+} from '@/ioc-container/constants/dependencies-injection.constant'
 import {
   Prototype,
   GenericMethodDecorator,

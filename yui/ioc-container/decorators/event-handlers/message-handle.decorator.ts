@@ -6,7 +6,7 @@ import {
   COMMAND_HANDLER,
   COMMAND_HANDLER_PARAMS,
   MESSAGE_PARAMS,
-} from '@/ioc-container/constants/di-connstants'
+} from '@/ioc-container/constants/dependencies-injection.constant'
 
 export function HandleCommand(command = 'default', ...aliases: string[]) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {

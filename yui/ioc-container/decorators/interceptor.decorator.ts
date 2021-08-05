@@ -1,5 +1,5 @@
 import { DiscordEvent } from '@/constants/discord-events'
-import { APP_INTERCEPTOR, INTERCEPTOR_TARGET } from '../constants/di-connstants'
+import { APP_INTERCEPTOR, INTERCEPTOR_TARGET } from '../constants/dependencies-injection.constant'
 import { GenericClassDecorator, Type } from '../interfaces/dependencies-injection.interfaces'
 
 export function Interceptor(forEvent: DiscordEvent): GenericClassDecorator<Type<any>> {

@@ -3,7 +3,7 @@ import {
   COMMAND_HANDLER,
   COMMAND_HANDLER_PARAMS,
   VOICESTATE_PARAMS,
-} from '@/ioc-container/constants/di-connstants'
+} from '@/ioc-container/constants/dependencies-injection.constant'
 import { ICommandHandlerMetadata } from '@/ioc-container/interfaces/event-handler-dep-injection.interface'
 import { Prototype } from '@/ioc-container/interfaces/dependencies-injection.interfaces'
 import { ClientEvents } from 'discord.js'

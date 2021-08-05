@@ -1,6 +1,6 @@
 import { ConfigService } from '@/config-service/config.service'
 import { DiscordEvent } from '@/constants/discord-events'
-import { COMMAND_HANDLER, COMMAND_HANDLER_PARAMS } from '@/ioc-container/constants/di-connstants'
+import { COMMAND_HANDLER, COMMAND_HANDLER_PARAMS } from '@/ioc-container/constants/dependencies-injection.constant'
 import { ICommandHandlerMetadata } from '@/ioc-container/interfaces/event-handler-dep-injection.interface'
 import { Prototype } from '@/ioc-container/interfaces/dependencies-injection.interfaces'
 import { ClientEvents } from 'discord.js'

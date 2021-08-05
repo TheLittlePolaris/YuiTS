@@ -5,7 +5,7 @@ import {
   HOLOSTAT_PARAMS,
   holoStatList,
 } from '@/services/app-services/feature/vtuberstat-service/holostat-service/holostat.interface'
-import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/di-connstants'
+import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/dependencies-injection.constant'
 import { Prototype } from '../interfaces/dependencies-injection.interfaces'
 
 export enum VTUBER_PARAMS {

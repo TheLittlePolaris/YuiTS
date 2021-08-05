@@ -1,5 +1,5 @@
 import { Message, TextChannel } from 'discord.js'
-import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/di-connstants'
+import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/dependencies-injection.constant'
 import { Prototype } from '../interfaces/dependencies-injection.interfaces'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { MusicService } from '@/services/app-services/music/music.service'

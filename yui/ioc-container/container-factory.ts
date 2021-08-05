@@ -13,7 +13,7 @@ import {
   COMMAND_HANDLER,
   INTERCEPTOR_TARGET,
   MODULE_METADATA_KEY,
-} from '@/ioc-container/constants/di-connstants'
+} from '@/ioc-container/constants/dependencies-injection.constant'
 import { ModuleContainer } from './module'
 import { isValueInjector, isValue, isFunction } from './helpers/helper-functions'
 import { DiscordEvent } from '@/constants/discord-events'
