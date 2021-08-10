@@ -1,11 +1,11 @@
 import { ConfigService } from '@/config-service/config.service'
-import { YuiClient } from '@/custom-classes/yui-client'
+import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
 import { EventHandler, OnEvent } from '@/ioc-container/decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @OnEvent('ready')
 export class ReadyHandler {
-  constructor(private readonly yui: YuiClient, private readonly configService: ConfigService) {
+  constructor(private readonly yui: DiscordClient, private readonly configService: ConfigService) {
     YuiLogger.info(`Created!`, ReadyHandler.name)
   }
 

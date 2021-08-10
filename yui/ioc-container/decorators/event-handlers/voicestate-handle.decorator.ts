@@ -4,8 +4,7 @@ import {
   COMMAND_HANDLER_PARAMS,
   VOICESTATE_PARAMS,
 } from '@/ioc-container/constants/dependencies-injection.constant'
-import { ICommandHandlerMetadata } from '@/ioc-container/interfaces/event-handle-injection.interface'
-import { Prototype } from '@/ioc-container/interfaces/dependencies-injection.interfaces'
+import { ICommandHandlerMetadata, Prototype } from '@/ioc-container/interfaces'
 import { ClientEvents } from 'discord.js'
 
 export function HandleVoiceState() {

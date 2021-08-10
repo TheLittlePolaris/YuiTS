@@ -1,7 +1,6 @@
 import { ConfigService } from '@/config-service/config.service'
-import { ICommandHandlerMetadata } from '@/ioc-container/interfaces/event-handle-injection.interface'
-import { Prototype } from '@/ioc-container/interfaces/dependencies-injection.interfaces'
-import { ClientEvents, Message, PermissionResolvable, Role } from 'discord.js'
+import { ICommandHandlerMetadata, Prototype } from '@/ioc-container/interfaces'
+import { ClientEvents, Message, PermissionResolvable } from 'discord.js'
 import {
   COMMAND_HANDLER,
   COMMAND_HANDLER_PARAMS,

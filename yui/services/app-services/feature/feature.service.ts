@@ -10,7 +10,7 @@ import { RNG } from '../utilities/util-function'
 import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { YuiClient } from '@/custom-classes/yui-client'
+import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
 import { ConfigService } from '@/config-service/config.service'
 import { HoloStatCommandValidator, VTuberParam } from '@/ioc-container/decorators'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
@@ -19,7 +19,7 @@ export class FeatureService {
   queue = new Queue('test')
 
   constructor(
-    public yui: YuiClient,
+    public yui: DiscordClient,
     private vtuberStatService: VtuberStatService,
     private configService: ConfigService
   ) {

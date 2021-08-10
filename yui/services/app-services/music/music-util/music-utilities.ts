@@ -24,7 +24,7 @@ export function timeConverter(duration: number) {
 }
 
 export function createProgressBar(currentProgress: number, total: number): string {
-  if (isNaN(total)) return '--------------------------------------⦿'
+  if (isNaN(total)) return '---------------------------------------⦿'
   const temp = '----------------------------------------'
   const index = Math.round((currentProgress / total) * 40)
   return `${temp.substr(0, index)}⦿${temp.substr(index + 1)}`

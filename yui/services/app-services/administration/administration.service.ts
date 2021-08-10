@@ -9,14 +9,14 @@ import {
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { ConfigService } from '@/config-service/config.service'
-import { YuiClient } from '@/custom-classes/yui-client'
+import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
 
 @Injectable()
 export class AdministrationService {
   constructor(
     private adminCommands: AdminCommandComponent,
     public configService: ConfigService,
-    public yui: YuiClient
+    public yui: DiscordClient
   ) {
     YuiLogger.info(`Created!`, this.constructor.name)
   }

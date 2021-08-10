@@ -2,11 +2,11 @@
 import { Message,  EmbedFieldData } from 'discord.js'
 import { discordRichEmbedConstructor } from '../app-services/utilities/discord-embed-constructor'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { YuiClient } from '@/custom-classes/yui-client'
+import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
 
 @Injectable()
 export class OwnerChannelService {
-  constructor(private yuiClient: YuiClient) {}
+  constructor(private yuiClient: DiscordClient) {}
 
   async statistics(message: Message, args: Array<string>): Promise<void> {
     const channels = this.yuiClient.channels.cache

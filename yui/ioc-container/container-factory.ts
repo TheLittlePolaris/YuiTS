@@ -23,6 +23,7 @@ import {
   INTERCEPTOR_TARGET,
   MODULE_METADATA_KEY,
 } from '@/ioc-container/constants'
+import { DiscordClient } from './entrypoint/discord-client'
 
 export class ContainerFactory {
   static entryDetected = false
@@ -33,7 +34,7 @@ export class ContainerFactory {
     [key in DiscordEvent]?: HandleFunction
   } = {}
 
-  async createRootModule(moduleMetadata: Type<any>) {
+  async createInstanceModule(moduleMetadata: Type<any>) {
     await this.compileModule(moduleMetadata)
     /**
      * IMPORTANT:
@@ -61,10 +62,23 @@ export class ContainerFactory {
     return entryInstance
   }
 
-  async compileModule<T = any>(module: Type<T>) {
-    const entryComponent = Reflect.getMetadata(MODULE_METADATA['entryComponent'], module)
-    if (entryComponent) this.container.setEntryComponent(entryComponent)
+  async createRootModule(rootModule: Type<any>, entryComponent = DiscordClient) {
+    await this.compileModule(rootModule)
 
+    const client = this.compileComponent(rootModule, entryComponent)
+
+    const compiledEvents = Object.keys(this.eventHandlers)
+
+    compiledEvents.map((handler: DiscordEvent) =>
+      client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
+        this.getHandlerForEvent(handler, args)
+      )
+    )
+
+    return client
+  }
+
+  async compileModule<T = any>(module: Type<T>) {
     const getKey = (key: MODULE_METADATA_KEY) => Reflect.getMetadata(MODULE_METADATA[key], module)
 
     const [providers, modules, interceptors, components] = [
@@ -84,11 +98,11 @@ export class ContainerFactory {
     }
 
     if (interceptors) {
-      interceptors.map((interceptor) => this.compileInterceptor(interceptor, module))
+      interceptors.map((interceptor) => this.compileInterceptor(module, interceptor))
     }
 
     if (components) {
-      components.map((component) => this.compileComponent(component, module))
+      components.map((component) => this.compileComponent(module, component))
     }
   }
 
@@ -101,49 +115,9 @@ export class ContainerFactory {
       this.container.setValueProvider(module, <Provider>{ provide, useValue })
     } else if (provider.useClass) {
       const { useClass, provide } = provider
-      const useValue = this.compileComponent(useClass, module)
+      const useValue = this.compileComponent(module, useClass)
       this.container.setValueProvider(module, <Provider>{ provide, useValue })
     }
-  }
-
-  /**
-   * Find the instance for injection, if exists then inject it, if not create it and store it
-   */
-  compileComponent(target: Type<any>, module: Type<any>) {
-    if (isValue(target)) return
-
-    const createdInstance = this.container.getInstance(target)
-    if (createdInstance) return createdInstance
-
-    const injections = this.loadInjectionsForTarget(module, target)
-    const compiledInstance = Reflect.construct(target, injections)
-
-    this.container.addInstance(target, compiledInstance)
-
-    if (isFunction(compiledInstance.onComponentInit)) compiledInstance.onComponentInit()
-
-    const eventHandler = Reflect.getMetadata(EVENT_HANDLER, target)
-    if (eventHandler) {
-      this.defineHandler(eventHandler, target, compiledInstance)
-    }
-
-    if (!this.configService && target.name === 'ConfigService') {
-      this.configService = compiledInstance as ConfigService
-    }
-
-    return compiledInstance
-  }
-
-  compileInterceptor(interceptorTarget: Type<any>, module: Type<any>) {
-    if (isValue(interceptorTarget)) return
-    const interceptor = this.container.getInterceptorInstance(interceptorTarget.name)
-    if (interceptor) return interceptor
-
-    const injections = this.loadInjectionsForTarget(module, interceptorTarget)
-    const newInterceptor = Reflect.construct(interceptorTarget, injections)
-    this.container.addInterceptor(interceptorTarget, newInterceptor)
-
-    return newInterceptor
   }
 
   private loadInjectionsForTarget(module: Type<any>, target: Type<any>) {
@@ -159,12 +133,60 @@ export class ContainerFactory {
         /* TODO: class provider */
         if (isValueInjector(customToken)) return (customToken as CustomValueProvider<any>).useValue
         else
-          return this.compileComponent((customToken as CustomClassProvider<any>).useClass, module)
+          return this.compileComponent(module, (customToken as CustomClassProvider<any>).useClass)
       }
       const created = this.container.getInstance(token)
       if (created) return created
-      return this.compileComponent(token, module)
+      return this.compileComponent(module, token)
     })
+  }
+
+  private compileInstance(module: Type<any>, target: Type<any>) {
+    const injections = this.loadInjectionsForTarget(module, target)
+    const compiledInstance = Reflect.construct(target, injections)
+    if (isFunction(compiledInstance.onComponentInit)) compiledInstance.onComponentInit()
+    return compiledInstance
+  }
+  /**
+   * Find the instance for injection, if exists then inject it, if not create it and store it
+   */
+  compileComponent(module: Type<any>, target: Type<any>) {
+    if (isValue(target)) return
+
+    const createdInstance = this.container.getInstance(target)
+    if (createdInstance) return createdInstance
+
+    const compiledInstance = this.compileInstance(module, target)
+    this.container.addInstance(target, compiledInstance)
+    
+    Promise.resolve().then(() => this.compileHandlerForEvent(target, compiledInstance))
+
+    return compiledInstance
+  }
+
+  private async compileHandlerForEvent(
+    target: Type<any>,
+    compiledInstance: InstanceType<Type<any>>
+  ) {
+    const eventHandler = Reflect.getMetadata(EVENT_HANDLER, target)
+    if (eventHandler) {
+      this.defineHandler(eventHandler, target, compiledInstance)
+    }
+
+    if (!this.configService && /ConfigService/.test(target.name)) {
+      this.configService = compiledInstance
+    }
+  }
+
+  compileInterceptor(module: Type<any>, interceptorTarget: Type<any>) {
+    if (isValue(interceptorTarget)) return
+    const interceptor = this.container.getInterceptorInstance(interceptorTarget.name)
+    if (interceptor) return interceptor
+
+    const compiledInterceptor = this.compileInstance(module, interceptorTarget)
+    this.container.addInterceptor(interceptorTarget, compiledInterceptor)
+
+    return compiledInterceptor
   }
 
   private defineHandler(onEvent: DiscordEvent, target: Type<any>, handleInstance: any) {

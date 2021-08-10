@@ -21,7 +21,7 @@ export function AdminPermissionValidator() {
     descriptor.value = async function (this: AdministrationService, ..._args: any[]) {
       const [message, args, command] = _args as [Message, Array<string>, string]
       const [yui, actionMember] = await Promise.all([
-        this.yui.getMember(message),
+        this.yui.getGuildMember(message),
         Promise.resolve(message.member),
       ])
       if (!command || !ADMIN_COMMANDS.includes(command)) return
