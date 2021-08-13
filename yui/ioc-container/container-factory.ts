@@ -206,8 +206,8 @@ export class ContainerFactory {
 
     const compileCommand = (propertyKey: string) => {
       // bind: passive when go through interceptor, active when call directly
-      const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) => {
-        return bind
+      const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) =>
+        bind
           ? (handleInstance[propertyKey] as Function).bind(
               handleInstance,
               _eventArgs,
@@ -217,7 +217,7 @@ export class ContainerFactory {
               _eventArgs,
               this.configService,
             ])
-      }
+
       return interceptorInstance
         ? (_eventArgs: ClientEvents[DiscordEvent]) =>
             interceptorInstance.intercept(_eventArgs, handler(_eventArgs, true))
@@ -261,8 +261,9 @@ export class ContainerFactory {
           author: { bot },
           content,
         } = args[0] as Message
-        if (this.eventHandlers['message'].config) {
-          const { ignoreBots, startsWithPrefix } = this.eventHandlers['message'].config
+        const { config } = this.eventHandlers['message']
+        if (config) {
+          const { ignoreBots, startsWithPrefix } = config
           if (
             (startsWithPrefix && !content.startsWith(this.configService.prefix)) ||
             (ignoreBots && bot)
