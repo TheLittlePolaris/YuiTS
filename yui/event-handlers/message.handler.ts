@@ -16,7 +16,7 @@ import { ConfigService } from '@/config-service/config.service'
 import { OnEvent, UseInterceptor } from '@/ioc-container/decorators'
 import { TextMessageInterceptor } from '@/event-handlers/event-interceptors/message.interceptor'
 
-@OnEvent('message')
+@OnEvent('message', { ignoreBots: true, startsWithPrefix:  true })
 @UseInterceptor(TextMessageInterceptor)
 export class TextMessageHandler {
   constructor(

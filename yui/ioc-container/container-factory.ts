@@ -1,11 +1,10 @@
 import { ModuleContainer } from './module'
 import { isValueInjector, isValue, isFunction } from './helpers/helper-functions'
-import { DiscordEvent } from '@/constants/discord-events'
+import { DiscordEvent, DiscordEventConfig } from '@/constants/discord-events'
 import { ClientEvents, Message } from 'discord.js'
 import { ConfigService } from '@/config-service/config.service'
 import { IBaseInterceptor } from './interfaces/interceptor.interface'
 import { HandleFunction } from './interfaces'
-
 import {
   Type,
   CustomValueProvider,
@@ -22,6 +21,7 @@ import {
   COMMAND_HANDLER,
   INTERCEPTOR_TARGET,
   MODULE_METADATA_KEY,
+  EVENT_HANDLER_CONFIG,
 } from '@/ioc-container/constants'
 import { DiscordClient } from './entrypoint/discord-client'
 
@@ -31,7 +31,7 @@ export class ContainerFactory {
   public configService: ConfigService
 
   private eventHandlers: {
-    [key in DiscordEvent]?: HandleFunction
+    [key in DiscordEvent]?: { handleFunction: HandleFunction; config?: DiscordEventConfig[key] }
   } = {}
 
   async createInstanceModule(moduleMetadata: Type<any>) {
@@ -158,7 +158,7 @@ export class ContainerFactory {
 
     const compiledInstance = this.compileInstance(module, target)
     this.container.addInstance(target, compiledInstance)
-    
+
     Promise.resolve().then(() => this.compileHandlerForEvent(target, compiledInstance))
 
     return compiledInstance
@@ -190,8 +190,15 @@ export class ContainerFactory {
   }
 
   private defineHandler(onEvent: DiscordEvent, target: Type<any>, handleInstance: any) {
-    const commandHandlersMetadata: ICommandHandlerMetadata[] =
+    if (!this.eventHandlers[onEvent]) this.eventHandlers[onEvent] = <any>{}
+
+    const handlerMetadata: ICommandHandlerMetadata[] =
       Reflect.getMetadata(COMMAND_HANDLER, target) || []
+
+    const handleConfig: ICommandHandlerMetadata[] = Reflect.getMetadata(
+      EVENT_HANDLER_CONFIG,
+      target
+    )
 
     const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
     const interceptorInstance: IBaseInterceptor =
@@ -217,7 +224,7 @@ export class ContainerFactory {
         : handler
     }
 
-    const commandHandlers = commandHandlersMetadata.reduce(
+    const commandHandlers = handlerMetadata.reduce(
       (acc: HandleFunction, { command, propertyKey, commandAliases }) => {
         const commandFn = compileCommand(propertyKey)
         const compiled = [command, ...(commandAliases || [])].reduce(
@@ -229,8 +236,9 @@ export class ContainerFactory {
       {}
     )
 
-    this.eventHandlers[onEvent] = {
-      ...(this.eventHandlers[onEvent] || {}),
+    if (!this.eventHandlers[onEvent].config) this.eventHandlers[onEvent].config = handleConfig
+    this.eventHandlers[onEvent].handleFunction = {
+      ...(this.eventHandlers[onEvent].handleFunction || {}),
       ...commandHandlers,
     }
   }
@@ -238,8 +246,9 @@ export class ContainerFactory {
   public getHandlerForEvent(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
     const command = this.getCommandHandler(event, args)
     if (command === false) return
+
     const { [command]: compiledCommand = null, ['default']: defaultAction } =
-      this.eventHandlers[event]
+      this.eventHandlers[event].handleFunction
 
     if (compiledCommand) compiledCommand(args)
     else if (defaultAction) defaultAction(args)
@@ -252,7 +261,15 @@ export class ContainerFactory {
           author: { bot },
           content,
         } = args[0] as Message
-        if (!content.startsWith(this.configService.prefix) || bot) return false
+        if (this.eventHandlers['message'].config) {
+          const { ignoreBots, startsWithPrefix } = this.eventHandlers['message'].config
+          if (
+            (startsWithPrefix && !content.startsWith(this.configService.prefix)) ||
+            (ignoreBots && bot)
+          )
+            return false
+        }
+        // if (!content.startsWith(this.configService.prefix) || bot) return false
         return content.replace(this.configService.prefix, '').trim().split(/ +/g)[0]
       }
 

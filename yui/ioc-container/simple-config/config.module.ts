@@ -1,5 +1,5 @@
 import { YuiModule } from "@/ioc-container/decorators";
-import { SimpleConfigService } from "./simple-config.service";
+import { SimpleConfigService } from "./config.service";
 
 @YuiModule({
   components: [SimpleConfigService],

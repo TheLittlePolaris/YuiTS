@@ -49,6 +49,7 @@ export type InjectTokenName = keyof typeof GlobalInjectToken
 export const BOUND_EVENTS = 'self:bound_events'
 
 export const EVENT_HANDLER = 'self:event_handler'
+export const EVENT_HANDLER_CONFIG = 'self:event_handler_config'
 export const COMMAND_HANDLER = 'self:command_handler'
 export const COMMAND_HANDLER_PARAMS = 'self:command_handler:params'
 
