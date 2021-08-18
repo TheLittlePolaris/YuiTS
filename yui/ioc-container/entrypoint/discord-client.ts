@@ -1,8 +1,12 @@
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { Client, Message } from 'discord.js'
+import { Inject, Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { BitFieldResolvable, Client, IntentsString, Message } from 'discord.js'
 
 @Injectable()
 export class DiscordClient extends Client {
+  constructor(@Inject('BOT_INTENTS') intents: IntentsString[]) {
+    console.log(intents, `<======= intents [discord-client.ts - 7]`);
+    super({ intents })
+  }
   public get id() {
     return this.user.id
   }
@@ -11,7 +15,7 @@ export class DiscordClient extends Client {
     return this.login(token)
   }
 
-  public async getGuildMember(message: Message) {
-    return message.guild.member(this.id)
+  public getGuildMember(message: Message) {
+    return message.guild.members.cache.get(this.id)
   }
 }

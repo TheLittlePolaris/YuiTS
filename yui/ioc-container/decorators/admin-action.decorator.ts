@@ -40,9 +40,9 @@ export function AdminCommandValidator(): GenericMethodDecorator<any> {
 
       const executor: GuildMember = message.member
 
-      const mentionedMembers = message.mentions.members.array()
+      const mentionedMembers = message.mentions.members
 
-      if (!mentionedMembers.length) {
+      if (!mentionedMembers.size) {
         message.author.send('**Please mention at least one member for the action.**')
         return
       }
@@ -65,8 +65,8 @@ export function AdminCommandValidator(): GenericMethodDecorator<any> {
       if (paramIndexes[ADMIN_PARAMS.EXECUTOR] !== undefined) _args[executorIndex] = executor
       _args[targetsIndex] = mentionedMembers
       if (['addrole', 'removerole'].includes(subCommand)) {
-        const serverRoles = (await message.guild.roles.fetch()).cache.array()
-        const selectedRoles: Role[] = serverRoles.filter((role) => {
+        const serverRoles = message.guild.roles.cache
+        const selectedRoles = serverRoles.filter((role) => {
           const regexp = new RegExp(`^(?:<@&${role.id}>|${role.name})$`, 'gi')
           const { length } = reason.filter(
             (arg, i) => (regexp.test(arg) && delete reason[i]) || false

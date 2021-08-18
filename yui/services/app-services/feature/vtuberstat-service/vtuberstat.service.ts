@@ -1,4 +1,3 @@
-
 import {
   Message,
   GuildMember,
@@ -28,7 +27,7 @@ import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 export class VtuberStatService {
   constructor(
     private holostatRequestService: HoloStatRequestService,
-    private youtubeRequestService: YoutubeChannelService,
+    private youtubeRequestService: YoutubeChannelService
   ) {
     YuiLogger.info('Created!', this.constructor.name)
   }
@@ -89,11 +88,11 @@ export class VtuberStatService {
       messageFilter.author.id === message.author.id &&
       messageFilter.channel.id === message.channel.id
 
-    const collectorOptions: MessageCollectorOptions = {
+    const collector = message.channel.createMessageCollector({
+      filter: collectorFilter,
       time: 30000,
       max: 1,
-    }
-    const collector = message.channel.createMessageCollector(collectorFilter, collectorOptions)
+    })
 
     const deleteSentContent = () => {
       sentContent.forEach((e) => e.delete().catch((err) => this.handleError(new Error(err))))
@@ -103,7 +102,10 @@ export class VtuberStatService {
       collector.stop()
 
       const selected = /^\d{1,2}|cancel$/.exec(collected.content)
-      if (!selected) return this.sendMessage(message, '**Please choose a valid number**')
+      if (!selected) {
+        this.sendMessage(message, '**Please choose a valid number**')
+        return
+      }
       const option = selected[0]
       if (option === 'cancel') {
         this.sendMessage(message, '**Canceled**')
@@ -111,10 +113,11 @@ export class VtuberStatService {
         return
       } else {
         const selectedNumber = Number(option) //number is valid
-        return this.getChannelDetail({
+        this.getChannelDetail({
           message,
           channelId: dataList[selectedNumber - 1]?.id,
         })
+        return
       }
     })
     collector.on('end', (collected) => {
@@ -191,13 +194,20 @@ export class VtuberStatService {
       time: 15000,
       max: 1,
     }
-    const collector = sentMessage.channel.createMessageCollector(collectorFilter, collectorOptions)
+    const collector = sentMessage.channel.createMessageCollector({
+      filter: collectorFilter,
+      time: 15000,
+      max: 1,
+    })
 
     collector.on('collect', (collected: Message) => {
       collector.stop()
 
       const selected = /^[1-4]|cancel$/.exec(collected.content)
-      if (!selected) return this.sendMessage(message, 'Invailid option! Action aborted.')
+      if (!selected) {
+        this.sendMessage(message, 'Invailid option! Action aborted.')
+        return
+      }
       const option = selected[0]
       if (option === 'cancel') {
         this.sendMessage(message, '**`Canceled!`**')
@@ -205,11 +215,12 @@ export class VtuberStatService {
         return
       } else {
         const index = Number(option)
-        return this.vtuberStatSelectList({
+        this.vtuberStatSelectList({
           message,
           affiliation,
           regionCode: regionCodes[index - 1] as any,
-        }).catch((err) => this.handleError(new Error(err)))
+        }).catch((err) => this.handleError(err))
+        return
       }
     })
 
@@ -275,7 +286,7 @@ export class VtuberStatService {
       })
 
       this.sendMessage(message, {
-        embed: sendingEmbed,
+        embeds: [sendingEmbed],
       })
 
       if (!(currentPartLimit >= fieldsData.length)) sendPartial(currentPartLimit)
@@ -299,7 +310,7 @@ export class VtuberStatService {
     message: Message,
     option: { timeout?: number; reason?: string } = {}
   ) {
-    return await message.delete(option).catch((err) => this.handleError(err))
+    return await message.delete().catch((err) => this.handleError(err))
   }
 
   private handleError(error: Error | string) {

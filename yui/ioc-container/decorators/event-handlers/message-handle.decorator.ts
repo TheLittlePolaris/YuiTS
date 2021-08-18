@@ -36,8 +36,8 @@ export function DeleteOriginalMessage(strategy?: 'send' | 'reply', responseMessa
       const [message, config] = args.slice(-2) as [Message, ConfigService]
       const { guild, author } = message
 
-      const yuiMember = guild.member(config.yuiId)
-      const yuiCanDelete = yuiMember.hasPermission('MANAGE_MESSAGES')
+      const yuiMember = guild.members.resolve(config.yuiId)
+      const yuiCanDelete = yuiMember.permissions.has('MANAGE_MESSAGES')
 
       if (yuiCanDelete) {
         message
@@ -62,10 +62,10 @@ export function MemberPermissions(...permissions: PermissionResolvable[]) {
       const [message, config] = args.slice(-2) as [Message, ConfigService]
       const { author, member, guild } = message
 
-      const yuiMember = guild.member(config.yuiId)
+      const yuiMember = guild.members.resolve(config.yuiId)
       const [hasPermissions, yuiHasPermission] = [
-        member.hasPermission(permissions),
-        yuiMember.hasPermission(permissions),
+        member.permissions.has(permissions),
+        yuiMember.permissions.has(permissions),
       ]
 
       if (!hasPermissions) {

@@ -41,7 +41,7 @@ export function AccessController(
 
       const clientUserIndex: number = paramIndexes[MUSIC_PARAM.CLIENT]
       if (clientUserIndex) {
-        const client = message.guild.member(this.configService.yuiId)
+        const client = this.yui.getGuildMember(message)
         filteredArgs[clientUserIndex] = client
       }
 

@@ -1,5 +1,5 @@
 import { ModuleContainer } from './module'
-import { isValueInjector, isValue, isFunction } from './helpers/helper-functions'
+import { isValueInjector, isValue, isFunction, isClassInjector } from './helpers/helper-functions'
 import { DiscordEvent, DiscordEventConfig } from '@/constants/discord-events'
 import { ClientEvents, Message } from 'discord.js'
 import { ConfigService } from '@/config-service/config.service'
@@ -24,6 +24,7 @@ import {
   EVENT_HANDLER_CONFIG,
 } from '@/ioc-container/constants'
 import { DiscordClient } from './entrypoint/discord-client'
+import { YuiLogger } from '@/services/logger/logger.service'
 
 export class ContainerFactory {
   static entryDetected = false
@@ -34,8 +35,8 @@ export class ContainerFactory {
     [key in DiscordEvent]?: { handleFunction: HandleFunction; config?: DiscordEventConfig[key] }
   } = {}
 
-  async createInstanceModule(moduleMetadata: Type<any>) {
-    await this.compileModule(moduleMetadata)
+  async createInstanceModule(moduleMetadata: Type<any>, entryComponent?: Type<any>) {
+    await this.compileModule(moduleMetadata, entryComponent)
     /**
      * IMPORTANT:
      *  - Required the entry component to extends EntryComponent class
@@ -44,6 +45,7 @@ export class ContainerFactory {
 
     const boundEvents =
       Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryInstance['constructor']) || {}
+
     const { length: hasEvents, ...events } = Object.keys(boundEvents)
     if (hasEvents) {
       events.forEach((eventKey: DiscordEvent) =>
@@ -63,22 +65,18 @@ export class ContainerFactory {
   }
 
   async createRootModule(rootModule: Type<any>, entryComponent = DiscordClient) {
-    await this.compileModule(rootModule)
-
-    const client = this.compileComponent(rootModule, entryComponent)
-
+    await this.compileModule(rootModule, entryComponent)
+    const client = this.container.getInstance(entryComponent)
     const compiledEvents = Object.keys(this.eventHandlers)
-
     compiledEvents.map((handler: DiscordEvent) =>
       client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
         this.getHandlerForEvent(handler, args)
       )
     )
-
     return client
   }
 
-  async compileModule<T = any>(module: Type<T>) {
+  async compileModule<T = any>(module: Type<T>, entryComponent?: Type<any>) {
     const getKey = (key: MODULE_METADATA_KEY) => Reflect.getMetadata(MODULE_METADATA[key], module)
 
     const [providers, modules, interceptors, components] = [
@@ -88,13 +86,18 @@ export class ContainerFactory {
       getKey(MODULE_METADATA_KEY.COMPONENTS),
     ]
 
+    if (providers) {
+      await Promise.all(providers.map((provider) => this.compileProvider(module, provider)))
+    }
+
+    if (entryComponent) {
+      // first entry needs custom config
+      this.compileComponent(module, entryComponent)
+    }
+
     if (modules) {
       await Promise.all(modules.map((m) => this.compileModule(m)))
       this.container.importModules(modules)
-    }
-
-    if (providers) {
-      await Promise.all(providers.map((provider) => this.compileProvider(module, provider)))
     }
 
     if (interceptors) {
@@ -124,16 +127,19 @@ export class ContainerFactory {
     const tokens: Type<any>[] = Reflect.getMetadata(PARAMTYPES_METADATA, target) || []
     const customTokens: { [paramIndex: string]: /* param name */ string } =
       Reflect.getMetadata(SELF_DECLARED_DEPS_METADATA, target) || []
-
+    if (target.name === DiscordClient.name) {
+    }
     return tokens.map((token: Type<any>, paramIndex: number) => {
       if (customTokens && customTokens[paramIndex]) {
         // module-based value provider
-        const customToken = this.container.getProvider(module, customTokens[paramIndex])
-
+        const customProvide = this.container.getProvider(module, customTokens[paramIndex])
+        if (target.name === DiscordClient.name) {
+        }
         /* TODO: class provider */
-        if (isValueInjector(customToken)) return (customToken as CustomValueProvider<any>).useValue
-        else
-          return this.compileComponent(module, (customToken as CustomClassProvider<any>).useClass)
+        if (isValueInjector(customProvide))
+          return (customProvide as CustomValueProvider<any>).useValue
+        else if (isClassInjector(customProvide))
+          return this.compileComponent(module, (customProvide as CustomClassProvider<any>).useClass)
       }
       const created = this.container.getInstance(token)
       if (created) return created
@@ -151,6 +157,9 @@ export class ContainerFactory {
    * Find the instance for injection, if exists then inject it, if not create it and store it
    */
   compileComponent(module: Type<any>, target: Type<any>) {
+    if (target.name === DiscordClient.name) {
+    }
+
     if (isValue(target)) return
 
     const createdInstance = this.container.getInstance(target)
@@ -243,25 +252,29 @@ export class ContainerFactory {
     }
   }
 
-  public getHandlerForEvent(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
+  public getHandlerForEvent(event: keyof ClientEvents, args: ClientEvents[DiscordEvent]) {
     const command = this.getCommandHandler(event, args)
     if (command === false) return
 
     const { [command]: compiledCommand = null, ['default']: defaultAction } =
       this.eventHandlers[event].handleFunction
 
-    if (compiledCommand) compiledCommand(args)
-    else if (defaultAction) defaultAction(args)
+    try {
+      if (compiledCommand) compiledCommand(args)
+      else if (defaultAction) defaultAction(args)
+    } catch (error) {
+      YuiLogger.error(`Uncaught error: ${error}`, 'AppContainer')
+    }
   }
 
   private getCommandHandler(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
     switch (event) {
-      case 'message': {
+      case 'messageCreate': {
         const {
           author: { bot },
           content,
         } = args[0] as Message
-        const { config } = this.eventHandlers['message']
+        const { config } = this.eventHandlers['messageCreate']
         if (config) {
           const { ignoreBots, startsWithPrefix } = config
           if (

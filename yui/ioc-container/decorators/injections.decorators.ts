@@ -6,13 +6,13 @@ import {
   PROPERTY_DEPS_METADATA,
   INJECTABLE_METADATA,
   DESIGN_TYPE,
-  InjectTokenName,
+  InjectKeys,
 
 } from '@/ioc-container/constants/dependencies-injection.constant'
 
 
 // NestJS Inject function, edited
-export const Inject = (token: InjectTokenName) => {
+export const Inject = (token: InjectKeys) => {
   return (target: object, key: string | symbol, index?: number) => {
     token = token || Reflect.getMetadata(DESIGN_TYPE, target, key)
     const type = token && isFunction(token) ? (token as any as Function).name : token

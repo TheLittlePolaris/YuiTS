@@ -2,14 +2,14 @@ import type {
   Guild,
   VoiceChannel,
   TextChannel,
-  StreamDispatcher,
-  VoiceBroadcast,
-  BroadcastDispatcher,
+
 } from 'discord.js'
+
 import { MusicQueue } from './music-queue'
-import { MusicStreamValue } from '../music-interfaces/music-stream.interface'
+// import { MusicStreamValue } from '../music-interfaces/music-stream.interface'
 import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import { YuiLogger } from '@/services/logger/logger.service'
+import { AudioPlayer, AudioResource, PlayerSubscription } from '@discordjs/voice'
 
 export class MusicStream {
   private _id: string
@@ -19,10 +19,15 @@ export class MusicStream {
   private _isAutoPlaying = false
   private _isPlaying = false
   private _isPaused = false
-  public _streamDispatcher: StreamDispatcher
-  public _broadcastDispatcher: BroadcastDispatcher
-  public _voiceBroadcast: VoiceBroadcast
-  public _voiceConnection: IVoiceConnection
+  // public _streamDispatcher: StreamDispatcher
+  // public _broadcastDispatcher: BroadcastDispatcher
+  // public _voiceBroadcast: VoiceBroadcast
+
+  private _voiceConnection: IVoiceConnection
+  private _audioPlayer: AudioPlayer
+  private _playerSubscription: PlayerSubscription
+  private _audioResource: AudioResource
+
   private _tempChannelId: string
   private _nextPage: string
   public _queue: MusicQueue
@@ -41,7 +46,10 @@ export class MusicStream {
     this._name = guild.name
     this._boundVoiceChannel = boundVoiceChannel
     this._boundTextChannel = boundTextChannel
+
     this._queue = new MusicQueue()
+    this._audioPlayer = new AudioPlayer()
+
     YuiLogger.info(`[${this._name}] stream created!`, this.constructor.name)
   }
 
@@ -78,16 +86,28 @@ export class MusicStream {
     return this._isPaused
   }
 
-  public get streamDispatcher(): StreamDispatcher {
-    return this._streamDispatcher
+  // public get streamDispatcher(): StreamDispatcher {
+  //   return this._streamDispatcher
+  // }
+
+  // public get broadcastDispatcher(): BroadcastDispatcher {
+  //   return this._broadcastDispatcher
+  // }
+
+  // public get voiceBroadcast(): VoiceBroadcast {
+  //   return this._voiceBroadcast
+  // }
+
+  public get audioPlayer(): AudioPlayer {
+    return this._audioPlayer
   }
 
-  public get broadcastDispatcher(): BroadcastDispatcher {
-    return this._broadcastDispatcher
+  public get playerSubscription(): PlayerSubscription {
+    return this._playerSubscription
   }
 
-  public get voiceBroadcast(): VoiceBroadcast {
-    return this._voiceBroadcast
+  public get audioResource(): AudioResource {
+    return this._audioResource
   }
 
   public get voiceConnection(): IVoiceConnection {
@@ -117,7 +137,7 @@ export class MusicStream {
   /**
    * @returns Current timeout for leaving the voice channel and unbound from text channel
    */
-  public get leaveOnTimeOut(): NodeJS.Timeout {
+  public get leaveOnTimeout(): NodeJS.Timeout {
     return this._leaveOnTimeout
   }
 
@@ -125,7 +145,7 @@ export class MusicStream {
    * @param value The value to be set
    * @param data Data of the selected value
    */
-  public set<T>(value: MusicStreamValue, data: T): T {
+  public set<T>(value: keyof MusicStream, data: T): T {
     this[`_${value}`] = data
     return this[`_${value}`]
   }
@@ -137,11 +157,13 @@ export class MusicStream {
     this._isPaused = false
     this._nextPage = null
     this.queue.deleteQueue()
-    if (this.isPlaying) {
-      if (this.streamDispatcher && !this.streamDispatcher.destroyed) {
-        this.streamDispatcher.destroy()
-      }
-      this._isPlaying = false
-    }
+    this.playerSubscription?.unsubscribe()
+    // TODO:
+    // if (this.isPlaying) {
+    //   if (this.streamDispatcher && !this.streamDispatcher.destroyed) {
+    //     this.streamDispatcher.destroy()
+    //   }
+    //   this._isPlaying = false
+    // }
   }
 }

@@ -1,4 +1,5 @@
-import type { VoiceConnection } from 'discord.js'
+import { VoiceConnection } from "@discordjs/voice";
+
 
 export interface IVoiceConnection extends VoiceConnection {
   player: {

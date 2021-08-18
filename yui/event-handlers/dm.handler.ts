@@ -8,7 +8,7 @@ import {
 import { OwnerChannelService } from '@/services/owner-service/channel.service'
 import { Message } from 'discord.js'
 
-@OnEvent('message', { ignoreBots: true, startsWithPrefix: true })
+@OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
 @UseInterceptor(DMInterceptor)
 export class DMHandler {
   constructor(private ownerChannelService: OwnerChannelService) {}

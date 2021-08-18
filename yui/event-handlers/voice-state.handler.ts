@@ -22,8 +22,8 @@ export class VoiceStateHandler {
     const boundVC = stream?.boundVoiceChannel
     if (!boundVC) return
 
-    if (newChannel?.id === boundVC.id && stream.leaveOnTimeOut) {
-      clearTimeout(stream.leaveOnTimeOut)
+    if (newChannel?.id === boundVC.id && stream.leaveOnTimeout) {
+      clearTimeout(stream.leaveOnTimeout)
       stream.set('leaveOnTimeout', null)
     } else if ((!newChannel || newChannel.id !== boundVC.id) && oldChannel?.members.size === 1) {
       const timeout = setTimeout(() => this.musicService.timeoutLeaveChannel(stream), 30000)

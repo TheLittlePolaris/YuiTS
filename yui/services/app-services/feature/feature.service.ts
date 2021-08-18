@@ -4,7 +4,7 @@ import {
   FeaturePermissionValidator,
   FeatureParam,
 } from '@/ioc-container/decorators/feature-permisson.decorator'
-import { GuildMember, Message } from 'discord.js'
+import { GuildMember, Message, MessageEmbed, MessagePayload, MessageOptions } from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
 import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
@@ -14,6 +14,7 @@ import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
 import { ConfigService } from '@/config-service/config.service'
 import { HoloStatCommandValidator, VTuberParam } from '@/ioc-container/decorators'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
+
 @Injectable()
 export class FeatureService {
   queue = new Queue('test')
@@ -47,7 +48,7 @@ export class FeatureService {
     // const attachment = new MessageAttachment(image, 'ping.jpg')
     if (sentMessage) sentMessage.delete().catch(null)
 
-    this.sendMessage(message, embed)
+    this.sendMessage(message, { embeds: [embed] })
   }
 
   public async help(message: Message, ..._args: any[])
@@ -89,7 +90,7 @@ export class FeatureService {
       footer: 'Note: <>: required param | <?>: optional param',
     })
 
-    this.sendMessage(message, embed)
+    this.sendMessage(message, { embeds: [embed] })
   }
 
   @FeaturePermissionValidator()
@@ -97,7 +98,7 @@ export class FeatureService {
     const embed = discordRichEmbedConstructor({
       description: `**${args.join(' ')}**`,
     })
-    this.sendMessage(message, embed)
+    this.sendMessage(message, { embeds: [embed] })
   }
 
   public async tenorGif(message: Message, args: string[], ..._args: any[])
@@ -142,13 +143,14 @@ export class FeatureService {
       ? `${message.member} ${action}`
       : `${message.member} ${action} ${mentionString}`
 
-    this.sendMessage(
-      message,
-      discordRichEmbedConstructor({
-        description,
-        imageUrl: results[num]?.media[0]?.gif?.url,
-      })
-    )
+    this.sendMessage(message, {
+      embeds: [
+        discordRichEmbedConstructor({
+          description,
+          imageUrl: results[num]?.media[0]?.gif?.url,
+        }),
+      ],
+    })
   }
   async getHoloStat(message: Message, args: string[], ..._args: any[])
   @FeaturePermissionValidator()
@@ -175,7 +177,12 @@ export class FeatureService {
     })
   }
 
-  private async sendMessage(message: Message, content: any): Promise<Message> {
-    return (await message.channel.send(content).catch((err) => YuiLogger.error(err))) as Message
+  private async sendMessage(
+    message: Message,
+    content: string | MessagePayload | MessageOptions
+  ): Promise<Message> {
+    return (await message.channel
+      .send(content as any)
+      .catch((err) => YuiLogger.error(err))) as Message
   }
 }

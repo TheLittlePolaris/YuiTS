@@ -33,8 +33,9 @@ export const METHOD_PARAM_METADATA = 'method:params'
 
 export const APP_INTERCEPTOR = 'design:interceptor'
 
-export enum GlobalInjectToken {
+export enum INJECT_TOKEN {
   BOT_TOKEN = 'BOT_TOKEN',
+  BOT_INTENTS = 'BOT_INTENTS',
   BOT_OPTION = 'BOT_OPTION',
   BOT_PREFIX = 'BOT_PREFIX',
   YOUTUBE_API_KEY = 'YOUTUBE_API_KEY',
@@ -42,8 +43,8 @@ export enum GlobalInjectToken {
   GLOBAL_STREAMS = 'GLOBAL_STREAMS',
 }
 
-export type InjectTokenValue = Record<GlobalInjectToken, string>
-export type InjectTokenName = keyof typeof GlobalInjectToken
+export type InjectToken = Record<INJECT_TOKEN, string>
+export type InjectKeys = keyof typeof INJECT_TOKEN
 
 // Event handlers
 export const BOUND_EVENTS = 'self:bound_events'

@@ -1,5 +1,4 @@
-
-import { Message,  EmbedFieldData } from 'discord.js'
+import { Message, EmbedFieldData } from 'discord.js'
 import { discordRichEmbedConstructor } from '../app-services/utilities/discord-embed-constructor'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
@@ -12,17 +11,17 @@ export class OwnerChannelService {
     const channels = this.yuiClient.channels.cache
     const guilds = this.yuiClient.guilds.cache
     const totalUsers = guilds
-      .map((guild) => guild.members.cache.array().filter((member) => !member.user.bot).length)
+      .map((guild) => guild.members.cache.filter((member) => !member.user.bot).size)
       .reduce((total, curr) => total + curr, 0)
 
     const fields: EmbedFieldData[] = guilds.map((guild) => ({
       name: `**${guild.name}**`,
       value: `Channels: ${guild.channels.cache.size}\nUsers: ${
-        guild.members.cache.array().filter((member) => !member.user.bot).length
+        guild.members.cache.filter((member) => !member.user.bot).size
       }`,
       inline: true,
     }))
-    const embed = await discordRichEmbedConstructor({
+    const embed = discordRichEmbedConstructor({
       author: {
         authorName: this.yuiClient.user.username,
         avatarUrl: this.yuiClient.user.avatarURL(),
@@ -31,6 +30,6 @@ export class OwnerChannelService {
       description: `**Guilds: ${guilds.size}\nUsers: ${totalUsers}**`,
       fields,
     })
-    message.channel.send(embed)
+    message.channel.send({ embeds: [embed] })
   }
 }

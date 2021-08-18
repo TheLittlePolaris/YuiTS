@@ -4,12 +4,12 @@ import { ClientEvents } from 'discord.js'
 import { Interceptor } from '@/ioc-container/decorators/interceptor.decorator'
 import { IBaseInterceptor } from '@/ioc-container/interfaces/interceptor.interface'
 
-@Interceptor('message')
+@Interceptor('messageCreate')
 export class DMInterceptor implements IBaseInterceptor {
   constructor(private configService: ConfigService) {}
 
-  intercept([message]: ClientEvents['message'], next: () => Promise<any>) {
-    if (!(message.channel.type === 'dm' && message.author.id === this.configService.ownerId)) return
+  intercept([message]: ClientEvents['messageCreate'], next: () => Promise<any>) {
+    if (!(message.channel.type === 'DM' && message.author.id === this.configService.ownerId)) return
 
     console.time(`handle_m_${message.id}`)
     next()

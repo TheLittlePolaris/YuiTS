@@ -1,4 +1,4 @@
-import { Message } from 'discord.js'
+import { Message, PermissionResolvable } from 'discord.js'
 import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
@@ -29,67 +29,37 @@ export function AdminPermissionValidator() {
       const isOwner: boolean = message.author.id === this.configService.ownerId
 
       let yuiPermission, memberPermission: boolean
+
+      const hasPermissions = (permissions: PermissionResolvable) => {
+        yuiPermission = yui.permissions.has(permissions, true)
+        memberPermission = actionMember.permissions.has(permissions, true)
+      }
+
       switch (command as ADMIN_ACTION_TYPE) {
         case 'kick': {
-          yuiPermission = yui.hasPermission(['KICK_MEMBERS'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-          memberPermission = actionMember.hasPermission(['KICK_MEMBERS'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
+          hasPermissions(['KICK_MEMBERS'])
           break
         }
         case 'ban': {
-          yuiPermission = yui.hasPermission(['BAN_MEMBERS'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-          memberPermission = actionMember.hasPermission(['BAN_MEMBERS'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
+          hasPermissions(['BAN_MEMBERS'])
           break
         }
         case 'addrole':
         case 'removerole': {
-          memberPermission = actionMember.hasPermission(['MANAGE_ROLES'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-          yuiPermission = yui.hasPermission(['MANAGE_ROLES'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
+          hasPermissions(['MANAGE_ROLES'])
           break
         }
         case 'mute':
         case 'unmute': {
-          memberPermission = actionMember.hasPermission(['MUTE_MEMBERS'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-          yuiPermission = yui.hasPermission(['MUTE_MEMBERS'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
+          hasPermissions(['MUTE_MEMBERS'])
           break
         }
         case 'setnickname': {
-          memberPermission = actionMember.hasPermission(['MANAGE_NICKNAMES'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-          yuiPermission = yui.hasPermission(['MUTE_MEMBERS'], {
-            checkAdmin: true,
-            checkOwner: true,
-          })
+          hasPermissions(['MANAGE_NICKNAMES'])
           break
         }
         default:
-          memberPermission = false
-          yuiPermission = false
+          hasPermissions('ADMINISTRATOR')
           break
       }
 

@@ -6,9 +6,8 @@ import {
   Message,
   MessageCollectorOptions,
   MessageEmbed,
-  StreamDispatcher,
-  StreamOptions,
   TextChannel,
+  VoiceChannel,
 } from 'discord.js'
 import { PassThrough, Readable } from 'stream'
 import ytdl from 'ytdl-core'
@@ -41,6 +40,18 @@ import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { GlobalMusicStream } from '@/custom-classes/global-music-streams'
 import { ConfigService } from '@/config-service/config.service'
+import {
+  AudioPlayer,
+  AudioPlayerState,
+  AudioPlayerStatus,
+  AudioResource,
+  CreateAudioPlayerOptions,
+  createAudioResource,
+  joinVoiceChannel,
+  PlayerSubscription,
+  StreamType,
+} from '@discordjs/voice'
+import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
 
 @Injectable()
 export class MusicService {
@@ -49,7 +60,8 @@ export class MusicService {
     private soundcloudPlayer: PolarisSoundCloudPlayer,
     private youtubeInfoService: YoutubeInfoService,
     public configService: ConfigService,
-    public streams: GlobalMusicStream
+    public streams: GlobalMusicStream,
+    public yui: DiscordClient
   ) {
     YuiLogger.info(`Created!`, this.constructor.name)
   }
@@ -68,8 +80,9 @@ export class MusicService {
     const connection = await this.createVoiceConnection(message)
     if (!connection) throw new Error('Could not create voice connection')
 
-    const stream = new MusicStream(guild, voiceChannel, textChannel as TextChannel)
+    const stream = new MusicStream(guild, voiceChannel as VoiceChannel, textChannel as TextChannel)
     stream.set('voiceConnection', connection)
+
     this.streams.set(guild.id, stream)
 
     this.sendMessage(
@@ -80,13 +93,14 @@ export class MusicService {
     const onConnectionError = (error: Error) => {
       this.handleError(error)
       if (stream?.isPlaying) {
-        if (stream.streamDispatcher) stream.streamDispatcher.end()
+        // TODO:
+        // if (stream.streamDispatcher) stream.streamDispatcher.end()
         this.resetStreamStatus(stream)
       }
       this.sendMessage(message, `**Connection lost...**`)
     }
     stream.voiceConnection.on('error', (error) => onConnectionError(error))
-    stream.voiceConnection.on('failed', (error) => onConnectionError(error))
+    // stream.voiceConnection.on('failed', (error) => onConnectionError(error))
 
     this.deleteMessage(sentMessage)
     return stream
@@ -95,20 +109,25 @@ export class MusicService {
   private async createVoiceConnection(message: Message): Promise<IVoiceConnection> {
     const {
       voice: { channel: voiceChannel },
+      guild: { id: guildId, voiceAdapterCreator },
     } = message.member || {}
     if (!voiceChannel) throw new Error('Voice channel not found')
-    const connection = (await voiceChannel.join()) as IVoiceConnection
-    connection.voice?.setSelfDeaf(true).catch(null)
-
+    const connection = joinVoiceChannel({
+      channelId: voiceChannel.id,
+      guildId,
+      selfDeaf: true,
+      adapterCreator: voiceAdapterCreator,
+    }) as IVoiceConnection
     return connection
+    // console.log(connection, `<======= connection [music.service.ts - 102]`)
   }
-  public async play(message: Message, args: string[], next: boolean, ...otherArgs)
+
   @AccessController({ join: true })
   public async play(
     message: Message,
     args: string[],
     next: boolean,
-    @MusicParam('STREAM') stream: MusicStream
+    @MusicParam('STREAM') stream?: MusicStream
   ): Promise<void> {
     stream = stream ?? (await this.createStream(message))
 
@@ -383,14 +402,15 @@ export class MusicService {
   }
 
   private async playMusic(stream: MusicStream): Promise<void> {
-    let deleteTrigger: (timeout: number) => any = null
+    let deleteTrigger: () => any = null
     let inputStream: Readable | PassThrough
-    const onStreamEnd = ({ error, reason }: { error?: string | Error; reason?: string }) => {
+    const onStreamEnd = ({ state }: { state: AudioPlayerState }) => {
+      console.log(state, `<======= state [music.service.ts - 397]`)
       if (inputStream && !inputStream.destroyed) inputStream.destroy()
-      if (error) this.handleError(error as string)
+      // if (error) this.handleError(error as string)
 
       const { isLooping, queue, isAutoPlaying, isQueueLooping } = stream
-      if (!isLooping && deleteTrigger) deleteTrigger(200)
+      if (!isLooping && deleteTrigger) deleteTrigger()
 
       const endedSong = queue.first
 
@@ -405,7 +425,7 @@ export class MusicService {
       return this.playMusic(stream)
     }
     try {
-      const { type, id, videoUrl } = stream.queue.at(0)
+      const { type, id, videoUrl } = stream.queue.first
 
       const downloadOptions: ytdl.downloadOptions = {
         quality: 'highestaudio',
@@ -422,44 +442,52 @@ export class MusicService {
       if (!inputStream) throw new Error('Stream not created.')
 
       this.playStream(stream, inputStream, {
-        volume: 0.8,
-        highWaterMark: 50,
+        inputType: StreamType.Arbitrary,
+        inlineVolume: true,
+        metadata: { url: videoUrl },
       })
 
-      stream.streamDispatcher.on('start', async () => {
-        try {
-          stream.voiceConnection.player.streamingData.pausedTime = 0
-        } catch (e) {}
-        if (!stream.isLooping) {
-          deleteTrigger = await this.sendMessageChannel(
-            stream,
-            discordRichEmbedConstructor({
-              title: `${!stream.isAutoPlaying ? '🎧  Now Playing' : ':infinity: Autoplaying'}: ${
-                stream.queue.first.title
-              }`,
-              description: '',
-            })
-          ).then((message) => (timeout: number) => message.delete({ timeout }))
-        }
-      })
-
-      stream.streamDispatcher.on('finish', (reason) => onStreamEnd({ reason }))
-      stream.streamDispatcher.on('error', (error) => onStreamEnd({ error }))
+      if (!stream.isLooping) {
+        stream.audioPlayer
+          .once(AudioPlayerStatus.Buffering, async () => {
+            this.sendMessageChannel(
+              stream,
+              discordRichEmbedConstructor({
+                title: `${!stream.isAutoPlaying ? '🎧  Now Playing' : ':infinity: Autoplaying'}: ${
+                  stream.queue.first.title
+                }`,
+                description: '',
+              })
+            ).then(
+              (message) =>
+                (deleteTrigger = () => message.delete().catch((err) => this.handleError(err)))
+            )
+          })
+          .once(AudioPlayerStatus.Idle, (state) => onStreamEnd({ state }))
+      }
     } catch (error) {
-      onStreamEnd({ error })
+      onStreamEnd({ state: null })
     }
   }
 
   private playStream(
     stream: MusicStream,
-    input: Readable | string,
-    options: StreamOptions
-  ): StreamDispatcher {
-    if (stream.streamDispatcher && !stream.streamDispatcher.destroyed)
-      stream.streamDispatcher.destroy()
-    const newDispatcher = stream.voiceConnection.play(input, options)
-    stream.set('streamDispatcher', newDispatcher)
-    return newDispatcher
+    input: Parameters<typeof createAudioResource>[0],
+    options: Parameters<typeof createAudioResource>[1] & { metadata: { [key: string]: string } }
+  ) {
+    // if (stream.streamDispatcher && !stream.streamDispatcher.destroyed)
+    //   stream.streamDispatcher.destroy()
+    // const newDispatcher = stream.voiceConnection.play(input, options)
+    // stream.set('streamDispatcher', newDispatcher)
+    // return newDispatcher
+    const { audioPlayer, voiceConnection, playerSubscription } = stream
+    if (playerSubscription) playerSubscription.unsubscribe()
+
+    const resource = createAudioResource(input, options)
+    audioPlayer.play(resource)
+    const subscription = voiceConnection.subscribe(audioPlayer)
+    stream.set('playerSubscription', subscription)
+    stream.set('audioResource', resource)
   }
 
   skipSongs(message: Message, args: string[], ...otherArgs)
@@ -477,9 +505,9 @@ export class MusicService {
       if (stream.isLooping) {
         stream.set('isLooping', false)
       }
-      if (stream.streamDispatcher) {
-        stream.streamDispatcher.end()
-        return this.sendMessage(message, ' :fast_forward: **Skipped!**')
+      if (stream.audioPlayer) {
+        this.sendMessage(message, ' :fast_forward: **Skipped!**')
+        return stream.audioPlayer.stop(/* force */ true)
       }
     } else {
       const removeLength = +firstArg
@@ -494,9 +522,9 @@ export class MusicService {
 
         if (stream.isLooping) stream.set('isLooping', false)
 
-        if (stream.streamDispatcher) {
-          stream.streamDispatcher.end()
-          return this.sendMessage(message, ` :fast_forward: **Skipped ${removeLength} songs!**`)
+        if (stream.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
+          this.sendMessage(message, ` :fast_forward: **Skipped ${removeLength} songs!**`)
+          return stream.audioPlayer.stop(/* force */ true)
         }
       }
     }
@@ -519,9 +547,9 @@ export class MusicService {
       this.sendMessage(message, '**Please choose a valid number! (0 <= volume <= 100)**')
     }
 
-    const currentVolume = stream.streamDispatcher.volume
+    const currentVolume = stream.audioResource.volume?.volume || 100
 
-    stream.streamDispatcher.setVolume(newVolume / 100)
+    stream.audioResource.volume?.setVolume(newVolume / 100)
 
     this.sendMessage(
       message,
@@ -607,12 +635,12 @@ export class MusicService {
       return
     }
     const currSong = stream.queue.at(0)
-    const streamingTime = Math.round((stream?.streamDispatcher?.streamTime || 0) / 1000)
+    const streamingTime = Math.round((stream?.audioResource?.playbackDuration || 0) / 1000)
     const content = `**\`${timeConverter(streamingTime)}\`𝗹${createProgressBar(
       streamingTime,
       currSong.duration
     )}𝗹\`${timeConverter(currSong.duration)}\`**\n__\`Channel\`__: **\`${currSong.channelTitle}\`**`
-    const embed = await discordRichEmbedConstructor({
+    const embed = discordRichEmbedConstructor({
       title: currSong.title,
       author: {
         authorName: '♫ Now Playing ♫',
@@ -623,7 +651,7 @@ export class MusicService {
       titleUrl: currSong.videoUrl,
       footer: `Requested by ${currSong.requester}`,
     })
-    await this.sendMessage(message, embed)
+    this.sendMessage(message, embed)
   }
 
   printQueue(message: Message, args: Array<string>, ...otherArgs)
@@ -788,18 +816,19 @@ export class MusicService {
       messageFilter.author.id === message.author.id &&
       messageFilter.channel.id === message.channel.id
 
-    const collectorOptions: MessageCollectorOptions = {
-      time: 15000,
+    const collector = message.channel.createMessageCollector({
+      filter: collectorFilter,
+      time: 1500,
       max: 1,
-    }
-    const collector = message.channel.createMessageCollector(collectorFilter, collectorOptions)
+    })
 
     collector.on('collect', async (collected: Message) => {
       collector.stop()
       const content = collected.content.match(/[\d]{1,2}|[\w]+/)[0]
       if (content === 'cancel') {
         this.deleteMessage(sentContent)
-        return this.sendMessage(message, '**`Canceled!`**')
+        this.sendMessage(message, '**`Canceled!`**')
+        return
       } else {
         const index = +content
         if (!isNaN(index) && index > 0 && index <= 10) {
@@ -878,7 +907,7 @@ export class MusicService {
       this.handleError(new Error('Undefined stream value'))
       return
     }
-    if (stream.streamDispatcher) {
+    if (stream.audioPlayer) {
       return isPause ? this.setPause(stream) : this.setResume(stream)
     } else {
       this.sendMessage(message, "I'm not playing anything.")
@@ -887,7 +916,7 @@ export class MusicService {
 
   private setPause(stream: MusicStream) {
     if (!stream.isPaused) {
-      stream.streamDispatcher.pause()
+      stream.audioPlayer.pause(true)
       stream.set('isPaused', true)
       this.sendMessageChannel(stream, ':pause_button: **Paused!**')
     } else {
@@ -897,8 +926,7 @@ export class MusicService {
 
   private setResume(stream: MusicStream) {
     if (stream.isPaused) {
-      stream.streamDispatcher.resume()
-      stream.set('isPaused', false)
+      stream.audioPlayer.unpause()
       this.sendMessageChannel(stream, ' :arrow_forward: **Continue playing~!**')
     } else {
       this.sendMessageChannel(stream, '*Currently playing!*')
@@ -934,10 +962,10 @@ export class MusicService {
     @MusicParam('STREAM') stream: MusicStream
   ): Promise<void> {
     if (!stream) return this.handleError('Stream not found!')
-
-    stream.boundVoiceChannel?.leave()
-
     this.resetStreamStatus(stream)
+
+    stream.voiceConnection.destroy()
+
     this.deleteStream(stream)
 
     if (!isError) this.sendMessage(message, '**_Bye bye~! Matta nee~!_**')
@@ -945,7 +973,7 @@ export class MusicService {
 
   public timeoutLeaveChannel(stream: MusicStream) {
     try {
-      stream.boundVoiceChannel.leave()
+      stream.voiceConnection.destroy()
       stream.boundTextChannel.send("**_There's no one around so I'll leave too. Bye~!_**")
       this.resetStreamStatus(stream)
       this.deleteStream(stream)
@@ -955,22 +983,28 @@ export class MusicService {
   }
 
   public async sendMessage(message: Message, content: string | MessageEmbed): Promise<Message> {
-    return await message.channel.send(content).catch((err) => this.handleError(err))
+    return await message.channel
+      .send(typeof content === 'string' ? content : { embeds: [content] })
+      .catch((err) => this.handleError(err))
   }
 
   private async sendMessageChannel(
     stream: MusicStream,
     content: string | MessageEmbed
   ): Promise<Message> {
-    return await stream.boundTextChannel.send(content).catch((err) => this.handleError(err))
+    return await stream.boundTextChannel
+      .send(typeof content === 'string' ? content : { embeds: [content] })
+      .catch((err) => this.handleError(err))
   }
 
   public async replyMessage(message: Message, content: string | MessageEmbed) {
-    return await message.reply(content).catch((error) => this.handleError(error))
+    return await message
+      .reply(typeof content === 'string' ? content : { embeds: [content] })
+      .catch((error) => this.handleError(error))
   }
 
   public async deleteMessage(message: Message, option: { timeout?: number; reason?: string } = {}) {
-    return await message.delete(option).catch((err) => this.handleError(err))
+    return await message.delete().catch((err) => this.handleError(err))
   }
 
   private handleError(error: Error | string): null {

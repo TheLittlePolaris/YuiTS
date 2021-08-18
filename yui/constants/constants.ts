@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 export enum Constants {
-  YUI_COLOR_CODE = 'FFA000',
+  YUI_COLOR_CODE = '#FFA000',
   NOW_PLAYING_YUI = 'https://media.discordapp.net/attachments/413313406993694728/525196421553455114/Yui_Loading_5.gif',
 }
 

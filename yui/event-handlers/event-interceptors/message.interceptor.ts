@@ -3,10 +3,10 @@ import { YuiLogger } from '@/services/logger/logger.service'
 import { Interceptor } from '@/ioc-container/decorators/interceptor.decorator'
 import { IBaseInterceptor } from '@/ioc-container/interfaces/interceptor.interface'
 
-@Interceptor('message')
+@Interceptor('messageCreate')
 export class TextMessageInterceptor implements IBaseInterceptor {
-  intercept([message]: ClientEvents['message'], next: () => Promise<any>) {
-    if (!(message.channel.type === 'text')) return
+  intercept([message]: ClientEvents['messageCreate'], next: () => Promise<any>) {
+    if (!(message.channel.type === 'GUILD_TEXT')) return
     console.time(`handle_message_${message.id}`)
     next()
       .then(() => console.timeEnd(`handle_message_${message.id}`))

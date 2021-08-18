@@ -11,12 +11,13 @@ import {
   Command,
   DeleteOriginalMessage,
   MemberPermissions,
-} from '@/ioc-container/decorators/event-handlers/message-handle.decorator'
+  OnEvent,
+  UseInterceptor,
+} from '@/ioc-container/decorators'
 import { ConfigService } from '@/config-service/config.service'
-import { OnEvent, UseInterceptor } from '@/ioc-container/decorators'
 import { TextMessageInterceptor } from '@/event-handlers/event-interceptors/message.interceptor'
 
-@OnEvent('message', { ignoreBots: true, startsWithPrefix:  true })
+@OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
 @UseInterceptor(TextMessageInterceptor)
 export class TextMessageHandler {
   constructor(

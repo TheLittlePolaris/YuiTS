@@ -32,12 +32,12 @@ export class AdministrationService {
     this.adminCommands[command](message, args)
   }
 
-  public sendMessage(
-    message: Message,
-    content: string | MessageEmbed
-  ): Promise<Message | Message[]> {
-    return message.author.send(content).catch((err) => this.handleError(new Error(err)))
-  }
+  // public sendMessage(
+  //   message: Message,
+  //   content: string | MessageEmbed
+  // ): Promise<Message | Message[]> {
+  //   return message.author.send(content).catch((err) => this.handleError(new Error(err)))
+  // }
 
   private handleError(error: Error | string): null {
     YuiLogger.error(error, this.constructor.name)

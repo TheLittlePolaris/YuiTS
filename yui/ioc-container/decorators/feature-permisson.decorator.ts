@@ -33,13 +33,8 @@ export function FeaturePermissionValidator() {
         message.member,
       ])
       const [yuiPermission, memberPermission, isOwner] = [
-        yui.hasPermission([...requiredPermissions, 'MANAGE_MESSAGES'], {
-          checkAdmin: true,
-        }),
-        actionMember.hasPermission(requiredPermissions, {
-          checkAdmin: true,
-          checkOwner: true,
-        }),
+        yui.permissions.has([...requiredPermissions, 'MANAGE_MESSAGES'], true),
+        actionMember.permissions.has(requiredPermissions, true),
         actionMember.user.id === this.yui.user.id,
       ]
       if (!(yuiPermission && (memberPermission || isOwner))) return
@@ -53,12 +48,12 @@ export function FeaturePermissionValidator() {
       const mentionIndex = paramIndexes[FEATURE_PROPERTY_PARAMS.MENTIONS]
       if (!mentionIndex) return originalDescriptor.apply(this, filteredArgs)
 
-      const mentioned = message.mentions.members.array()
+      const mentioned = message.mentions.members
 
       const actionIndex = paramIndexes[FEATURE_PROPERTY_PARAMS.ACTION]
       const requestIndex = paramIndexes[FEATURE_PROPERTY_PARAMS.REQUEST_PARAM]
 
-      if (mentioned.length) {
+      if (mentioned.size) {
         filteredArgs[mentionIndex] = mentioned.toString().split(',')
         const mentionedIds = mentioned.map((member) => member.id)
         const userAction = params.filter((arg) => {
