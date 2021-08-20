@@ -1,8 +1,7 @@
 import { HandlerModule } from '@/event-handlers/handler.module'
-import { YuiModule } from '@/ioc-container/decorators'
+import { YuiModule, INJECT_TOKEN } from '@/ioc-container'
 import { RedisModule } from '@/services/redis-adapter/redis.module'
 import { ConfigModule } from '@/config-service/config.module'
-import { INJECT_TOKEN } from './ioc-container/constants'
 import { BitFieldResolvable, Intents, IntentsString } from 'discord.js'
 
 @YuiModule({

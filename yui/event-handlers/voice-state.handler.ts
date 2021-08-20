@@ -8,7 +8,7 @@ import {
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @OnEvent('voiceStateUpdate')
-export class VoiceStateHandler {
+export class VoiceStateEventHandler {
   constructor(private musicService: MusicService) {}
 
   @HandleVoiceState()

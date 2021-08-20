@@ -64,7 +64,7 @@ export class ContainerFactory {
     return entryInstance
   }
 
-  async createRootModule(rootModule: Type<any>, entryComponent = DiscordClient) {
+  async createHandleModule(rootModule: Type<any>, entryComponent = DiscordClient) {
     await this.compileModule(rootModule, entryComponent)
     const client = this.container.getInstance(entryComponent)
     const compiledEvents = Object.keys(this.eventHandlers)

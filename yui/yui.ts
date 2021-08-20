@@ -1,8 +1,7 @@
 import 'module-alias/register'
 import 'reflect-metadata'
+
 import { ContainerFactory, DiscordClient } from './ioc-container'
-
-
 import { YuiLogger } from './services/logger/logger.service'
 import { AppModule } from './yui-app.module'
 
@@ -14,9 +13,8 @@ const bootstrap = async () => {
     )
   }
   const container = new ContainerFactory()
-
-  const app: DiscordClient = await container.createRootModule(AppModule)
-
+  const app = await container.createHandleModule(AppModule)
+  
   YuiLogger.info('🔸 Yui is starting...', 'BOOTSTRAP')
 
   app.start(container.configService.token)

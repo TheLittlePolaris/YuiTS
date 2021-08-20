@@ -3,12 +3,8 @@ import { YuiLogger } from '@/services/logger/logger.service'
 import { DiscordClient, EventHandler, OnEvent, OnComponentInit } from '@/ioc-container'
 
 @OnEvent('ready')
-export class ReadyHandler implements OnComponentInit {
+export class ReadyEventHandler {
   constructor(private readonly yui: DiscordClient, private readonly configService: ConfigService) {}
-
-
-  onComponentInit() {
-  }
 
   @EventHandler()
   async onReadyHandler() {
@@ -19,6 +15,6 @@ export class ReadyHandler implements OnComponentInit {
       type: 'LISTENING',
     })
 
-    YuiLogger.log('🚀 🔶Yui is online! 🚀', ReadyHandler.name)
+    YuiLogger.log('🚀 🔶Yui is online! 🚀', ReadyEventHandler.name)
   }
 }

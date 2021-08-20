@@ -15,11 +15,11 @@ import {
   UseInterceptor,
 } from '@/ioc-container/decorators'
 import { ConfigService } from '@/config-service/config.service'
-import { TextMessageInterceptor } from '@/event-handlers/event-interceptors/message.interceptor'
+import { MessageCreateEventInterceptor } from '@/event-handlers/event-interceptors/message.interceptor'
 
 @OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
-@UseInterceptor(TextMessageInterceptor)
-export class TextMessageHandler {
+@UseInterceptor(MessageCreateEventInterceptor)
+export class MessageCreateEventHandler {
   constructor(
     private musicService: MusicService,
     private featureService: FeatureService,

@@ -10,7 +10,7 @@ import { Message } from 'discord.js'
 
 @OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
 @UseInterceptor(DMInterceptor)
-export class DMHandler {
+export class DMEventHandler {
   constructor(private ownerChannelService: OwnerChannelService) {}
 
   @HandleCommand('statistics', 'stat')
