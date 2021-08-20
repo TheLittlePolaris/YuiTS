@@ -9,19 +9,16 @@ import { YuiLogger } from '@/services/logger/logger.service'
 
 @OnEvent('voiceStateUpdate')
 export class VoiceStateHandler {
-  constructor(private musicService: MusicService) {
-    YuiLogger.info(`Created!`, VoiceStateHandler.name)
-  }
+  constructor(private musicService: MusicService) {}
 
   @HandleVoiceState()
   public onVoiceStateUpdate(
     @StateChannel('old') oldChannel: VoiceChannel,
     @StateChannel('new') newChannel: VoiceChannel
   ) {
-    const stream = this.musicService.streams.get(oldChannel?.guild.id)
+    const stream = this.musicService.streams.get(oldChannel?.guild.id || newChannel?.guild.id)
     const boundVC = stream?.boundVoiceChannel
     if (!boundVC) return
-
     if (newChannel?.id === boundVC.id && stream.leaveOnTimeout) {
       clearTimeout(stream.leaveOnTimeout)
       stream.set('leaveOnTimeout', null)

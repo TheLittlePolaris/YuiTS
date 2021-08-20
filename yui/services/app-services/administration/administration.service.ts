@@ -5,11 +5,11 @@ import {
   AdminCommand,
   CommandValidator,
   AdminPermissionValidator,
-} from '@/ioc-container/decorators/permission.decorator'
+  DiscordClient,
+  Injectable,
+} from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { ConfigService } from '@/config-service/config.service'
-import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
 
 @Injectable()
 export class AdministrationService {
@@ -17,9 +17,7 @@ export class AdministrationService {
     private adminCommands: AdminCommandComponent,
     public configService: ConfigService,
     public yui: DiscordClient
-  ) {
-    YuiLogger.info(`Created!`, this.constructor.name)
-  }
+  ) {}
 
   public async executeCommand(message: Message, args: string[], ..._args)
   @CommandValidator()
@@ -30,17 +28,5 @@ export class AdministrationService {
     @AdminCommand() command: ADMIN_ACTION_TYPE
   ) {
     this.adminCommands[command](message, args)
-  }
-
-  // public sendMessage(
-  //   message: Message,
-  //   content: string | MessageEmbed
-  // ): Promise<Message | Message[]> {
-  //   return message.author.send(content).catch((err) => this.handleError(new Error(err)))
-  // }
-
-  private handleError(error: Error | string): null {
-    YuiLogger.error(error, this.constructor.name)
-    return null
   }
 }

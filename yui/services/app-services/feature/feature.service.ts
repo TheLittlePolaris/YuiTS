@@ -3,16 +3,17 @@ import Axios from 'axios'
 import {
   FeaturePermissionValidator,
   FeatureParam,
-} from '@/ioc-container/decorators/feature-permisson.decorator'
-import { GuildMember, Message, MessageEmbed, MessagePayload, MessageOptions } from 'discord.js'
+  DiscordClient,
+  HoloStatCommandValidator,
+  VTuberParam,
+  Injectable,
+} from '@/ioc-container'
+import { GuildMember, Message, MessagePayload, MessageOptions } from 'discord.js'
 import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
 import { RNG } from '../utilities/util-function'
 import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
 import { ConfigService } from '@/config-service/config.service'
-import { HoloStatCommandValidator, VTuberParam } from '@/ioc-container/decorators'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
 
 @Injectable()
@@ -23,9 +24,7 @@ export class FeatureService {
     public yui: DiscordClient,
     private vtuberStatService: VtuberStatService,
     private configService: ConfigService
-  ) {
-    YuiLogger.info(`Created!`, this.constructor.name)
-  }
+  ) {}
 
   @FeaturePermissionValidator()
   public async getPing(message: Message): Promise<void> {

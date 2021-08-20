@@ -13,12 +13,11 @@ export const isObject = (fn: any): fn is object => !isNil(fn) && typeof fn === '
 export const isNil = (obj: any): obj is null | undefined => isUndefined(obj) || obj === null
 export const isUndefined = (obj: any): obj is undefined => typeof obj === 'undefined'
 
-
 export class YuiLogger implements LoggerService {
   private static chalk = new Instance({ level: 2 })
   private context: string
   private static instance?: typeof YuiLogger | LoggerService = YuiLogger
-
+  private static yuiPid = process.pid
   private static winstonLogger: WinstonLogger = createLogger({
     format: format.json(),
 
@@ -32,7 +31,7 @@ export class YuiLogger implements LoggerService {
         level: 'warn',
       }),
       new transports.Console({
-        level: 'info',
+        level: 'debug',
         format: format.combine(
           format.colorize(),
           format.combine(
@@ -40,7 +39,7 @@ export class YuiLogger implements LoggerService {
               all: true,
             }),
             format.label({
-              label: '[Yui]',
+              label: `[Yui] ${YuiLogger.chalk.keyword('orange')(`[${process.pid}]`)}`,
             }),
             format.timestamp({
               format: 'YY-MM-DD HH:MM:SS',
@@ -118,9 +117,7 @@ export class YuiLogger implements LoggerService {
   }
 
   private static printMessage(message: string | Error, color: Chalk, context?: string) {
-    const output = isObject(message)
-      ? `${JSON.stringify(message, null, 2)}\n`
-      : color(message)
+    const output = isObject(message) ? `${JSON.stringify(message, null, 2)}\n` : color(message)
 
     const localeStringOptions: Intl.DateTimeFormatOptions = {
       year: 'numeric',
@@ -130,9 +127,7 @@ export class YuiLogger implements LoggerService {
       day: '2-digit',
       month: '2-digit',
     }
-    const timestamp = new Date(Date.now()).toLocaleString(undefined, localeStringOptions)
-    const pid = this.chalk.keyword('orange')(`[${process.pid}]`)
     const msgContext = context ? this.chalk.hex('#00ffff')(`[${context}]`) : ``
-    return `[${timestamp}]${pid} - ${msgContext} ${output}\n`
+    return `${msgContext} ${output}\n`
   }
 }

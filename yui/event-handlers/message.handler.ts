@@ -25,9 +25,7 @@ export class TextMessageHandler {
     private featureService: FeatureService,
     private administrationService: AdministrationService,
     private configService: ConfigService
-  ) {
-    YuiLogger.info(`Created!`, TextMessageHandler.name)
-  }
+  ) {}
 
   @HandleCommand('play', 'p')
   public async playMusic(@MessageParam() message: Message, @Args() args: string[]) {

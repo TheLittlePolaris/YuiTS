@@ -22,8 +22,8 @@ import {
   INTERCEPTOR_TARGET,
   MODULE_METADATA_KEY,
   EVENT_HANDLER_CONFIG,
-} from '@/ioc-container/constants'
-import { DiscordClient } from './entrypoint/discord-client'
+  DiscordClient,
+} from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 export class ContainerFactory {
@@ -151,6 +151,7 @@ export class ContainerFactory {
     const injections = this.loadInjectionsForTarget(module, target)
     const compiledInstance = Reflect.construct(target, injections)
     if (isFunction(compiledInstance.onComponentInit)) compiledInstance.onComponentInit()
+    YuiLogger.debug(`${target.name} created!`, this.constructor.name)
     return compiledInstance
   }
   /**

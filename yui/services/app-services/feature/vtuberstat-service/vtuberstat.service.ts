@@ -28,9 +28,7 @@ export class VtuberStatService {
   constructor(
     private holostatRequestService: HoloStatRequestService,
     private youtubeRequestService: YoutubeChannelService
-  ) {
-    YuiLogger.info('Created!', this.constructor.name)
-  }
+  ) {}
 
   public async vtuberStatSelectList({
     message,

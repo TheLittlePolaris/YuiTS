@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { YoutubeRequestService } from './youtube-request.service'
-import { IYoutubePlaylistResult, IYoutubeVideo, IYoutubeSearchResult } from '../music-interfaces/youtube-info.interface'
+import {
+  IYoutubePlaylistResult,
+  IYoutubeVideo,
+  IYoutubeSearchResult,
+} from '../music-interfaces/youtube-info.interface'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()
 export class YoutubeInfoService {
-  constructor(private youtubeRequestService: YoutubeRequestService) {
-    YuiLogger.info(`Created!`, this.constructor.name)
-  }
+  constructor(private youtubeRequestService: YoutubeRequestService) {}
 
   public getYoutubePlaylistId(query: string) {
     const result = /[&|\?]list=([a-zA-Z0-9_-]+)/gi.exec(query)
@@ -16,9 +18,10 @@ export class YoutubeInfoService {
   }
 
   public async getYoutubeVideoId(query: string) {
-    const result = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/gi.exec(
-      query
-    )
+    const result =
+      /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/gi.exec(
+        query
+      )
     return (result?.length && result[1]) || (await this.searchVideo(query))
   }
 
@@ -40,23 +43,30 @@ export class YoutubeInfoService {
     const data = await this.youtubeRequestService.googleYoutubeApiVideos({
       part: ['snippet', 'contentDetails'],
       id: ids,
-      fields: 'items(contentDetails(duration),id,snippet(channelId,channelTitle,thumbnails/default,title))',
+      fields:
+        'items(contentDetails(duration),id,snippet(channelId,channelTitle,thumbnails/default,title))',
     })
     if (!data) throw Error('Something went wrong during request')
     return data.items
   }
 
-  public async getPlaylistItems(playlistId: string, currentPageToken?: string): Promise<IYoutubeVideo[]> {
+  public async getPlaylistItems(
+    playlistId: string,
+    currentPageToken?: string
+  ): Promise<IYoutubeVideo[]> {
     const data = await this.youtubeRequestService.googleYoutubeApiPlaylistItems({
       part: ['snippet'],
       playlistId,
-      fields: 'nextPageToken,items(id,kind,snippet(channelId,channelTitle,resourceId(kind,videoId),title))',
+      fields:
+        'nextPageToken,items(id,kind,snippet(channelId,channelTitle,resourceId(kind,videoId),title))',
       ...(currentPageToken ? { pageToken: currentPageToken } : {}),
       maxResults: 50,
     })
     if (!data) return []
     const { nextPageToken } = data
-    const playlistSongs = await this.processPlaylistItemsData(data).catch((err) => this.handleError(new Error(err)))
+    const playlistSongs = await this.processPlaylistItemsData(data).catch((err) =>
+      this.handleError(new Error(err))
+    )
     let nextPageResults = []
     if (nextPageToken) {
       nextPageResults = await this.getPlaylistItems(playlistId, nextPageToken).catch((err) =>
@@ -79,7 +89,10 @@ export class YoutubeInfoService {
     return videos
   }
 
-  public async getSongsByChannelId(channelId: string, pageToken?: string): Promise<IYoutubeSearchResult> {
+  public async getSongsByChannelId(
+    channelId: string,
+    pageToken?: string
+  ): Promise<IYoutubeSearchResult> {
     const data = await this.youtubeRequestService.googleYoutubeApiSearch({
       part: ['snippet'],
       channelId,

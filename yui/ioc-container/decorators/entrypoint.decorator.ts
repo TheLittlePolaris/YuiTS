@@ -7,7 +7,6 @@ import {
 import {
   Type,
   GenericClassDecorator,
-  EventParamMetadata,
   Prototype,
 } from '../interfaces/dependencies-injection.interfaces'
 import { isFunction } from '@/ioc-container/helpers/helper-functions'

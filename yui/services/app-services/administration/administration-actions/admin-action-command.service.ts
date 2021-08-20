@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { GuildMember, Message, Role, MessageEmbed, MessagePayload, MessageOptions } from 'discord.js'
+import {
+  GuildMember,
+  Message,
+  Role,
+  MessagePayload,
+  MessageOptions,
+} from 'discord.js'
 import {
   AdminCommandValidator,
   AdminParam,
@@ -7,12 +13,9 @@ import {
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 
-
 @Injectable()
 export class AdminCommandComponent {
-  constructor() {
-    YuiLogger.info(`Created!`, this.constructor.name)
-  }
+  constructor() {}
 
   async kick(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()

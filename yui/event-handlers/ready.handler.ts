@@ -1,8 +1,6 @@
 import { ConfigService } from '@/config-service/config.service'
-import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
-import { EventHandler, OnEvent } from '@/ioc-container/decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { OnComponentInit } from '@/ioc-container/interfaces'
+import { DiscordClient, EventHandler, OnEvent, OnComponentInit } from '@/ioc-container'
 
 @OnEvent('ready')
 export class ReadyHandler implements OnComponentInit {

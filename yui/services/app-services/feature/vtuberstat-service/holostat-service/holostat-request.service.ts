@@ -13,11 +13,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
     en: 'UCotXwY6s8pWmuWd_snKYjhg.LeAltgu_pbM',
   }
 
-  constructor(
-    private youtubeChannelService: YoutubeChannelService
-  ) {
-    YuiLogger.info('Created!', this.constructor.name)
-  }
+  constructor(private youtubeChannelService: YoutubeChannelService) {}
 
   public async getChannelList(region: HOLO_KNOWN_REGION): Promise<IYoutubeChannel[]> {
     const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(
@@ -32,11 +28,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
     ])
   }
 
-  public async getAllMembersChannelDetail(
-    region?: HOLO_KNOWN_REGION
-  ) {
-
-
+  public async getAllMembersChannelDetail(region?: HOLO_KNOWN_REGION) {
     const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(
       this.featuredChannels[region] as string
     )
@@ -47,9 +39,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
       this.featuredChannels[region] as string,
     ])
   }
-  public async getSelectedChannelDetail(
-    channelId: string
-  ) {
+  public async getSelectedChannelDetail(channelId: string) {
     return await this.youtubeChannelService.getSelectedChannelDetail(channelId)
   }
 

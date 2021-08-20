@@ -1,57 +1,37 @@
 import { Constants } from '@/constants/constants'
-import { AccessController, MusicParam } from '@/ioc-container/decorators/music.decorator'
-import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
-import {
-  GuildMember,
-  Message,
-  MessageCollectorOptions,
-  MessageEmbed,
-  TextChannel,
-  VoiceChannel,
-} from 'discord.js'
+
+import { GuildMember, Message, MessageEmbed, TextChannel, VoiceChannel } from 'discord.js'
 import { PassThrough, Readable } from 'stream'
 import ytdl from 'ytdl-core'
-import { discordRichEmbedConstructor } from '../utilities/discord-embed-constructor'
-import { RNG } from '../utilities/util-function'
-import { MusicQueue } from './music-entities/music-queue'
-import { MusicStream } from './music-entities/music-stream'
-import { ISong } from './music-interfaces/song-metadata.interface'
-import { IYoutubeVideo } from './music-interfaces/youtube-info.interface'
+import { discordRichEmbedConstructor, RNG } from '../utilities'
+import { MusicStream, MusicQueue } from './music-entities'
+import { ISong, IYoutubeVideo } from './music-interfaces'
+import { createProgressBar, printQueueList, STREAM_STATUS, timeConverter } from './music-util'
 import {
-  createProgressBar,
-  printQueueList,
-  STREAM_STATUS,
-  timeConverter,
-} from './music-util/music-utilities'
-import { PolarisSoundCloudService } from './soundcloud-service/soundcloud-info.service'
-import { PolarisSoundCloudPlayer } from './soundcloud-service/soundcloud-player.service'
-import {
+  PolarisSoundCloudService,
+  PolarisSoundCloudPlayer,
   isSoundCloudPlaylistUrl,
   isSoundCloudSongUrl,
   isSoundCloudUrl,
-} from './soundcloud-service/soundcloud-utilities'
-import { YoutubeInfoService } from './youtube-service/youtube-info.service'
+} from './soundcloud-service'
 import {
+  YoutubeInfoService,
   isYoutubePlaylistUrl,
   isYoutubeUrl,
   youtubeTimeConverter,
-} from './youtube-service/youtube-utilities'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+} from './youtube-service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { GlobalMusicStream } from '@/custom-classes/global-music-streams'
 import { ConfigService } from '@/config-service/config.service'
 import {
-  AudioPlayer,
   AudioPlayerState,
   AudioPlayerStatus,
-  AudioResource,
-  CreateAudioPlayerOptions,
   createAudioResource,
   joinVoiceChannel,
-  PlayerSubscription,
   StreamType,
+  VoiceConnection,
 } from '@discordjs/voice'
-import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
+import { AccessController, DiscordClient, Injectable, MusicParam } from '@/ioc-container'
 
 @Injectable()
 export class MusicService {
@@ -62,9 +42,7 @@ export class MusicService {
     public configService: ConfigService,
     public streams: GlobalMusicStream,
     public yui: DiscordClient
-  ) {
-    YuiLogger.info(`Created!`, this.constructor.name)
-  }
+  ) {}
 
   private async createStream(message: Message): Promise<MusicStream | null> {
     const sentMessage = await this.sendMessage(
@@ -106,7 +84,7 @@ export class MusicService {
     return stream
   }
 
-  private async createVoiceConnection(message: Message): Promise<IVoiceConnection> {
+  private async createVoiceConnection(message: Message): Promise<VoiceConnection> {
     const {
       voice: { channel: voiceChannel },
       guild: { id: guildId, voiceAdapterCreator },
@@ -117,9 +95,8 @@ export class MusicService {
       guildId,
       selfDeaf: true,
       adapterCreator: voiceAdapterCreator,
-    }) as IVoiceConnection
+    })
     return connection
-    // console.log(connection, `<======= connection [music.service.ts - 102]`)
   }
 
   @AccessController({ join: true })
@@ -405,7 +382,6 @@ export class MusicService {
     let deleteTrigger: () => any = null
     let inputStream: Readable | PassThrough
     const onStreamEnd = ({ state }: { state: AudioPlayerState }) => {
-      console.log(state, `<======= state [music.service.ts - 397]`)
       if (inputStream && !inputStream.destroyed) inputStream.destroy()
       // if (error) this.handleError(error as string)
 
@@ -447,9 +423,9 @@ export class MusicService {
         metadata: { url: videoUrl },
       })
 
-      if (!stream.isLooping) {
-        stream.audioPlayer
-          .once(AudioPlayerStatus.Buffering, async () => {
+      stream.audioPlayer
+        .once(AudioPlayerStatus.Buffering, async () => {
+          if (!stream.isLooping) {
             this.sendMessageChannel(
               stream,
               discordRichEmbedConstructor({
@@ -462,9 +438,9 @@ export class MusicService {
               (message) =>
                 (deleteTrigger = () => message.delete().catch((err) => this.handleError(err)))
             )
-          })
-          .once(AudioPlayerStatus.Idle, (state) => onStreamEnd({ state }))
-      }
+          }
+        })
+        .once(AudioPlayerStatus.Idle, (state) => onStreamEnd({ state }))
     } catch (error) {
       onStreamEnd({ state: null })
     }
@@ -595,16 +571,16 @@ export class MusicService {
 
   private async autoPlaySong(stream: MusicStream, endedSong: ISong) {
     if (endedSong.type === 'soundcloud') {
-      stream._boundTextChannel
+      stream.boundTextChannel
         .send(
           '**Autoplay mode is currently only available with Youtube videos, please add a youtube song.'
         )
         .catch((err) => this.handleError(new Error(err)))
       return
     }
-    stream.set('tempChannelId', endedSong.channelId)
+    stream.set('autoplayChannelId', endedSong.channelId)
     const videoInfo = await this.youtubeInfoService.getSongsByChannelId(
-      stream.tempChannelId,
+      stream.autoplayChannelId,
       stream.nextPage
     )
     const { nextPageToken, items } = videoInfo

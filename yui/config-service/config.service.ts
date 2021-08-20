@@ -12,7 +12,6 @@ interface EnvConfig {
 export class ConfigService {
   public envConfig: EnvConfig
   constructor() {
-    
     const nodeEnv = process.env.NODE_ENV
     if (nodeEnv)
       YuiLogger.info(
@@ -30,7 +29,6 @@ export class ConfigService {
       throw new Error(`Fatal: CANNOT READ CONFIG ENVIRONMENT: ${error}`)
     }
     this.envConfig = parsed
-    YuiLogger.info(`Created!`, this.constructor.name)
   }
 
   public get token(): string {

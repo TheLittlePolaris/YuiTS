@@ -7,9 +7,7 @@ import { ConfigService } from '@/config-service/config.service'
 
 @Injectable()
 export class YoutubeChannelService implements BaseChannelService {
-  constructor(private configService: ConfigService) {
-    YuiLogger.info(`Created!`, this.constructor.name)
-  }
+  constructor(private configService: ConfigService) {}
 
   private youtube: youtube_v3.Youtube = google.youtube({
     version: 'v3',
@@ -54,7 +52,7 @@ export class YoutubeChannelService implements BaseChannelService {
     }
 
     const { data } = await this.youtubeChannelSections.list(getChannelsOptions)
-    // TODO: 
+    // TODO:
     const featuredChannelsUrls = data?.items[0]?.contentDetails.channels
     if (!featuredChannelsUrls?.length)
       return this.handleError('Cannot find any related channels from Hololive Official')

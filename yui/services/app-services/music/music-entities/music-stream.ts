@@ -2,14 +2,10 @@ import type {
   Guild,
   VoiceChannel,
   TextChannel,
-
 } from 'discord.js'
-
 import { MusicQueue } from './music-queue'
-// import { MusicStreamValue } from '../music-interfaces/music-stream.interface'
-import { IVoiceConnection } from '@/interfaces/custom-interfaces.interface'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { AudioPlayer, AudioResource, PlayerSubscription } from '@discordjs/voice'
+import { AudioPlayer, AudioResource, PlayerSubscription, VoiceConnection } from '@discordjs/voice'
 
 export class MusicStream {
   private _id: string
@@ -19,20 +15,15 @@ export class MusicStream {
   private _isAutoPlaying = false
   private _isPlaying = false
   private _isPaused = false
-  // public _streamDispatcher: StreamDispatcher
-  // public _broadcastDispatcher: BroadcastDispatcher
-  // public _voiceBroadcast: VoiceBroadcast
 
-  private _voiceConnection: IVoiceConnection
+  private _voiceConnection: VoiceConnection
   private _audioPlayer: AudioPlayer
   private _playerSubscription: PlayerSubscription
   private _audioResource: AudioResource
 
-  private _tempChannelId: string
+  private _autoplayChannelId: string
   private _nextPage: string
   public _queue: MusicQueue
-  public _boundVoiceChannel: VoiceChannel
-  public _boundTextChannel: TextChannel
   public _leaveOnTimeout: NodeJS.Timeout
 
   /**
@@ -41,11 +32,9 @@ export class MusicStream {
    * @param boundVoiceChannel Voice channel the the bot has joined: message.member.voiceChannel
    * @param boundTextChannel Text channel message was sent: message.channel
    */
-  constructor(guild: Guild, boundVoiceChannel: VoiceChannel, boundTextChannel: TextChannel) {
+  constructor(guild: Guild, public boundVoiceChannel: VoiceChannel, public boundTextChannel: TextChannel) {
     this._id = guild.id
     this._name = guild.name
-    this._boundVoiceChannel = boundVoiceChannel
-    this._boundTextChannel = boundTextChannel
 
     this._queue = new MusicQueue()
     this._audioPlayer = new AudioPlayer()
@@ -86,18 +75,6 @@ export class MusicStream {
     return this._isPaused
   }
 
-  // public get streamDispatcher(): StreamDispatcher {
-  //   return this._streamDispatcher
-  // }
-
-  // public get broadcastDispatcher(): BroadcastDispatcher {
-  //   return this._broadcastDispatcher
-  // }
-
-  // public get voiceBroadcast(): VoiceBroadcast {
-  //   return this._voiceBroadcast
-  // }
-
   public get audioPlayer(): AudioPlayer {
     return this._audioPlayer
   }
@@ -110,12 +87,12 @@ export class MusicStream {
     return this._audioResource
   }
 
-  public get voiceConnection(): IVoiceConnection {
+  public get voiceConnection(): VoiceConnection {
     return this._voiceConnection
   }
 
-  public get tempChannelId(): string {
-    return this._tempChannelId
+  public get autoplayChannelId(): string {
+    return this._autoplayChannelId
   }
 
   public get nextPage(): string {
@@ -124,14 +101,6 @@ export class MusicStream {
 
   public get queue(): MusicQueue {
     return this._queue
-  }
-
-  public get boundVoiceChannel(): VoiceChannel {
-    return this._boundVoiceChannel
-  }
-
-  public get boundTextChannel(): TextChannel {
-    return this._boundTextChannel
   }
 
   /**

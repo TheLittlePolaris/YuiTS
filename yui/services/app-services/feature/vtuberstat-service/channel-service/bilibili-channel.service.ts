@@ -7,9 +7,7 @@ import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()
 export class BilibiliChannelService implements BaseChannelService {
-  constructor() {
-    YuiLogger.info(`Created!`, this.constructor.name)
-  }
+  constructor() {}
 
   public async getChannelList(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(channelIds.map((id) => bilibili({ mid: id }, ['info'])))
@@ -19,7 +17,9 @@ export class BilibiliChannelService implements BaseChannelService {
 
   public async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(
-      channelIds.map((id) => bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView']))
+      channelIds.map((id) =>
+        bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView'])
+      )
     ).catch((err) => this.handleError(err))
     if (!results) return []
     const channelData = results.map(this.mapToYoutubeChannel)
@@ -28,7 +28,9 @@ export class BilibiliChannelService implements BaseChannelService {
 
   public async testgetAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(
-      channelIds.map((id) => bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView']))
+      channelIds.map((id) =>
+        bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView'])
+      )
     ).catch((err) => this.handleError(err))
     if (!results) return []
     const channelData = results.map(this.mapToYoutubeChannel)

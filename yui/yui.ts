@@ -1,8 +1,8 @@
 import 'module-alias/register'
 import 'reflect-metadata'
+import { ContainerFactory, DiscordClient } from './ioc-container'
 
-import { ContainerFactory } from './ioc-container/container-factory'
-import { DiscordClient } from './ioc-container/entrypoint/discord-client'
+
 import { YuiLogger } from './services/logger/logger.service'
 import { AppModule } from './yui-app.module'
 
