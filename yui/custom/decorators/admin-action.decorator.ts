@@ -7,10 +7,7 @@ import {
 import {
   METHOD_PARAM_METADATA,
 } from '@/ioc-container/constants/dependencies-injection.constant'
-import {
-  Prototype,
-  GenericMethodDecorator,
-} from '../interfaces/dependencies-injection.interfaces'
+import { GenericMethodDecorator, Prototype } from '@/ioc-container'
 
 enum ADMIN_PARAMS {
   REASON = 'reason',

@@ -3,8 +3,8 @@ import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
 } from '@/services/app-services/administration/admin-interfaces/administration.interface'
-import { Prototype } from '../interfaces/dependencies-injection.interfaces'
 import { AdministrationService } from '@/services/app-services/administration/administration.service'
+import { Prototype, BOT_GLOBAL_CLIENT, BOT_GLOBAL_CONFIG } from '@/ioc-container'
 
 enum REFLECT_PERMISSION_SYMBOLS {
   COMMAND = 'command',
@@ -21,12 +21,12 @@ export function AdminPermissionValidator() {
     descriptor.value = async function (this: AdministrationService, ..._args: any[]) {
       const [message, args, command] = _args as [Message, Array<string>, string]
       const [yui, actionMember] = await Promise.all([
-        this.yui.getGuildMember(message),
+        this[BOT_GLOBAL_CLIENT].getGuildMember(message),
         Promise.resolve(message.member),
       ])
       if (!command || !ADMIN_COMMANDS.includes(command)) return
 
-      const isOwner: boolean = message.author.id === this.configService.ownerId
+      const isOwner: boolean = message.author.id === this[BOT_GLOBAL_CONFIG].ownerId
 
       let yuiPermission, memberPermission: boolean
 

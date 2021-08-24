@@ -15,7 +15,7 @@ export function HandleCommand(command = 'default', ...aliases: string[]) {
     Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
 
     const originalHandler = descriptor.value as Function
-    descriptor.value = function ([message]: ClientEvents['message'], config: ConfigService) {
+    descriptor.value = function ([message]: ClientEvents['messageCreate'], config: ConfigService) {
       const [_command, ..._args] = message.content.replace(config.prefix, '').trim().split(/ +/g)
 
       const paramList =

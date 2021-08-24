@@ -1,5 +1,4 @@
 import { Constants } from '@/constants/constants'
-
 import { GuildMember, Message, MessageEmbed, TextChannel, VoiceChannel } from 'discord.js'
 import { PassThrough, Readable } from 'stream'
 import ytdl from 'ytdl-core'
@@ -21,7 +20,7 @@ import {
   youtubeTimeConverter,
 } from './youtube-service'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { GlobalMusicStream } from '@/custom-classes/global-music-streams'
+import { GlobalMusicStream } from '@/custom/classes/global-music-streams'
 import { ConfigService } from '@/config-service/config.service'
 import {
   AudioPlayerState,
@@ -31,7 +30,8 @@ import {
   StreamType,
   VoiceConnection,
 } from '@discordjs/voice'
-import { AccessController, DiscordClient, Injectable, MusicParam } from '@/ioc-container'
+import { DiscordClient, Injectable } from '@/ioc-container'
+import { AccessController, MusicParam } from '@/custom/decorators/music.decorator'
 
 @Injectable()
 export class MusicService {

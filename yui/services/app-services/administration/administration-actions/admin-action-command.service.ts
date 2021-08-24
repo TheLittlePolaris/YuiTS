@@ -6,12 +6,9 @@ import {
   MessagePayload,
   MessageOptions,
 } from 'discord.js'
-import {
-  AdminCommandValidator,
-  AdminParam,
-} from '@/ioc-container/decorators/admin-action.decorator'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { AdminCommandValidator, AdminParam } from '@/custom/decorators/admin-action.decorator'
 
 @Injectable()
 export class AdminCommandComponent {

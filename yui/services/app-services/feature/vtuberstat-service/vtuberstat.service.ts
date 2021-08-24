@@ -7,7 +7,6 @@ import {
   MessageOptions,
 } from 'discord.js'
 import { discordRichEmbedConstructor } from '@/services/app-services/utilities/discord-embed-constructor'
-import { HoloStatRequestService } from './holostat-service/holostat-request.service'
 import {
   subscriberCountFormatter,
   dateTimeJSTFormatter,
@@ -16,7 +15,8 @@ import {
   HOLO_KNOWN_REGION,
   HOLO_REGION_MAP,
   holoStatList,
-} from './holostat-service/holostat.interface'
+  HoloStatRequestService,
+} from './holostat-service'
 
 import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'

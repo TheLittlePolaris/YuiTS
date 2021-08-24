@@ -15,7 +15,7 @@ import {
   UseInterceptor,
 } from '@/ioc-container/decorators'
 import { ConfigService } from '@/config-service/config.service'
-import { MessageCreateEventInterceptor } from '@/event-handlers/event-interceptors/message.interceptor'
+import { MessageCreateEventInterceptor } from '@/event-handlers/event-interceptors'
 
 @OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
 @UseInterceptor(MessageCreateEventInterceptor)

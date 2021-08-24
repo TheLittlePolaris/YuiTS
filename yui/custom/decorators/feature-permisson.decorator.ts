@@ -2,11 +2,8 @@ import { Message, PermissionString } from 'discord.js'
 import {
   METHOD_PARAM_METADATA,
 } from '@/ioc-container/constants/dependencies-injection.constant'
-import {
-
-  Prototype,
-} from '../interfaces/dependencies-injection.interfaces'
 import { FeatureService } from '@/services/app-services/feature/feature.service'
+import { Prototype } from '@/ioc-container'
 
 export enum FEATURE_PROPERTY_PARAMS {
   GUILD_MEMBER = 'guildMember',

@@ -6,7 +6,7 @@ import {
   holoStatList,
 } from '@/services/app-services/feature/vtuberstat-service/holostat-service/holostat.interface'
 import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/dependencies-injection.constant'
-import { Prototype } from '../interfaces/dependencies-injection.interfaces'
+import { Prototype } from '@/ioc-container'
 
 export enum VTUBER_PARAMS {
   REGION = 'region',

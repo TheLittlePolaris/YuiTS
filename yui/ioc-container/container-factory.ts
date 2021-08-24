@@ -25,6 +25,7 @@ import {
   DiscordClient,
 } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
+import { BOT_GLOBAL_CLIENT, BOT_GLOBAL_CONFIG } from './constants/config.constant'
 
 export class ContainerFactory {
   static entryDetected = false
@@ -92,6 +93,7 @@ export class ContainerFactory {
 
     if (entryComponent) {
       // first entry needs custom config
+      this.container.setEntryComponent(entryComponent)
       this.compileComponent(module, entryComponent)
     }
 
@@ -127,14 +129,10 @@ export class ContainerFactory {
     const tokens: Type<any>[] = Reflect.getMetadata(PARAMTYPES_METADATA, target) || []
     const customTokens: { [paramIndex: string]: /* param name */ string } =
       Reflect.getMetadata(SELF_DECLARED_DEPS_METADATA, target) || []
-    if (target.name === DiscordClient.name) {
-    }
     return tokens.map((token: Type<any>, paramIndex: number) => {
       if (customTokens && customTokens[paramIndex]) {
         // module-based value provider
         const customProvide = this.container.getProvider(module, customTokens[paramIndex])
-        if (target.name === DiscordClient.name) {
-        }
         /* TODO: class provider */
         if (isValueInjector(customProvide))
           return (customProvide as CustomValueProvider<any>).useValue
@@ -158,9 +156,6 @@ export class ContainerFactory {
    * Find the instance for injection, if exists then inject it, if not create it and store it
    */
   compileComponent(module: Type<any>, target: Type<any>) {
-    if (target.name === DiscordClient.name) {
-    }
-
     if (isValue(target)) return
 
     const createdInstance = this.container.getInstance(target)
@@ -170,6 +165,7 @@ export class ContainerFactory {
     this.container.addInstance(target, compiledInstance)
 
     Promise.resolve().then(() => this.compileHandlerForEvent(target, compiledInstance))
+    setTimeout(() => this.injectExternalConfig(target, compiledInstance));
 
     return compiledInstance
   }
@@ -187,6 +183,15 @@ export class ContainerFactory {
       this.configService = compiledInstance
     }
   }
+
+  private injectExternalConfig(type: Type<any>, instance: InstanceType<Type<any>>) {
+    const { entryComponent } = this.container
+    if(type.name === entryComponent.name) return
+
+    instance[BOT_GLOBAL_CLIENT] = this.container.getInstance(entryComponent)
+    instance[BOT_GLOBAL_CONFIG] = this.configService
+  }
+
 
   compileInterceptor(module: Type<any>, interceptorTarget: Type<any>) {
     if (isValue(interceptorTarget)) return
