@@ -1,13 +1,9 @@
-
 import { Message, GuildMember, Role } from 'discord.js'
 import {
   ADMIN_COMMANDS,
   ADMIN_ACTION_TYPE,
-} from '@/services/app-services/administration/admin-interfaces/administration.interface'
-import {
-  METHOD_PARAM_METADATA,
-} from '@/ioc-container/constants/dependencies-injection.constant'
-import { GenericMethodDecorator, Prototype } from '@/ioc-container'
+} from '@/services/app-services/administration'
+import { GenericMethodDecorator, Prototype,METHOD_PARAM_METADATA } from '@/ioc-container'
 
 enum ADMIN_PARAMS {
   REASON = 'reason',
@@ -20,10 +16,8 @@ enum ADMIN_PARAMS {
 export type ADMIN_PARAM_NAME = Record<ADMIN_PARAMS, string>
 export type ADMIN_PARAM_KEY = keyof typeof ADMIN_PARAMS
 
-
 export function AdminCommandValidator(): GenericMethodDecorator<any> {
   return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
-
     const originalDescriptor = descriptor.value
     descriptor.value = async function (..._args: any[]) {
       const [message, args] = _args as [Message, Array<string>]
@@ -45,21 +39,17 @@ export function AdminCommandValidator(): GenericMethodDecorator<any> {
       }
       const reason = args.filter((arg) => !/^<@(?:!?)\d+>/i.test(arg))
 
-      const paramIndexes: { [key: string]: number } = Reflect.getMetadata(
-        METHOD_PARAM_METADATA,
-        target,
-        propertyKey
-      )
-
-      const [targetsIndex, executorIndex, reasonIndex] = [
-        paramIndexes[ADMIN_PARAMS.TARGETS],
-        paramIndexes[ADMIN_PARAMS.EXECUTOR],
-        paramIndexes[ADMIN_PARAMS.REASON],
-      ]
+      const {
+        [ADMIN_PARAMS.TARGETS]: targetsIndex,
+        [ADMIN_PARAMS.EXECUTOR]: executorIndex,
+        [ADMIN_PARAMS.REASON]: reasonIndex,
+        [ADMIN_PARAMS.ROLES]: roles,
+        [ADMIN_PARAMS.NICKNAME]: nickName,
+      } = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
 
       if (!targetsIndex) return
 
-      if (paramIndexes[ADMIN_PARAMS.EXECUTOR] !== undefined) _args[executorIndex] = executor
+      if (executorIndex !== undefined) _args[executorIndex] = executor
       _args[targetsIndex] = mentionedMembers
       if (['addrole', 'removerole'].includes(subCommand)) {
         const serverRoles = message.guild.roles.cache
@@ -75,13 +65,13 @@ export function AdminCommandValidator(): GenericMethodDecorator<any> {
           return
         }
         const updatedReason = reason.filter(Boolean)
-        const rolesIndex = paramIndexes[ADMIN_PARAMS.ROLES]
+        const rolesIndex = roles
         if (rolesIndex == null) return
         _args[rolesIndex] = selectedRoles
         if (reasonIndex != null) _args[reasonIndex] = updatedReason.join(' ')
         return originalDescriptor.apply(this, _args)
       } else if (['setnickname'].includes(subCommand)) {
-        const nicknameIndex = paramIndexes[ADMIN_PARAMS.NICKNAME]
+        const nicknameIndex = nickName
 
         if (nicknameIndex == null) return
         _args[nicknameIndex] = reason.join(' ')
