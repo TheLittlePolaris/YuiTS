@@ -7,8 +7,9 @@ import {
   MessageOptions,
 } from 'discord.js'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { AdminCommandValidator, AdminParam } from '@/custom/decorators/admin-action.decorator'
+import { Injectable } from '@/ioc-container'
+
 
 @Injectable()
 export class AdminCommandComponent {
@@ -193,3 +194,4 @@ export class AdminCommandComponent {
     return null
   }
 }
+
