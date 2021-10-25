@@ -24,7 +24,7 @@
     "@discordjs/opus": "^0.3.3",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@discordjs/voice": "^0.6.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "bili-api": "^1.6.0",
     "bufferutil": "^4.0.3",
     "bull": "^3.26.0",
