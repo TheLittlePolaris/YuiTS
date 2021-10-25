@@ -1,6 +1,7 @@
 # **YuiTS**
 
 ![](https://img.shields.io/badge/YuiTS-orange)
+
 Yui but in TypeScript
 
 # **WORK IN PROGRESS!**
