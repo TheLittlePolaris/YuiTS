@@ -5,16 +5,16 @@ WORKDIR /code_build
 COPY . /code_build
 RUN \
   apk add --no-cache --virtual\
-  .build-deps\
-    # build tools
-    python3 gcc g++ make curl\
-    # erlpack
-    ca-certificates git\
-    # sodium deps
-    libtool autoconf automake\
-  &&\
+    .build-deps\
+      # build tools
+      python3 gcc g++ make curl\
+      # erlpack
+      ca-certificates git\
+      # sodium deps
+      libtool autoconf automake\
+    &&\
   npm install &&\
-  npm run build-docker &&\
+  npm run build:docker &&\
   # Optimize image size on node_modules:
   rm -r ./node_modules &&\
   rm package-lock.json &&\
