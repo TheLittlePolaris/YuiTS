@@ -29,7 +29,7 @@ Yui but in TypeScript
   - A fixed `PREFIX`
   - Your own `YOUTUBE_API_KEY` which you can get from Google APIs Console
   - You will also need your bot id to replace `YUI_ID` and your own id to replace `OWNER_ID`
-  - Also a `TENOR_KEY` which you can get from Tenor API and a `TENOR_ANONYMOUS_ID`. (If you dont feel line using this just comment it out)
+  - Also a `TENOR_KEY` which you can get from Tenor API and a `TENOR_ANONYMOUS_ID`. (If you don't feel like using this just comment it out)
 
 > # **How to run ?**
 
