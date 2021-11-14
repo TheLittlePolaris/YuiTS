@@ -165,7 +165,7 @@ export class ContainerFactory {
     this.container.addInstance(target, compiledInstance)
 
     Promise.resolve().then(() => this.compileHandlerForEvent(target, compiledInstance))
-    setTimeout(() => this.injectExternalConfig(target, compiledInstance));
+    setTimeout(() => this.injectExternalConfig(target, compiledInstance))
 
     return compiledInstance
   }
@@ -186,12 +186,11 @@ export class ContainerFactory {
 
   private injectExternalConfig(type: Type<any>, instance: InstanceType<Type<any>>) {
     const { entryComponent } = this.container
-    if(type.name === entryComponent.name) return
-
+    if (type.name === entryComponent.name) return
+    // TODO: create something like: createMethodDecorator(([client,config]) => {...})
     instance[BOT_GLOBAL_CLIENT] = this.container.getInstance(entryComponent)
     instance[BOT_GLOBAL_CONFIG] = this.configService
   }
-
 
   compileInterceptor(module: Type<any>, interceptorTarget: Type<any>) {
     if (isValue(interceptorTarget)) return

@@ -1,4 +1,3 @@
-import request from 'request'
 import { youtube_v3, google } from 'googleapis'
 import {
   IYoutubeSearchResult,
@@ -21,27 +20,6 @@ export class YoutubeRequestService {
   youtubePlayListItems: youtube_v3.Resource$Playlistitems = this.youtube.playlistItems
 
   constructor(private configService: ConfigService) {}
-
-  public youtubeApiRequest<T>(url: string): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-      request(
-        `${url}&key=${this.configService.youtubeApiKey}`,
-        (err: string, _, body: string | JSON) => {
-          if (err) {
-            this.handleRequestErrors(err)
-            reject('Something went wrong')
-          }
-          const json = typeof body === 'string' ? JSON.parse(body) : body
-          const { error, items } = json
-          if (error || !items) {
-            this.handleRequestErrors(error)
-            resolve(null)
-          }
-          resolve(json)
-        }
-      )
-    })
-  }
 
   public async googleYoutubeApiSearch(
     options: youtube_v3.Params$Resource$Search$List

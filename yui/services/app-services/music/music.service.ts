@@ -26,6 +26,7 @@ import {
   AudioPlayerState,
   AudioPlayerStatus,
   createAudioResource,
+  DiscordGatewayAdapterCreator,
   joinVoiceChannel,
   StreamType,
   VoiceConnection,
@@ -94,7 +95,7 @@ export class MusicService {
       channelId: voiceChannel.id,
       guildId,
       selfDeaf: true,
-      adapterCreator: voiceAdapterCreator,
+      adapterCreator: <DiscordGatewayAdapterCreator>(<any>voiceAdapterCreator),
     })
     return connection
   }

@@ -37,7 +37,7 @@ Yui but in TypeScript
 
 - First you need to install the libraries:
 
-  - First install node. Install node version 12.x.x. You might want to use [`nvm`](https://github.com/nvm-sh/nvm).
+  - First install node. Install node version 16.6 or higher. You might want to use [`nvm`](https://github.com/nvm-sh/nvm).
   - On Windows: You will need to install Python 2.7, Microsoft Visual Studio (Community) with C++ compiler and language support installed. About which option: sorry i forgot, you will need to figure it out yourself, but it takes about 6-8 something GB of memory iirc. And then `npm install`. You can either run with `npm run start:win`, or add `cross-env` package and replace linux's `export` with `cross-env`, remember to call the `dotenv's config()` on top of the `ConfigService`
   - Also on Windows: Enable your [`Windows Subsystem for Linux`](https://docs.microsoft.com/en-us/windows/wsl/about) and do the same as on Linux.
   - On Linux: (I use Ubuntu) Just `sudo apt update && sudo apt upgrade -y`. Then install Python 2.7 follow [the instruction](https://tecadmin.net/install-python-2-7-on-ubuntu-and-linuxmint/) and [youtube-dl](https://github.com/ytdl-org/youtube-dl) (`sudo apt install youtube-dl`), and then `npm install`.

@@ -1,9 +1,17 @@
 .git
 .vscode
+
 dist
 node_modules
+
 .gitignore
 .eslintrc.json
 .prettierrc
+
+logs
+package-lock.json
+yarn.lock
+yarn-*.lock
+
 LICENSE
 README.md
