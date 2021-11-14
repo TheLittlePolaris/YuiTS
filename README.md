@@ -34,18 +34,10 @@ Yui but in TypeScript
 > # **How to run ?**
 
 **Using a machine:**
+ - `node 16.13` and `redis`
+ - `yarn` or `npm install`
+ - `yarn start` or `npm start`
 
-- First you need to install the libraries:
-
-  - First install node. Install node version 16.6 or higher. You might want to use [`nvm`](https://github.com/nvm-sh/nvm).
-  - On Windows: You will need to install Python 2.7, Microsoft Visual Studio (Community) with C++ compiler and language support installed. About which option: sorry i forgot, you will need to figure it out yourself, but it takes about 6-8 something GB of memory iirc. And then `npm install`. You can either run with `npm run start:win`, or add `cross-env` package and replace linux's `export` with `cross-env`, remember to call the `dotenv's config()` on top of the `ConfigService`
-  - Also on Windows: Enable your [`Windows Subsystem for Linux`](https://docs.microsoft.com/en-us/windows/wsl/about) and do the same as on Linux.
-  - On Linux: (I use Ubuntu) Just `sudo apt update && sudo apt upgrade -y`. Then install Python 2.7 follow [the instruction](https://tecadmin.net/install-python-2-7-on-ubuntu-and-linuxmint/) and [youtube-dl](https://github.com/ytdl-org/youtube-dl) (`sudo apt install youtube-dl`), and then `npm install`.
-  - If you are going to bring Yui on a host, make sure you have above 1.5GB of RAM available. 1GB will fail. If it fail for 1.5GB add one more option after the `node` command: `--max-old-space-size=4096`. If still doesn't work the increase it to 2GB.
-  - `npm start`
-
-- If nothing happen then your good to run, or else google for the error XD. I did the above steps and had no problem.
 
 **Docker:**
-
-- `docker-compose up -d yui` or `docker build -t yui-little-house:latest -f Dockerfile .` and then run the image manually using `docker run -d --name Yui-no-Ie yui-little-house`. Clean the build to save space with `docker image prune` or list out the images and remove the one without name. (~420MB)
+ - `docker compose -p yui-bot up -d`

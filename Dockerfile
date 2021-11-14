@@ -1,6 +1,5 @@
 
-#Build Stage
-FROM node:16.13-alpine3.12 as builder
+FROM node:16.13-alpine3.12
 WORKDIR /code_build
 COPY . /code_build
 RUN \
