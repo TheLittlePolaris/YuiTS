@@ -8,8 +8,8 @@ export type GenericClassDecorator<T> = (target: T) => void
 
 export type GenericMethodDecorator<T> = (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => void
 
-export interface Type<T> extends Function {
-  new (...args: any[]): T
+export type Type<T> = Function & {
+  new(...args: any[]): T
 }
 
 export interface Prototype {

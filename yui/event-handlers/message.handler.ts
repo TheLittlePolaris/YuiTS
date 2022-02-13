@@ -16,6 +16,7 @@ import {
 } from '@/ioc-container/decorators'
 import { ConfigService } from '@/config-service/config.service'
 import { MessageCreateEventInterceptor } from '@/event-handlers/event-interceptors'
+import { TestDecorator } from '@/custom/decorators/test.decorator'
 
 @OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
 @UseInterceptor(MessageCreateEventInterceptor)
@@ -25,7 +26,9 @@ export class MessageCreateEventHandler {
     private featureService: FeatureService,
     private administrationService: AdministrationService,
     private configService: ConfigService
-  ) {}
+  ) {
+
+  }
 
   @HandleCommand('play', 'p')
   public async playMusic(@MessageParam() message: Message, @Args() args: string[]) {
@@ -118,7 +121,11 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('ping')
+  @TestDecorator()
   async ping(@MessageParam() message: Message) {
+    console.log("test", '<========= "test" [yui/event-handlers/message.handler.ts:124]')
+    console.log(message, '<========= message [yui/event-handlers/message.handler.ts:127]')
+    
     return this.featureService.getPing(message)
   }
 

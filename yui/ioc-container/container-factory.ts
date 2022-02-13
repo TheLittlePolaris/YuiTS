@@ -22,10 +22,11 @@ import {
   INTERCEPTOR_TARGET,
   MODULE_METADATA_KEY,
   EVENT_HANDLER_CONFIG,
-  DiscordClient,
+  DiscordClient
 } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { BOT_GLOBAL_CLIENT, BOT_GLOBAL_CONFIG } from './constants/config.constant'
+import { _internalSetRefs } from './helpers'
 
 export class ContainerFactory {
   static entryDetected = false
@@ -61,7 +62,9 @@ export class ContainerFactory {
         this.getHandlerForEvent(handler, args)
       )
     )
-
+    // internal configs
+    // _internalInjectionGetter(this.container.getInstance.bind(this))
+  
     return entryInstance
   }
 
@@ -74,6 +77,8 @@ export class ContainerFactory {
         this.getHandlerForEvent(handler, args)
       )
     )
+    // _internalInjectionGetter(this.container.getInstance)
+    _internalSetRefs(this.configService, client)
     return client
   }
 

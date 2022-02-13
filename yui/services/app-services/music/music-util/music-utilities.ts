@@ -27,7 +27,7 @@ export function createProgressBar(currentProgress: number, total: number): strin
   if (isNaN(total)) return '---------------------------------------⦿'
   const temp = '----------------------------------------'
   const index = Math.round((currentProgress / total) * 40)
-  return `${temp.substr(0, index)}⦿${temp.substr(index + 1)}`
+  return `${temp.substring(0, index)}⦿${temp.substring(index + 1)}`
 }
 
 export function printQueueList(queue: MusicQueue, start: number, end: number): string {

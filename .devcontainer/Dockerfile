@@ -12,7 +12,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     ca-certificates git\
     # sodium deps
     libtool autoconf automake\
-    redis-server
+    redis-server ffmpeg youtube-dl
 # [Optional] Uncomment if you want to install an additional version of node using nvm
 # ARG EXTRA_NODE_VERSION=10
 # RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_VERSION}"

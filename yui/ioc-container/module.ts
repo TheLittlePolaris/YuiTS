@@ -50,7 +50,7 @@ export class ModuleContainer {
     modules.map((module) => this.addModule(module))
   }
 
-  public getInstance<T = any>(forTarget: Type<T>): T {
+  public getInstance<T = any>(forTarget: Type<T>): InstanceType<Type<T>> {
     return this._instances.get(forTarget.name)
   }
 

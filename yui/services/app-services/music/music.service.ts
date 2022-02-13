@@ -795,7 +795,7 @@ export class MusicService {
 
     const collector = message.channel.createMessageCollector({
       filter: collectorFilter,
-      time: 1500,
+      time: 15000,
       max: 1,
     })
 
