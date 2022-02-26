@@ -6,4 +6,4 @@ export type CreateMethodDecoratorParam<T = Function> = (
   [target, propertyKey, descriptor]: [Prototype, string, TypedPropertyDescriptor<T>],
   originalArguments: any[],
   [config, discordClient]?: [ConfigService, DiscordClient]
-) => [/* descriptor */ Function, /* argument list */ any[]];
+) => [/* descriptor */ Function, /* argument list */ any[]] | Promise<[/* descriptor */ Function, /* argument list */ any[]]>;

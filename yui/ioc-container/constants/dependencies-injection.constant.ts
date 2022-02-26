@@ -1,4 +1,6 @@
-export enum MODULE_METADATA_KEY {
+export const MODULE_METADATA_KEY_PREFIX = `self:metadata`
+
+export enum MODULE_METADATA {
   MODULES = 'modules',
   PROVIDERS = 'providers',
   COMPONENTS = 'components',
@@ -6,13 +8,8 @@ export enum MODULE_METADATA_KEY {
   ENTRY_COMPONENT = 'entryComponent',
 }
 
-export const MODULE_METADATA = {
-  [MODULE_METADATA_KEY.MODULES]: 'self:metadata:modules',
-  [MODULE_METADATA_KEY.PROVIDERS]: 'self:metadata:providers',
-  [MODULE_METADATA_KEY.COMPONENTS]: 'self:metadata:components',
-  [MODULE_METADATA_KEY.INTERCEPTOR]: 'self:metadata:interceptors',
-  [MODULE_METADATA_KEY.ENTRY_COMPONENT]: 'self:metadata:entry_component',
-}
+export const getPropertyKey = (key: MODULE_METADATA) => `${MODULE_METADATA_KEY_PREFIX}:${key}` 
+
 export const COMPONENT_METADATA = {
   EVENT_LIST: 'custom_metadata:event_list',
   PROPERT: 'custom_type:property',

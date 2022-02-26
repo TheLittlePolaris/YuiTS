@@ -1,9 +1,6 @@
 import Queue from 'bull'
 import Axios from 'axios'
-import {
-  DiscordClient,
-  Injectable,
-} from '@/ioc-container'
+import { DiscordClient, Injectable } from '@/ioc-container'
 import { GuildMember, Message, MessagePayload, MessageOptions } from 'discord.js'
 import { discordRichEmbedConstructor, RNG } from '../utilities'
 
@@ -11,7 +8,11 @@ import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ConfigService } from '@/config-service/config.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
-import { FeatureParam, FeaturePermissionValidator } from '@/custom/decorators/feature-permisson.decorator'
+import {
+  FeatureParam,
+  FeaturePermissionValidator,
+  NewFeature,
+} from '@/custom/decorators/feature-permisson.decorator'
 import { HoloStatCommandValidator, VTuberParam } from '@/custom/decorators/feature-vtuber.decorator'
 
 @Injectable()
@@ -24,7 +25,8 @@ export class FeatureService {
     private configService: ConfigService
   ) {}
 
-  @FeaturePermissionValidator()
+  // @FeaturePermissionValidator()
+  @NewFeature()
   public async getPing(message: Message): Promise<void> {
     const yuiPing = this.yui.ws.ping
     const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
@@ -99,7 +101,7 @@ export class FeatureService {
   }
 
   public async tenorGif(message: Message, args: string[], ..._args: any[])
-  @FeaturePermissionValidator()
+  @NewFeature()
   public async tenorGif(
     message: Message,
     args: string[],
@@ -108,11 +110,11 @@ export class FeatureService {
     @FeatureParam('REQUEST_PARAM') params: string
   ): Promise<void> {
     const num = await RNG(5)
-
+    
     const { data = null } = await Axios.get(
-      `https://api.tenor.com/v1/search?q=${encodeURIComponent(
+      `https://g.tenor.com/v1/search?q=${encodeURIComponent(
         `anime ${action} ${params ? params : ``}`
-      )}&key=${this.configService.tenorKey}&limit=10&media_filter=basic&anon_id=${
+      )}&key=${this.configService.tenorKey}&limit=5&media_filter=basic&anon_id=${
         this.configService.tenorAnonymousId
       }`
     )

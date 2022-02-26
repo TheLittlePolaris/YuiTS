@@ -1,8 +1,13 @@
-import { MODULE_METADATA } from "../constants/dependencies-injection.constant"
-import { ContainerFactory } from "../container-factory"
-import { GenericClassDecorator, ModuleOption, Type } from "../interfaces/dependencies-injection.interfaces"
-
-
+import {
+  getPropertyKey,
+  MODULE_METADATA,
+} from '../constants/dependencies-injection.constant'
+import { ContainerFactory } from '../container-factory'
+import {
+  GenericClassDecorator,
+  ModuleOption,
+  Type,
+} from '../interfaces/dependencies-injection.interfaces'
 
 export function YuiModule<T = any>(options: ModuleOption): GenericClassDecorator<Type<T>> {
   const propKeys = Object.keys(options)
@@ -22,7 +27,11 @@ export function YuiModule<T = any>(options: ModuleOption): GenericClassDecorator
       }
 
       if (options.hasOwnProperty(property)) {
-        Reflect.defineMetadata(MODULE_METADATA[property], options[property], target)
+        Reflect.defineMetadata(
+          getPropertyKey(property as MODULE_METADATA),
+          options[property],
+          target
+        )
       }
     }
   }
