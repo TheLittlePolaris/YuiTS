@@ -11,7 +11,7 @@ import {
 } from './containers'
 import { _internalSetGetter, _internalSetRefs } from './helpers'
 import { HandleFunction, Type } from './interfaces'
-import { RecursiveCompiler } from './compillers/recursive.compiler'
+import { RecursiveCompiler } from './compilers/recursive.compiler'
 
 export class ContainerFactory {
   static entryDetected = false
