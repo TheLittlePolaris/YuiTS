@@ -43,7 +43,7 @@
     "googleapis": "^81.0.0",
     "ioredis": "^4.27.6",
     "lodash": "^4.17.21",
-    "log4js": "^6.1.2",
+    "log4js": "^6.4.0",
     "m3u8stream": "^0.7.1",
     "module-alias": "^2.2.2",
     "opusscript": "0.0.7",
