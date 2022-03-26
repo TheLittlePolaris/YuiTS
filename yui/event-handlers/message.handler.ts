@@ -25,9 +25,7 @@ export class MessageCreateEventHandler {
     private featureService: FeatureService,
     private administrationService: AdministrationService,
     private configService: ConfigService
-  ) {
-
-  }
+  ) {}
 
   @HandleCommand('play', 'p')
   public async playMusic(@MessageParam() message: Message, @Args() args: string[]) {
@@ -75,7 +73,7 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('stop')
-  async stopPlaying(@MessageParam() message: Message, @Args() args: string[]) {
+  async stopPlaying(@MessageParam() message: Message) {
     return this.musicService.stopPlaying(message)
   }
   @HandleCommand('loop')
@@ -84,7 +82,7 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('shuffle')
-  async shuffle(@MessageParam() message: Message, @Args() args: string[]) {
+  async shuffle(@MessageParam() message: Message) {
     return this.musicService.shuffleQueue(message)
   }
 
@@ -144,14 +142,14 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('help')
-  async sendManual(@MessageParam() message: Message, @Args() args: string[]) {
+  async sendManual(@MessageParam() message: Message) {
     return this.featureService.help(message)
   }
 
   @HandleCommand()
   async defaultResponse(@MessageChannel() channel: TextChannel, @Command() command: string) {
     channel.send(
-      `I cannot recognize that command. How about taking a look at \`${this.configService.prefix}help\` ?`
+      `I cannot recognize ${command}. How about taking a look at \`${this.configService.prefix}help\` ?`
     )
   }
 

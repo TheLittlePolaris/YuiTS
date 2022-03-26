@@ -7,9 +7,11 @@ import { IBaseInterceptor } from '@/ioc-container/interfaces/interceptor.interfa
 export class MessageCreateEventInterceptor implements IBaseInterceptor {
   intercept([message]: ClientEvents['messageCreate'], next: () => Promise<any>) {
     if (!(message.channel.type === 'GUILD_TEXT')) return
-    console.time(`handle_message_${message.id}`)
-    next()
-      .then(() => console.timeEnd(`handle_message_${message.id}`))
+
+    const label = `handle_message_${message.id}_[${message.content}]` //
+    console.time(label)
+    return next()
+      .then(() => console.timeEnd(label))
       .catch((error) => {
         YuiLogger.error(error, MessageCreateEventInterceptor.name)
         message.channel.send('Something went wrong (╥_╥)')

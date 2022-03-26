@@ -79,10 +79,9 @@ export class MusicService {
       this.sendMessage(message, `**Connection lost...**`)
     }
     stream.voiceConnection.on('error', (error) => onConnectionError(error))
-    // stream.voiceConnection.on('failed', (error) => onConnectionError(error))
 
     this.deleteMessage(sentMessage)
-    return stream
+    return stream //
   }
 
   private async createVoiceConnection(message: Message): Promise<VoiceConnection> {
@@ -384,7 +383,6 @@ export class MusicService {
     let inputStream: Readable | PassThrough
     const onStreamEnd = ({ state }: { state: AudioPlayerState }) => {
       if (inputStream && !inputStream.destroyed) inputStream.destroy()
-      // if (error) this.handleError(error as string)
 
       const { isLooping, queue, isAutoPlaying, isQueueLooping } = stream
       if (!isLooping && deleteTrigger) deleteTrigger()
@@ -452,11 +450,6 @@ export class MusicService {
     input: Parameters<typeof createAudioResource>[0],
     options: Parameters<typeof createAudioResource>[1] & { metadata: { [key: string]: string } }
   ) {
-    // if (stream.streamDispatcher && !stream.streamDispatcher.destroyed)
-    //   stream.streamDispatcher.destroy()
-    // const newDispatcher = stream.voiceConnection.play(input, options)
-    // stream.set('streamDispatcher', newDispatcher)
-    // return newDispatcher
     const { audioPlayer, voiceConnection, playerSubscription } = stream
     if (playerSubscription) playerSubscription.unsubscribe()
 
@@ -540,7 +533,7 @@ export class MusicService {
   @AccessController({ join: true })
   public async autoPlay(
     message: Message,
-    @MusicParam('STREAM') stream?: MusicStream
+    @MusicParam('STREAM') stream: MusicStream
   ): Promise<void> {
     if (!stream) stream = await this.createStream(message)
 
