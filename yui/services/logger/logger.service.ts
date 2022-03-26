@@ -118,15 +118,6 @@ export class YuiLogger implements LoggerService {
 
   private static printMessage(message: string | Error, color: Chalk, context?: string) {
     const output = isObject(message) ? `${JSON.stringify(message, null, 2)}\n` : color(message)
-
-    const localeStringOptions: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      day: '2-digit',
-      month: '2-digit',
-    }
     const msgContext = context ? this.chalk.hex('#00ffff')(`[${context}]`) : ``
     return `${msgContext} ${output}\n`
   }
