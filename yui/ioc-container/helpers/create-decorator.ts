@@ -1,13 +1,13 @@
-import { ConfigService } from '@/config-service/config.service'
-import { YuiLogger } from '@/services/logger'
-import { DiscordClient } from '..'
+import { cloneDeep } from 'lodash'
 import { Prototype, Type } from '../interfaces'
-import { CreateMethodDecoratorParam } from '../interfaces/decorator.interface'
+import { CreateMethodDecoratorParameters } from '../interfaces/decorator.interface'
+
+const ORIGINAL_ARGS_KEY = 'originalArgs'
 
 type AppGetterType = <T = any>(instanceType: Type<T>) => InstanceType<Type<T>>
 
 let _appGetter: AppGetterType
-export const _internalSetGetter = (getter: AppGetterType) => {  
+export const _internalSetGetter = (getter: AppGetterType) => {
   _appGetter = getter
 }
 
@@ -19,23 +19,44 @@ export const _internalSetRefs = (cfRef, clRef) => {
   _clientRef = clRef
 }
 
+const isCurrentMethod = (propertyKey: string, descriptorValue: Function) => {
+  return `${descriptorValue}`.split('(').includes(propertyKey)
+}
+
+export function createDecorator(method: CreateMethodDecoratorParameters) {
+  return (
+    target: Prototype,
+    propertyKey: string,
+    descriptor: TypedPropertyDescriptor<Function>
+  ) => {
+    const { value: originalDescriptor, ...descriptorOthers } = descriptor
+    descriptor.value = async function (...args: any[]) {
+      let originalArgs = null
+      if (!descriptor.hasOwnProperty(ORIGINAL_ARGS_KEY)) {
+        originalArgs = [...args]
+        Object.assign(descriptorOthers, { [ORIGINAL_ARGS_KEY]: originalArgs })
+      } else {
+        originalArgs = descriptor[ORIGINAL_ARGS_KEY]
+      }
+
+      const [desc, _args] = await method(
+        [target, propertyKey, { ...descriptorOthers, value: originalDescriptor }],
+        args,
+        [_configRef, _clientRef, originalArgs]
+      )
+
+      if (isCurrentMethod(propertyKey, desc) || !desc) delete descriptor[ORIGINAL_ARGS_KEY]
+      if (!desc) return
+      return desc.apply(this, _args)
+    }
+  }
+}
+
 /**
  *
  * @param method the method, should return the altered descriptor (or the original one) and argument list
  * @returns
  */
-export function createMethodDecorator(method: CreateMethodDecoratorParam) {
-  return () =>
-    (target: Prototype, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>) => {
-      const { value: originalDescriptor, ...descriptorOthers } = descriptor
-      descriptor.value = async function (...args: any[]) {
-        const [desc, _args] = await method(
-          [target, propertyKey, { ...descriptorOthers, value: originalDescriptor }],
-          args,
-          [_configRef, _clientRef]
-        )
-        if(!desc) return
-        return desc.apply(this, _args)
-      }
-    }
+export function createMethodDecorator(method: CreateMethodDecoratorParameters) {
+  return () => createDecorator(method)
 }

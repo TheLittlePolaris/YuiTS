@@ -8,12 +8,8 @@ import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ConfigService } from '@/config-service/config.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
-import {
-  FeatureParam,
-  FeaturePermissionValidator,
-  NewFeature,
-} from '@/custom/decorators/feature-permisson.decorator'
-import { HoloStatCommandValidator, VTuberParam } from '@/custom/decorators/feature-vtuber.decorator'
+import { GetParam, Feature } from '@/custom/decorators/feature-permisson.decorator'
+import { NewHolostat, VTuberParam } from '@/custom/decorators/feature-vtuber.decorator'
 
 @Injectable()
 export class FeatureService {
@@ -25,8 +21,8 @@ export class FeatureService {
     private configService: ConfigService
   ) {}
 
+  @Feature()
   // @FeaturePermissionValidator()
-  @NewFeature()
   public async getPing(message: Message): Promise<void> {
     const yuiPing = this.yui.ws.ping
     const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
@@ -51,8 +47,9 @@ export class FeatureService {
   }
 
   public async help(message: Message, ..._args: any[])
-  @FeaturePermissionValidator()
-  public async help(message: Message, @FeatureParam('GUILD_MEMBER') yui: GuildMember) {
+  // @FeaturePermissionValidator()
+  @Feature()
+  public async help(message: Message, @GetParam('GUILD_MEMBER') yui: GuildMember) {
     const commands = `**__Music:__**
     \`play, p\`: Add to end
     \`playnext, pnext, pn\`: Add to next
@@ -92,7 +89,8 @@ export class FeatureService {
     this.sendMessage(message, { embeds: [embed] })
   }
 
-  @FeaturePermissionValidator()
+  // @FeaturePermissionValidator()
+  @Feature()
   public say(message: Message, args: string[]) {
     const embed = discordRichEmbedConstructor({
       description: `**${args.join(' ')}**`,
@@ -101,16 +99,17 @@ export class FeatureService {
   }
 
   public async tenorGif(message: Message, args: string[], ..._args: any[])
-  @NewFeature()
+  @Feature()
+  // @FeaturePermissionValidator()
   public async tenorGif(
     message: Message,
     args: string[],
-    @FeatureParam('MENTIONS') users: GuildMember[],
-    @FeatureParam('ACTION') action: string,
-    @FeatureParam('REQUEST_PARAM') params: string
+    @GetParam('MENTIONS') users: GuildMember[],
+    @GetParam('ACTION') action: string,
+    @GetParam('REQUEST_PARAM') params: string
   ): Promise<void> {
     const num = await RNG(5)
-    
+
     const { data = null } = await Axios.get(
       `https://g.tenor.com/v1/search?q=${encodeURIComponent(
         `anime ${action} ${params ? params : ``}`
@@ -152,12 +151,12 @@ export class FeatureService {
     })
   }
   async getHoloStat(message: Message, args: string[], ..._args: any[])
-  @FeaturePermissionValidator()
-  @HoloStatCommandValidator()
+  @Feature()
+  @NewHolostat()
   async getHoloStat(
     message: Message,
     args: Array<string>,
-    @FeatureParam('GUILD_MEMBER') yui: GuildMember,
+    @GetParam('GUILD_MEMBER') yui: GuildMember,
     @VTuberParam('REGION') region: HOLO_KNOWN_REGION,
     @VTuberParam('DETAIL') detail: boolean
   ): Promise<unknown> {

@@ -124,7 +124,7 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('holostat')
-  async getHolostat(@MessageParam() message: Message, @Args() args: string[]) {
+  async getHolostat(@MessageParam() message: Message, @Args() args: string[]) {    
     return this.featureService.getHoloStat(message, args)
   }
 
