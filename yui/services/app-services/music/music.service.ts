@@ -72,8 +72,6 @@ export class MusicService {
     const onConnectionError = (error: Error) => {
       this.handleError(error)
       if (stream?.isPlaying) {
-        // TODO:
-        // if (stream.streamDispatcher) stream.streamDispatcher.end()
         this.resetStreamStatus(stream)
       }
       this.sendMessage(message, `**Connection lost...**`)
@@ -81,7 +79,7 @@ export class MusicService {
     stream.voiceConnection.on('error', (error) => onConnectionError(error))
 
     this.deleteMessage(sentMessage)
-    return stream //
+    return stream
   }
 
   private async createVoiceConnection(message: Message): Promise<VoiceConnection> {

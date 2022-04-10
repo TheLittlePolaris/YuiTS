@@ -29,25 +29,28 @@ import { IBaseInterceptor } from '../interfaces/interceptor.interface'
  * @description Compile using recursive strategy.
  */
 export class RecursiveCompiler {
-  private readonly CONTEXT = `Compiler`
-  private _eventHandlers: {
+  protected _eventHandlers: {
     [key in DiscordEvent]?: { handleFunction: HandleFunction; config?: DiscordEventConfig[key] }
   } = {}
 
-  private _config
+  protected _config
 
   constructor(
-    private moduleContainer: ModulesContainer,
-    private componentContainer: ComponentsContainer,
-    private providerContainer: ProvidersContainer,
-    private interceptorContainer: InterceptorsContainer
+    protected moduleContainer: ModulesContainer,
+    protected componentContainer: ComponentsContainer,
+    protected providerContainer: ProvidersContainer,
+    protected interceptorContainer: InterceptorsContainer
   ) {}
 
-  public get config() {
+  protected get context() {
+    return this.constructor.name
+  }
+
+  get config() {
     return this._config
   }
 
-  public get eventHandlers() {
+  get eventHandlers() {
     return this._eventHandlers
   }
 
@@ -91,7 +94,7 @@ export class RecursiveCompiler {
     this.moduleContainer.clear()
   }
 
-  private async compileProvider(module: Type<any>, provider: Provider) {
+  protected async compileProvider(module: Type<any>, provider: Provider) {
     if (provider.useValue) {
       this.providerContainer.setValueProvider(module, provider)
     } else if (provider.useFactory) {
@@ -123,7 +126,7 @@ export class RecursiveCompiler {
     return compiledInstance
   }
 
-  private injectExternalConfig(type: Type<any>, instance: InstanceType<Type<any>>) {
+  protected injectExternalConfig(type: Type<any>, instance: InstanceType<Type<any>>) {
     const { entryComponent } = this.moduleContainer
     if (type.name === entryComponent.name) return
     // TODO: create something like: createMethodDecorator(([client,config]) => {...})
@@ -131,7 +134,7 @@ export class RecursiveCompiler {
     instance[BOT_GLOBAL_CONFIG] = this._config
   }
 
-  private async compileHandlerForEvent(
+  protected async compileHandlerForEvent(
     target: Type<any>,
     compiledInstance: InstanceType<Type<any>>
   ) {
@@ -146,15 +149,15 @@ export class RecursiveCompiler {
     }
   }
 
-  private compileInstance(module: Type<any>, target: Type<any>) {
+  protected compileInstance(module: Type<any>, target: Type<any>) {
     const injections = this.loadInjectionsForTarget(module, target)
     const compiledInstance = Reflect.construct(target, injections)
     if (isFunction(compiledInstance.onComponentInit)) compiledInstance.onComponentInit()
-    YuiLogger.debug(`${target.name} created!`, this.CONTEXT)
+    YuiLogger.debug(`${target.name} created!`, this.context)
     return compiledInstance
   }
 
-  private loadInjectionsForTarget(module: Type<any>, target: Type<any>) {
+  protected loadInjectionsForTarget(module: Type<any>, target: Type<any>) {
     const tokens: Type<any>[] = Reflect.getMetadata(PARAMTYPES_METADATA, target) || []
     const customTokens: { [paramIndex: string]: /* param name */ string } =
       Reflect.getMetadata(SELF_DECLARED_DEPS_METADATA, target) || []
@@ -174,8 +177,12 @@ export class RecursiveCompiler {
     })
   }
 
-  private defineHandler(onEvent: DiscordEvent, target: Type<any>, handleInstance: any) {
-    if (!this.eventHandlers[onEvent]) this.eventHandlers[onEvent] = <any>{}
+  protected defineHandler<T extends Type<any>>(
+    onEvent: DiscordEvent,
+    target: T,
+    handleInstance: InstanceType<T>
+  ) {
+    this.createEventHandler(onEvent)
 
     const handlerMetadata: ICommandHandlerMetadata[] =
       Reflect.getMetadata(COMMAND_HANDLER, target) || []
@@ -185,46 +192,70 @@ export class RecursiveCompiler {
       target
     )
 
+    const commandHandlers = this.compileHandlers(target, handleInstance, handlerMetadata)
+
+    this.assignConfig(onEvent, handleConfig)
+
+    this.assignHandleFunctions(onEvent, commandHandlers)
+  }
+
+  protected compileCommand<T extends Type<any>>(
+    target: T,
+    instance: InstanceType<T>,
+    propertyKey: string
+  ) {
     const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
     const interceptorInstance: IBaseInterceptor =
       (useInterceptor && this.interceptorContainer.getInterceptorInstance(useInterceptor)) || null
+    // bind: passive when go through interceptor, active when call directly
+    const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) =>
+      bind
+        ? (instance[propertyKey] as Function).bind(instance, _eventArgs, this._config)
+        : (instance[propertyKey] as Function).apply(instance, [_eventArgs, this._config])
 
-    const compileCommand = (propertyKey: string) => {
-      // bind: passive when go through interceptor, active when call directly
-      const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) =>
-        bind
-          ? (handleInstance[propertyKey] as Function).bind(handleInstance, _eventArgs, this._config)
-          : (handleInstance[propertyKey] as Function).apply(handleInstance, [
-              _eventArgs,
-              this._config,
-            ])
+    return interceptorInstance
+      ? (_eventArgs: ClientEvents[DiscordEvent]) =>
+          interceptorInstance.intercept(_eventArgs, handler(_eventArgs, true))
+      : handler
+  }
 
-      return interceptorInstance
-        ? (_eventArgs: ClientEvents[DiscordEvent]) =>
-            interceptorInstance.intercept(_eventArgs, handler(_eventArgs, true))
-        : handler
-    }
+  protected createEventHandler(event: DiscordEvent) {
+    if (this.eventHandlers[event]) return
+    this.eventHandlers[event] = {} as any
+  }
 
-    const commandHandlers = handlerMetadata.reduce(
+  protected compileHandlers<T extends Type<any>>(
+    target: T,
+    instance: InstanceType<T>,
+    handlerMetadata: ICommandHandlerMetadata[]
+  ): HandleFunction {
+    return handlerMetadata.reduce(
       (acc: HandleFunction, { command, propertyKey, commandAliases }) => {
-        const commandFn = compileCommand(propertyKey)
-        const compiled = [command, ...(commandAliases || [])].reduce(
-          (accAliases, curr) => ({ ...accAliases, [curr]: commandFn }),
+        const commandFn = this.compileCommand(target, instance, propertyKey)
+        const mainCommand = { [command]: commandFn }
+        const aliases = [...(commandAliases || [])].reduce(
+          (accAliases, curr) => ({ ...accAliases, [curr]: mainCommand[command] }),
           {}
         )
-        return { ...acc, ...compiled }
+        return Object.assign(acc, mainCommand, aliases)
       },
       {}
     )
+  }
 
-    if (!this.eventHandlers[onEvent].config) this.eventHandlers[onEvent].config = handleConfig
-    this.eventHandlers[onEvent].handleFunction = {
-      ...(this.eventHandlers[onEvent].handleFunction || {}),
+  protected assignConfig(event: DiscordEvent, config: ICommandHandlerMetadata[]): void {
+    if (this.eventHandlers[event].config) return
+    this.eventHandlers[event].config = config
+  }
+
+  protected assignHandleFunctions(event: DiscordEvent, commandHandlers: HandleFunction): void {
+    this.eventHandlers[event].handleFunction = {
+      ...(this.eventHandlers[event].handleFunction || {}),
       ...commandHandlers,
     }
   }
 
-  compileInterceptor(module: Type<any>, interceptorTarget: Type<any>) {
+  protected compileInterceptor(module: Type<any>, interceptorTarget: Type<any>) {
     if (isValue(interceptorTarget)) return
     const interceptor = this.interceptorContainer.getInterceptorInstance(interceptorTarget.name)
     if (interceptor) return interceptor
@@ -235,3 +266,4 @@ export class RecursiveCompiler {
     return compiledInterceptor
   }
 }
+

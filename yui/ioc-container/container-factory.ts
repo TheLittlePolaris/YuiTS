@@ -99,6 +99,26 @@ export class ContainerFactory {
     return client
   }
 
+
+  async createRxjsHandlerModule(rootModule: Type<any>, entryComponent = DiscordClient) {
+    await this._compiler.compileModule(rootModule, entryComponent)
+
+    this._config = this._compiler.config
+    this._eventHandlers = this._compiler.eventHandlers
+
+    const client = this.componentContainer.getInstance(entryComponent)
+    const compiledEvents = Object.keys(this._eventHandlers)
+    compiledEvents.map((handler: DiscordEvent) =>
+      client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
+        this.getHandlerForEvent(handler, args)
+      )
+    )
+    // _internalInjectionGetter(this.container.getInstance)
+    _internalSetRefs(this._config, client)
+    _internalSetGetter((...args: any[]) => this.get.bind(this, ...args))
+    return client
+  }
+
   public get<T>(type: Type<T>): InstanceType<Type<T>> {
     return this.componentContainer.getInstance(type)
   }

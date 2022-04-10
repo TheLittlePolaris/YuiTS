@@ -34,9 +34,9 @@ export function createDecorator(method: CreateMethodDecoratorParameters) {
       let originalArgs = null
       if (!descriptor.hasOwnProperty(ORIGINAL_ARGS_KEY)) {
         originalArgs = [...args]
-        Object.assign(descriptorOthers, { [ORIGINAL_ARGS_KEY]: originalArgs })
+        Object.defineProperty(descriptor.value, 'originalArgs', originalArgs)
       } else {
-        originalArgs = descriptor[ORIGINAL_ARGS_KEY]
+        originalArgs = descriptor.value[ORIGINAL_ARGS_KEY]
       }
 
       const [desc, _args] = await method(
@@ -45,7 +45,7 @@ export function createDecorator(method: CreateMethodDecoratorParameters) {
         [_configRef, _clientRef, originalArgs]
       )
 
-      if (isCurrentMethod(propertyKey, desc) || !desc) delete descriptor[ORIGINAL_ARGS_KEY]
+      if (isCurrentMethod(propertyKey, desc) || !desc) delete descriptor.value[ORIGINAL_ARGS_KEY]
       if (!desc) return
       return desc.apply(this, _args)
     }

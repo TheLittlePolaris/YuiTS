@@ -1,4 +1,3 @@
-import Queue from 'bull'
 import Axios from 'axios'
 import { DiscordClient, Injectable } from '@/ioc-container'
 import { GuildMember, Message, MessagePayload, MessageOptions } from 'discord.js'
@@ -13,8 +12,6 @@ import { NewHolostat, VTuberParam } from '@/custom/decorators/feature-vtuber.dec
 
 @Injectable()
 export class FeatureService {
-  queue = new Queue('test')
-
   constructor(
     public yui: DiscordClient,
     private vtuberStatService: VtuberStatService,

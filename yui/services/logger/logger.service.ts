@@ -23,11 +23,11 @@ export class YuiLogger implements LoggerService {
 
     transports: [
       new transports.File({
-        filename: `logs/${YuiLogger.buildPath('error')}`,
+        filename: YuiLogger.buildPath('error'),
         level: 'error',
       }),
       new transports.File({
-        filename: `logs/${YuiLogger.buildPath('warn')}`,
+        filename: YuiLogger.buildPath('warn'),
         level: 'warn',
       }),
       new transports.Console({
@@ -54,7 +54,7 @@ export class YuiLogger implements LoggerService {
   })
   private static buildPath(type: string) {
     const [m, d, y] = new Date().toLocaleDateString().split('/')
-    return `${d}-${m}-${y}_${type}.log`
+    return `logs/${d}-${m}-${y}/${type}.log`
   }
   // context = class name: target.name || target.constructor.name
   constructor(context?: string) {

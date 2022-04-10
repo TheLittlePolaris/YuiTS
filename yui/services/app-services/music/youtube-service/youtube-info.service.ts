@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { YoutubeRequestService } from './youtube-request.service'
 import {
   IYoutubePlaylistResult,
@@ -82,9 +81,9 @@ export class YoutubeInfoService {
       data.items.map((song) => {
         return tmpIdsArray.push(song.snippet.resourceId.videoId)
       })
-    ).catch(this.handleError)
+    ).catch((err) => this.handleError(err))
 
-    const videos = await this.getInfoIds(...tmpIdsArray).catch(this.handleError)
+    const videos = await this.getInfoIds(...tmpIdsArray).catch((err) => this.handleError(err))
 
     return videos
   }
