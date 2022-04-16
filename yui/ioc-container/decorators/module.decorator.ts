@@ -1,8 +1,8 @@
 import {
   getPropertyKey,
-  MODULE_METADATA,
+  ModuleMetadata,
 } from '../constants/dependencies-injection.constant'
-import { ContainerFactory } from '../container-factory'
+import { RecursiveContainerFactory } from '../promise-based.container-factory'
 import {
   GenericClassDecorator,
   ModuleOption,
@@ -21,14 +21,14 @@ export function YuiModule<T = any>(options: ModuleOption): GenericClassDecorator
   return function (target: Type<any>) {
     for (const property in options) {
       if (property === 'entryComponent') {
-        if (ContainerFactory.entryDetected)
+        if (RecursiveContainerFactory.entryDetected)
           throw new Error('Multiple entry detected: ' + target['name'])
-        ContainerFactory.entryDetected = true
+        RecursiveContainerFactory.entryDetected = true
       }
 
       if (options.hasOwnProperty(property)) {
         Reflect.defineMetadata(
-          getPropertyKey(property as MODULE_METADATA),
+          getPropertyKey(property as ModuleMetadata),
           options[property],
           target
         )

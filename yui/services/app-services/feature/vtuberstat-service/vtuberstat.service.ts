@@ -3,7 +3,6 @@ import {
   GuildMember,
   EmbedFieldData,
   MessageCollectorOptions,
-  MessageEmbed,
   MessageOptions,
 } from 'discord.js'
 import { discordRichEmbedConstructor } from '@/services/app-services/utilities/discord-embed-constructor'
@@ -44,9 +43,7 @@ export class VtuberStatService {
     }
 
     const service = this.holostatRequestService
-    const dataList = await service
-      .getChannelList(regionCode)
-      .catch((err) => this.handleError(new Error(err)))
+    const dataList = await service.getChannelList(regionCode)
 
     if (!dataList || !dataList.length)
       return this.sendMessage(message, '**Something went wrong :(**')
@@ -72,7 +69,7 @@ export class VtuberStatService {
         fields: fieldsData.slice(index, currentPartLimit),
       })
 
-      const sent = await this.sendMessage(message, sendingEmbed)
+      const sent = await this.sendMessage(message, { embeds: [sendingEmbed] })
 
       sentContent.push(sent)
 
@@ -93,7 +90,7 @@ export class VtuberStatService {
     })
 
     const deleteSentContent = () => {
-      sentContent.forEach((e) => e.delete().catch((err) => this.handleError(new Error(err))))
+      sentContent.filter(Boolean).forEach((message) => this.deleteMessage(message))
     }
 
     collector.on('collect', async (collected: Message) => {
@@ -146,21 +143,21 @@ export class VtuberStatService {
 
     const description = `**Description:** ${channelData.snippet.description}
     
-    **Created date: \`${publishedDate}\`
+    **Created date: \`${publishedDate}\`\
     Subscribers: \`${subscriberCount}\`
     Views: \`${channelData.statistics.viewCount}\`
     Videos: \`${channelData.statistics.videoCount}\`**`
 
-    const embed = await discordRichEmbedConstructor({
-      title: channelData.snippet.title,
+    const embed = discordRichEmbedConstructor({
+      title: channelData?.snippet?.title,
       titleUrl: channelUrl,
-      imageUrl: channelData.brandingSettings.image.bannerTvHighImageUrl,
-      thumbnailUrl: channelData.snippet.thumbnails.high.url,
+      imageUrl: channelData?.brandingSettings?.image?.bannerTvHighImageUrl,
+      thumbnailUrl: channelData?.snippet?.thumbnails?.high?.url,
       description,
-      color: channelData.brandingSettings.channel.profileColor,
+      color: channelData?.brandingSettings?.channel?.profileColor,
     })
 
-    await this.sendMessage(message, embed)
+    await this.sendMessage(message, { embeds: [embed] })
 
     return
   }
@@ -188,10 +185,6 @@ export class VtuberStatService {
       messageFilter.author.id === message.author.id &&
       messageFilter.channel.id === message.channel.id
 
-    const collectorOptions: MessageCollectorOptions = {
-      time: 15000,
-      max: 1,
-    }
     const collector = sentMessage.channel.createMessageCollector({
       filter: collectorFilter,
       time: 15000,
@@ -217,13 +210,13 @@ export class VtuberStatService {
           message,
           affiliation,
           regionCode: regionCodes[index - 1] as any,
-        }).catch((err) => this.handleError(err))
+        })
         return
       }
     })
 
     collector.on('end', (collected) => {
-      if (sentMessage) sentMessage.delete().catch((err) => this.handleError(new Error(err)))
+      if (sentMessage) sentMessage.delete()
       if (collected.size < 1) this.sendMessage(message, ':ok_hand: Action aborted.')
       return
     })
@@ -262,7 +255,7 @@ export class VtuberStatService {
       }
     })
 
-    if (fieldsData) waitingMessage.delete().catch((err) => this.handleError(new Error(err)))
+    if (fieldsData) this.deleteMessage(waitingMessage)
 
     const regionMap = HOLO_REGION_MAP
 
@@ -295,24 +288,19 @@ export class VtuberStatService {
     sendPartial(0)
   }
 
-  private async sendMessage(
-    message: Message,
-    content: string | MessageEmbed | MessageOptions
-  ): Promise<Message> {
-    return await message.channel
-      .send(content as any)
-      .catch((err) => this.handleError(new Error(err)))
+  private async sendMessage(message: Message, content: string | MessageOptions): Promise<Message> {
+    return message.channel.send(content as any).catch((err) => {
+      YuiLogger.debug(content as any)
+      YuiLogger.error(err.message)
+      return err
+    })
   }
 
-  private async deleteMessage(
-    message: Message,
-    option: { timeout?: number; reason?: string } = {}
-  ) {
-    return await message.delete().catch((err) => this.handleError(err))
-  }
-
-  private handleError(error: Error | string) {
-    YuiLogger.error(error, this.constructor.name)
-    return null
+  private async deleteMessage(message: Message) {
+    if (!message?.deletable) return
+    return message.delete().catch((err) => {
+      YuiLogger.error(err)
+      return err
+    })
   }
 }

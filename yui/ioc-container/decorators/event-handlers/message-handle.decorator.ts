@@ -15,15 +15,16 @@ export function HandleCommand(command = 'default', ...aliases: string[]) {
     Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
 
     const originalHandler = descriptor.value as Function
-    descriptor.value = function ([message]: ClientEvents['messageCreate'], config: ConfigService) {
-      const [_command, ..._args] = message.content.replace(config.prefix, '').trim().split(/ +/g)
+    descriptor.value = function ([message]: ClientEvents['messageCreate']) {
+      // TODO: Custom prefix will need to edit this
+      const [_command, ..._args] = message.content.replace('-', '').trim().split(/ +/g)
       
       const paramList =
         Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
       const { channel, author, guild } = message
       const defaultIndex = [message, author, _args, guild, channel, command]
       const compiledArgs = (paramList.length && paramList.map((i) => defaultIndex[i])) || [message]
-      compiledArgs.push(message, config)
+
       return originalHandler.apply(this, compiledArgs)
     }
   }

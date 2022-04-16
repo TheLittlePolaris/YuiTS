@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js'
-import { EntryComponent, Provider, Type } from '../interfaces/dependencies-injection.interfaces'
+import { Type } from '../interfaces/dependencies-injection.interfaces'
 
 
 export class InterceptorsContainer {

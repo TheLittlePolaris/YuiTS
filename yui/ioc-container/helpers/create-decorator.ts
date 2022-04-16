@@ -1,4 +1,3 @@
-import { cloneDeep } from 'lodash'
 import { Prototype, Type } from '../interfaces'
 import { CreateMethodDecoratorParameters } from '../interfaces/decorator.interface'
 

@@ -1,15 +1,5 @@
 export const MODULE_METADATA_KEY_PREFIX = `self:metadata`
 
-export enum MODULE_METADATA {
-  MODULES = 'modules',
-  PROVIDERS = 'providers',
-  COMPONENTS = 'components',
-  INTERCEPTOR = 'interceptors',
-  ENTRY_COMPONENT = 'entryComponent',
-}
-
-export const getPropertyKey = (key: MODULE_METADATA) => `${MODULE_METADATA_KEY_PREFIX}:${key}` 
-
 export const COMPONENT_METADATA = {
   EVENT_LIST: 'custom_metadata:event_list',
   PROPERT: 'custom_type:property',
@@ -28,20 +18,15 @@ export const DESIGN_TYPE = 'design:type'
 
 export const METHOD_PARAM_METADATA = 'method:params'
 
-export const APP_INTERCEPTOR = 'design:interceptor'
+export const CUSTOM_INTERCEPTOR = 'design:custom:interceptor'
+export const INTERCEPTOR_TARGET = 'self:interceptor_target'
 
-export enum INJECT_TOKEN {
-  BOT_TOKEN = 'BOT_TOKEN',
-  BOT_INTENTS = 'BOT_INTENTS',
-  BOT_OPTION = 'BOT_OPTION',
-  BOT_PREFIX = 'BOT_PREFIX',
-  YOUTUBE_API_KEY = 'YOUTUBE_API_KEY',
-  YUI_CLIENT = 'YUI_CLIENT',
-  GLOBAL_STREAMS = 'GLOBAL_STREAMS',
+export enum InjectToken {
+  CLIENT_TOKEN = 'BotToken',
+  CLIENT_INTENTS = 'BotIntents',
+  REDIS_CONFIG = 'RedisConfig',
+  YUI_CLIENT = 'YuiClient',
 }
-
-export type InjectToken = Record<INJECT_TOKEN, string>
-export type InjectKeys = keyof typeof INJECT_TOKEN
 
 // Event handlers
 export const BOUND_EVENTS = 'self:bound_events'
@@ -67,4 +52,12 @@ export enum VOICESTATE_PARAMS {
   NEW_CHANNEL,
 }
 
-export const INTERCEPTOR_TARGET = 'self:interceptor_target'
+export enum ModuleMetadata {
+  MODULES = 'modules',
+  PROVIDERS = 'providers',
+  COMPONENTS = 'components',
+  INTERCEPTOR = 'interceptors',
+  ENTRY_COMPONENT = 'entryComponent',
+}
+
+export const getPropertyKey = (key: ModuleMetadata) => `${MODULE_METADATA_KEY_PREFIX}:${key}`

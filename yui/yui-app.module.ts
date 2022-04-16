@@ -1,14 +1,14 @@
 import { HandlerModule } from '@/event-handlers/handler.module'
-import { YuiModule, INJECT_TOKEN } from '@/ioc-container'
-import { RedisModule } from '@/services/redis-adapter/redis.module'
+import { YuiModule, InjectToken } from '@/ioc-container'
+import { RedisModule } from '@/ioc-container/redis-adapter/redis.module'
 import { ConfigModule } from '@/config-service/config.module'
 import { BitFieldResolvable, Intents, IntentsString } from 'discord.js'
 
 @YuiModule({
-  modules: [ConfigModule, RedisModule, HandlerModule],
+  modules: [ConfigModule,HandlerModule],
   providers: [
     {
-      provide: INJECT_TOKEN.BOT_INTENTS,
+      provide: InjectToken.CLIENT_INTENTS,
       useValue: <BitFieldResolvable<IntentsString, number>[]>[
         Intents.FLAGS.GUILDS,
         Intents.FLAGS.GUILD_VOICE_STATES,

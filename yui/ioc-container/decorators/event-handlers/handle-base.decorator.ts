@@ -1,4 +1,3 @@
-import { ConfigService } from '@/config-service/config.service'
 import { DiscordEvent } from '@/constants/discord-events'
 import { COMMAND_HANDLER } from '@/ioc-container/constants/dependencies-injection.constant'
 import { ICommandHandlerMetadata, Prototype } from '@/ioc-container/interfaces'
@@ -12,7 +11,7 @@ export function EventHandler() {
     Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
 
     const originalHandler = descriptor.value as Function
-    descriptor.value = function (eventArgs: ClientEvents[DiscordEvent], config: ConfigService) {
+    descriptor.value = function (eventArgs: ClientEvents[DiscordEvent]) {
       return originalHandler.apply(this, eventArgs)
     }
   }

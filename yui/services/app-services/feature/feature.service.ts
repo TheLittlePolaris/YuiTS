@@ -19,8 +19,7 @@ export class FeatureService {
   ) {}
 
   @Feature()
-  // @FeaturePermissionValidator()
-  public async getPing(message: Message): Promise<void> {
+  public async getPing(message: Message): Promise<`OK`> {
     const yuiPing = this.yui.ws.ping
     const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
 
@@ -41,6 +40,8 @@ export class FeatureService {
     if (sentMessage) sentMessage.delete().catch(null)
 
     this.sendMessage(message, { embeds: [embed] })
+
+    return 'OK'
   }
 
   public async help(message: Message, ..._args: any[])
