@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js'
-import { EntryComponent, Provider, Type } from '../interfaces/dependencies-injection.interfaces'
+import { EntryComponent, Type } from '../interfaces/dependencies-injection.interfaces'
 
 export type EntryInstance<T extends Type<any>> = InstanceType<T>
 
@@ -29,9 +29,5 @@ export class ComponentsContainer {
 
   public getInstance<T = any>(forTarget: Type<T>): InstanceType<Type<T>> {
     return this._instances.get(forTarget.name)
-  }
-
-  private public() {
-    this._instances.clear()
   }
 }

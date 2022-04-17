@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { DiscordEvent } from '@/constants/discord-events'
+import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 import { Client } from 'discord.js'
 
 /* ================================== INTERFACES ===================================== */

@@ -1,6 +1,6 @@
 import 'module-alias/register'
 import 'reflect-metadata'
-import { RecursiveContainerFactory, RxjsContainerFactory } from './ioc-container'
+import { RxjsContainerFactory } from '@/ioc-container'
 import { AppModule } from './yui-app.module'
 import { ConfigService } from './config-service/config.service'
 import { YuiLogger } from './services/logger/logger.service'

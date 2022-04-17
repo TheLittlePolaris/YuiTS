@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import { DiscordEvent, DiscordEventConfig } from '@/constants/discord-events'
+import { DiscordEvent, DiscordEventConfig } from '@/ioc-container/constants/discord-events'
 import { ClientEvents } from 'discord.js'
 import { Observable } from 'rxjs'
 

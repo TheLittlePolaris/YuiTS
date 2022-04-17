@@ -1,4 +1,4 @@
-import { Constants } from '@/constants/constants'
+import { Constants } from '@/constants'
 import { GuildMember, Message, MessageEmbed, TextChannel, VoiceChannel } from 'discord.js'
 import { PassThrough, Readable } from 'stream'
 import ytdl from 'ytdl-core'

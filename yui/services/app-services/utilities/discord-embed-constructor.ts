@@ -1,5 +1,5 @@
 import { MessageEmbed, EmbedFieldData, HexColorString } from 'discord.js'
-import { Constants } from '@/constants/constants'
+import { Constants } from '@/constants'
 
 interface IEmbedConstructor {
   title?: string

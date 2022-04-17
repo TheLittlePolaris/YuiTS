@@ -1,10 +1,6 @@
+import { HandleVoiceState, OnEvent, StateChannel } from '@/ioc-container'
 import { VoiceChannel } from 'discord.js'
 import { MusicService } from '../services/app-services/music/music.service'
-import { EventHandler, OnEvent } from '@/ioc-container/decorators'
-import {
-  HandleVoiceState,
-  StateChannel,
-} from '@/ioc-container/decorators/event-handlers/voicestate-handle.decorator'
 
 @OnEvent('voiceStateUpdate')
 export class VoiceStateEventHandler {

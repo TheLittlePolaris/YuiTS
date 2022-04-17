@@ -1,6 +1,6 @@
 import { isFunction } from 'lodash'
 
-import { DiscordEvent } from '@/constants/discord-events'
+import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 import { YuiLogger } from '@/services/logger'
 
 import {
@@ -39,10 +39,10 @@ export abstract class BaseRecursiveCompiler {
   protected _config
 
   constructor(
-    protected moduleContainer: ModulesContainer,
-    protected componentContainer: ComponentsContainer,
-    protected providerContainer: ProvidersContainer,
-    protected interceptorContainer: InterceptorsContainer
+    protected _moduleContainer: ModulesContainer,
+    protected _componentContainer: ComponentsContainer,
+    protected _providerContainer: ProvidersContainer,
+    protected _interceptorContainer: InterceptorsContainer
   ) {}
 
   protected get context() {
@@ -55,6 +55,20 @@ export abstract class BaseRecursiveCompiler {
 
   get eventHandlers() {
     return this._eventHandlers
+  }
+
+  get moduleContainer() {
+    return this._moduleContainer
+  }
+
+  get componentContainer() {
+    return this._componentContainer
+  }
+  get providerContainer() {
+    return this._providerContainer
+  }
+  get interceptorContainer() {
+    return this._interceptorContainer
   }
 
   private getModuleMetadata(module: Type<any>, key: ModuleMetadata) {
@@ -75,13 +89,13 @@ export abstract class BaseRecursiveCompiler {
 
     if (entryComponent) {
       // first entry needs custom config
-      this.moduleContainer.setEntryComponent(entryComponent)
+      this._moduleContainer.setEntryComponent(entryComponent)
       this.compileComponent(module, entryComponent)
     }
 
     if (modules) {
       await Promise.all(modules.map((m) => this.compileModule(m)))
-      this.moduleContainer.importModules(modules)
+      this._moduleContainer.importModules(modules)
     }
 
     if (interceptors) {
@@ -94,20 +108,20 @@ export abstract class BaseRecursiveCompiler {
       await Promise.all(components.map((component) => this.compileComponent(module, component)))
     }
 
-    this.moduleContainer.clear()
+    this._moduleContainer.clear()
   }
 
   protected async compileProvider(module: Type<any>, provider: Provider) {
     if (provider.useValue) {
-      this.providerContainer.setValueProvider(module, provider)
+      this._providerContainer.setValueProvider(module, provider)
     } else if (provider.useFactory) {
       const { provide, useFactory } = provider
       const useValue = (isFunction(useFactory) && (await useFactory(this._config))) || null
-      this.providerContainer.setValueProvider(module, <Provider>{ provide, useValue })
+      this._providerContainer.setValueProvider(module, <Provider>{ provide, useValue })
     } else if (provider.useClass) {
       const { useClass, provide } = provider
       const useValue = this.compileComponent(module, useClass)
-      this.providerContainer.setValueProvider(module, <Provider>{ provide, useValue })
+      this._providerContainer.setValueProvider(module, <Provider>{ provide, useValue })
     }
   }
 
@@ -117,11 +131,11 @@ export abstract class BaseRecursiveCompiler {
   compileComponent(module: Type<any>, target: Type<any>) {
     if (isValue(target)) return
 
-    const createdInstance = this.componentContainer.getInstance(target)
+    const createdInstance = this._componentContainer.getInstance(target)
     if (createdInstance) return createdInstance
 
     const compiledInstance = this.compileInstance(module, target)
-    this.componentContainer.addInstance(target, compiledInstance)
+    this._componentContainer.addInstance(target, compiledInstance)
 
     Promise.resolve().then(() => this.compileHandlerForEvent(target, compiledInstance))
     setTimeout(() => this.injectExternalConfig(target, compiledInstance))
@@ -130,10 +144,10 @@ export abstract class BaseRecursiveCompiler {
   }
 
   protected injectExternalConfig(type: Type<any>, instance: InstanceType<Type<any>>) {
-    const { entryComponent } = this.moduleContainer
+    const { entryComponent } = this._moduleContainer
     if (type.name === entryComponent.name) return
     // TODO: create something like: createMethodDecorator(([client,config]) => {...})
-    instance[BOT_GLOBAL_CLIENT] = this.componentContainer.getInstance(entryComponent)
+    instance[BOT_GLOBAL_CLIENT] = this._componentContainer.getInstance(entryComponent)
     instance[BOT_GLOBAL_CONFIG] = this._config
   }
 
@@ -167,14 +181,14 @@ export abstract class BaseRecursiveCompiler {
     return tokens.map((token: Type<any>, paramIndex: number) => {
       if (customTokens && customTokens[paramIndex]) {
         // module-based value provider
-        const customProvide = this.providerContainer.getProvider(module, customTokens[paramIndex])
+        const customProvide = this._providerContainer.getProvider(module, customTokens[paramIndex])
         /* TODO: class provider */
         if (isValueInjector(customProvide))
           return (customProvide as CustomValueProvider<any>).useValue
         else if (isClassInjector(customProvide))
           return this.compileComponent(module, (customProvide as CustomClassProvider<any>).useClass)
       }
-      const created = this.componentContainer.getInstance(token)
+      const created = this._componentContainer.getInstance(token)
       if (created) return created
       return this.compileComponent(module, token)
     })
@@ -245,11 +259,11 @@ export abstract class BaseRecursiveCompiler {
 
   protected compileInterceptor(module: Type<any>, interceptorTarget: Type<any>) {
     if (isValue(interceptorTarget)) return
-    const interceptor = this.interceptorContainer.getInterceptorInstance(interceptorTarget.name)
+    const interceptor = this._interceptorContainer.getInterceptorInstance(interceptorTarget.name)
     if (interceptor) return interceptor
 
     const compiledInterceptor = this.compileInstance(module, interceptorTarget)
-    this.interceptorContainer.addInterceptor(interceptorTarget, compiledInterceptor)
+    this._interceptorContainer.addInterceptor(interceptorTarget, compiledInterceptor)
 
     return compiledInterceptor
   }

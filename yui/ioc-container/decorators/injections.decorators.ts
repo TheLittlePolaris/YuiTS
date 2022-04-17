@@ -1,15 +1,14 @@
 import 'reflect-metadata'
-import { isUndefined, isFunction } from '../helpers/helper-functions'
-import { GenericClassDecorator, Type } from '../interfaces/dependencies-injection.interfaces'
+
 import {
-  SELF_DECLARED_DEPS_METADATA,
-  PROPERTY_DEPS_METADATA,
-  INJECTABLE_METADATA,
   DESIGN_TYPE,
+  INJECTABLE_METADATA,
   InjectToken,
-
-} from '@/ioc-container/constants/dependencies-injection.constant'
-
+  PROPERTY_DEPS_METADATA,
+  SELF_DECLARED_DEPS_METADATA,
+} from '../constants'
+import { isFunction, isUndefined } from '../helpers'
+import { GenericClassDecorator, Type } from '../interfaces'
 
 // NestJS Inject function, edited
 export const Inject = (token: InjectToken) => {
@@ -35,3 +34,4 @@ export function Injectable<T = any>(): GenericClassDecorator<Type<T>> {
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
+

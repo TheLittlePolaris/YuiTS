@@ -1,10 +1,10 @@
-import { Inject, Injectable } from '@/ioc-container'
 import { Client, IntentsString, Message } from 'discord.js'
 import { InjectToken } from '../constants'
+import { Inject, Injectable } from '../decorators'
 
 @Injectable()
 export class DiscordClient extends Client {
-  constructor(@Inject(InjectToken.CLIENT_INTENTS) intents: IntentsString[]) {    
+  constructor(@Inject(InjectToken.CLIENT_INTENTS) intents: IntentsString[]) {
     super({ intents })
   }
   public get id() {

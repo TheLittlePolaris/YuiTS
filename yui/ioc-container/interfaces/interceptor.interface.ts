@@ -1,4 +1,4 @@
-import { DiscordEvent } from '@/constants/discord-events'
+import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 import { ClientEvents } from 'discord.js'
 import { Observable } from 'rxjs'
 

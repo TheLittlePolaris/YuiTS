@@ -1,7 +1,7 @@
 import { ClientEvents } from 'discord.js'
 import { catchError, from, of, tap, throwError } from 'rxjs'
 
-import { DiscordEvent } from '@/constants/discord-events'
+import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 
 import { INTERCEPTOR_TARGET } from '../constants'
 import {
@@ -17,13 +17,14 @@ import { BaseRecursiveCompiler } from './base.compiler'
  * @description Compile using Rxjs strategy.
  */
 export class RxjsRecursiveCompiler extends BaseRecursiveCompiler {
+  
   constructor(
-    protected moduleContainer: ModulesContainer,
-    protected componentContainer: ComponentsContainer,
-    protected providerContainer: ProvidersContainer,
-    protected interceptorContainer: InterceptorsContainer
+    protected _moduleContainer: ModulesContainer,
+    protected _componentContainer: ComponentsContainer,
+    protected _providerContainer: ProvidersContainer,
+    protected _interceptorContainer: InterceptorsContainer
   ) {
-    super(moduleContainer, componentContainer, providerContainer, interceptorContainer)
+    super(_moduleContainer, _componentContainer, _providerContainer, _interceptorContainer)
   }
 
   protected compileCommand(
@@ -33,7 +34,7 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler {
   ): RxjsHandleFunction {
     const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
     const interceptorInstance: IRxjsInterceptor =
-      (useInterceptor && this.interceptorContainer.getInterceptorInstance(useInterceptor)) || null
+      (useInterceptor && this._interceptorContainer.getInterceptorInstance(useInterceptor)) || null
     // bind: passive when go through interceptor, active when call directly
     const fromHandler = (_eventArgs: ClientEvents[DiscordEvent]) =>
       from(of(instance[propertyKey](_eventArgs)))

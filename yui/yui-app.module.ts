@@ -1,11 +1,10 @@
-import { HandlerModule } from '@/event-handlers/handler.module'
 import { YuiModule, InjectToken } from '@/ioc-container'
-import { RedisModule } from '@/ioc-container/redis-adapter/redis.module'
-import { ConfigModule } from '@/config-service/config.module'
 import { BitFieldResolvable, Intents, IntentsString } from 'discord.js'
+import { ConfigModule } from './config-service/config.module'
+import { HandlerModule } from './event-handlers/handler.module'
 
 @YuiModule({
-  modules: [ConfigModule,HandlerModule],
+  modules: [ConfigModule, HandlerModule],
   providers: [
     {
       provide: InjectToken.CLIENT_INTENTS,

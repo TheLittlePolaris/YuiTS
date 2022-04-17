@@ -1,6 +1,6 @@
 import { ClientEvents } from 'discord.js'
 
-import { DiscordEvent } from '@/constants/discord-events'
+import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 
 import { INTERCEPTOR_TARGET } from '../constants/dependencies-injection.constant'
 import { ComponentsContainer, InterceptorsContainer, ProvidersContainer } from '../containers'
@@ -15,12 +15,12 @@ import { BaseRecursiveCompiler } from './base.compiler'
  */
 export class PromiseBasedRecursiveCompiler extends BaseRecursiveCompiler  {
   constructor(
-    protected moduleContainer: ModulesContainer,
-    protected componentContainer: ComponentsContainer,
-    protected providerContainer: ProvidersContainer,
-    protected interceptorContainer: InterceptorsContainer
+    protected _moduleContainer: ModulesContainer,
+    protected _componentContainer: ComponentsContainer,
+    protected _providerContainer: ProvidersContainer,
+    protected _interceptorContainer: InterceptorsContainer
   ) {
-    super(moduleContainer, componentContainer, providerContainer, interceptorContainer)
+    super(_moduleContainer, _componentContainer, _providerContainer, _interceptorContainer)
   }
 
   protected compileCommand(
@@ -30,7 +30,7 @@ export class PromiseBasedRecursiveCompiler extends BaseRecursiveCompiler  {
   ): PromiseHandleFunction {
     const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
     const interceptorInstance: IBaseInterceptor =
-      (useInterceptor && this.interceptorContainer.getInterceptorInstance(useInterceptor)) || null
+      (useInterceptor && this._interceptorContainer.getInterceptorInstance(useInterceptor)) || null
     // bind: passive when go through interceptor, active when call directly
     const handler = (_eventArgs: ClientEvents[DiscordEvent], bind = false) =>
       bind

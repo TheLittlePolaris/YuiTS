@@ -1,4 +1,4 @@
-import { YuiModule } from "@/ioc-container/decorators";
+import { YuiModule } from "../decorators";
 import { SimpleConfigService } from "./config.service";
 
 @YuiModule({

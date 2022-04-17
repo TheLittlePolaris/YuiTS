@@ -1,11 +1,8 @@
-import { ConfigService } from '@/config-service/config.service'
-import {
-  COMMAND_HANDLER,
-  COMMAND_HANDLER_PARAMS,
-  VOICESTATE_PARAMS,
-} from '@/ioc-container/constants/dependencies-injection.constant'
-import { ICommandHandlerMetadata, Prototype } from '@/ioc-container/interfaces'
 import { ClientEvents } from 'discord.js'
+
+import { ConfigService } from '@/config-service/config.service'
+import { ICommandHandlerMetadata, Prototype } from '../../interfaces'
+import { COMMAND_HANDLER, COMMAND_HANDLER_PARAMS, VOICESTATE_PARAMS } from '../../constants'
 
 export function HandleVoiceState() {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
@@ -52,3 +49,4 @@ export const StateChannel = (type: 'old' | 'new') => {
     Reflect.defineMetadata(COMMAND_HANDLER_PARAMS, paramList, target.constructor, propertyKey)
   }
 }
+
