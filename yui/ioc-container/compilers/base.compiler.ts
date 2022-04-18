@@ -23,7 +23,7 @@ import {
 import { isClassInjector, isValue, isValueInjector } from '../helpers'
 import {
   BaseCommandHandler,
-  BaseEventsHandler,
+  BaseEventsHandlers,
   BaseSingleEventHandler,
   BaseHandlerFn,
   CustomClassProvider,
@@ -34,7 +34,7 @@ import {
 } from '../interfaces'
 
 export abstract class BaseRecursiveCompiler {
-  protected _eventHandlers: BaseEventsHandler<BaseSingleEventHandler> = {}
+  protected _eventHandlers: BaseEventsHandlers<BaseSingleEventHandler> = {}
 
   protected _config
 

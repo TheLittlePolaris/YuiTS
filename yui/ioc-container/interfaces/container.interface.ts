@@ -19,13 +19,13 @@ export type BaseCommandHandler<T extends BaseHandlerFn> = {
 }
 
 export type BaseSingleEventHandler = PromiseCommandHandler | RxjsCommandHandler
-export type BaseEventsHandler<U extends BaseHandlerFn, T extends BaseCommandHandler<U>> = {
+export type BaseEventsHandlers<U extends BaseHandlerFn, T extends BaseCommandHandler<U>> = {
   [key in DiscordEvent]?: {
     handlers: T
     config?: DiscordEventConfig[key]
   }
 }
 
-export type PromiseEventHandlers = BaseEventsHandler<PromiseHandlerFn, PromiseCommandHandler>
+export type PromiseEventsHandlers = BaseEventsHandlers<PromiseHandlerFn, PromiseCommandHandler>
 
-export type RxjsEventHandlers = BaseEventsHandler<RxjsHandlerFn, RxjsCommandHandler>
+export type RxjsEventsHandlers = BaseEventsHandlers<RxjsHandlerFn, RxjsCommandHandler>

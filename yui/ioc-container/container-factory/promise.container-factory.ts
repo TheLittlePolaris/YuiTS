@@ -10,7 +10,7 @@ import {
 } from '../containers'
 import { DiscordClient } from '../entrypoint'
 import { _internalSetGetter, _internalSetRefs } from '../helpers'
-import { BaseEventsHandler, PromiseCommandHandler, PromiseHandlerFn, Type } from '../interfaces'
+import { BaseEventsHandlers, PromiseCommandHandler, PromiseHandlerFn, Type } from '../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
 
 export class RecursiveContainerFactory extends BaseContainerFactory {
@@ -75,7 +75,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
     await this.compiler.compileModule(rootModule, entryComponent)
 
     this._config = this.compiler.config
-    this._eventHandlers = this.compiler.eventHandlers as BaseEventsHandler<
+    this._eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<
       PromiseHandlerFn,
       PromiseCommandHandler
     >
