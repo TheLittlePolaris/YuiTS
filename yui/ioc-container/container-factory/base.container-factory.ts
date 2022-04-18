@@ -1,21 +1,15 @@
 import { ClientEvents, Message } from 'discord.js'
 
-import { DiscordEvent } from '@/ioc-container/constants/discord-events'
-
 import { BaseRecursiveCompiler } from '../compilers/base.compiler'
+import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
-import {
-  BaseEventsHandler,
-  BaseSingleEventHandler,
-  BaseSingleHandleFunction,
-  Type,
-} from '../interfaces'
+import { BaseEventsHandler, BaseHandlerFn, BaseSingleEventHandler, Type } from '../interfaces'
 
 export abstract class BaseContainerFactory {
   static entryDetected = false
 
   protected _config
-  protected _eventHandlers: BaseEventsHandler<BaseSingleEventHandler>
+  protected _eventHandlers: BaseEventsHandler<BaseHandlerFn, BaseSingleEventHandler>
 
   constructor(private readonly _compiler: BaseRecursiveCompiler) {
     this._eventHandlers = {}
@@ -25,7 +19,7 @@ export abstract class BaseContainerFactory {
     return this._compiler
   }
 
-  protected set eventHandlers(value: BaseEventsHandler<BaseSingleEventHandler>) {
+  protected set eventHandlers(value: BaseEventsHandler<BaseHandlerFn, BaseSingleEventHandler>) {
     this._eventHandlers = value
   }
 
@@ -52,7 +46,7 @@ export abstract class BaseContainerFactory {
   protected abstract getCommandFunction(
     event: keyof ClientEvents,
     command: string | false
-  ): BaseSingleHandleFunction
+  ): BaseHandlerFn
 
   protected getHandlerForEvent(event: keyof ClientEvents, args: ClientEvents[DiscordEvent]) {
     const command = this.getCommandHandler(event, args)
@@ -79,7 +73,7 @@ export abstract class BaseContainerFactory {
       }
 
       default:
-        return 'default'
+        return DEFAULT_ACTION_KEY
     }
   }
 }

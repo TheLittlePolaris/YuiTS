@@ -1,10 +1,8 @@
 import { ClientEvents, Message } from 'discord.js'
 import { noop } from 'lodash'
 
-import { DiscordEvent } from '@/ioc-container/constants/discord-events'
-
 import { PromiseBasedRecursiveCompiler } from '../compilers'
-import { COMPONENT_METADATA } from '../constants'
+import { COMPONENT_METADATA, DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import {
   ComponentsContainer,
   InterceptorsContainer,
@@ -13,7 +11,7 @@ import {
 } from '../containers'
 import { DiscordClient } from '../entrypoint'
 import { _internalSetGetter, _internalSetRefs } from '../helpers'
-import { BaseEventsHandler, PromiseCommandHandler, Type } from '../interfaces'
+import { BaseEventsHandler, PromiseCommandHandler, PromiseHandlerFn, Type } from '../interfaces'
 
 export class RecursiveContainerFactory {
   static entryDetected = false
@@ -26,7 +24,7 @@ export class RecursiveContainerFactory {
   private readonly _compiler: PromiseBasedRecursiveCompiler
 
   private _config
-  private _eventHandlers: BaseEventsHandler<PromiseCommandHandler> = {}
+  private _eventHandlers: BaseEventsHandler<PromiseHandlerFn, PromiseCommandHandler> = {}
 
   constructor() {
     this._compiler = new PromiseBasedRecursiveCompiler(
@@ -82,7 +80,10 @@ export class RecursiveContainerFactory {
     await this._compiler.compileModule(rootModule, entryComponent)
 
     this._config = this._compiler.config
-    this._eventHandlers = this._compiler.eventHandlers as BaseEventsHandler<PromiseCommandHandler>
+    this._eventHandlers = this._compiler.eventHandlers as BaseEventsHandler<
+      PromiseHandlerFn,
+      PromiseCommandHandler
+    >
 
     const client = this.componentContainer.getInstance(entryComponent)
     const compiledEvents = Object.keys(this._eventHandlers)
@@ -103,8 +104,8 @@ export class RecursiveContainerFactory {
 
   private getCommandFunction(event: keyof ClientEvents, command: string | false) {
     if (command === false) return noop
-    const { [command]: compiledCommand = null, ['default']: defaultAction } =
-      this._eventHandlers[event].handleFunction
+    const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =
+      this._eventHandlers[event].handlers
     return compiledCommand || defaultAction
   }
 
@@ -133,7 +134,7 @@ export class RecursiveContainerFactory {
       }
 
       default:
-        return 'default'
+        return DEFAULT_ACTION_KEY
     }
   }
 }

@@ -2,26 +2,22 @@ import { ClientEvents } from 'discord.js'
 import { isArray } from 'lodash'
 import { catchError, fromEvent, map, noop, Observable, of, take } from 'rxjs'
 
-import { DiscordEvent } from '@/ioc-container/constants/discord-events'
+import { YuiLogger } from '@/services/logger/logger.service'
+
+import { RxjsRecursiveCompiler } from '../compilers'
+import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import {
-  BaseEventsHandler,
   ComponentsContainer,
-  DiscordClient,
   InterceptorsContainer,
   ModulesContainer,
   ProvidersContainer,
-  RxjsCommandHandler,
-  RxjsHandleFunction,
-  RxjsRecursiveCompiler,
-  Type,
-  _internalSetGetter,
-  _internalSetRefs,
-} from '@/ioc-container'
-import { YuiLogger } from '@/services/logger/logger.service'
+} from '../containers'
+import { DiscordClient } from '../entrypoint'
+import { _internalSetGetter, _internalSetRefs } from '../helpers'
+import { RxjsCommandHandler, RxjsHandlerFn, Type } from '../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
 
 export class RxjsContainerFactory extends BaseContainerFactory {
-
   constructor() {
     const moduleContainer = new ModulesContainer()
     const componentContainer = new ComponentsContainer()
@@ -41,7 +37,7 @@ export class RxjsContainerFactory extends BaseContainerFactory {
     await this.compiler.compileModule(rootModule, entryComponent)
 
     this.config = this.compiler.config
-    this.eventHandlers = this.compiler.eventHandlers as BaseEventsHandler<RxjsCommandHandler>
+    this.eventHandlers = this.compiler.eventHandlers
 
     const client = this.compiler.componentContainer.getInstance(entryComponent)
     const compiledEvents = Object.keys(this._eventHandlers)
@@ -80,15 +76,13 @@ export class RxjsContainerFactory extends BaseContainerFactory {
     return this.compiler.componentContainer.getInstance(type)
   }
 
-  protected getCommandFunction(
-    event: keyof ClientEvents,
-    command: string | false
-  ): RxjsHandleFunction {
+  protected getCommandFunction(event: keyof ClientEvents, command: string | false): RxjsHandlerFn {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     if (command === false) return (..._args: any) => of(noop)
-    const { [command]: compiledCommand = null, ['default']: defaultAction } = this._eventHandlers[
-      event
-    ].handleFunction as RxjsCommandHandler
+    const {
+      [command]: compiledCommand = null, //
+      [DEFAULT_ACTION_KEY]: defaultAction,
+    } = this._eventHandlers[event].handlers as RxjsCommandHandler
     return compiledCommand || defaultAction
   }
 }

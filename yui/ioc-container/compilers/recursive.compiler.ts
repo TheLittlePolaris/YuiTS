@@ -5,7 +5,7 @@ import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 import { INTERCEPTOR_TARGET } from '../constants/dependencies-injection.constant'
 import { ComponentsContainer, InterceptorsContainer, ProvidersContainer } from '../containers'
 import { ModulesContainer } from '../containers/modules.container'
-import { PromiseHandleFunction } from '../interfaces/container.interface'
+import { PromiseHandlerFn } from '../interfaces/container.interface'
 import { Type } from '../interfaces/dependencies-injection.interfaces'
 import { IBaseInterceptor } from '../interfaces/interceptor.interface'
 import { BaseRecursiveCompiler } from './base.compiler'
@@ -27,7 +27,7 @@ export class PromiseBasedRecursiveCompiler extends BaseRecursiveCompiler  {
     target: Type<any>,
     instance: InstanceType<Type<any>>,
     propertyKey: string
-  ): PromiseHandleFunction {
+  ): PromiseHandlerFn {
     const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
     const interceptorInstance: IBaseInterceptor =
       (useInterceptor && this._interceptorContainer.getInterceptorInstance(useInterceptor)) || null

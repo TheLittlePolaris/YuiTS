@@ -10,7 +10,7 @@ import {
   ModulesContainer,
   ProvidersContainer,
 } from '../containers'
-import { IRxjsInterceptor, RxjsHandleFunction, Type } from '../interfaces'
+import { IRxjsInterceptor, RxjsHandlerFn, Type } from '../interfaces'
 import { BaseRecursiveCompiler } from './base.compiler'
 
 /**
@@ -31,7 +31,7 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler {
     target: Type<any>,
     instance: InstanceType<Type<any>>,
     propertyKey: string
-  ): RxjsHandleFunction {
+  ): RxjsHandlerFn {
     const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
     const interceptorInstance: IRxjsInterceptor =
       (useInterceptor && this._interceptorContainer.getInterceptorInstance(useInterceptor)) || null

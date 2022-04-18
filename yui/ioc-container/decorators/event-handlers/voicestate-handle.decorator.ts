@@ -2,13 +2,13 @@ import { ClientEvents } from 'discord.js'
 
 import { ConfigService } from '@/config-service/config.service'
 import { ICommandHandlerMetadata, Prototype } from '../../interfaces'
-import { COMMAND_HANDLER, COMMAND_HANDLER_PARAMS, VOICESTATE_PARAMS } from '../../constants'
+import { COMMAND_HANDLER, COMMAND_HANDLER_PARAMS, DEFAULT_ACTION_KEY, VOICESTATE_PARAMS } from '../../constants'
 
 export function HandleVoiceState() {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
     let commands: ICommandHandlerMetadata[] =
       Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
-    commands = [...commands, { propertyKey, command: 'default' }]
+    commands = [...commands, { propertyKey, command: DEFAULT_ACTION_KEY }]
     Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
 
     const originalHandler = descriptor.value as Function
