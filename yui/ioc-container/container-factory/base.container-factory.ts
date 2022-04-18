@@ -34,19 +34,9 @@ export abstract class BaseContainerFactory {
     this._config = value
   }
 
-  protected abstract initialize(
-    rootModule: Type<any>,
-    entryComponent: Type<DiscordClient>
-  ): Promise<DiscordClient>
-
   public get<T>(type: Type<T>): InstanceType<Type<T>> {
     return this._compiler.componentContainer.getInstance(type)
   }
-
-  protected abstract getCommandFunction(
-    event: keyof ClientEvents,
-    command: string | false
-  ): BaseHandlerFn
 
   protected getHandlerForEvent(event: keyof ClientEvents, args: ClientEvents[DiscordEvent]) {
     const command = this.getCommandHandler(event, args)
@@ -76,5 +66,15 @@ export abstract class BaseContainerFactory {
         return DEFAULT_ACTION_KEY
     }
   }
+
+  protected abstract initialize(
+    rootModule: Type<any>,
+    entryComponent: Type<DiscordClient>
+  ): Promise<DiscordClient>
+
+  protected abstract getCommandFunction(
+    event: keyof ClientEvents,
+    command: string | false
+  ): BaseHandlerFn
 }
 

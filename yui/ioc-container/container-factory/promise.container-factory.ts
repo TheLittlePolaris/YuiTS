@@ -1,5 +1,4 @@
-import { ClientEvents, Message } from 'discord.js'
-import { noop } from 'lodash'
+import { ClientEvents } from 'discord.js'
 
 import { PromiseBasedRecursiveCompiler } from '../compilers'
 import { COMPONENT_METADATA, DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
@@ -12,29 +11,25 @@ import {
 import { DiscordClient } from '../entrypoint'
 import { _internalSetGetter, _internalSetRefs } from '../helpers'
 import { BaseEventsHandler, PromiseCommandHandler, PromiseHandlerFn, Type } from '../interfaces'
+import { BaseContainerFactory } from './base.container-factory'
 
-export class RecursiveContainerFactory {
+export class RecursiveContainerFactory extends BaseContainerFactory {
   static entryDetected = false
 
-  private moduleContainer = new ModulesContainer()
-  private componentContainer = new ComponentsContainer()
-  private interceptorContainer = new InterceptorsContainer()
-  private providerContainer = new ProvidersContainer()
-
-  private readonly _compiler: PromiseBasedRecursiveCompiler
-
-  private _config
-  private _eventHandlers: BaseEventsHandler<PromiseHandlerFn, PromiseCommandHandler> = {}
-
   constructor() {
-    this._compiler = new PromiseBasedRecursiveCompiler(
-      this.moduleContainer,
-      this.componentContainer,
-      this.providerContainer,
-      this.interceptorContainer
+    const moduleContainer = new ModulesContainer()
+    const componentContainer = new ComponentsContainer()
+    const interceptorContainer = new InterceptorsContainer()
+    const providerContainer = new ProvidersContainer()
+    super(
+      new PromiseBasedRecursiveCompiler(
+        moduleContainer,
+        componentContainer,
+        providerContainer,
+        interceptorContainer
+      )
     )
   }
-
   /**
    *
    * @param moduleMetadata - the `AppModule`
@@ -48,7 +43,7 @@ export class RecursiveContainerFactory {
    * @returns instance of MyEntryComponent
    */
   async createInstanceModule(moduleMetadata: Type<any>, entryComponent?: Type<any>) {
-    await this._compiler.compileModule(moduleMetadata, entryComponent)
+    await this.compiler.compileModule(moduleMetadata, entryComponent)
     /**
      * IMPORTANT:
      *  - Required the entry component to extend EntryComponent class
@@ -77,15 +72,15 @@ export class RecursiveContainerFactory {
   }
 
   async initialize(rootModule: Type<any>, entryComponent = DiscordClient) {
-    await this._compiler.compileModule(rootModule, entryComponent)
+    await this.compiler.compileModule(rootModule, entryComponent)
 
-    this._config = this._compiler.config
-    this._eventHandlers = this._compiler.eventHandlers as BaseEventsHandler<
+    this._config = this.compiler.config
+    this._eventHandlers = this.compiler.eventHandlers as BaseEventsHandler<
       PromiseHandlerFn,
       PromiseCommandHandler
     >
 
-    const client = this.componentContainer.getInstance(entryComponent)
+    const client = this.compiler.componentContainer.getInstance(entryComponent)
     const compiledEvents = Object.keys(this._eventHandlers)
     compiledEvents.map((handler: DiscordEvent) =>
       client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
@@ -98,44 +93,15 @@ export class RecursiveContainerFactory {
     return client
   }
 
-  public get<T>(type: Type<T>): InstanceType<Type<T>> {
-    return this.componentContainer.getInstance(type)
-  }
-
-  private getCommandFunction(event: keyof ClientEvents, command: string | false) {
-    if (command === false) return noop
+  protected getCommandFunction(
+    event: keyof ClientEvents,
+    command: string | false
+  ): PromiseHandlerFn {
+    if (command === false) return (..._: any[]) => Promise.resolve()
     const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =
       this._eventHandlers[event].handlers
-    return compiledCommand || defaultAction
-  }
 
-  private getHandlerForEvent(event: keyof ClientEvents, args: ClientEvents[DiscordEvent]) {
-    const command = this.getCommandHandler(event, args)
-    const commandHandler = this.getCommandFunction(event, command)
-    return commandHandler(args)
-  }
-
-  private getCommandHandler(event: DiscordEvent, args: ClientEvents[DiscordEvent]): string | false {
-    switch (event) {
-      case 'messageCreate': {
-        const {
-          author: { bot },
-          content,
-        } = args[0] as Message
-        const { config } = this._eventHandlers['messageCreate']
-        if (config) {
-          const { ignoreBots, startsWithPrefix } = config
-
-          if ((startsWithPrefix && !content.startsWith(this._config.prefix)) || (ignoreBots && bot))
-            return false
-        }
-        // if (!content.startsWith(this.configService.prefix) || bot) return false
-        return content.replace(this._config.prefix, '').trim().split(/ +/g)[0]
-      }
-
-      default:
-        return DEFAULT_ACTION_KEY
-    }
+    return (compiledCommand || defaultAction) as PromiseHandlerFn
   }
 }
 
