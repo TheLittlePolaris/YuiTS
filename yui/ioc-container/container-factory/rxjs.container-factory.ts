@@ -14,7 +14,7 @@ import {
 } from '../containers'
 import { DiscordClient } from '../entrypoint'
 import { _internalSetGetter, _internalSetRefs } from '../helpers'
-import { RxjsCommandHandler, RxjsHandlerFn, Type } from '../interfaces'
+import { BaseEventsHandlers, RxjsCommandHandler, RxjsHandlerFn, Type } from '../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
 
 export class RxjsContainerFactory extends BaseContainerFactory {
@@ -37,7 +37,10 @@ export class RxjsContainerFactory extends BaseContainerFactory {
     await this.compiler.compileModule(rootModule, entryComponent)
 
     this.config = this.compiler.config
-    this.eventHandlers = this.compiler.eventHandlers
+    this.eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<
+      RxjsHandlerFn,
+      RxjsCommandHandler
+    >
 
     const client = this.compiler.componentContainer.getInstance(entryComponent)
     const compiledEvents = Object.keys(this._eventHandlers)
@@ -76,7 +79,7 @@ export class RxjsContainerFactory extends BaseContainerFactory {
     return this.compiler.componentContainer.getInstance(type)
   }
 
-  protected getCommandFunction(event: keyof ClientEvents, command: string | false): RxjsHandlerFn {
+  protected getHandler(event: keyof ClientEvents, command: string | false): RxjsHandlerFn {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     if (command === false) return (..._args: any) => of(noop)
     const {

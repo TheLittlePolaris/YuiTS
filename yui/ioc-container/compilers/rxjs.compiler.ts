@@ -11,7 +11,7 @@ import {
   ProvidersContainer,
 } from '../containers'
 import { IRxjsInterceptor, RxjsHandlerFn, Type } from '../interfaces'
-import { BaseRecursiveCompiler } from './base.compiler'
+import { BaseRecursiveCompiler } from './base-recursive.compiler'
 
 /**
  * @description Compile using Rxjs strategy.
@@ -35,7 +35,7 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler {
     const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
     const interceptorInstance: IRxjsInterceptor =
       (useInterceptor && this._interceptorContainer.getInterceptorInstance(useInterceptor)) || null
-    // bind: passive when go through interceptor, active when call directly
+
     const fromHandler = (_eventArgs: ClientEvents[DiscordEvent]) =>
       from(of(instance[propertyKey](_eventArgs)))
 

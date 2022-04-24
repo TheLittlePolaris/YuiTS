@@ -24,7 +24,6 @@ import { isClassInjector, isValue, isValueInjector } from '../helpers'
 import {
   BaseCommandHandler,
   BaseEventsHandlers,
-  BaseSingleEventHandler,
   BaseHandlerFn,
   CustomClassProvider,
   CustomValueProvider,
@@ -34,7 +33,8 @@ import {
 } from '../interfaces'
 
 export abstract class BaseRecursiveCompiler {
-  protected _eventHandlers: BaseEventsHandlers<BaseSingleEventHandler> = {}
+  protected _eventHandlers: BaseEventsHandlers<BaseHandlerFn, BaseCommandHandler<BaseHandlerFn>> =
+    {}
 
   protected _config
 
@@ -226,14 +226,11 @@ export abstract class BaseRecursiveCompiler {
     handlerMetadata: ICommandHandlerMetadata[]
   ): BaseCommandHandler<BaseHandlerFn> {
     return handlerMetadata.reduce(
-      (
-        acc: BaseCommandHandler<BaseHandlerFn>,
-        { command, propertyKey, commandAliases }
-      ) => {
+      (acc: BaseCommandHandler<BaseHandlerFn>, { command, propertyKey, commandAliases }) => {
         const commandFn = this.compileCommand(target, instance, propertyKey)
         const mainCommand = { [command]: commandFn }
         const aliases = [...(commandAliases || [])].reduce(
-          (accAliases, curr) => ({ ...accAliases, [curr]: mainCommand[command] }),
+          (accAliases, currAlias) => ({ ...accAliases, [currAlias]: mainCommand[command] }),
           {}
         )
         return Object.assign(acc, mainCommand, aliases)
@@ -251,8 +248,8 @@ export abstract class BaseRecursiveCompiler {
     event: DiscordEvent,
     commandHandlers: BaseCommandHandler<BaseHandlerFn>
   ): void {
-    this.eventHandlers[event].handleFunction = {
-      ...(this.eventHandlers[event].handleFunction || {}),
+    this.eventHandlers[event].handlers = {
+      ...(this.eventHandlers[event].handlers || {}),
       ...commandHandlers,
     } as any
   }

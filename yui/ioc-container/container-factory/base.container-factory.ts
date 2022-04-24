@@ -1,6 +1,6 @@
 import { ClientEvents, Message } from 'discord.js'
 
-import { BaseRecursiveCompiler } from '../compilers/base.compiler'
+import { BaseRecursiveCompiler } from '../compilers/base-recursive.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
 import { BaseEventsHandlers, BaseHandlerFn, BaseSingleEventHandler, Type } from '../interfaces'
@@ -30,6 +30,7 @@ export abstract class BaseContainerFactory {
   protected get config() {
     return this._config
   }
+
   protected set config(value: any) {
     this._config = value
   }
@@ -38,13 +39,30 @@ export abstract class BaseContainerFactory {
     return this._compiler.componentContainer.getInstance(type)
   }
 
+  protected getClient() {
+    return this.compiler.componentContainer.getInstance(DiscordClient)
+  }
+
+  // private createExecutionContext(commandHandler: BaseHandlerFn, args: ClientEvents[DiscordEvent]) {
+  //   return new EventExecutionContext(args, commandHandler, this.getClient(), this.config)
+  // }
+
+  // private executeContext(context: EventExecutionContext) {
+  //   const handler = context.getHandler()
+  //   const args = context.getArguments()
+
+  //   return handler(args)
+  // }
+
   protected getHandlerForEvent(event: keyof ClientEvents, args: ClientEvents[DiscordEvent]) {
-    const command = this.getCommandHandler(event, args)
-    const commandHandler = this.getCommandFunction(event, command)
+    const command = this.getCommand(event, args)
+    const commandHandler = this.getHandler(event, command)
+
+    // const executionContext = this.createExecutionContext(commandHandler, args)
     return commandHandler(args)
   }
 
-  private getCommandHandler(event: DiscordEvent, args: ClientEvents[DiscordEvent]): string | false {
+  private getCommand(event: DiscordEvent, args: ClientEvents[DiscordEvent]): string | false {
     switch (event) {
       case 'messageCreate': {
         const {
@@ -72,9 +90,6 @@ export abstract class BaseContainerFactory {
     entryComponent: Type<DiscordClient>
   ): Promise<DiscordClient>
 
-  protected abstract getCommandFunction(
-    event: keyof ClientEvents,
-    command: string | false
-  ): BaseHandlerFn
+  protected abstract getHandler(event: keyof ClientEvents, command: string | false): BaseHandlerFn
 }
 

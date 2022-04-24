@@ -8,7 +8,7 @@ import { ModulesContainer } from '../containers/modules.container'
 import { PromiseHandlerFn } from '../interfaces/container.interface'
 import { Type } from '../interfaces/dependencies-injection.interfaces'
 import { IBaseInterceptor } from '../interfaces/interceptor.interface'
-import { BaseRecursiveCompiler } from './base.compiler'
+import { BaseRecursiveCompiler } from './base-recursive.compiler'
 
 /**
  * @description Compile using recursive strategy.

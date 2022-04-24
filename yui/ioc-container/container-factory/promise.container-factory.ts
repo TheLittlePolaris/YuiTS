@@ -93,10 +93,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
     return client
   }
 
-  protected getCommandFunction(
-    event: keyof ClientEvents,
-    command: string | false
-  ): PromiseHandlerFn {
+  protected getHandler(event: keyof ClientEvents, command: string | false): PromiseHandlerFn {
     if (command === false) return (..._: any[]) => Promise.resolve()
     const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =
       this._eventHandlers[event].handlers

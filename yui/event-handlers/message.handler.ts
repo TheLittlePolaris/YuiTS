@@ -28,7 +28,13 @@ export class MessageCreateEventHandler {
   ) {}
 
   @HandleCommand('play', 'p')
-  public async playMusic(@MessageParam() message: Message, @Args() args: string[]) {
+  public async playMusic(
+    t = 'test1',
+    t2 = 'test2',
+    @Args() args: string[],
+    @MessageParam() message: Message
+  ) {
+    console.log(t, t2)
     return this.musicService.play(message, args, false)
   }
 
@@ -119,12 +125,11 @@ export class MessageCreateEventHandler {
 
   @HandleCommand('ping')
   async ping(@MessageParam() message: Message) {
-    
     return this.featureService.getPing(message)
   }
 
   @HandleCommand('holostat')
-  async getHolostat(@MessageParam() message: Message, @Args() args: string[]) {    
+  async getHolostat(@MessageParam() message: Message, @Args() args: string[]) {
     return this.featureService.getHoloStat(message, args)
   }
 

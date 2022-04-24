@@ -1,6 +1,5 @@
 import { Prototype, Type } from '../interfaces'
 import { CreateMethodDecoratorParameters } from '../interfaces/decorator.interface'
-
 const ORIGINAL_ARGS_KEY = 'originalArgs'
 
 type AppGetterType = <T = any>(instanceType: Type<T>) => InstanceType<Type<T>>
@@ -18,10 +17,21 @@ export const _internalSetRefs = (cfRef, clRef) => {
   _clientRef = clRef
 }
 
-const isCurrentMethod = (propertyKey: string, descriptorValue: Function) => {
-  return `${descriptorValue}`.split('(').includes(propertyKey)
+const isCurrentMethod = (descriptorValue: Function) => {
+  return !!descriptorValue?.name
 }
 
+/**
+ *
+ * TODO: push the method to stack
+ * if (method name  === propertyKey) => it is the last decorator in the stack, just before the method
+ * inside method decorator, evaluation order => in side out (closest first), so each time, push to the top of the stack
+ * executing the stack way, FILO
+ * for each execution, pass in the EventExecutionContext (EEC)
+ * mutate the handler and arguments using EEC's public method
+ * finally execute the EEC using public mmethod call()
+ * @returns
+ */
 export function createDecorator(method: CreateMethodDecoratorParameters) {
   return (
     target: Prototype,
@@ -44,7 +54,7 @@ export function createDecorator(method: CreateMethodDecoratorParameters) {
         [_configRef, _clientRef, originalArgs]
       )
 
-      if (isCurrentMethod(propertyKey, desc) || !desc) delete descriptor.value[ORIGINAL_ARGS_KEY]
+      if (isCurrentMethod(desc) || !desc) delete descriptor.value[ORIGINAL_ARGS_KEY]
       if (!desc) return
       return desc.apply(this, _args)
     }
