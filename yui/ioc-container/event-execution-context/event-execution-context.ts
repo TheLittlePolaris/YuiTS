@@ -1,4 +1,5 @@
 import { ClientEvents } from 'discord.js'
+import { isArray } from 'lodash'
 import { DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
 import { Prototype } from '../interfaces'
@@ -8,8 +9,9 @@ export class EventExecutionContext<
   TClient extends DiscordClient = DiscordClient,
   TConfig extends SimpleConfigService = SimpleConfigService
 > {
+  private _handler: (...args: any[]) => any
+
   private _mutatedArguments: any[]
-  private _mutatedHandler: (...args: any[]) => any
 
   private _contextTarget: Prototype
   private _contextPropertyKey: string
@@ -19,12 +21,11 @@ export class EventExecutionContext<
 
   constructor(
     private readonly _arguments: ClientEvents[DiscordEvent],
-    private readonly _handler: (...args: any[]) => any,
     public readonly client: TClient,
     public readonly config: TConfig
   ) {
-    this._mutatedArguments = [..._arguments]
-    this._mutatedHandler = _handler
+
+    this._mutatedArguments = isArray(_arguments) ? _arguments : [_arguments]
   }
 
   public get terminated() {
@@ -44,11 +45,11 @@ export class EventExecutionContext<
   }
 
   public setHandler(handler: (...args: any[]) => any): void {
-    this._mutatedHandler = handler
+    this._handler = handler
   }
 
   public getHandler<T extends (...args: any[]) => any = (...args: any[]) => any>(): T {
-    return this._mutatedHandler as T
+    return this._handler as T
   }
 
   public setContextMetadata(
@@ -88,7 +89,7 @@ export class EventExecutionContext<
   }
 
   terminate() {
-    delete this._mutatedHandler
+    delete this._handler
     delete this._mutatedArguments
     this._terminated = true
     console.log(`${this.target?.constructor?.name || this.target?.['name']} terminated`)

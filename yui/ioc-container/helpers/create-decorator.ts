@@ -54,7 +54,6 @@ export function createDecorator(method: CreateMethodDecoratorParameters) {
         [_configRef, _clientRef, originalArgs]
       )
 
-      if (isCurrentMethod(desc) || !desc) delete descriptor.value[ORIGINAL_ARGS_KEY]
       if (!desc) return
       return desc.apply(this, _args)
     }

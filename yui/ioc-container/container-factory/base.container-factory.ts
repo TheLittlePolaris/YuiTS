@@ -3,6 +3,7 @@ import { ClientEvents, Message } from 'discord.js'
 import { BaseRecursiveCompiler } from '../compilers/base-recursive.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
+import { EventExecutionContext } from '../event-execution-context/event-execution-context'
 import { BaseEventsHandlers, BaseHandlerFn, BaseSingleEventHandler, Type } from '../interfaces'
 
 export abstract class BaseContainerFactory {
@@ -43,23 +44,26 @@ export abstract class BaseContainerFactory {
     return this.compiler.componentContainer.getInstance(DiscordClient)
   }
 
-  // private createExecutionContext(commandHandler: BaseHandlerFn, args: ClientEvents[DiscordEvent]) {
-  //   return new EventExecutionContext(args, commandHandler, this.getClient(), this.config)
-  // }
+  protected createExecutionContext(args: ClientEvents[DiscordEvent]) {
+    return new EventExecutionContext(args, this.getClient(), this.config)
+  }
 
-  // private executeContext(context: EventExecutionContext) {
-  //   const handler = context.getHandler()
-  //   const args = context.getArguments()
+  private executeContext(context: EventExecutionContext) {
+    const handler = context.getHandler()
+    const args = context.getArguments()
 
-  //   return handler(args)
-  // }
+    return handler(args)
+  }
 
-  protected getHandlerForEvent(event: keyof ClientEvents, args: ClientEvents[DiscordEvent]) {
-    const command = this.getCommand(event, args)
+  protected getHandlerForEvent(event: keyof ClientEvents, context: EventExecutionContext) {
+    const command = this.getCommand(event, context.getArguments())
+
     const commandHandler = this.getHandler(event, command)
 
+    context.setHandler(commandHandler)
+
     // const executionContext = this.createExecutionContext(commandHandler, args)
-    return commandHandler(args)
+    return context.call()
   }
 
   private getCommand(event: DiscordEvent, args: ClientEvents[DiscordEvent]): string | false {

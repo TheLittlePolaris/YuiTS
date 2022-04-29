@@ -16,6 +16,7 @@ import { DiscordClient } from '../entrypoint'
 import { _internalSetGetter, _internalSetRefs } from '../helpers'
 import { BaseEventsHandlers, RxjsCommandHandler, RxjsHandlerFn, Type } from '../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
+import { EventExecutionContext } from '../event-execution-context/event-execution-context'
 
 export class RxjsContainerFactory extends BaseContainerFactory {
   constructor() {
@@ -48,9 +49,8 @@ export class RxjsContainerFactory extends BaseContainerFactory {
     compiledEvents.forEach((event: DiscordEvent) => {
       fromEvent(client, event)
         .pipe(
-          map((args: ClientEvents[typeof event]) =>
-            this.getHandlerForEvent(event, isArray(args) ? args : [args])
-          ),
+          map((args: ClientEvents[DiscordEvent]) => this.createExecutionContext(args)),
+          map((context: EventExecutionContext) => this.getHandlerForEvent(event, context)),
           map((observable: Observable<any>) =>
             observable
               .pipe(
