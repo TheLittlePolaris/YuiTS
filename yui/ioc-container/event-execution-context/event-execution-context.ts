@@ -3,11 +3,11 @@ import { isArray } from 'lodash'
 import { DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
 import { Prototype } from '../interfaces'
-import { SimpleConfigService } from '../simple-config'
+import { ConfigService } from '../simple-config'
 
 export class EventExecutionContext<
   TClient extends DiscordClient = DiscordClient,
-  TConfig extends SimpleConfigService = SimpleConfigService
+  TConfig extends ConfigService = ConfigService
 > {
   private _handler: (...args: any[]) => any
 
@@ -24,7 +24,6 @@ export class EventExecutionContext<
     public readonly client: TClient,
     public readonly config: TConfig
   ) {
-
     this._mutatedArguments = isArray(_arguments) ? _arguments : [_arguments]
   }
 
@@ -54,12 +53,12 @@ export class EventExecutionContext<
 
   public setContextMetadata(
     target: any,
-    propertyKey: string,
-    descriptor: TypedPropertyDescriptor<Function>
+    propertyKey: string
+    // descriptor: TypedPropertyDescriptor<Function>
   ): void {
     this._contextTarget = target
     this._contextPropertyKey = propertyKey
-    this._contextDescriptor = descriptor
+    // this._contextDescriptor = descriptor
   }
 
   public get target() {
@@ -70,21 +69,27 @@ export class EventExecutionContext<
     return this._contextPropertyKey
   }
 
-  public get descriptor() {
-    return this._contextDescriptor
-  }
+  // public get descriptor() {
+  //   return this._contextDescriptor
+  // }
 
   public getContextMetadata() {
     return {
       target: this.target,
       propertyKey: this.propertyKey,
-      descriptor: this.descriptor,
+      // descriptor: this.descriptor,
     }
   }
 
   public call<T>(): T {
     const handler = this.getHandler()
     const args = this.getArguments()
+
+    console.log(
+      'TLP::LOG ',
+      '<==== context.call, <yui/ioc-container/event-execution-context/event-execution-context.ts:89>'
+    )
+
     return handler(args)
   }
 

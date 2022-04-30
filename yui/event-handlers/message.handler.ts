@@ -29,12 +29,9 @@ export class MessageCreateEventHandler {
 
   @HandleCommand('play', 'p')
   public async playMusic(
-    t = 'test1',
-    t2 = 'test2',
     @Args() args: string[],
     @MessageParam() message: Message
   ) {
-    console.log(t, t2)
     return this.musicService.play(message, args, false)
   }
 

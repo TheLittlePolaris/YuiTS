@@ -1,8 +1,8 @@
-import { ClientEvents } from 'discord.js'
 import { Interceptor } from '@/ioc-container/decorators/interceptor.decorator'
 import { IRxjsInterceptor } from '@/ioc-container/interfaces/interceptor.interface'
-import { catchError, finalize, Observable, of, switchMap, tap, throwError } from 'rxjs'
+import { catchError, finalize, Observable, throwError } from 'rxjs'
 import { YuiLogger } from '@/services/logger'
+import { EventExecutionContext } from '@/ioc-container/event-execution-context/event-execution-context'
 
 // @Interceptor('messageCreate')
 // export class MessageCreateEventInterceptor implements IBaseInterceptor {
@@ -22,7 +22,8 @@ import { YuiLogger } from '@/services/logger'
 
 @Interceptor('messageCreate')
 export class MessageCreateEventInterceptor implements IRxjsInterceptor {
-  intercept([message]: ClientEvents['messageCreate'], next: () => Observable<any>) {
+  intercept(context: EventExecutionContext, next: () => Observable<any>) {
+    const [message] = context.getArguments()
     if (!(message.channel.type === 'GUILD_TEXT')) return
     const label = `handle_message_${message.id}_[${message.content}]` //
     console.time(label)

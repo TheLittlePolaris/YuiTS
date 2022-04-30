@@ -6,7 +6,7 @@ interface EnvConfig {
 }
 
 @Injectable()
-export class SimpleConfigService {
+export class ConfigService {
   private _configValues: EnvConfig
   constructor() {
     const dotenvConfig = config({ path: '.env' }) || {}

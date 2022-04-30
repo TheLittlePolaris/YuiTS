@@ -1,7 +1,7 @@
 import { YuiModule } from "../decorators";
-import { SimpleConfigService } from "./config.service";
+import { ConfigService } from "./config.service";
 
 @YuiModule({
-  components: [SimpleConfigService],
+  components: [ConfigService],
 })
 export class SimpleConfigModule {}

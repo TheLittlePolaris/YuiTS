@@ -37,20 +37,20 @@ export class RxjsContainerFactory extends BaseContainerFactory {
   async initialize(rootModule: Type<any>, entryComponent = DiscordClient): Promise<DiscordClient> {
     await this.compiler.compileModule(rootModule, entryComponent)
 
-    this.config = this.compiler.config
+    this.config = this.getConfig()
+    const client = this.getClient()
     this.eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<
       RxjsHandlerFn,
       RxjsCommandHandler
     >
 
-    const client = this.compiler.componentContainer.getInstance(entryComponent)
     const compiledEvents = Object.keys(this._eventHandlers)
 
     compiledEvents.forEach((event: DiscordEvent) => {
       fromEvent(client, event)
         .pipe(
           map((args: ClientEvents[DiscordEvent]) => this.createExecutionContext(args)),
-          map((context: EventExecutionContext) => this.getHandlerForEvent(event, context)),
+          map((context: EventExecutionContext) => this.handleEvent(event, context)),
           map((observable: Observable<any>) =>
             observable
               .pipe(

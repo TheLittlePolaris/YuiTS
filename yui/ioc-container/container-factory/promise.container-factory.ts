@@ -64,7 +64,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
 
     Object.keys(this._eventHandlers).map((handler: DiscordEvent) =>
       entryInstance.client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
-        this.getHandlerForEvent(handler, this.createExecutionContext(args))
+        this.handleEvent(handler, this.createExecutionContext(args))
       )
     )
 
@@ -84,7 +84,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
     const compiledEvents = Object.keys(this._eventHandlers)
     compiledEvents.map((handler: DiscordEvent) =>
       client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
-        this.getHandlerForEvent(handler, this.createExecutionContext(args))
+        this.handleEvent(handler, this.createExecutionContext(args))
       )
     )
 
