@@ -16,7 +16,7 @@ import { DiscordClient } from '../entrypoint'
 import { _internalSetGetter, _internalSetRefs } from '../helpers'
 import { BaseEventsHandlers, RxjsCommandHandler, RxjsHandlerFn, Type } from '../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
-import { EventExecutionContext } from '../event-execution-context/event-execution-context'
+import { ExecutionContext } from '../event-execution-context/event-execution-context'
 
 export class RxjsContainerFactory extends BaseContainerFactory {
   constructor() {
@@ -37,8 +37,14 @@ export class RxjsContainerFactory extends BaseContainerFactory {
   async initialize(rootModule: Type<any>, entryComponent = DiscordClient): Promise<DiscordClient> {
     await this.compiler.compileModule(rootModule, entryComponent)
 
-    this.config = this.getConfig()
+    const config = this.getConfig()
+    this.config = config
+
     const client = this.getClient()
+
+    ExecutionContext.client = client
+    ExecutionContext.config = config
+
     this.eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<
       RxjsHandlerFn,
       RxjsCommandHandler
@@ -50,7 +56,7 @@ export class RxjsContainerFactory extends BaseContainerFactory {
       fromEvent(client, event)
         .pipe(
           map((args: ClientEvents[DiscordEvent]) => this.createExecutionContext(args)),
-          map((context: EventExecutionContext) => this.handleEvent(event, context)),
+          map((context: ExecutionContext) => this.handleEvent(event, context)),
           map((observable: Observable<any>) =>
             observable
               .pipe(

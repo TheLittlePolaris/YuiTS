@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { DiscordEvent, DiscordEventConfig } from '@/ioc-container/constants/discord-events'
 import { Observable } from 'rxjs'
-import { EventExecutionContext } from '../event-execution-context/event-execution-context'
+import { ExecutionContext } from '../event-execution-context/event-execution-context'
 
 export type BaseResult = Promise<any> | Observable<any>
 
-export type PromiseHandlerFn = (context: EventExecutionContext) => Promise<any>
+export type PromiseHandlerFn = (context: ExecutionContext) => Promise<any>
 export type PromiseCommandHandler = {
   [command: string]: PromiseHandlerFn
 }
 
-export type RxjsHandlerFn = (context: EventExecutionContext) => Observable<any>
+export type RxjsHandlerFn = (context: ExecutionContext) => Observable<any>
 export type RxjsCommandHandler = {
   [command: string]: RxjsHandlerFn
 }

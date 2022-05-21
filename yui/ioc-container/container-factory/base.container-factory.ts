@@ -3,7 +3,7 @@ import { ClientEvents, Message } from 'discord.js'
 import { BaseRecursiveCompiler } from '../compilers/base-recursive.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
-import { EventExecutionContext } from '../event-execution-context/event-execution-context'
+import { ExecutionContext } from '../event-execution-context/event-execution-context'
 import {
   BaseEventsHandlers,
   BaseHandlerFn,
@@ -59,12 +59,12 @@ export abstract class BaseContainerFactory {
   }
 
   protected createExecutionContext(args: ClientEvents[DiscordEvent]) {
-    return new EventExecutionContext(args, this.getClient(), this.getConfig())
+    return new ExecutionContext(args)
   }
 
   protected handleEvent(
     event: keyof ClientEvents,
-    context: EventExecutionContext
+    context: ExecutionContext
   ): BaseResult {
     const command = this.getCommand(event, context.getArguments())
 

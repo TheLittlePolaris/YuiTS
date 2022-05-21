@@ -115,7 +115,7 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('say', 'repeat')
-  @DeleteOriginalMessage()
+  // @DeleteOriginalMessage()
   async repeat(@MessageParam() message: Message, @Args() args: string[]) {
     return this.featureService.say(message, args)
   }

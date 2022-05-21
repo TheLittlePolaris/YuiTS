@@ -1,17 +1,36 @@
-import { ConfigService } from '@/config-service/config.service'
-import { createMethodDecorator, DiscordClient, Prototype } from '@/ioc-container'
+import { createMethodDecoratorNew } from '@/ioc-container'
+import { ExecutionContext } from '@/ioc-container/event-execution-context/event-execution-context'
 
-export const TestDecorator = createMethodDecorator(
-  (
-    [target, propertyKey, descriptor]: [Prototype, string, TypedPropertyDescriptor<Function>],
-    compiledArgs: any[],
-    [config, discordClient, originalargs]: [ConfigService, DiscordClient, any[]]
-  ) => {
-    // console.log({target, propertyKey, descriptor}, '<========= {target, propertyKey, descriptor} [yui\custom\decorators\test.decorator.ts:10]')
-    //   console.log(config, '<========= config [yui\custom\decorators\test.decorator.ts:11]')
-    //   console.log(discordClient, '<========= discordClient [yui\custom\decorators\test.decorator.ts:12]')
-    //   console.log(compiledArgs, '<========= compiledArgs [yui\custom\decorators\test.decorator.ts:13]')
-      
-      return [descriptor.value, compiledArgs]
-  }
-)
+export const TestDecorator = createMethodDecoratorNew((context: ExecutionContext) => {
+  // console.log(
+  //   'TLP::LOG ',
+  //   context.client,
+  //   '<==== context.client, <yui/custom/decorators/test.decorator.ts:12>'
+  // )
+
+  // console.log(
+  //   'TLP::LOG ',
+  //   context.config,
+  //   '<==== context.config, <yui/custom/decorators/test.decorator.ts:14>'
+  // )
+
+  // console.log(
+  //   'TLP::LOG ',
+  //   context.getArguments()[0],
+  //   '<==== context.getArguments(), <yui/custom/decorators/test.decorator.ts:19>'
+  // )
+
+  // console.log(
+  //   'TLP::LOG ',
+  //   context.getHandler(),
+  //   '<==== context.getHandler(), <yui/custom/decorators/test.decorator.ts:23>'
+  // )
+
+  // console.log(
+  //   'TLP::LOG ',
+  //   context.getHandler(),
+  //   '<==== context.getHandler(), <yui/custom/decorators/test.decorator.ts:26>'
+  // )
+
+  return context
+})

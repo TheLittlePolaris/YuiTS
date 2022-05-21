@@ -7,8 +7,9 @@ import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ConfigService } from '@/config-service/config.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
-import { GetParam, Feature } from '@/custom/decorators/feature-permisson.decorator'
+import { GetParam, Feature, FeatureNew } from '@/custom/decorators/feature-permisson.decorator'
 import { NewHolostat, VTuberParam } from '@/custom/decorators/feature-vtuber.decorator'
+import { TestDecorator } from '@/custom/decorators/test.decorator'
 
 @Injectable()
 export class FeatureService {
@@ -88,7 +89,8 @@ export class FeatureService {
   }
 
   // @FeaturePermissionValidator()
-  @Feature()
+  @TestDecorator()
+  @FeatureNew()
   public say(message: Message, args: string[]) {
     const embed = discordRichEmbedConstructor({
       description: `**${args.join(' ')}**`,

@@ -1,15 +1,14 @@
+import { YuiLogger } from '@/services/logger'
 import { ClientEvents } from 'discord.js'
 import { isArray } from 'lodash'
 import { DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
 import { Prototype } from '../interfaces'
+import { IExecutionContextMetadata } from '../interfaces/execution-context.interface'
 import { ConfigService } from '../simple-config'
 
-export class EventExecutionContext<
-  TClient extends DiscordClient = DiscordClient,
-  TConfig extends ConfigService = ConfigService
-> {
-  private _handler: (...args: any[]) => any
+export class ExecutionContext {
+  private _handler: Function | ((...args: any[]) => any)
 
   private _mutatedArguments: any[]
 
@@ -19,16 +18,29 @@ export class EventExecutionContext<
 
   private _terminated = false
 
+  static client: DiscordClient
+  static config: ConfigService
+
   constructor(
     private readonly _arguments: ClientEvents[DiscordEvent],
-    public readonly client: TClient,
-    public readonly config: TConfig
+    _metadata?: IExecutionContextMetadata,
+    _contextHandler?: Function | ((...args: any[]) => any)
   ) {
-    this._mutatedArguments = isArray(_arguments) ? _arguments : [_arguments]
+    this.setArguments(isArray(_arguments) ? _arguments : [_arguments])
+    if (_metadata) this.setContextMetadata(_metadata)
+    if (_contextHandler) this.setHandler(_contextHandler)
   }
 
   public get terminated() {
     return this._terminated
+  }
+
+  public get client() {
+    return ExecutionContext.client
+  }
+
+  public get config() {
+    return ExecutionContext.config
   }
 
   public getArguments<T extends any[] = any[]>(): T {
@@ -43,7 +55,7 @@ export class EventExecutionContext<
     this._mutatedArguments = [...args]
   }
 
-  public setHandler(handler: (...args: any[]) => any): void {
+  public setHandler(handler: Function | ((...args: any[]) => any)): void {
     this._handler = handler
   }
 
@@ -51,14 +63,10 @@ export class EventExecutionContext<
     return this._handler as T
   }
 
-  public setContextMetadata(
-    target: any,
-    propertyKey: string
-    // descriptor: TypedPropertyDescriptor<Function>
-  ): void {
+  public setContextMetadata({ target, propertyKey, descriptor }: IExecutionContextMetadata): void {
     this._contextTarget = target
     this._contextPropertyKey = propertyKey
-    // this._contextDescriptor = descriptor
+    this._contextDescriptor = descriptor
   }
 
   public get target() {
@@ -69,15 +77,15 @@ export class EventExecutionContext<
     return this._contextPropertyKey
   }
 
-  // public get descriptor() {
-  //   return this._contextDescriptor
-  // }
+  public get descriptor() {
+    return this._contextDescriptor
+  }
 
   public getContextMetadata() {
     return {
       target: this.target,
       propertyKey: this.propertyKey,
-      // descriptor: this.descriptor,
+      descriptor: this.descriptor,
     }
   }
 
@@ -85,19 +93,15 @@ export class EventExecutionContext<
     const handler = this.getHandler()
     const args = this.getArguments()
 
-    console.log(
-      'TLP::LOG ',
-      '<==== context.call, <yui/ioc-container/event-execution-context/event-execution-context.ts:89>'
-    )
-
-    return handler(args)
+    if (this._terminated || !handler) return
+    return handler(...args)
   }
 
   terminate() {
     delete this._handler
     delete this._mutatedArguments
     this._terminated = true
-    console.log(`${this.target?.constructor?.name || this.target?.['name']} terminated`)
+    YuiLogger.log(`${this.target?.constructor?.name || this.target?.['name']} terminated`)
   }
 }
 

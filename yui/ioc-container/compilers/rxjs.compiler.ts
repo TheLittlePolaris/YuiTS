@@ -12,7 +12,7 @@ import {
 } from '../containers'
 import { IRxjsInterceptor, RxjsHandlerFn, Type } from '../interfaces'
 import { BaseRecursiveCompiler } from './base-recursive.compiler'
-import { EventExecutionContext } from '../event-execution-context/event-execution-context'
+import { ExecutionContext } from '../event-execution-context/event-execution-context'
 
 /**
  * @description Compile using Rxjs strategy.
@@ -39,7 +39,7 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler {
     const fromHandler = (_eventArgs: ClientEvents[DiscordEvent]) =>
       from(of(instance[propertyKey](_eventArgs)))
 
-    const handler = (context: EventExecutionContext) => {
+    const handler = (context: ExecutionContext) => {
       context.setContextMetadata(target, propertyKey)
       return !useInterceptor
         ? fromHandler(context.getArguments())
