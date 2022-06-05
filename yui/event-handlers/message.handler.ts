@@ -28,10 +28,7 @@ export class MessageCreateEventHandler {
   ) {}
 
   @HandleCommand('play', 'p')
-  public async playMusic(
-    @Args() args: string[],
-    @MessageParam() message: Message
-  ) {
+  public async playMusic(@Args() args: string[], @MessageParam() message: Message) {
     return this.musicService.play(message, args, false)
   }
 
@@ -150,9 +147,7 @@ export class MessageCreateEventHandler {
 
   @HandleCommand()
   async defaultResponse(@MessageChannel() channel: TextChannel, @Command() command: string) {
-    channel.send(
-      `I cannot recognize ${command}. How about taking a look at \`${this.configService.prefix}help\` ?`
-    )
+    channel.send(`I cannot recognize ${command}. How about taking a look at \`${this.configService.prefix}help\` ?`)
   }
 
   handleError(error: Error | string): null {

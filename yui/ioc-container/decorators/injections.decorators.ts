@@ -34,4 +34,3 @@ export function Injectable<T = any>(): GenericClassDecorator<Type<T>> {
     Reflect.defineMetadata(INJECTABLE_METADATA, true, target)
   }
 }
-

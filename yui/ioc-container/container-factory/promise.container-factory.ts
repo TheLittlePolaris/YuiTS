@@ -2,12 +2,7 @@ import { ClientEvents } from 'discord.js'
 
 import { PromiseBasedRecursiveCompiler } from '../compilers'
 import { COMPONENT_METADATA, DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
-import {
-  ComponentsContainer,
-  InterceptorsContainer,
-  ModulesContainer,
-  ProvidersContainer,
-} from '../containers'
+import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
 import { DiscordClient } from '../entrypoint'
 import { _internalSetGetter, _internalSetRefs } from '../helpers'
 import { BaseEventsHandlers, PromiseCommandHandler, PromiseHandlerFn, Type } from '../interfaces'
@@ -22,12 +17,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
     const interceptorContainer = new InterceptorsContainer()
     const providerContainer = new ProvidersContainer()
     super(
-      new PromiseBasedRecursiveCompiler(
-        moduleContainer,
-        componentContainer,
-        providerContainer,
-        interceptorContainer
-      )
+      new PromiseBasedRecursiveCompiler(moduleContainer, componentContainer, providerContainer, interceptorContainer)
     )
   }
   /**
@@ -50,15 +40,12 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
      */
     const entryInstance = this.get(entryComponent)
 
-    const boundEvents =
-      Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryInstance['constructor']) || {}
+    const boundEvents = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryInstance['constructor']) || {}
 
     const { length: hasEvents, ...events } = Object.keys(boundEvents)
     if (hasEvents) {
       events.forEach((eventKey: DiscordEvent) =>
-        entryInstance.client.addListener(eventKey, (...args) =>
-          entryInstance[boundEvents[eventKey]](...args)
-        )
+        entryInstance.client.addListener(eventKey, (...args) => entryInstance[boundEvents[eventKey]](...args))
       )
     }
 
@@ -75,10 +62,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
     await this.compiler.compileModule(rootModule, entryComponent)
 
     this._config = this.compiler.config
-    this._eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<
-      PromiseHandlerFn,
-      PromiseCommandHandler
-    >
+    this._eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<PromiseHandlerFn, PromiseCommandHandler>
 
     const client = this.compiler.componentContainer.getInstance(entryComponent)
     const compiledEvents = Object.keys(this._eventHandlers)
@@ -101,4 +85,3 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
     return (compiledCommand || defaultAction) as PromiseHandlerFn
   }
 }
-

@@ -1,5 +1,5 @@
-import { YuiModule } from "@/ioc-container/decorators";
-import { ConfigService } from "./config.service";
+import { YuiModule } from '@/ioc-container/decorators'
+import { ConfigService } from './config.service'
 
 @YuiModule({
   components: [ConfigService],

@@ -1,9 +1,6 @@
 import { Collection } from 'discord.js'
-import {
-  Provider,
-  Type
-} from '../interfaces/dependencies-injection.interfaces'
 
+import { Provider, Type } from '../interfaces/dependencies-injection.interfaces'
 
 export class ProvidersContainer {
   private _providers: Collection<string, Provider<any>> = new Collection<string, any>()

@@ -1,10 +1,10 @@
-import { ClientEvents } from "discord.js";
+import { ClientEvents } from 'discord.js'
 
 export type DiscordEvent = keyof ClientEvents
 
 export interface DiscordEventConfig {
   messageCreate: {
-    ignoreBots: boolean,
+    ignoreBots: boolean
     startsWithPrefix: boolean
   }
   [allOthers: string]: {}

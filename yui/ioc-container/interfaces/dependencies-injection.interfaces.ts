@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 import { Client } from 'discord.js'
+
+import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 
 /* ================================== INTERFACES ===================================== */
 export type GenericClassDecorator<T> = (target: T) => void
@@ -9,7 +10,7 @@ export type GenericClassDecorator<T> = (target: T) => void
 export type GenericMethodDecorator<T> = (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => void
 
 export type Type<T> = Function & {
-  new(...args: any[]): T
+  new (...args: any[]): T
 }
 
 export interface Prototype {

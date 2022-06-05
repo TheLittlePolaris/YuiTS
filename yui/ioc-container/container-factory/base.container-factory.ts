@@ -4,13 +4,7 @@ import { BaseRecursiveCompiler } from '../compilers/base-recursive.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
-import {
-  BaseEventsHandlers,
-  BaseHandlerFn,
-  BaseResult,
-  BaseSingleEventHandler,
-  Type,
-} from '../interfaces'
+import { BaseEventsHandlers, BaseHandlerFn, BaseResult, BaseSingleEventHandler, Type } from '../interfaces'
 import { ConfigService } from '../simple-config'
 
 export abstract class BaseContainerFactory {
@@ -49,9 +43,7 @@ export abstract class BaseContainerFactory {
   }
 
   protected getClient() {
-    return (
-      this._client || (this._client = this.compiler.componentContainer.getInstance(DiscordClient))
-    )
+    return this._client || (this._client = this.compiler.componentContainer.getInstance(DiscordClient))
   }
 
   protected getConfig() {
@@ -62,10 +54,7 @@ export abstract class BaseContainerFactory {
     return new ExecutionContext(args)
   }
 
-  protected handleEvent(
-    event: keyof ClientEvents,
-    context: ExecutionContext
-  ): BaseResult {
+  protected handleEvent(event: keyof ClientEvents, context: ExecutionContext): BaseResult {
     const command = this.getCommand(event, context.getArguments())
 
     const commandHandler = this.getHandler(event, command)
@@ -86,11 +75,7 @@ export abstract class BaseContainerFactory {
         if (config) {
           const { ignoreBots, startsWithPrefix } = config
 
-          if (
-            (startsWithPrefix && !content.startsWith(this._config['prefix'])) ||
-            (ignoreBots && bot)
-          )
-            return false
+          if ((startsWithPrefix && !content.startsWith(this._config['prefix'])) || (ignoreBots && bot)) return false
         }
         return content.replace(this._config['prefix'], '').trim().split(/ +/g)[0]
       }
@@ -100,11 +85,7 @@ export abstract class BaseContainerFactory {
     }
   }
 
-  protected abstract initialize(
-    rootModule: Type<any>,
-    entryComponent: Type<DiscordClient>
-  ): Promise<DiscordClient>
+  protected abstract initialize(rootModule: Type<any>, entryComponent: Type<DiscordClient>): Promise<DiscordClient>
 
   protected abstract getHandler(event: keyof ClientEvents, command: string | false): BaseHandlerFn
 }
-

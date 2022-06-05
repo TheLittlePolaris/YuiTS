@@ -17,9 +17,7 @@ export class BilibiliChannelService implements BaseChannelService {
 
   public async getAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(
-      channelIds.map((id) =>
-        bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView'])
-      )
+      channelIds.map((id) => bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView']))
     ).catch((err) => this.handleError(err))
     if (!results) return []
     const channelData = results.map(this.mapToYoutubeChannel)
@@ -28,9 +26,7 @@ export class BilibiliChannelService implements BaseChannelService {
 
   public async testgetAllMembersChannelDetail(channelIds: string[]): Promise<IYoutubeChannel[]> {
     const results = await Promise.all(
-      channelIds.map((id) =>
-        bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView'])
-      )
+      channelIds.map((id) => bilibili({ mid: id }, ['follower', 'title', 'video', 'info', 'archiveView']))
     ).catch((err) => this.handleError(err))
     if (!results) return []
     const channelData = results.map(this.mapToYoutubeChannel)
@@ -38,13 +34,9 @@ export class BilibiliChannelService implements BaseChannelService {
   }
 
   public async getSelectedChannelDetail(channelId: string): Promise<IYoutubeChannel> {
-    const result = await bilibili({ mid: channelId }, [
-      'follower',
-      'title',
-      'video',
-      'info',
-      'archiveView',
-    ]).catch((err) => this.handleError(err))
+    const result = await bilibili({ mid: channelId }, ['follower', 'title', 'video', 'info', 'archiveView']).catch(
+      (err) => this.handleError(err)
+    )
     if (!result) return null
     return this.mapToYoutubeChannel(result)
   }

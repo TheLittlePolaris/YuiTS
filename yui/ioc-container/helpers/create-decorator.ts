@@ -1,10 +1,7 @@
-import { YuiLogger } from '@/services/logger'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
 import { Prototype, Type } from '../interfaces'
-import {
-  CreateMethodDecoratorParameters,
-  CreateMethodDecoratorParametersNew,
-} from '../interfaces/decorator.interface'
+import { CreateMethodDecoratorParameters, CreateMethodDecoratorParametersNew } from '../interfaces/decorator.interface'
+
 const ORIGINAL_ARGS_KEY = 'originalArgs'
 
 type AppGetterType = <T = any>(instanceType: Type<T>) => InstanceType<Type<T>>
@@ -38,11 +35,7 @@ const isCurrentMethod = (descriptorValue: Function) => {
  * @returns
  */
 export function createDecorator(method: CreateMethodDecoratorParameters) {
-  return (
-    target: Prototype,
-    propertyKey: string,
-    descriptor: TypedPropertyDescriptor<Function>
-  ) => {
+  return (target: Prototype, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>) => {
     const { value: originalDescriptor, ...descriptorOthers } = descriptor
     descriptor.value = async function (...args: any[]) {
       let originalArgs = null
@@ -77,11 +70,7 @@ export function createDecorator(method: CreateMethodDecoratorParameters) {
  * @returns
  */
 export function createDecoratorNew(method: CreateMethodDecoratorParametersNew) {
-  return (
-    target: Prototype,
-    propertyKey: string,
-    descriptor: TypedPropertyDescriptor<Function>
-  ) => {
+  return (target: Prototype, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>) => {
     const originalDescriptor = descriptor.value
     descriptor.value = async function (...args: any[]) {
       const context = new ExecutionContext(

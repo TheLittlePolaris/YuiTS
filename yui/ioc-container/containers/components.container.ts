@@ -1,13 +1,11 @@
 import { Collection } from 'discord.js'
+
 import { EntryComponent, Type } from '../interfaces/dependencies-injection.interfaces'
 
 export type EntryInstance<T extends Type<any>> = InstanceType<T>
 
 export class ComponentsContainer {
-  private _instances: Collection<string, InstanceType<any>> = new Collection<
-    string,
-    InstanceType<any>
-  >()
+  private _instances: Collection<string, InstanceType<any>> = new Collection<string, InstanceType<any>>()
   private _entryComponent: Type<EntryComponent> = null
   public get components() {
     return this._instances

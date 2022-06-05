@@ -10,10 +10,7 @@ import { YuiLogger } from '@/services/logger/logger.service'
 export class PolarisSoundCloudPlayer {
   constructor(private soundcloudService: PolarisSoundCloudService) {}
 
-  public async createMusicStream(
-    videoUrl: string,
-    options?: TransformOptions | M3U8Options
-  ): Promise<PassThrough> {
+  public async createMusicStream(videoUrl: string, options?: TransformOptions | M3U8Options): Promise<PassThrough> {
     if (!videoUrl) throw new Error('Undefined url')
 
     const { url, type } = await this.getDownloadLink(videoUrl)
@@ -24,10 +21,7 @@ export class PolarisSoundCloudPlayer {
     }
   }
 
-  private async generateAxiosHttpStream(
-    url: string,
-    options?: TransformOptions
-  ): Promise<PassThrough> {
+  private async generateAxiosHttpStream(url: string, options?: TransformOptions): Promise<PassThrough> {
     const stream = new PassThrough()
     const whatwgUrl = new URL(url)
     // fix for pause/resume downloads
@@ -54,9 +48,7 @@ export class PolarisSoundCloudPlayer {
     if (promisedRequest?.status !== 200 && promisedRequest?.status !== 206) {
       stream.emit(
         'error',
-        new Error(
-          `Status code: ${promisedRequest?.status}. Status message: ${promisedRequest?.statusText}`
-        )
+        new Error(`Status code: ${promisedRequest?.status}. Status message: ${promisedRequest?.statusText}`)
       )
     }
 

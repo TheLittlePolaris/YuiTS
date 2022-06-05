@@ -1,5 +1,5 @@
 import { YuiModule } from '@/ioc-container/decorators'
-import { AdminCommandComponent, AdministrationService } from '.';
+import { AdminCommandComponent, AdministrationService } from '.'
 
 @YuiModule({
   components: [AdminCommandComponent, AdministrationService],

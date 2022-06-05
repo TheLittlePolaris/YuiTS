@@ -13,11 +13,7 @@ export class ConfigService {
   public envConfig: EnvConfig
   constructor() {
     const nodeEnv = process.env.NODE_ENV
-    if (nodeEnv)
-      YuiLogger.info(
-        `Using ${nodeEnv?.toUpperCase() || 'DEVELOPMENT'} environment`,
-        this.constructor.name
-      )
+    if (nodeEnv) YuiLogger.info(`Using ${nodeEnv?.toUpperCase() || 'DEVELOPMENT'} environment`, this.constructor.name)
     else YuiLogger.info('NODE_ENV not detected, using default')
 
     const filePath = `.env${(nodeEnv && `.${nodeEnv}`) || ``}`

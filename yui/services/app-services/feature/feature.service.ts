@@ -111,11 +111,9 @@ export class FeatureService {
     const num = await RNG(5)
 
     const { data = null } = await Axios.get(
-      `https://g.tenor.com/v1/search?q=${encodeURIComponent(
-        `anime ${action} ${params ? params : ``}`
-      )}&key=${this.configService.tenorKey}&limit=5&media_filter=basic&anon_id=${
-        this.configService.tenorAnonymousId
-      }`
+      `https://g.tenor.com/v1/search?q=${encodeURIComponent(`anime ${action} ${params ? params : ``}`)}&key=${
+        this.configService.tenorKey
+      }&limit=5&media_filter=basic&anon_id=${this.configService.tenorAnonymousId}`
     )
 
     const { results = [] } = data || {}
@@ -137,9 +135,7 @@ export class FeatureService {
       }
     }
 
-    const description = !users?.length
-      ? `${message.member} ${action}`
-      : `${message.member} ${action} ${mentionString}`
+    const description = !users?.length ? `${message.member} ${action}` : `${message.member} ${action} ${mentionString}`
 
     this.sendMessage(message, {
       embeds: [
@@ -175,12 +171,7 @@ export class FeatureService {
     })
   }
 
-  private async sendMessage(
-    message: Message,
-    content: string | MessagePayload | MessageOptions
-  ): Promise<Message> {
-    return (await message.channel
-      .send(content as any)
-      .catch((err) => YuiLogger.error(err))) as Message
+  private async sendMessage(message: Message, content: string | MessagePayload | MessageOptions): Promise<Message> {
+    return (await message.channel.send(content as any).catch((err) => YuiLogger.error(err))) as Message
   }
 }

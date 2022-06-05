@@ -1,4 +1,5 @@
 import { config } from 'dotenv'
+
 import { Injectable } from '../decorators'
 
 interface EnvConfig {

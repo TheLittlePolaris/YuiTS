@@ -1,4 +1,5 @@
 import { Collection } from 'discord.js'
+
 import { EntryComponent, Type } from '../interfaces/dependencies-injection.interfaces'
 
 export type Instance<T extends Type<any>> = InstanceType<T>

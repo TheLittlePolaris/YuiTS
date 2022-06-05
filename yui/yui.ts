@@ -12,7 +12,6 @@ const bootstrap = async () => {
       `Incompatible node version: You are using node version ${process.version}. Yui requires node version >=16.6.`
     )
   }
-  // const container = new RecursiveContainerFactory()
   const container = new RxjsContainerFactory()
   const client = await container.initialize(AppModule)
 

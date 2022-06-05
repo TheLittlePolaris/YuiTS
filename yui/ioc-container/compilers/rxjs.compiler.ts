@@ -1,18 +1,13 @@
 import { ClientEvents } from 'discord.js'
-import { catchError, from, of, tap, throwError } from 'rxjs'
+import { from, of } from 'rxjs'
 
 import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 
 import { INTERCEPTOR_TARGET } from '../constants'
-import {
-  ComponentsContainer,
-  InterceptorsContainer,
-  ModulesContainer,
-  ProvidersContainer,
-} from '../containers'
+import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
+import { ExecutionContext } from '../event-execution-context/event-execution-context'
 import { IRxjsInterceptor, RxjsHandlerFn, Type } from '../interfaces'
 import { BaseRecursiveCompiler } from './base-recursive.compiler'
-import { ExecutionContext } from '../event-execution-context/event-execution-context'
 
 /**
  * @description Compile using Rxjs strategy.
@@ -27,20 +22,15 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler {
     super(_moduleContainer, _componentContainer, _providerContainer, _interceptorContainer)
   }
 
-  protected compileCommand(
-    target: Type<any>,
-    instance: InstanceType<Type<any>>,
-    propertyKey: string
-  ): RxjsHandlerFn {
+  protected compileCommand(target: Type<any>, instance: InstanceType<Type<any>>, propertyKey: string): RxjsHandlerFn {
     const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
     const interceptorInstance: IRxjsInterceptor =
       (useInterceptor && this._interceptorContainer.getInterceptorInstance(useInterceptor)) || null
 
-    const fromHandler = (_eventArgs: ClientEvents[DiscordEvent]) =>
-      from(of(instance[propertyKey](_eventArgs)))
+    const fromHandler = (_eventArgs: ClientEvents[DiscordEvent]) => from(of(instance[propertyKey](_eventArgs)))
 
     const handler = (context: ExecutionContext) => {
-      context.setContextMetadata(target, propertyKey)
+      context.setContextMetadata({ target, propertyKey })
       return !useInterceptor
         ? fromHandler(context.getArguments())
         : interceptorInstance.intercept(context, () => fromHandler(context.getArguments()))
@@ -49,4 +39,3 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler {
     return handler
   }
 }
-

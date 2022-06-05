@@ -4,14 +4,11 @@ import { IYoutubeDLSoundCloudAudioProtocol } from './soundcloud-info.interface'
 
 // re-map interface name
 
-export interface IYoutubeSearchResult
-  extends youtube_v3.Schema$SearchListResponse {}
+export interface IYoutubeSearchResult extends youtube_v3.Schema$SearchListResponse {}
 
-export interface IYoutubeVideosResult
-  extends youtube_v3.Schema$VideoListResponse {}
+export interface IYoutubeVideosResult extends youtube_v3.Schema$VideoListResponse {}
 
-export interface IYoutubePlaylistResult
-  extends youtube_v3.Schema$PlaylistItemListResponse {}
+export interface IYoutubePlaylistResult extends youtube_v3.Schema$PlaylistItemListResponse {}
 
 export interface ISoundCloudInfo {
   url: string

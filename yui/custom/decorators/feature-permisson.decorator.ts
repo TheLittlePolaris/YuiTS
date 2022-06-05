@@ -1,11 +1,6 @@
 import { Message, PermissionString } from 'discord.js'
 import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/dependencies-injection.constant'
-import {
-  createMethodDecorator,
-  createMethodDecoratorNew,
-  DiscordClient,
-  Prototype,
-} from '@/ioc-container'
+import { createMethodDecorator, createMethodDecoratorNew, DiscordClient, Prototype } from '@/ioc-container'
 import { ConfigService } from '@/config-service/config.service'
 import { ExecutionContext } from '@/ioc-container/event-execution-context/event-execution-context'
 
@@ -31,10 +26,7 @@ export const Feature = createMethodDecorator(
   ) => {
     const [message, params] = originalArgs
     const requiredPermissions: PermissionString[] = ['SEND_MESSAGES']
-    const [yui, actionMember] = await Promise.all([
-      message.guild.members.fetch(discordClient.user.id),
-      message.member,
-    ])
+    const [yui, actionMember] = await Promise.all([message.guild.members.fetch(discordClient.user.id), message.member])
     const [yuiPermission, memberPermission, isOwner] = [
       yui.permissions.has([...requiredPermissions, 'MANAGE_MESSAGES'], true),
       actionMember.permissions.has(requiredPermissions, true),
@@ -68,8 +60,7 @@ export const Feature = createMethodDecorator(
         return !test.length
       })
       if (actionIndex) compiledArgs[actionIndex] = userAction.shift()
-      if (requestIndex)
-        compiledArgs[requestIndex] = (userAction.length && userAction.join(' ')) || ''
+      if (requestIndex) compiledArgs[requestIndex] = (userAction.length && userAction.join(' ')) || ''
     } else {
       if (actionIndex) compiledArgs[actionIndex] = params.shift()
       if (requestIndex) compiledArgs[requestIndex] = (params.length && params.join(' ')) || ''
@@ -85,10 +76,7 @@ export const FeatureNew = createMethodDecoratorNew(async (context: ExecutionCont
 
   const { target, propertyKey } = context.getContextMetadata()
   const requiredPermissions: PermissionString[] = ['SEND_MESSAGES']
-  const [yui, actionMember] = await Promise.all([
-    message.guild.members.fetch(discordClient.user.id),
-    message.member,
-  ])
+  const [yui, actionMember] = await Promise.all([message.guild.members.fetch(discordClient.user.id), message.member])
   const [yuiPermission, memberPermission, isOwner] = [
     yui.permissions.has([...requiredPermissions, 'MANAGE_MESSAGES'], true),
     actionMember.permissions.has(requiredPermissions, true),
@@ -99,8 +87,7 @@ export const FeatureNew = createMethodDecoratorNew(async (context: ExecutionCont
     return context
   }
 
-  const paramIndexes: { [key: string]: number } =
-    Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
+  const paramIndexes: { [key: string]: number } = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
 
   const clientIndex = paramIndexes[FEATURE_PROPERTY_PARAMS.GUILD_MEMBER]
   if (clientIndex) compiledArgs[clientIndex] = yui

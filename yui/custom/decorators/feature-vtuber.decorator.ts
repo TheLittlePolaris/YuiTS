@@ -48,9 +48,7 @@ export const NewHolostat = createMethodDecorator(
 
     const getRegion = (region: HOLOSTAT_PARAMS) => {
       if (holoStatList[region]) return holoStatList[region].code
-      const key = Object.keys(holoStatList).find(
-        (k) => holoStatList[k].name.toLowerCase() === region
-      )
+      const key = Object.keys(holoStatList).find((k) => holoStatList[k].name.toLowerCase() === region)
       if (!key) return 'jp' // default
       return holoStatList[key].code
     }

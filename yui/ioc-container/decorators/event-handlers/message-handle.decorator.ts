@@ -8,8 +8,7 @@ import { ICommandHandlerMetadata, Prototype } from '../../interfaces'
 
 export function HandleCommand(command = 'default', ...aliases: string[]) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    let commands: ICommandHandlerMetadata[] =
-      Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
+    let commands: ICommandHandlerMetadata[] = Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
     commands = [...commands, { propertyKey, command, commandAliases: aliases }]
     Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
 
@@ -119,4 +118,3 @@ export const MessageChannel = () => {
 export const Command = () => {
   return defineIndex(MESSAGE_PARAMS.COMMAND)
 }
-

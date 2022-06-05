@@ -1,6 +1,8 @@
-import { YuiLogger } from '@/services/logger'
 import { ClientEvents } from 'discord.js'
 import { isArray } from 'lodash'
+
+import { YuiLogger } from '@/services/logger'
+
 import { DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
 import { Prototype } from '../interfaces'
@@ -104,4 +106,3 @@ export class ExecutionContext {
     YuiLogger.log(`${this.target?.constructor?.name || this.target?.['name']} terminated`)
   }
 }
-

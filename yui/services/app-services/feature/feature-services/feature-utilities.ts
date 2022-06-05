@@ -1,4 +1,3 @@
-
 export const subscriberCountFormatter = (number: number | string): string => {
   number = typeof number === 'string' ? Number(number) : number
   let result: string

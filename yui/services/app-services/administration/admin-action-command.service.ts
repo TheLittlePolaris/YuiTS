@@ -1,15 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import {
-  GuildMember,
-  Message,
-  Role,
-  MessagePayload,
-  MessageOptions,
-} from 'discord.js'
+import { GuildMember, Message, Role, MessagePayload, MessageOptions } from 'discord.js'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { AdminCommandValidator, AdminParam } from '@/custom/decorators/admin-action.decorator'
 import { Injectable } from '@/ioc-container'
-
 
 @Injectable()
 export class AdminCommandComponent {
@@ -31,9 +24,7 @@ export class AdminCommandComponent {
       executor.displayName
     }\`${reason ? ` for reason ${reason}` : ``}`
     kicks.length
-      ? this.sendMessage(message, 'channel', content).catch((err) =>
-          this.handleError(new Error(err))
-        )
+      ? this.sendMessage(message, 'channel', content).catch((err) => this.handleError(new Error(err)))
       : this.sendMessage(message, 'author', `Unable to kick the member(s).`)
   }
 
@@ -67,14 +58,12 @@ export class AdminCommandComponent {
     @AdminParam('ROLES') roles: Role[]
   ) {
     const addedRoles = await Promise.all(
-      targets.map((target) =>
-        target.roles.add(roles, reason).catch((err) => this.handleError(new Error(err)))
-      )
+      targets.map((target) => target.roles.add(roles, reason).catch((err) => this.handleError(new Error(err))))
     ).catch((error) => this.handleError(new Error(error)))
     const roleNames = roles.map((role) => role.name)
-    const content = `Added role \`${roleNames.join(', ')}\` to ${targets
-      .map((t) => t.displayName)
-      .join(', ')}${reason ? ` for reason ${reason}` : ``}`
+    const content = `Added role \`${roleNames.join(', ')}\` to ${targets.map((t) => t.displayName).join(', ')}${
+      reason ? ` for reason ${reason}` : ``
+    }`
     addedRoles.length
       ? this.sendMessage(message, 'channel', content)
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
@@ -90,16 +79,14 @@ export class AdminCommandComponent {
     @AdminParam('ROLES') roles: Role[]
   ) {
     const removedRoles = await Promise.all(
-      targets.map((target) =>
-        target.roles.remove(roles, reason).catch((err) => this.handleError(new Error(err)))
-      )
+      targets.map((target) => target.roles.remove(roles, reason).catch((err) => this.handleError(new Error(err))))
     ).catch((err) => this.handleError(new Error(err)))
 
     const roleNames = roles.map((role) => role.name)
 
-    const content = `Removed role \`${roleNames.join(', ')}\` from ${targets
-      .map((t) => t.displayName)
-      .join(', ')}${reason ? ` for reason ${reason}` : ``}`
+    const content = `Removed role \`${roleNames.join(', ')}\` from ${targets.map((t) => t.displayName).join(', ')}${
+      reason ? ` for reason ${reason}` : ``
+    }`
     removedRoles.length
       ? this.sendMessage(message, 'channel', content)
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
@@ -115,14 +102,12 @@ export class AdminCommandComponent {
     @AdminParam('REASON') reason: string
   ) {
     const muted = await Promise.all([
-      targets.map((target) =>
-        target.voice.setMute(true, reason).catch((err) => this.handleError(new Error(err)))
-      ),
+      targets.map((target) => target.voice.setMute(true, reason).catch((err) => this.handleError(new Error(err)))),
     ]).catch((err) => this.handleError(new Error(err)))
 
-    const content = `\`${targets.map((t) => t.displayName).join(', ')}\` has been muted by \`${
-      executor.displayName
-    }\`${reason ? ` for reason ${reason}` : ``}`
+    const content = `\`${targets.map((t) => t.displayName).join(', ')}\` has been muted by \`${executor.displayName}\`${
+      reason ? ` for reason ${reason}` : ``
+    }`
 
     muted.length
       ? this.sendMessage(message, 'channel', content)
@@ -139,9 +124,7 @@ export class AdminCommandComponent {
     @AdminParam('REASON') reason: string
   ) {
     const unmuted = await Promise.all([
-      targets.map((target) =>
-        target.voice.setMute(false, reason).catch((err) => this.handleError(new Error(err)))
-      ),
+      targets.map((target) => target.voice.setMute(false, reason).catch((err) => this.handleError(new Error(err)))),
     ]).catch((err) => this.handleError(new Error(err)))
 
     const content = `\`${targets.map((t) => t.displayName).join(', ')}\` has been unmuted by \`${
@@ -165,9 +148,7 @@ export class AdminCommandComponent {
     @AdminParam('NICKNAME') nickname: string
   ) {
     const setnickname = await Promise.all([
-      targets.map((target) =>
-        target.setNickname(nickname).catch((err) => this.handleError(new Error(err)))
-      ),
+      targets.map((target) => target.setNickname(nickname).catch((err) => this.handleError(new Error(err)))),
     ]).catch((err) => this.handleError(new Error(err)))
 
     const content = `\`${targets[0].user.username}'s ${
@@ -194,4 +175,3 @@ export class AdminCommandComponent {
     return null
   }
 }
-

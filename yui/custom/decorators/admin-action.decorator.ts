@@ -1,9 +1,6 @@
 import { Message, GuildMember, Role } from 'discord.js'
-import {
-  ADMIN_COMMANDS,
-  ADMIN_ACTION_TYPE,
-} from '@/services/app-services/administration/admin-interfaces'
-import { GenericMethodDecorator, Prototype,METHOD_PARAM_METADATA } from '@/ioc-container'
+import { ADMIN_COMMANDS, ADMIN_ACTION_TYPE } from '@/services/app-services/administration/admin-interfaces'
+import { GenericMethodDecorator, Prototype, METHOD_PARAM_METADATA } from '@/ioc-container'
 
 enum ADMIN_PARAMS {
   REASON = 'reason',
@@ -55,9 +52,7 @@ export function AdminCommandValidator(): GenericMethodDecorator<any> {
         const serverRoles = message.guild.roles.cache
         const selectedRoles = serverRoles.filter((role) => {
           const regexp = new RegExp(`^(?:<@&${role.id}>|${role.name})$`, 'gi')
-          const { length } = reason.filter(
-            (arg, i) => (regexp.test(arg) && delete reason[i]) || false
-          )
+          const { length } = reason.filter((arg, i) => (regexp.test(arg) && delete reason[i]) || false)
           return !!length
         })
         if (!selectedRoles) {

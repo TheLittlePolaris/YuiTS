@@ -1,6 +1,8 @@
+import { Observable } from 'rxjs'
+
 /* eslint-disable @typescript-eslint/no-namespace */
 import { DiscordEvent, DiscordEventConfig } from '@/ioc-container/constants/discord-events'
-import { Observable } from 'rxjs'
+
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
 
 export type BaseResult = Promise<any> | Observable<any>

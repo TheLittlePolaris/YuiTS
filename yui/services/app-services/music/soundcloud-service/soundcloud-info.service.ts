@@ -61,10 +61,7 @@ export class PolarisSoundCloudService {
             stdio: ['inherit', 'pipe', 'pipe'],
           }
         )
-        YuiLogger.info(
-          `youtube-dl process [${processExecution.pid}] spawned`,
-          PolarisSoundCloudService.name
-        )
+        YuiLogger.info(`youtube-dl process [${processExecution.pid}] spawned`, PolarisSoundCloudService.name)
 
         const results: SoundcloudInfoRecord[] = []
         // eslint-disable-next-line prefer-const
@@ -81,9 +78,7 @@ export class PolarisSoundCloudService {
             resolve(results.length > 1 ? results : results[0])
           })
 
-        processExecution.on('close', () =>
-          YuiLogger.info(`youtube-dl process [${processExecution.pid}] closed`)
-        )
+        processExecution.on('close', () => YuiLogger.info(`youtube-dl process [${processExecution.pid}] closed`))
 
         const onError = (error: Error) => {
           YuiLogger.error(
@@ -102,19 +97,8 @@ export class PolarisSoundCloudService {
   }
 
   mapToYoutubeVideoFormat = (info: ISoundCloudSong, getUrl = false): SoundcloudInfoRecord => {
-    const {
-      id,
-      webpage_url,
-      formats,
-      title,
-      uploader_id,
-      uploader,
-      thumbnails,
-      thumbnail,
-      duration,
-      protocol,
-      url,
-    } = info
+    const { id, webpage_url, formats, title, uploader_id, uploader, thumbnails, thumbnail, duration, protocol, url } =
+      info
 
     const selectedFormat = formats[FORMAT_URL.M3U8_128] || formats[FORMAT_URL.HTTP_128] // select m3u8 as default
 

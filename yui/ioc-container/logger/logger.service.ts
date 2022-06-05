@@ -1,5 +1,7 @@
-import { Instance, Chalk } from 'chalk'
+import { Chalk, Instance } from 'chalk'
 import { createLogger, format, Logger as WinstonLogger, transports } from 'winston'
+
+import { isObject } from '../helpers'
 
 // Nestjs logger
 export interface LoggerService {
@@ -8,10 +10,6 @@ export interface LoggerService {
   warn(message: any, context?: string)
   debug?(message: any, context?: string)
 }
-
-export const isObject = (fn: any): fn is object => !isNil(fn) && typeof fn === 'object'
-export const isNil = (obj: any): obj is null | undefined => isUndefined(obj) || obj === null
-export const isUndefined = (obj: any): obj is undefined => typeof obj === 'undefined'
 
 export class YuiLogger implements LoggerService {
   private static chalk = new Instance({ level: 2 })

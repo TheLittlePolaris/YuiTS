@@ -1,2 +1,2 @@
-export * from "./discord-client";
-export * from "./entrypoint.component";
+export * from './discord-client'
+export * from './entrypoint.component'

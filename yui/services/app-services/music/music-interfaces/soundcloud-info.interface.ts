@@ -2,10 +2,7 @@ import { IYoutubeVideo } from './youtube-info.interface'
 
 export type YoutubeDLSoundcloudFormatId = 'hls_opus_64' | 'hls_mp3_128' | 'http_mp3_128'
 
-export type IYoutubeDLFormat =
-  | 'http_mp3_128 - audio only'
-  | 'hls_mp3_128 - audio only'
-  | 'hls_opus_64 - audio only'
+export type IYoutubeDLFormat = 'http_mp3_128 - audio only' | 'hls_mp3_128 - audio only' | 'hls_opus_64 - audio only'
 
 export type IYoutubedlSoundcloudThumbnailId =
   | 'mini'

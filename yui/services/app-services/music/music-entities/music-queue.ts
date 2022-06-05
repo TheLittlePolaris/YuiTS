@@ -84,10 +84,7 @@ export class MusicQueue {
    * @returns {number} Total duration of the queue
    */
   public get totalDuration(): number {
-    const value = this.songs.reduce(
-      (acc: number, curr: ISong) => (acc += curr.duration),
-      0
-    )
+    const value = this.songs.reduce((acc: number, curr: ISong) => (acc += curr.duration), 0)
     return value
   }
   /**
@@ -112,8 +109,6 @@ export class MusicQueue {
   public removeSongs(index: number, length = 1) {
     return this.songs.splice(index, length)
   }
-
-  
 
   private swapData(i: number, j: number) {
     const temp = this.songs[i]

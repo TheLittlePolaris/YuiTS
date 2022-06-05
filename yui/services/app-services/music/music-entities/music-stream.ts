@@ -1,8 +1,4 @@
-import type {
-  Guild,
-  VoiceChannel,
-  TextChannel,
-} from 'discord.js'
+import type { Guild, VoiceChannel, TextChannel } from 'discord.js'
 import { MusicQueue } from './music-queue'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { AudioPlayer, AudioResource, PlayerSubscription, VoiceConnection } from '@discordjs/voice'

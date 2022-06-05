@@ -1,5 +1,6 @@
 import { ConfigService } from '@/config-service/config.service'
-import { DiscordClient } from '..'
+
+import { DiscordClient } from '../'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
 import { Prototype } from './dependencies-injection.interfaces'
 
@@ -14,4 +15,3 @@ export type CreateMethodDecoratorParameters<T = Function> = (
 export type CreateMethodDecoratorParametersNew<T = Function> = (
   context: ExecutionContext
 ) => ExecutionContext | Promise<ExecutionContext>
-

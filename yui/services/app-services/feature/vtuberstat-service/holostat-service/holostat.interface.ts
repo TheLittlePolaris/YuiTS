@@ -29,25 +29,10 @@ export const holoStatList: Record<string, REACTION_DATA> = {
   },
 }
 
-export const holoStatRegionSubCommand = [
-  'jp',
-  'japan',
-  'id',
-  'china',
-  'en',
-  'english',
-]
+export const holoStatRegionSubCommand = ['jp', 'japan', 'id', 'china', 'en', 'english']
 export const defaultDetailSubCommand = ['detail', 'd']
 
-export type HOLOSTAT_PARAMS =
-  | 'jp'
-  | 'japan'
-  | 'id'
-  | 'indonesia'
-  | 'detail'
-  | 'd'
-  | 'english'
-  | 'en'
+export type HOLOSTAT_PARAMS = 'jp' | 'japan' | 'id' | 'indonesia' | 'detail' | 'd' | 'english' | 'en'
 
 export enum HOLO_REGION_MAP {
   jp = 'Japan',

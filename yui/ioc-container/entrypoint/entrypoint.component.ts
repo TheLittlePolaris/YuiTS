@@ -1,4 +1,5 @@
 import { Client } from 'discord.js'
+
 export class EntrypointComponent {
   private _token: string
   constructor(private _bot: Client) {}

@@ -1,6 +1,5 @@
-import { isFunction } from 'lodash'
+import { assign, isFunction } from 'lodash'
 
-import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 import { YuiLogger } from '@/services/logger'
 
 import {
@@ -14,12 +13,8 @@ import {
   PARAMTYPES_METADATA,
   SELF_DECLARED_DEPS_METADATA,
 } from '../constants'
-import {
-  ComponentsContainer,
-  InterceptorsContainer,
-  ModulesContainer,
-  ProvidersContainer,
-} from '../containers'
+import { DiscordEvent } from '../constants/discord-events'
+import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
 import { isClassInjector, isValue, isValueInjector } from '../helpers'
 import {
   BaseCommandHandler,
@@ -33,8 +28,7 @@ import {
 } from '../interfaces'
 
 export abstract class BaseRecursiveCompiler {
-  protected _eventHandlers: BaseEventsHandlers<BaseHandlerFn, BaseCommandHandler<BaseHandlerFn>> =
-    {}
+  protected _eventHandlers: BaseEventsHandlers<BaseHandlerFn, BaseCommandHandler<BaseHandlerFn>> = {}
 
   protected _config
 
@@ -99,9 +93,7 @@ export abstract class BaseRecursiveCompiler {
     }
 
     if (interceptors) {
-      await Promise.all(
-        interceptors.map((interceptor) => this.compileInterceptor(module, interceptor))
-      )
+      await Promise.all(interceptors.map((interceptor) => this.compileInterceptor(module, interceptor)))
     }
 
     if (components) {
@@ -117,11 +109,17 @@ export abstract class BaseRecursiveCompiler {
     } else if (provider.useFactory) {
       const { provide, useFactory } = provider
       const useValue = (isFunction(useFactory) && (await useFactory(this._config))) || null
-      this._providerContainer.setValueProvider(module, <Provider>{ provide, useValue })
+      this._providerContainer.setValueProvider(module, <Provider>{
+        provide,
+        useValue,
+      })
     } else if (provider.useClass) {
       const { useClass, provide } = provider
       const useValue = this.compileComponent(module, useClass)
-      this._providerContainer.setValueProvider(module, <Provider>{ provide, useValue })
+      this._providerContainer.setValueProvider(module, <Provider>{
+        provide,
+        useValue,
+      })
     }
   }
 
@@ -151,10 +149,7 @@ export abstract class BaseRecursiveCompiler {
     instance[BOT_GLOBAL_CONFIG] = this._config
   }
 
-  protected async compileHandlerForEvent(
-    target: Type<any>,
-    compiledInstance: InstanceType<Type<any>>
-  ) {
+  protected async compileHandlerForEvent(target: Type<any>, compiledInstance: InstanceType<Type<any>>) {
     const eventHandler = Reflect.getMetadata(EVENT_HANDLER, target)
     if (eventHandler) {
       this.defineHandler(eventHandler, target, compiledInstance)
@@ -183,8 +178,7 @@ export abstract class BaseRecursiveCompiler {
         // module-based value provider
         const customProvide = this._providerContainer.getProvider(module, customTokens[paramIndex])
         /* TODO: class provider */
-        if (isValueInjector(customProvide))
-          return (customProvide as CustomValueProvider<any>).useValue
+        if (isValueInjector(customProvide)) return (customProvide as CustomValueProvider<any>).useValue
         else if (isClassInjector(customProvide))
           return this.compileComponent(module, (customProvide as CustomClassProvider<any>).useClass)
       }
@@ -198,20 +192,12 @@ export abstract class BaseRecursiveCompiler {
     this.eventHandlers[event] = {} as any
   }
 
-  protected defineHandler(
-    onEvent: DiscordEvent,
-    target: Type<any>,
-    handleInstance: InstanceType<Type<any>>
-  ) {
+  protected defineHandler(onEvent: DiscordEvent, target: Type<any>, handleInstance: InstanceType<Type<any>>) {
     this.createEventHandler(onEvent)
 
-    const handlerMetadata: ICommandHandlerMetadata[] =
-      Reflect.getMetadata(COMMAND_HANDLER, target) || []
+    const handlerMetadata: ICommandHandlerMetadata[] = Reflect.getMetadata(COMMAND_HANDLER, target) || []
 
-    const handleConfig: ICommandHandlerMetadata[] = Reflect.getMetadata(
-      EVENT_HANDLER_CONFIG,
-      target
-    )
+    const handleConfig: ICommandHandlerMetadata[] = Reflect.getMetadata(EVENT_HANDLER_CONFIG, target)
 
     const commandHandlers = this.compileHandlers(target, handleInstance, handlerMetadata)
 
@@ -230,7 +216,10 @@ export abstract class BaseRecursiveCompiler {
         const commandFn = this.compileCommand(target, instance, propertyKey)
         const mainCommand = { [command]: commandFn }
         const aliases = [...(commandAliases || [])].reduce(
-          (accAliases, currAlias) => ({ ...accAliases, [currAlias]: mainCommand[command] }),
+          (accAliases, currAlias) => ({
+            ...accAliases,
+            [currAlias]: mainCommand[command],
+          }),
           {}
         )
         return Object.assign(acc, mainCommand, aliases)
@@ -244,14 +233,9 @@ export abstract class BaseRecursiveCompiler {
     this.eventHandlers[event].config = config
   }
 
-  protected assignHandleFunctions(
-    event: DiscordEvent,
-    commandHandlers: BaseCommandHandler<BaseHandlerFn>
-  ): void {
-    this.eventHandlers[event].handlers = {
-      ...(this.eventHandlers[event].handlers || {}),
-      ...commandHandlers,
-    } as any
+  protected assignHandleFunctions(event: DiscordEvent, commandHandlers: BaseCommandHandler<BaseHandlerFn>): void {
+    if (!this.eventHandlers[event].handlers) this.eventHandlers[event].handlers = {}
+    assign(this.eventHandlers[event].handlers, commandHandlers)
   }
 
   protected compileInterceptor(module: Type<any>, interceptorTarget: Type<any>) {
@@ -271,4 +255,3 @@ export abstract class BaseRecursiveCompiler {
     propertyKey: string
   ): BaseHandlerFn
 }
-

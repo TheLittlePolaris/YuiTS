@@ -13,3 +13,5 @@ export const isValue = (fn: any): boolean =>
 
 export const isValueInjector = (obj: any): boolean => obj && obj['useValue']
 export const isClassInjector = (obj: any): boolean => obj && obj['useClass']
+
+export const isObject = (fn: any): fn is object => !isNil(fn) && typeof fn === 'object'

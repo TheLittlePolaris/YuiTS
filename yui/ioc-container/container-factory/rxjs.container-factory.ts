@@ -1,22 +1,16 @@
 import { ClientEvents } from 'discord.js'
-import { isArray } from 'lodash'
-import { catchError, fromEvent, map, noop, Observable, of, take } from 'rxjs'
+import { catchError, fromEvent, map, noop, Observable, of, take, throwError } from 'rxjs'
 
 import { YuiLogger } from '@/services/logger/logger.service'
 
 import { RxjsRecursiveCompiler } from '../compilers'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
-import {
-  ComponentsContainer,
-  InterceptorsContainer,
-  ModulesContainer,
-  ProvidersContainer,
-} from '../containers'
+import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
 import { DiscordClient } from '../entrypoint'
+import { ExecutionContext } from '../event-execution-context/event-execution-context'
 import { _internalSetGetter, _internalSetRefs } from '../helpers'
 import { BaseEventsHandlers, RxjsCommandHandler, RxjsHandlerFn, Type } from '../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
-import { ExecutionContext } from '../event-execution-context/event-execution-context'
 
 export class RxjsContainerFactory extends BaseContainerFactory {
   constructor() {
@@ -24,14 +18,7 @@ export class RxjsContainerFactory extends BaseContainerFactory {
     const componentContainer = new ComponentsContainer()
     const interceptorContainer = new InterceptorsContainer()
     const providerContainer = new ProvidersContainer()
-    super(
-      new RxjsRecursiveCompiler(
-        moduleContainer,
-        componentContainer,
-        providerContainer,
-        interceptorContainer
-      )
-    )
+    super(new RxjsRecursiveCompiler(moduleContainer, componentContainer, providerContainer, interceptorContainer))
   }
 
   async initialize(rootModule: Type<any>, entryComponent = DiscordClient): Promise<DiscordClient> {
@@ -45,10 +32,7 @@ export class RxjsContainerFactory extends BaseContainerFactory {
     ExecutionContext.client = client
     ExecutionContext.config = config
 
-    this.eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<
-      RxjsHandlerFn,
-      RxjsCommandHandler
-    >
+    this.eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<RxjsHandlerFn, RxjsCommandHandler>
 
     const compiledEvents = Object.keys(this._eventHandlers)
 
@@ -61,16 +45,16 @@ export class RxjsContainerFactory extends BaseContainerFactory {
             observable
               .pipe(
                 take(1),
-                catchError((error) => {
-                  YuiLogger.error(`Uncaught error: ${error}`, 'AppContainer')
-                  return of(error)
+                catchError((error: Error) => {
+                  YuiLogger.error(`Uncaught error: ${error?.stack}`, 'AppContainer')
+                  return throwError(() => error)
                 })
               )
               .subscribe()
           ),
-          catchError((error) => {
-            YuiLogger.error(`Uncaught error: ${error}`, 'AppContainer')
-            return of(error)
+          catchError((error: Error) => {
+            YuiLogger.error(`Uncaught error: Stack: ${error?.stack}`, 'AppContainer')
+            return of(null)
           })
         )
         .subscribe()
@@ -88,11 +72,8 @@ export class RxjsContainerFactory extends BaseContainerFactory {
   protected getHandler(event: keyof ClientEvents, command: string | false): RxjsHandlerFn {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     if (command === false) return (..._args: any) => of(noop)
-    const {
-      [command]: compiledCommand = null, //
-      [DEFAULT_ACTION_KEY]: defaultAction,
-    } = this._eventHandlers[event].handlers as RxjsCommandHandler
+    const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } = this._eventHandlers[event]
+      .handlers as RxjsCommandHandler
     return compiledCommand || defaultAction
   }
 }
-
