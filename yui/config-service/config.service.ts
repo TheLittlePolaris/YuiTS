@@ -71,7 +71,7 @@ export class ConfigService {
     return {
       host: this.envConfig['REDIS_HOST'],
       port: +this.envConfig['REDIS_PORT'],
-      retryStrategy: (times = 5) => Math.min(times * 1000, 5000),
+      retryStrategy: (times = 5) => Math.min(times * 1000, 5000)
     }
   }
 }

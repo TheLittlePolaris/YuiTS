@@ -2,7 +2,7 @@ import { youtube_v3, google } from 'googleapis'
 import {
   IYoutubeSearchResult,
   IYoutubeVideosResult,
-  IYoutubePlaylistResult,
+  IYoutubePlaylistResult
 } from '../music-interfaces/youtube-info.interface'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
@@ -12,7 +12,7 @@ import { ConfigService } from '@/config-service/config.service'
 export class YoutubeRequestService {
   youtube: youtube_v3.Youtube = google.youtube({
     version: 'v3',
-    auth: this.configService.youtubeApiKey,
+    auth: this.configService.youtubeApiKey
   })
 
   youtubeSearch: youtube_v3.Resource$Search = this.youtube.search

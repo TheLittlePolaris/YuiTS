@@ -2,6 +2,6 @@ import { YuiModule } from '@/ioc-container/decorators'
 import { ConfigService } from './config.service'
 
 @YuiModule({
-  components: [ConfigService],
+  components: [ConfigService]
 })
 export class ConfigModule {}

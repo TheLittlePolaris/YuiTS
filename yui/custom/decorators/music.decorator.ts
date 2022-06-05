@@ -6,7 +6,7 @@ import { MusicService } from '@/services/app-services/music/music.service'
 
 enum MUSIC_PARAM {
   CLIENT = 'client',
-  STREAM = 'stream',
+  STREAM = 'stream'
 }
 
 export type MUSIC_PARAM_NAME = Record<MUSIC_PARAM, string>
@@ -15,7 +15,7 @@ export type MUSIC_PARAM_KEY = keyof typeof MUSIC_PARAM
 export function AccessController(
   { join, silent }: { join?: boolean; silent?: boolean } = {
     join: false,
-    silent: false,
+    silent: false
   }
 ) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
@@ -25,7 +25,7 @@ export function AccessController(
       const { channel, guild, member } = message
 
       const {
-        voice: { channel: voiceChannel },
+        voice: { channel: voiceChannel }
       } = member || {}
       if (!voiceChannel) {
         return this.replyMessage(message, '**please join a __`Voice Channel`__!**').catch(null)

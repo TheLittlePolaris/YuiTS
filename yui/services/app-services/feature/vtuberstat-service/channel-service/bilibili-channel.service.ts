@@ -50,7 +50,7 @@ export class BilibiliChannelService implements BaseChannelService {
     title,
     video,
     navnum,
-    archiveView,
+    archiveView
   }): IYoutubeChannel => ({
     id: mid || '',
     snippet: {
@@ -59,28 +59,28 @@ export class BilibiliChannelService implements BaseChannelService {
       description: info.data.sign,
       thumbnails: {
         high: {
-          url: info?.data?.face || '',
-        },
-      },
+          url: info?.data?.face || ''
+        }
+      }
     },
     statistics: {
       viewCount: archiveView || 0,
       videoCount: video || 0,
-      subscriberCount: follower || 0,
+      subscriberCount: follower || 0
     },
     brandingSettings: {
       image: {
-        bannerTvHighImageUrl: info?.data?.top_photo || '',
+        bannerTvHighImageUrl: info?.data?.top_photo || ''
       },
       channel: {
-        profileColor: Constants.YUI_COLOR_CODE,
-      },
+        profileColor: Constants.YUI_COLOR_CODE
+      }
     },
     bilibiliRoomInfo: {
       roomid: getRoomInfoOld?.data?.roomid,
       title,
-      url: getRoomInfoOld?.data?.url || '',
-    },
+      url: getRoomInfoOld?.data?.url || ''
+    }
   })
 
   private handleError(error: Error | string): null {

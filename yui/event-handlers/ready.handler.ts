@@ -12,7 +12,7 @@ export class ReadyEventHandler {
     if (!user) throw new Error('Something went horribly wrong! Client is not defined!')
 
     user.setActivity(`${this.configService.prefix}help`, {
-      type: 'LISTENING',
+      type: 'LISTENING'
     })
 
     YuiLogger.log('🚀 🔶Yui is online! 🚀', ReadyEventHandler.name)

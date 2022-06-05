@@ -3,7 +3,7 @@ import { MusicQueue } from '../music-entities/music-queue'
 export enum STREAM_STATUS {
   LIVE = 'LIVE',
   QUEUE_LOOPING = 'Queue Looping',
-  LOOPING = 'Looping',
+  LOOPING = 'Looping'
 }
 
 export function timeConverter(duration: number) {

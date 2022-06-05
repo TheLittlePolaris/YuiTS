@@ -69,7 +69,7 @@ export abstract class BaseContainerFactory {
       case 'messageCreate': {
         const {
           author: { bot },
-          content,
+          content
         } = args[0] as Message
         const { config } = this._eventHandlers['messageCreate']
         if (config) {

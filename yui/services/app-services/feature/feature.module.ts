@@ -4,6 +4,6 @@ import { VTuberModule } from './vtuberstat-service/vtuber.module'
 
 @YuiModule({
   components: [FeatureService],
-  modules: [VTuberModule],
+  modules: [VTuberModule]
 })
 export class FeatureModule {}

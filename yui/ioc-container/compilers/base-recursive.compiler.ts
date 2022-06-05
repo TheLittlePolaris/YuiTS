@@ -11,7 +11,7 @@ import {
   getPropertyKey,
   ModuleMetadata,
   PARAMTYPES_METADATA,
-  SELF_DECLARED_DEPS_METADATA,
+  SELF_DECLARED_DEPS_METADATA
 } from '../constants'
 import { DiscordEvent } from '../constants/discord-events'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
@@ -24,7 +24,7 @@ import {
   CustomValueProvider,
   ICommandHandlerMetadata,
   Provider,
-  Type,
+  Type
 } from '../interfaces'
 
 export abstract class BaseRecursiveCompiler {
@@ -74,7 +74,7 @@ export abstract class BaseRecursiveCompiler {
       this.getModuleMetadata(module, ModuleMetadata.PROVIDERS),
       this.getModuleMetadata(module, ModuleMetadata.MODULES),
       this.getModuleMetadata(module, ModuleMetadata.INTERCEPTOR),
-      this.getModuleMetadata(module, ModuleMetadata.COMPONENTS),
+      this.getModuleMetadata(module, ModuleMetadata.COMPONENTS)
     ]
 
     if (providers) {
@@ -111,14 +111,14 @@ export abstract class BaseRecursiveCompiler {
       const useValue = (isFunction(useFactory) && (await useFactory(this._config))) || null
       this._providerContainer.setValueProvider(module, <Provider>{
         provide,
-        useValue,
+        useValue
       })
     } else if (provider.useClass) {
       const { useClass, provide } = provider
       const useValue = this.compileComponent(module, useClass)
       this._providerContainer.setValueProvider(module, <Provider>{
         provide,
-        useValue,
+        useValue
       })
     }
   }
@@ -218,7 +218,7 @@ export abstract class BaseRecursiveCompiler {
         const aliases = [...(commandAliases || [])].reduce(
           (accAliases, currAlias) => ({
             ...accAliases,
-            [currAlias]: mainCommand[command],
+            [currAlias]: mainCommand[command]
           }),
           {}
         )

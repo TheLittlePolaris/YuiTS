@@ -18,7 +18,7 @@ export class VtuberStatService {
   public async vtuberStatSelectList({
     message,
     affiliation = 'Hololive',
-    regionCode,
+    regionCode
   }: {
     message: Message
     affiliation: KNOWN_AFFILIATION
@@ -36,7 +36,7 @@ export class VtuberStatService {
     const fieldsData: EmbedFieldData[] = dataList.map((item, index) => ({
       name: `**${index + 1}**`,
       value: `**${item.snippet.title}**`,
-      inline: true,
+      inline: true
     }))
 
     const sentContent: Message[] = []
@@ -50,7 +50,7 @@ export class VtuberStatService {
         description: `**Select the number dedicated to the channel name for detail${
           hasPaging ? ` (page ${index / limit + 1})` : ``
         }**`,
-        fields: fieldsData.slice(index, currentPartLimit),
+        fields: fieldsData.slice(index, currentPartLimit)
       })
 
       const sent = await this.sendMessage(message, { embeds: [sendingEmbed] })
@@ -69,7 +69,7 @@ export class VtuberStatService {
     const collector = message.channel.createMessageCollector({
       filter: collectorFilter,
       time: 30000,
-      max: 1,
+      max: 1
     })
 
     const deleteSentContent = () => {
@@ -93,7 +93,7 @@ export class VtuberStatService {
         const selectedNumber = Number(option) //number is valid
         this.getChannelDetail({
           message,
-          channelId: dataList[selectedNumber - 1]?.id,
+          channelId: dataList[selectedNumber - 1]?.id
         })
         return
       }
@@ -115,7 +115,7 @@ export class VtuberStatService {
     const [subscriberCount, channelUrl, publishedDate] = [
       subscriberCountFormatter(channelData.statistics.subscriberCount),
       `https://www.youtube.com/channel/${channelData.id}`,
-      dateTimeJSTFormatter(channelData.snippet.publishedAt),
+      dateTimeJSTFormatter(channelData.snippet.publishedAt)
     ]
 
     const description = `**Description:** ${channelData.snippet.description}
@@ -131,7 +131,7 @@ export class VtuberStatService {
       imageUrl: channelData?.brandingSettings?.image?.bannerTvHighImageUrl,
       thumbnailUrl: channelData?.snippet?.thumbnails?.high?.url,
       description,
-      color: channelData?.brandingSettings?.channel?.profileColor,
+      color: channelData?.brandingSettings?.channel?.profileColor
     })
 
     await this.sendMessage(message, { embeds: [embed] })
@@ -141,7 +141,7 @@ export class VtuberStatService {
 
   public async getRegion({
     message,
-    affiliation = 'Hololive',
+    affiliation = 'Hololive'
   }: {
     message: Message
     affiliation?: KNOWN_AFFILIATION
@@ -164,7 +164,7 @@ export class VtuberStatService {
     const collector = sentMessage.channel.createMessageCollector({
       filter: collectorFilter,
       time: 15000,
-      max: 1,
+      max: 1
     })
 
     collector.on('collect', (collected: Message) => {
@@ -185,7 +185,7 @@ export class VtuberStatService {
         this.vtuberStatSelectList({
           message,
           affiliation,
-          regionCode: regionCodes[index - 1] as any,
+          regionCode: regionCodes[index - 1] as any
         })
         return
       }
@@ -202,7 +202,7 @@ export class VtuberStatService {
     message,
     yui,
     affiliation,
-    region,
+    region
   }: {
     message: Message
     yui: GuildMember
@@ -225,7 +225,7 @@ export class VtuberStatService {
       return {
         name: fieldName,
         value: fieldData,
-        inline: true,
+        inline: true
       }
     })
 
@@ -241,16 +241,16 @@ export class VtuberStatService {
       const sendingEmbed = await discordRichEmbedConstructor({
         author: {
           authorName: yui.displayName,
-          avatarUrl: yui.user.avatarURL(),
+          avatarUrl: yui.user.avatarURL()
         },
         description: `${affiliation} ${regionMap[region]} members statistics${
           hasPaging ? ` page ${index / limit + 1}` : ``
         }`,
-        fields: fieldsData.slice(index, currentPartLimit),
+        fields: fieldsData.slice(index, currentPartLimit)
       })
 
       this.sendMessage(message, {
-        embeds: [sendingEmbed],
+        embeds: [sendingEmbed]
       })
 
       if (!(currentPartLimit >= fieldsData.length)) sendPartial(currentPartLimit)

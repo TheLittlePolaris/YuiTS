@@ -1,7 +1,7 @@
 import {
   ISoundCloudSong,
   SoundcloudGetUrlInfoType,
-  SoundcloudInfoRecord,
+  SoundcloudInfoRecord
 } from '../music-interfaces/soundcloud-info.interface'
 import { spawn } from 'child_process'
 import { Injectable } from '@/ioc-container/decorators/injections.decorators'
@@ -10,7 +10,7 @@ import { YuiLogger } from '@/services/logger/logger.service'
 enum FORMAT_URL {
   M3U8_64,
   M3U8_128,
-  HTTP_128,
+  HTTP_128
 }
 
 enum FORMAT_THUMBNAILS {
@@ -23,7 +23,7 @@ enum FORMAT_THUMBNAILS {
   t300x300,
   crop,
   t500x500,
-  original,
+  original
 }
 
 @Injectable()
@@ -58,7 +58,7 @@ export class PolarisSoundCloudService {
           'youtube-dl',
           ['--skip-download', '--no-cache-dir', '-s', '--dump-json', '--', url],
           {
-            stdio: ['inherit', 'pipe', 'pipe'],
+            stdio: ['inherit', 'pipe', 'pipe']
           }
         )
         YuiLogger.info(`youtube-dl process [${processExecution.pid}] spawned`, PolarisSoundCloudService.name)
@@ -105,7 +105,7 @@ export class PolarisSoundCloudService {
     if (getUrl) {
       return {
         url: selectedFormat.url || url,
-        type: selectedFormat.protocol || protocol,
+        type: selectedFormat.protocol || protocol
       }
     }
 
@@ -118,13 +118,13 @@ export class PolarisSoundCloudService {
         channelTitle: uploader,
         thumbnails: {
           default: {
-            url: thumbnails[FORMAT_THUMBNAILS.t500x500]?.url || thumbnail,
-          },
-        },
+            url: thumbnails[FORMAT_THUMBNAILS.t500x500]?.url || thumbnail
+          }
+        }
       },
       contentDetails: {
-        rawDuration: Math.round(duration),
-      },
+        rawDuration: Math.round(duration)
+      }
     }
   }
 

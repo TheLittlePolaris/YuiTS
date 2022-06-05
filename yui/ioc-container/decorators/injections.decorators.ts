@@ -5,7 +5,7 @@ import {
   INJECTABLE_METADATA,
   InjectToken,
   PROPERTY_DEPS_METADATA,
-  SELF_DECLARED_DEPS_METADATA,
+  SELF_DECLARED_DEPS_METADATA
 } from '../constants'
 import { isFunction, isUndefined } from '../helpers'
 import { GenericClassDecorator, Type } from '../interfaces'

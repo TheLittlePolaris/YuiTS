@@ -87,7 +87,7 @@ export class ExecutionContext {
     return {
       target: this.target,
       propertyKey: this.propertyKey,
-      descriptor: this.descriptor,
+      descriptor: this.descriptor
     }
   }
 

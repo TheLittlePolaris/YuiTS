@@ -19,7 +19,7 @@ export const dateTimeJSTFormatter = (iso8601DateString: string): string =>
     weekday: 'long',
     hour: 'numeric',
     minute: 'numeric',
-    second: 'numeric',
+    second: 'numeric'
   })} JST`
 
 // export const pingImageGenerator = async (ping: number, rtt: number) => {

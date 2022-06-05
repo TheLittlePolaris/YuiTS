@@ -4,6 +4,6 @@ import { VtuberStatService } from './vtuberstat.service'
 import { YuiModule } from '@/ioc-container/decorators'
 
 @YuiModule({
-  components: [VtuberStatService, HoloStatRequestService, YoutubeChannelService],
+  components: [VtuberStatService, HoloStatRequestService, YoutubeChannelService]
 })
 export class VTuberModule {}

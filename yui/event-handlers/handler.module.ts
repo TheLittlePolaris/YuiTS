@@ -12,6 +12,6 @@ import { DMInterceptor, MessageCreateEventInterceptor } from './event-intercepto
 @YuiModule({
   modules: [MusicModule, FeatureModule, AdminModule, OwnerServiceModule],
   components: [MessageCreateEventHandler, VoiceStateEventHandler, DMEventHandler, ReadyEventHandler],
-  interceptors: [MessageCreateEventInterceptor, DMInterceptor],
+  interceptors: [MessageCreateEventInterceptor, DMInterceptor]
 })
 export class HandlerModule {}

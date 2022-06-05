@@ -19,16 +19,16 @@ export class OwnerChannelService {
       value: `Channels: ${guild.channels.cache.size}\nUsers: ${
         guild.members.cache.filter((member) => !member.user.bot).size
       }`,
-      inline: true,
+      inline: true
     }))
     const embed = discordRichEmbedConstructor({
       author: {
         authorName: this.yuiClient.user.username,
-        avatarUrl: this.yuiClient.user.avatarURL(),
+        avatarUrl: this.yuiClient.user.avatarURL()
       },
       title: 'Yui statistics',
       description: `**Guilds: ${guilds.size}\nUsers: ${totalUsers}**`,
-      fields,
+      fields
     })
     message.channel.send({ embeds: [embed] })
   }

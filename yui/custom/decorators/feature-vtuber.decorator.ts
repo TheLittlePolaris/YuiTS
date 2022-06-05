@@ -3,7 +3,7 @@ import {
   holoStatRegionSubCommand,
   defaultDetailSubCommand,
   HOLOSTAT_PARAMS,
-  holoStatList,
+  holoStatList
 } from '@/services/app-services/feature/vtuberstat-service/holostat-service/holostat.interface'
 import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/dependencies-injection.constant'
 import { createMethodDecorator, DiscordClient, Prototype } from '@/ioc-container'
@@ -11,7 +11,7 @@ import { ConfigService } from '@/config-service/config.service'
 
 export enum VTUBER_PARAMS {
   REGION = 'region',
-  DETAIL = 'detail',
+  DETAIL = 'detail'
 }
 
 export type VTUBER_PARAM_NAME = Record<VTUBER_PARAMS, string>

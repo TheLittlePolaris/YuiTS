@@ -15,7 +15,7 @@ import { PolarisSoundCloudService } from './soundcloud-service/soundcloud-info.s
     YoutubeRequestService,
     PolarisSoundCloudPlayer,
     PolarisSoundCloudService,
-    GlobalMusicStream,
-  ],
+    GlobalMusicStream
+  ]
 })
 export class MusicModule {}

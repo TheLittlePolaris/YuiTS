@@ -102,7 +102,7 @@ export class AdminCommandComponent {
     @AdminParam('REASON') reason: string
   ) {
     const muted = await Promise.all([
-      targets.map((target) => target.voice.setMute(true, reason).catch((err) => this.handleError(new Error(err)))),
+      targets.map((target) => target.voice.setMute(true, reason).catch((err) => this.handleError(new Error(err))))
     ]).catch((err) => this.handleError(new Error(err)))
 
     const content = `\`${targets.map((t) => t.displayName).join(', ')}\` has been muted by \`${executor.displayName}\`${
@@ -124,7 +124,7 @@ export class AdminCommandComponent {
     @AdminParam('REASON') reason: string
   ) {
     const unmuted = await Promise.all([
-      targets.map((target) => target.voice.setMute(false, reason).catch((err) => this.handleError(new Error(err)))),
+      targets.map((target) => target.voice.setMute(false, reason).catch((err) => this.handleError(new Error(err))))
     ]).catch((err) => this.handleError(new Error(err)))
 
     const content = `\`${targets.map((t) => t.displayName).join(', ')}\` has been unmuted by \`${
@@ -148,7 +148,7 @@ export class AdminCommandComponent {
     @AdminParam('NICKNAME') nickname: string
   ) {
     const setnickname = await Promise.all([
-      targets.map((target) => target.setNickname(nickname).catch((err) => this.handleError(new Error(err)))),
+      targets.map((target) => target.setNickname(nickname).catch((err) => this.handleError(new Error(err))))
     ]).catch((err) => this.handleError(new Error(err)))
 
     const content = `\`${targets[0].user.username}'s ${

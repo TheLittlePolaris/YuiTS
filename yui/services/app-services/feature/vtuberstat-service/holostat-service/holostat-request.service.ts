@@ -10,7 +10,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
   private featuredChannels: { [key: string]: string | string[] } = {
     jp: 'UCJFZiqLMntJufDCHc6bQixg.aqsRo9JYx5M',
     id: 'UCfrWoRGlawPQDQxxeIDRP0Q.iJLXf_7B368',
-    en: 'UCotXwY6s8pWmuWd_snKYjhg.LeAltgu_pbM',
+    en: 'UCotXwY6s8pWmuWd_snKYjhg.LeAltgu_pbM'
   }
 
   constructor(private youtubeChannelService: YoutubeChannelService) {}
@@ -24,7 +24,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
 
     return await this.youtubeChannelService.getChannelList([
       ...featuredChannelIds,
-      this.featuredChannels[region] as string,
+      this.featuredChannels[region] as string
     ])
   }
 
@@ -36,7 +36,7 @@ export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REG
     if (!featuredChannelIds) return this.handleError('No featured channels')
     return this.youtubeChannelService.getAllMembersChannelDetail([
       ...featuredChannelIds,
-      this.featuredChannels[region] as string,
+      this.featuredChannels[region] as string
     ])
   }
   public async getSelectedChannelDetail(channelId: string) {

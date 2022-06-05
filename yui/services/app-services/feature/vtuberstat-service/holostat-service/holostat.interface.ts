@@ -15,18 +15,18 @@ export const holoStatList: Record<string, REACTION_DATA> = {
   jp: {
     icon: '1️⃣',
     name: 'Japan',
-    code: 'jp',
+    code: 'jp'
   },
   id: {
     icon: '2️⃣',
     name: 'Indonesia',
-    code: 'id',
+    code: 'id'
   },
   en: {
     icon: '4️⃣',
     name: 'English',
-    code: 'en',
-  },
+    code: 'en'
+  }
 }
 
 export const holoStatRegionSubCommand = ['jp', 'japan', 'id', 'china', 'en', 'english']
@@ -37,6 +37,6 @@ export type HOLOSTAT_PARAMS = 'jp' | 'japan' | 'id' | 'indonesia' | 'detail' | '
 export enum HOLO_REGION_MAP {
   jp = 'Japan',
   id = 'Indonesia',
-  en = 'English',
+  en = 'English'
 }
 export type HOLO_KNOWN_REGION = keyof typeof HOLO_REGION_MAP

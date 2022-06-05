@@ -11,7 +11,7 @@ import {
   PolarisSoundCloudPlayer,
   isSoundCloudPlaylistUrl,
   isSoundCloudSongUrl,
-  isSoundCloudUrl,
+  isSoundCloudUrl
 } from './soundcloud-service'
 import { YoutubeInfoService, isYoutubePlaylistUrl, isYoutubeUrl, youtubeTimeConverter } from './youtube-service'
 import { YuiLogger } from '@/services/logger/logger.service'
@@ -24,7 +24,7 @@ import {
   DiscordGatewayAdapterCreator,
   joinVoiceChannel,
   StreamType,
-  VoiceConnection,
+  VoiceConnection
 } from '@discordjs/voice'
 import { DiscordClient, Injectable } from '@/ioc-container'
 import { AccessController, MusicParam } from '@/custom/decorators/music.decorator'
@@ -77,14 +77,14 @@ export class MusicService {
   private async createVoiceConnection(message: Message): Promise<VoiceConnection> {
     const {
       voice: { channel: voiceChannel },
-      guild: { id: guildId, voiceAdapterCreator },
+      guild: { id: guildId, voiceAdapterCreator }
     } = message.member || {}
     if (!voiceChannel) throw new Error('Voice channel not found')
     const connection = joinVoiceChannel({
       channelId: voiceChannel.id,
       guildId,
       selfDeaf: true,
-      adapterCreator: <DiscordGatewayAdapterCreator>(<any>voiceAdapterCreator),
+      adapterCreator: <DiscordGatewayAdapterCreator>(<any>voiceAdapterCreator)
     })
     return connection
   }
@@ -125,7 +125,7 @@ export class MusicService {
       message,
       args: query,
       type,
-      next,
+      next
     })
   }
 
@@ -149,7 +149,7 @@ export class MusicService {
     stream,
     data,
     requester,
-    type,
+    type
   }: {
     message: Message
     stream: MusicStream
@@ -161,7 +161,7 @@ export class MusicService {
       queue: stream.queue,
       data,
       requester,
-      type,
+      type
     })
 
     message
@@ -206,7 +206,7 @@ export class MusicService {
       stream,
       data: playListVideos,
       requester,
-      type: 'youtube',
+      type: 'youtube'
     })
   }
 
@@ -218,7 +218,7 @@ export class MusicService {
       )
 
       const playlistSongs: IYoutubeVideo[] = (await this.soundcloudService.getSoundcloudInfoFromUrl(playlistLink, {
-        getUrl: false,
+        getUrl: false
       })) as IYoutubeVideo[] // checked, should be fine
 
       if (!playlistSongs || !playlistSongs.length) {
@@ -230,7 +230,7 @@ export class MusicService {
         stream,
         data: playlistSongs,
         requester: message.member.displayName,
-        type: 'soundcloud',
+        type: 'soundcloud'
       })
     } catch (err) {
       this.sendMessage(message, "Gomennasai, something went wrong and i couldn't get the playlist.")
@@ -243,7 +243,7 @@ export class MusicService {
     message,
     args,
     type,
-    next,
+    next
   }: {
     stream: MusicStream
     message: Message
@@ -275,7 +275,7 @@ export class MusicService {
       data,
       requester,
       next,
-      type,
+      type
     })
 
     const sendInfoToChannel = (forQueue: MusicQueue) => {
@@ -291,14 +291,14 @@ export class MusicService {
         title: queuedSong.title,
         author: {
           authorName: tempStatus,
-          avatarUrl: message.author.avatarURL(),
+          avatarUrl: message.author.avatarURL()
         },
         description: nowPlayingDescription,
         color: Constants.YUI_COLOR_CODE,
         thumbnailUrl: queuedSong.videoThumbnail,
         appendTimeStamp: true,
         titleUrl: queuedSong.videoUrl,
-        footer: `Requested by ${requester}`,
+        footer: `Requested by ${requester}`
       })
 
       this.sendMessage(message, embed)
@@ -320,7 +320,7 @@ export class MusicService {
     data,
     requester,
     next,
-    type = 'youtube',
+    type = 'youtube'
   }: {
     queue: MusicQueue
     data: IYoutubeVideo[]
@@ -344,7 +344,7 @@ export class MusicService {
         requester,
         videoUrl: type === 'youtube' ? `https://www.youtube.com/watch?v=${id}` : songUrl,
         videoThumbnail: thumbnails.default.url,
-        type: type || 'youtube',
+        type: type || 'youtube'
       }
       if (next) return queue.addNext(toAddSong)
       queue.addSong(toAddSong)
@@ -379,7 +379,7 @@ export class MusicService {
         quality: 'highestaudio',
         filter: 'audioonly',
         highWaterMark: 1 << 24, // max 16MB
-        liveBuffer: 40000,
+        liveBuffer: 40000
       }
 
       inputStream =
@@ -392,7 +392,7 @@ export class MusicService {
       this.playStream(stream, inputStream, {
         inputType: StreamType.Arbitrary,
         inlineVolume: true,
-        metadata: { url: videoUrl },
+        metadata: { url: videoUrl }
       })
 
       stream.audioPlayer
@@ -404,7 +404,7 @@ export class MusicService {
                 title: `${!stream.isAutoPlaying ? '🎧  Now Playing' : ':infinity: Autoplaying'}: ${
                   stream.queue.first.title
                 }`,
-                description: '',
+                description: ''
               })
             ).then((message) => (deleteTrigger = () => message.delete().catch((err) => this.handleError(err))))
           }
@@ -496,7 +496,7 @@ export class MusicService {
         message,
         discordRichEmbedConstructor({
           title: ":infinity: Yui's PABX mode - ON! 🎵",
-          description: '',
+          description: ''
         })
       )
       if (stream?.queue?.isEmpty) {
@@ -529,7 +529,7 @@ export class MusicService {
       data: songMetadata,
       requester: endedSong.requester,
       next: false,
-      type: 'youtube',
+      type: 'youtube'
     })
 
     this.playMusic(stream)
@@ -556,12 +556,12 @@ export class MusicService {
       title: currSong.title,
       author: {
         authorName: '♫ Now Playing ♫',
-        avatarUrl: member.user.avatarURL(),
+        avatarUrl: member.user.avatarURL()
       },
       description: content,
       thumbnailUrl: currSong.videoThumbnail,
       titleUrl: currSong.videoUrl,
-      footer: `Requested by ${currSong.requester}`,
+      footer: `Requested by ${currSong.requester}`
     })
     this.sendMessage(message, embed)
   }
@@ -604,7 +604,7 @@ export class MusicService {
       this.sendMessage(
         message,
         discordRichEmbedConstructor({
-          description: queueHeader + queueBody + queueFooter,
+          description: queueHeader + queueBody + queueFooter
         })
       )
     } else {
@@ -621,7 +621,7 @@ export class MusicService {
       this.sendMessage(
         message,
         discordRichEmbedConstructor({
-          description: queueBody,
+          description: queueBody
         })
       )
     }
@@ -694,7 +694,7 @@ export class MusicService {
     tableContent += '```**'
     const embed = discordRichEmbedConstructor({
       title: `**Pick one option from the list below, or type \`cancel\` to abort.**`,
-      description: tableContent,
+      description: tableContent
     })
 
     const sentContent = await this.sendMessage(message, embed)
@@ -705,7 +705,7 @@ export class MusicService {
     const collector = message.channel.createMessageCollector({
       filter: collectorFilter,
       time: 15000,
-      max: 1,
+      max: 1
     })
 
     collector.on('collect', async (collected: Message) => {

@@ -12,7 +12,7 @@ import {
   DeleteOriginalMessage,
   MemberPermissions,
   OnEvent,
-  UseInterceptor,
+  UseInterceptor
 } from '@/ioc-container/decorators'
 import { ConfigService } from '@/config-service/config.service'
 import { MessageCreateEventInterceptor } from '@/event-handlers/event-interceptors'

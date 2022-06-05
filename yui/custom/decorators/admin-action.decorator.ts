@@ -7,7 +7,7 @@ enum ADMIN_PARAMS {
   TARGETS = 'targets',
   ROLES = 'roles',
   NICKNAME = 'nickname',
-  EXECUTOR = 'executor',
+  EXECUTOR = 'executor'
 }
 
 export type ADMIN_PARAM_NAME = Record<ADMIN_PARAMS, string>
@@ -41,7 +41,7 @@ export function AdminCommandValidator(): GenericMethodDecorator<any> {
         [ADMIN_PARAMS.EXECUTOR]: executorIndex,
         [ADMIN_PARAMS.REASON]: reasonIndex,
         [ADMIN_PARAMS.ROLES]: roles,
-        [ADMIN_PARAMS.NICKNAME]: nickName,
+        [ADMIN_PARAMS.NICKNAME]: nickName
       } = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || {}
 
       if (!targetsIndex) return

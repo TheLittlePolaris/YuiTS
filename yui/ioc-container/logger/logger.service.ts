@@ -22,11 +22,11 @@ export class YuiLogger implements LoggerService {
     transports: [
       new transports.File({
         filename: YuiLogger.buildPath('error'),
-        level: 'error',
+        level: 'error'
       }),
       new transports.File({
         filename: YuiLogger.buildPath('warn'),
-        level: 'warn',
+        level: 'warn'
       }),
       new transports.Console({
         level: 'debug',
@@ -34,19 +34,19 @@ export class YuiLogger implements LoggerService {
           format.colorize(),
           format.combine(
             format.colorize({
-              all: true,
+              all: true
             }),
             format.label({
-              label: `[Yui] ${YuiLogger.chalk.keyword('orange')(`[${process.pid}]`)}`,
+              label: `[Yui] ${YuiLogger.chalk.keyword('orange')(`[${process.pid}]`)}`
             }),
             format.timestamp({
-              format: 'YY-MM-DD HH:MM:SS',
+              format: 'YY-MM-DD HH:MM:SS'
             }),
             format.printf((info) => ` ${info.label}  ${info.timestamp}  ${info.level} : ${info.message}`)
           )
-        ),
-      }),
-    ],
+        )
+      })
+    ]
   })
   private static buildPath(type: string) {
     const [m, d, y] = new Date().toLocaleDateString().split('/')

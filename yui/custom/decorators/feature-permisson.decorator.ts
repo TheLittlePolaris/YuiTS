@@ -8,7 +8,7 @@ export enum FEATURE_PROPERTY_PARAMS {
   GUILD_MEMBER = 'guildMember',
   MENTIONS = 'mentions',
   ACTION = 'actions',
-  REQUEST_PARAM = 'requestParam',
+  REQUEST_PARAM = 'requestParam'
 }
 
 export type FEATURE_PARAM_NAME = Record<FEATURE_PROPERTY_PARAMS, string>
@@ -30,7 +30,7 @@ export const Feature = createMethodDecorator(
     const [yuiPermission, memberPermission, isOwner] = [
       yui.permissions.has([...requiredPermissions, 'MANAGE_MESSAGES'], true),
       actionMember.permissions.has(requiredPermissions, true),
-      actionMember.user.id === discordClient.user.id,
+      actionMember.user.id === discordClient.user.id
     ]
     if (!(yuiPermission && (memberPermission || isOwner))) return [null, []]
 
@@ -80,7 +80,7 @@ export const FeatureNew = createMethodDecoratorNew(async (context: ExecutionCont
   const [yuiPermission, memberPermission, isOwner] = [
     yui.permissions.has([...requiredPermissions, 'MANAGE_MESSAGES'], true),
     actionMember.permissions.has(requiredPermissions, true),
-    actionMember.user.id === discordClient.user.id,
+    actionMember.user.id === discordClient.user.id
   ]
   if (!(yuiPermission && (memberPermission || isOwner))) {
     context.terminate()

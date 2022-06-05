@@ -69,7 +69,7 @@ export function MemberPermissions(...permissions: PermissionResolvable[]) {
       const yuiMember = guild.members.resolve(config.yuiId)
       const [hasPermissions, yuiHasPermission] = [
         member.permissions.has(permissions),
-        yuiMember.permissions.has(permissions),
+        yuiMember.permissions.has(permissions)
       ]
 
       if (!hasPermissions) {

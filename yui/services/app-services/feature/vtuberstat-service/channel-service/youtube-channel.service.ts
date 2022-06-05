@@ -11,7 +11,7 @@ export class YoutubeChannelService implements BaseChannelService {
 
   private youtube: youtube_v3.Youtube = google.youtube({
     version: 'v3',
-    auth: this.configService.youtubeApiKey,
+    auth: this.configService.youtubeApiKey
   })
 
   private youtubeChannel = this.youtube.channels
@@ -21,7 +21,7 @@ export class YoutubeChannelService implements BaseChannelService {
       part: ['snippet'],
       maxResults: 50,
       id: channelIds,
-      fields: 'items(id,snippet(title))',
+      fields: 'items(id,snippet(title))'
     }
 
     const { data } = await this.youtubeChannel.list(getDataOptions)
@@ -35,7 +35,7 @@ export class YoutubeChannelService implements BaseChannelService {
       id: channelIds,
       maxResults: 50,
       fields:
-        'items(id,brandingSettings(image(bannerImageUrl)),statistics(viewCount,subscriberCount,videoCount),snippet(title,thumbnails(medium)))',
+        'items(id,brandingSettings(image(bannerImageUrl)),statistics(viewCount,subscriberCount,videoCount),snippet(title,thumbnails(medium)))'
     }
 
     const { data } = await this.youtubeChannel.list(getDataOptions)
@@ -48,7 +48,7 @@ export class YoutubeChannelService implements BaseChannelService {
     const getChannelsOptions: youtube_v3.Params$Resource$Channels$List = {
       part: ['contentDetails'],
       id: selectedSectionId,
-      fields: 'items(contentDetails(channels))',
+      fields: 'items(contentDetails(channels))'
     }
 
     const { data } = await this.youtubeChannelSections.list(getChannelsOptions)
@@ -66,7 +66,7 @@ export class YoutubeChannelService implements BaseChannelService {
       id: channelId,
       maxResults: 1,
       fields:
-        'items(id,snippet(title,description,publishedAt,thumbnails(high(url))),brandingSettings(channel(profileColor),image(bannerTvHighImageUrl)),statistics)',
+        'items(id,snippet(title,description,publishedAt,thumbnails(high(url))),brandingSettings(channel(profileColor),image(bannerTvHighImageUrl)),statistics)'
     }
 
     const { data } = await this.youtubeChannel.list(getDataOptions)

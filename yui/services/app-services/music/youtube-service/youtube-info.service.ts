@@ -25,7 +25,7 @@ export class YoutubeInfoService {
       maxResults: 10,
       q: query,
       type: ['video'],
-      fields: 'items(id(kind,videoId),snippet(channelId,channelTitle,title))',
+      fields: 'items(id(kind,videoId),snippet(channelId,channelTitle,title))'
     })
     if (!data) throw Error('Something went wrong during request')
 
@@ -36,7 +36,7 @@ export class YoutubeInfoService {
     const data = await this.youtubeRequestService.googleYoutubeApiVideos({
       part: ['snippet', 'contentDetails'],
       id: ids,
-      fields: 'items(contentDetails(duration),id,snippet(channelId,channelTitle,thumbnails/default,title))',
+      fields: 'items(contentDetails(duration),id,snippet(channelId,channelTitle,thumbnails/default,title))'
     })
     if (!data) throw Error('Something went wrong during request')
     return data.items
@@ -48,7 +48,7 @@ export class YoutubeInfoService {
       playlistId,
       fields: 'nextPageToken,items(id,kind,snippet(channelId,channelTitle,resourceId(kind,videoId),title))',
       ...(currentPageToken ? { pageToken: currentPageToken } : {}),
-      maxResults: 50,
+      maxResults: 50
     })
     if (!data) return []
     const { nextPageToken } = data
@@ -81,7 +81,7 @@ export class YoutubeInfoService {
       channelId,
       type: ['video'],
       fields: 'nextPageToken,items(id(videoId))',
-      ...(pageToken ? { pageToken } : {}),
+      ...(pageToken ? { pageToken } : {})
     })
     return data
   }
@@ -92,7 +92,7 @@ export class YoutubeInfoService {
       maxResults: 10,
       q: query,
       type: ['video'],
-      fields: 'items(id,kind,snippet(channelId,channelTitle,title))',
+      fields: 'items(id,kind,snippet(channelId,channelTitle,title))'
     })
     return data
   }

@@ -32,7 +32,7 @@ export class PolarisSoundCloudPlayer {
         headers,
         timeout: 30000,
         onDownloadProgress: (progressEvent) => stream.emit('progress', progressEvent),
-        responseType: 'stream',
+        responseType: 'stream'
       })
       .catch((rejectedReason) => {
         YuiLogger.error(rejectedReason)
@@ -73,8 +73,8 @@ export class PolarisSoundCloudPlayer {
       highWaterMark,
       requestOptions: {
         maxRetries: 1,
-        highWaterMark,
-      },
+        highWaterMark
+      }
     })
 
     m3u8Stream.on('progress', (data: Progress) => stream.emit('progress', data))
@@ -95,7 +95,7 @@ export class PolarisSoundCloudPlayer {
     type: string
   }> {
     const soundcloudDll = (await this.soundcloudService.getSoundcloudInfoFromUrl(videoUrl, {
-      getUrl: true,
+      getUrl: true
     })) as {
       url: string
       type: string

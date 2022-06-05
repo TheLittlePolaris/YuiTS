@@ -1,17 +1,17 @@
 import { Message, PermissionResolvable } from 'discord.js'
 import {
   ADMIN_COMMANDS,
-  ADMIN_ACTION_TYPE,
+  ADMIN_ACTION_TYPE
 } from '@/services/app-services/administration/admin-interfaces/administration.interface'
 import { AdministrationService } from '@/services/app-services/administration/administration.service'
 import { Prototype, BOT_GLOBAL_CLIENT, BOT_GLOBAL_CONFIG } from '@/ioc-container'
 
 enum REFLECT_PERMISSION_SYMBOLS {
-  COMMAND = 'command',
+  COMMAND = 'command'
 }
 
 const REFLECT_PERMISSION_KEYS = {
-  COMMAND: Symbol(REFLECT_PERMISSION_SYMBOLS.COMMAND),
+  COMMAND: Symbol(REFLECT_PERMISSION_SYMBOLS.COMMAND)
 }
 
 export function AdminPermissionValidator() {
@@ -22,7 +22,7 @@ export function AdminPermissionValidator() {
       const [message, args, command] = _args as [Message, Array<string>, string]
       const [yui, actionMember] = await Promise.all([
         this[BOT_GLOBAL_CLIENT].getGuildMember(message),
-        Promise.resolve(message.member),
+        Promise.resolve(message.member)
       ])
       if (!command || !ADMIN_COMMANDS.includes(command)) return
 

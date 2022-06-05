@@ -34,7 +34,7 @@ export class FeatureService {
       title: 'Status',
       description: `:heartbeat: **Yui's ping: \`${yuiPing}ms\`**.\n:revolving_hearts: **Estimated message RTT: \`${
         timeEnd - timeStart
-      }ms\`**`,
+      }ms\`**`
     })
 
     // const attachment = new MessageAttachment(image, 'ping.jpg')
@@ -78,11 +78,11 @@ export class FeatureService {
     const embed = discordRichEmbedConstructor({
       author: {
         authorName: yui.displayName || yui.user.username,
-        avatarUrl: yui.user.avatarURL(),
+        avatarUrl: yui.user.avatarURL()
       },
       description: commands,
       title: 'Command List',
-      footer: 'Note: <>: required param | <?>: optional param',
+      footer: 'Note: <>: required param | <?>: optional param'
     })
 
     this.sendMessage(message, { embeds: [embed] })
@@ -93,7 +93,7 @@ export class FeatureService {
   @FeatureNew()
   public say(message: Message, args: string[]) {
     const embed = discordRichEmbedConstructor({
-      description: `**${args.join(' ')}**`,
+      description: `**${args.join(' ')}**`
     })
     this.sendMessage(message, { embeds: [embed] })
   }
@@ -141,9 +141,9 @@ export class FeatureService {
       embeds: [
         discordRichEmbedConstructor({
           description,
-          imageUrl: results[num]?.media[0]?.gif?.url,
-        }),
-      ],
+          imageUrl: results[num]?.media[0]?.gif?.url
+        })
+      ]
     })
   }
   async getHoloStat(message: Message, args: string[], ..._args: any[])
@@ -161,13 +161,13 @@ export class FeatureService {
         message,
         yui,
         affiliation: 'Hololive',
-        region,
+        region
       })
 
     return this.vtuberStatService.vtuberStatSelectList({
       message,
       affiliation: 'Hololive',
-      regionCode: region,
+      regionCode: region
     })
   }
 
