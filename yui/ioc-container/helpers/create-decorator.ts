@@ -7,11 +7,7 @@ export function wrappedDecorator(method: MethodDecoratorResolver) {
   return (target: Prototype, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>) => {
     const originalDescriptor = descriptor.value
     descriptor.value = async function (...args: any[]) {
-      const context = new ExecutionContext(
-        args as any,
-        { target, propertyKey, descriptor },
-        originalDescriptor.bind(this)
-      )
+      const context = new ExecutionContext(args, { target, propertyKey, descriptor }, originalDescriptor.bind(this))
 
       await method(context)
 

@@ -12,4 +12,3 @@ export type BaseEventsHandlers<TReturn> = {
     config?: DiscordEventConfig[key]
   }
 }
-

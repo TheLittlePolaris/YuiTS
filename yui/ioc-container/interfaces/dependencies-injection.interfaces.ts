@@ -31,7 +31,7 @@ export interface CustomClassProvider<T> {
 
 export interface CustomFactoryProvider<T> {
   provide: string
-  useFactory: (..._injections: any[]) => T 
+  useFactory: (..._injections: any[]) => T
 }
 
 export type CustomProviderToken = { [key: string]: number | string }

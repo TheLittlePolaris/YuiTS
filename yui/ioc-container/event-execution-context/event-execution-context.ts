@@ -1,7 +1,5 @@
-import { ClientEvents } from 'discord.js'
 import { get, isArray } from 'lodash'
 
-import { DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
 import { Prototype, Type } from '../interfaces'
 import { IExecutionContextMetadata } from '../interfaces/execution-context.interface'
@@ -26,7 +24,7 @@ export class ExecutionContext {
   private _executionStartTimestamp: number
 
   constructor(
-    private readonly _arguments: ClientEvents[DiscordEvent],
+    private readonly _arguments: any,
     _metadata?: IExecutionContextMetadata,
     _contextHandler?: Function | ((...args: any[]) => any)
   ) {

@@ -15,7 +15,14 @@ import {
 import { DiscordEvent } from '../../constants/discord-events'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../../containers'
 import { isClassInjector, isValue, isValueInjector } from '../../helpers'
-import { CustomClassProvider, CustomValueProvider, ICommandHandlerMetadata, IInterceptor, Provider, Type } from '../../interfaces'
+import {
+  CustomClassProvider,
+  CustomValueProvider,
+  ICommandHandlerMetadata,
+  IInterceptor,
+  Provider,
+  Type
+} from '../../interfaces'
 import { Logger } from '../../logger'
 import { BaseHandler, BaseCommands, BaseEventsHandlers } from './base-recursive.compiler.type'
 
