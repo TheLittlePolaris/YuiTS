@@ -7,6 +7,7 @@ import {
   EVENT_HANDLER,
   EVENT_HANDLER_CONFIG,
   getPropertyKey,
+  INTERCEPTOR_TARGET,
   ModuleMetadata,
   PARAMTYPES_METADATA,
   SELF_DECLARED_DEPS_METADATA
@@ -14,7 +15,7 @@ import {
 import { DiscordEvent } from '../../constants/discord-events'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../../containers'
 import { isClassInjector, isValue, isValueInjector } from '../../helpers'
-import { CustomClassProvider, CustomValueProvider, ICommandHandlerMetadata, Provider, Type } from '../../interfaces'
+import { CustomClassProvider, CustomValueProvider, ICommandHandlerMetadata, IInterceptor, Provider, Type } from '../../interfaces'
 import { Logger } from '../../logger'
 import { BaseHandler, BaseCommands, BaseEventsHandlers } from './base-recursive.compiler.type'
 
@@ -236,6 +237,11 @@ export abstract class BaseRecursiveCompiler<TReturn> {
     this._interceptorContainer.addInterceptor(interceptorTarget, compiledInterceptor)
 
     return compiledInterceptor
+  }
+
+  protected getInterceptor(target: Type<any>): IInterceptor<TReturn> {
+    const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
+    return useInterceptor ? this._interceptorContainer.getInterceptorInstance(useInterceptor) : null
   }
 
   protected abstract compileCommand(

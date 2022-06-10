@@ -1,13 +1,10 @@
 import { ClientEvents } from 'discord.js'
 import { DiscordEvent } from '../constants'
 
-
-import { INTERCEPTOR_TARGET } from '../constants/dependencies-injection.constant'
 import { ComponentsContainer, InterceptorsContainer, ProvidersContainer } from '../containers'
 import { ModulesContainer } from '../containers/modules.container'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
 import { Type } from '../interfaces/dependencies-injection.interfaces'
-import { IBaseInterceptor } from '../interfaces/interceptor.interface'
 import { BaseRecursiveCompiler } from './base/base-recursive.compiler'
 
 /**
@@ -24,18 +21,16 @@ export class PromiseBasedRecursiveCompiler extends BaseRecursiveCompiler<Promise
   }
 
   protected compileCommand(target: Type<any>, instance: InstanceType<Type<any>>, propertyKey: string) {
-    const useInterceptor: string = Reflect.getMetadata(INTERCEPTOR_TARGET, target)
-    const interceptorInstance: IBaseInterceptor =
-      (useInterceptor && this._interceptorContainer.getInterceptorInstance(useInterceptor)) || null
+    const interceptor = this.getInterceptor(target)
     // bind: passive when go through interceptor, active when call directly
     const fromHandler = (_eventArgs: ClientEvents[DiscordEvent]) =>
       (instance[propertyKey] as Function).call(instance, _eventArgs)
 
-    const handler = (context: ExecutionContext) => {
+    const handler = (context: ExecutionContext): Promise<any> => {
       context.setContextMetadata({ target, propertyKey })
-      return !useInterceptor
+      return !interceptor
         ? fromHandler(context.getArguments())
-        : interceptorInstance.intercept(context, () => fromHandler(context.getArguments()))
+        : interceptor.intercept(context, () => fromHandler(context.getArguments()))
     }
 
     return handler

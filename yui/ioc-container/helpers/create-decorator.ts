@@ -3,7 +3,7 @@ import { ExecutionContext } from '../event-execution-context/event-execution-con
 import { Prototype } from '../interfaces'
 import { MethodDecoratorResolver, ParamDecoratorResolver } from '../interfaces/decorator.interface'
 
-export function createDecorator(method: MethodDecoratorResolver) {
+export function wrappedDecorator(method: MethodDecoratorResolver) {
   return (target: Prototype, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>) => {
     const originalDescriptor = descriptor.value
     descriptor.value = async function (...args: any[]) {
@@ -37,5 +37,5 @@ export function createParamDecorator(method: ParamDecoratorResolver) {
  * @returns
  */
 export function createMethodDecorator(method: MethodDecoratorResolver) {
-  return () => createDecorator(method)
+  return () => wrappedDecorator(method)
 }

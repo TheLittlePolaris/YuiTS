@@ -2,10 +2,10 @@ import { ConfigService } from '@/config-service/config.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ClientEvents } from 'discord.js'
 import { Interceptor } from '@/ioc-container/decorators/interceptor.decorator'
-import { IBaseInterceptor } from '@/ioc-container/interfaces/interceptor.interface'
+import { IInterceptor } from '@/ioc-container/interfaces/interceptor.interface'
 
 @Interceptor('messageCreate')
-export class DMInterceptor implements IBaseInterceptor {
+export class DMInterceptor implements IInterceptor {
   constructor(private configService: ConfigService) {}
 
   intercept([message]: ClientEvents['messageCreate'], next: () => Promise<any>) {
