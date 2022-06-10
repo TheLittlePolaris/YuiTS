@@ -7,9 +7,8 @@ import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ConfigService } from '@/config-service/config.service'
 import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
-import { GetParam, Feature, FeatureNew } from '@/custom/decorators/feature-permisson.decorator'
-import { NewHolostat, VTuberParam } from '@/custom/decorators/feature-vtuber.decorator'
-import { TestDecorator } from '@/custom/decorators/test.decorator'
+import { GetParam, Feature } from '@/custom/decorators/feature-permisson.decorator'
+import { Holostat, VTuberParam } from '@/custom/decorators/feature-vtuber.decorator'
 
 @Injectable()
 export class FeatureService {
@@ -20,7 +19,7 @@ export class FeatureService {
   ) {}
 
   @Feature()
-  public async getPing(message: Message): Promise<`OK`> {
+  async getPing(message: Message): Promise<`OK`> {
     const yuiPing = this.yui.ws.ping
     const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
 
@@ -45,10 +44,9 @@ export class FeatureService {
     return 'OK'
   }
 
-  public async help(message: Message, ..._args: any[])
-  // @FeaturePermissionValidator()
+  async help(message: Message, ..._args: any[])
   @Feature()
-  public async help(message: Message, @GetParam('GUILD_MEMBER') yui: GuildMember) {
+  async help(message: Message, @GetParam('GUILD_MEMBER') yui: GuildMember) {
     const commands = `**__Music:__**
     \`play, p\`: Add to end
     \`playnext, pnext, pn\`: Add to next
@@ -88,20 +86,18 @@ export class FeatureService {
     this.sendMessage(message, { embeds: [embed] })
   }
 
-  // @FeaturePermissionValidator()
-  @TestDecorator()
-  @FeatureNew()
-  public say(message: Message, args: string[]) {
+  @Feature()
+  say(message: Message, args: string[]) {
     const embed = discordRichEmbedConstructor({
       description: `**${args.join(' ')}**`
     })
     this.sendMessage(message, { embeds: [embed] })
   }
 
-  public async tenorGif(message: Message, args: string[], ..._args: any[])
+  async tenorGif(message: Message, args: string[], ..._args: any[])
   @Feature()
   // @FeaturePermissionValidator()
-  public async tenorGif(
+  async tenorGif(
     message: Message,
     args: string[],
     @GetParam('MENTIONS') users: GuildMember[],
@@ -148,7 +144,7 @@ export class FeatureService {
   }
   async getHoloStat(message: Message, args: string[], ..._args: any[])
   @Feature()
-  @NewHolostat()
+  @Holostat()
   async getHoloStat(
     message: Message,
     args: Array<string>,

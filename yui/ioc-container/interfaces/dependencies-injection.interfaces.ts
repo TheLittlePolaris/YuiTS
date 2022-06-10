@@ -7,7 +7,7 @@ import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 /* ================================== INTERFACES ===================================== */
 export type GenericClassDecorator<T> = (target: T) => void
 
-export type GenericMethodDecorator<T> = (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => void
+export type GenericMethodDecorator = (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => void
 
 export type Type<T> = Function & {
   new (...args: any[]): T
@@ -31,7 +31,7 @@ export interface CustomClassProvider<T> {
 
 export interface CustomFactoryProvider<T> {
   provide: string
-  useFactory: Function
+  useFactory: (..._injections: any[]) => T 
 }
 
 export type CustomProviderToken = { [key: string]: number | string }

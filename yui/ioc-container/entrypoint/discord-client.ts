@@ -2,6 +2,7 @@ import { Client, IntentsString, Message } from 'discord.js'
 
 import { InjectToken } from '../constants'
 import { Inject, Injectable } from '../decorators'
+import { Logger } from '../logger'
 
 @Injectable()
 export class DiscordClient extends Client {
@@ -13,7 +14,10 @@ export class DiscordClient extends Client {
   }
 
   public async start(token: string) {
-    return this.login(token)
+    Logger.log('💠 Connecting to Discord...')
+    return this.login(token).then(() => {
+      Logger.log('💠 Connected!')
+    })
   }
 
   public getGuildMember(message: Message) {

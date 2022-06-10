@@ -1,27 +1,29 @@
 import { ClientEvents } from 'discord.js'
-import { isArray } from 'lodash'
-
-import { YuiLogger } from '@/services/logger'
+import { get, isArray } from 'lodash'
 
 import { DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
-import { Prototype } from '../interfaces'
+import { Prototype, Type } from '../interfaces'
 import { IExecutionContextMetadata } from '../interfaces/execution-context.interface'
+import { Logger } from '../logger'
 import { ConfigService } from '../simple-config'
 
 export class ExecutionContext {
+  static client: DiscordClient
+  static config: ConfigService
+
   private _handler: Function | ((...args: any[]) => any)
 
   private _mutatedArguments: any[]
 
-  private _contextTarget: Prototype
+  private _contextTarget: Prototype | Type<any>
+
   private _contextPropertyKey: string
   private _contextDescriptor: TypedPropertyDescriptor<Function>
 
   private _terminated = false
 
-  static client: DiscordClient
-  static config: ConfigService
+  private _executionStartTimestamp: number
 
   constructor(
     private readonly _arguments: ClientEvents[DiscordEvent],
@@ -29,61 +31,72 @@ export class ExecutionContext {
     _contextHandler?: Function | ((...args: any[]) => any)
   ) {
     this.setArguments(isArray(_arguments) ? _arguments : [_arguments])
+
     if (_metadata) this.setContextMetadata(_metadata)
     if (_contextHandler) this.setHandler(_contextHandler)
+
+    this._executionStartTimestamp = Date.now()
   }
 
-  public get terminated() {
+  get executionStartTimestamp() {
+    return this._executionStartTimestamp
+  }
+
+  get terminated() {
     return this._terminated
   }
 
-  public get client() {
+  get client() {
     return ExecutionContext.client
   }
 
-  public get config() {
+  get config() {
     return ExecutionContext.config
   }
 
-  public getArguments<T extends any[] = any[]>(): T {
+  getArguments<T extends any[] = any[]>(): T {
     return this._mutatedArguments as T
   }
 
-  public getOriginalArguments(): any[] {
+  getOriginalArguments(): any[] {
     return this._arguments
   }
 
-  public setArguments(args: any[]): void {
+  setArguments(args: any[]): void {
     this._mutatedArguments = [...args]
   }
 
-  public setHandler(handler: Function | ((...args: any[]) => any)): void {
+  setHandler(handler: Function | ((...args: any[]) => any)): void {
     this._handler = handler
   }
 
-  public getHandler<T extends (...args: any[]) => any = (...args: any[]) => any>(): T {
+  getHandler<T extends (...args: any[]) => any = (...args: any[]) => any>(): T {
     return this._handler as T
   }
 
-  public setContextMetadata({ target, propertyKey, descriptor }: IExecutionContextMetadata): void {
+  setContextMetadata({ target, propertyKey, descriptor }: IExecutionContextMetadata): void {
     this._contextTarget = target
     this._contextPropertyKey = propertyKey
     this._contextDescriptor = descriptor
   }
 
-  public get target() {
+  get target() {
     return this._contextTarget
   }
 
-  public get propertyKey() {
+  get contextName(): string {
+    return get(this._contextTarget, 'name') || get(this._contextTarget, 'constructor.name')
+  }
+
+  get propertyKey() {
     return this._contextPropertyKey
   }
 
-  public get descriptor() {
+  get descriptor() {
     return this._contextDescriptor
   }
 
-  public getContextMetadata() {
+  getContextMetadata() {
     return {
       target: this.target,
       propertyKey: this.propertyKey,
@@ -91,7 +104,7 @@ export class ExecutionContext {
     }
   }
 
-  public call<T>(): T {
+  call<T>(): T {
     const handler = this.getHandler()
     const args = this.getArguments()
 
@@ -103,6 +116,6 @@ export class ExecutionContext {
     delete this._handler
     delete this._mutatedArguments
     this._terminated = true
-    YuiLogger.log(`${this.target?.constructor?.name || this.target?.['name']} terminated`)
+    Logger.log(`${this.target?.constructor?.name || this.target?.['name']} terminated`)
   }
 }

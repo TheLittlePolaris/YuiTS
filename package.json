@@ -13,7 +13,7 @@
     "build:docker": "tsc -p tsconfig.build.json",
     "start:dev": "export NODE_ENV=development && tsc-watch --onSuccess \"node ./dist/yui.js\"",
     "start:win": "npm run prebuild-win && set NODE_ENV=build && tsc -p tsconfig.json && node dist/yui.js",
-    "lint": "eslint '*/**/*.ts' --quiet --fix",
+    "lint": "eslint '*/**/*.ts' --fix-type suggestion,problem,layout,directive  --fix ./yui",
     "pretty": "yarn run prettier --config .prettierrc --write ./yui",
     "//": "===============================================================================================",
     "//0": "Build lightning using swc (https://swc.rs/)",

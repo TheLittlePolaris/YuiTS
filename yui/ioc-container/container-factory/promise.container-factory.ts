@@ -4,11 +4,10 @@ import { PromiseBasedRecursiveCompiler } from '../compilers'
 import { COMPONENT_METADATA, DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
 import { DiscordClient } from '../entrypoint'
-import { _internalSetGetter, _internalSetRefs } from '../helpers'
-import { BaseEventsHandlers, PromiseCommandHandler, PromiseHandlerFn, Type } from '../interfaces'
+import { PromiseCommands, PromiseHandler, Type } from '../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
 
-export class RecursiveContainerFactory extends BaseContainerFactory {
+export class RecursiveContainerFactory extends BaseContainerFactory<PromiseHandler, PromiseCommands> {
   static entryDetected = false
 
   constructor() {
@@ -49,7 +48,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
       )
     }
 
-    Object.keys(this._eventHandlers).map((handler: DiscordEvent) =>
+    Object.keys(this.eventHandlers).map((handler: DiscordEvent) =>
       entryInstance.client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
         this.handleEvent(handler, this.createExecutionContext(args))
       )
@@ -62,26 +61,24 @@ export class RecursiveContainerFactory extends BaseContainerFactory {
     await this.compiler.compileModule(rootModule, entryComponent)
 
     this._config = this.compiler.config
-    this._eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<PromiseHandlerFn, PromiseCommandHandler>
 
     const client = this.compiler.componentContainer.getInstance(entryComponent)
-    const compiledEvents = Object.keys(this._eventHandlers)
+    const compiledEvents = Object.keys(this.eventHandlers)
     compiledEvents.map((handler: DiscordEvent) =>
       client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
         this.handleEvent(handler, this.createExecutionContext(args))
       )
     )
 
-    _internalSetRefs(this._config, client)
-    _internalSetGetter((...args: any[]) => this.get.bind(this, ...args))
     return client
   }
 
-  protected getHandler(event: keyof ClientEvents, command: string | false): PromiseHandlerFn {
+  protected getHandler(event: keyof ClientEvents, command: string | false): PromiseHandler {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     if (command === false) return (..._: any[]) => Promise.resolve()
     const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =
-      this._eventHandlers[event].handlers
+      this.eventHandlers[event].handlers
 
-    return (compiledCommand || defaultAction) as PromiseHandlerFn
+    return (compiledCommand || defaultAction) as PromiseHandler
   }
 }

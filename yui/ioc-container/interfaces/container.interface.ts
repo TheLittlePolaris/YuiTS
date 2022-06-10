@@ -7,29 +7,29 @@ import { ExecutionContext } from '../event-execution-context/event-execution-con
 
 export type BaseResult = Promise<any> | Observable<any>
 
-export type PromiseHandlerFn = (context: ExecutionContext) => Promise<any>
-export type PromiseCommandHandler = {
-  [command: string]: PromiseHandlerFn
+export type PromiseHandler = (context: ExecutionContext) => Promise<any>
+export type PromiseCommands = {
+  [command: string]: PromiseHandler
 }
 
-export type RxjsHandlerFn = (context: ExecutionContext) => Observable<any>
-export type RxjsCommandHandler = {
-  [command: string]: RxjsHandlerFn
+export type RxjsHandler = (context: ExecutionContext) => Observable<any>
+export type RxjsCommands = {
+  [command: string]: RxjsHandler
 }
 
-export type BaseHandlerFn = PromiseHandlerFn | RxjsHandlerFn
-export type BaseCommandHandler<T extends BaseHandlerFn> = {
+export type BaseHandler = PromiseHandler | RxjsHandler
+export type BaseCommands<T extends BaseHandler> = {
   [command: string]: T
 }
 
-export type BaseSingleEventHandler = PromiseCommandHandler | RxjsCommandHandler
-export type BaseEventsHandlers<U extends BaseHandlerFn, T extends BaseCommandHandler<U>> = {
+export type BaseSingleEventCommand = PromiseCommands | RxjsCommands
+export type BaseEventsHandlers<T extends BaseHandler, U extends BaseCommands<T>> = {
   [key in DiscordEvent]?: {
-    handlers: T
+    handlers: U
     config?: DiscordEventConfig[key]
   }
 }
 
-export type PromiseEventsHandlers = BaseEventsHandlers<PromiseHandlerFn, PromiseCommandHandler>
+export type PromiseEventsHandlers = BaseEventsHandlers<PromiseHandler, PromiseCommands>
 
-export type RxjsEventsHandlers = BaseEventsHandlers<RxjsHandlerFn, RxjsCommandHandler>
+export type RxjsEventsHandlers = BaseEventsHandlers<RxjsHandler, RxjsCommands>

@@ -1,18 +1,15 @@
 import { ClientEvents } from 'discord.js'
-import { catchError, fromEvent, map, noop, Observable, of, take, throwError } from 'rxjs'
-
-import { YuiLogger } from '@/services/logger/logger.service'
-
+import { catchError, finalize, fromEvent, map, noop, Observable, of, take, takeWhile } from 'rxjs'
 import { RxjsRecursiveCompiler } from '../compilers'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
 import { DiscordClient } from '../entrypoint'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
-import { _internalSetGetter, _internalSetRefs } from '../helpers'
-import { BaseEventsHandlers, RxjsCommandHandler, RxjsHandlerFn, Type } from '../interfaces'
+import { RxjsCommands, RxjsHandler, Type } from '../interfaces'
+import { Logger } from '../logger'
 import { BaseContainerFactory } from './base.container-factory'
 
-export class RxjsContainerFactory extends BaseContainerFactory {
+export class RxjsContainerFactory extends BaseContainerFactory<RxjsHandler, RxjsCommands> {
   constructor() {
     const moduleContainer = new ModulesContainer()
     const componentContainer = new ComponentsContainer()
@@ -24,56 +21,74 @@ export class RxjsContainerFactory extends BaseContainerFactory {
   async initialize(rootModule: Type<any>, entryComponent = DiscordClient): Promise<DiscordClient> {
     await this.compiler.compileModule(rootModule, entryComponent)
 
-    const config = this.getConfig()
-    this.config = config
+    this.assignContext()
 
     const client = this.getClient()
 
-    ExecutionContext.client = client
+    this.subscribeEvents(client)
+
+    return client
+  }
+
+  private assignContext() {
+    const config = this.getConfig()
+    this.config = config
+
+    ExecutionContext.client = this.getClient()
     ExecutionContext.config = config
+  }
 
-    this.eventHandlers = this.compiler.eventHandlers as BaseEventsHandlers<RxjsHandlerFn, RxjsCommandHandler>
-
-    const compiledEvents = Object.keys(this._eventHandlers)
-
-    compiledEvents.forEach((event: DiscordEvent) => {
+  private subscribeEvents(client: DiscordClient) {
+    Object.keys(this.eventHandlers).forEach((event: DiscordEvent) => {
       fromEvent(client, event)
         .pipe(
+          map((args: ClientEvents[DiscordEvent]) => this.filterCommand(event, args)),
+          takeWhile((args: ClientEvents[DiscordEvent]) => !!args),
           map((args: ClientEvents[DiscordEvent]) => this.createExecutionContext(args)),
-          map((context: ExecutionContext) => this.handleEvent(event, context)),
-          map((observable: Observable<any>) =>
+          map((context: ExecutionContext) => ({
+            observable: this.handleEvent(event, context) as Observable<any>,
+            context
+          })),
+          map(({ observable, context }) =>
             observable
               .pipe(
                 take(1),
+                finalize(() => {
+                  Logger.log(
+                    `${context.contextName}.${context.propertyKey} execution time: ${
+                      Date.now() - context.executionStartTimestamp
+                    }ms`
+                  )
+                }),
                 catchError((error: Error) => {
-                  YuiLogger.error(`Uncaught error: ${error?.stack}`, 'AppContainer')
-                  return throwError(() => error)
+                  Logger.error(
+                    `Uncaught handler error: ${error?.stack}`,
+                    `${context.contextName}.${context.propertyKey}`
+                  )
+                  return of(null)
                 })
               )
               .subscribe()
           ),
           catchError((error: Error) => {
-            YuiLogger.error(`Uncaught error: Stack: ${error?.stack}`, 'AppContainer')
+            Logger.error(`Uncaught event pipeline error: Stack: ${error?.stack}`, 'AppContainer')
             return of(null)
           })
         )
         .subscribe()
     })
-
-    _internalSetRefs(this._config, client)
-    _internalSetGetter((...args: any[]) => this.get.bind(this, ...args))
-    return client as DiscordClient
   }
 
   public get<T>(type: Type<T>): InstanceType<Type<T>> {
     return this.compiler.componentContainer.getInstance(type)
   }
 
-  protected getHandler(event: keyof ClientEvents, command: string | false): RxjsHandlerFn {
+  protected getHandler(event: keyof ClientEvents, command: string | false): RxjsHandler {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     if (command === false) return (..._args: any) => of(noop)
-    const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } = this._eventHandlers[event]
-      .handlers as RxjsCommandHandler
+    const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =
+      this.eventHandlers[event].handlers
+
     return compiledCommand || defaultAction
   }
 }

@@ -11,21 +11,21 @@ export interface LoggerService {
   debug?(message: any, context?: string)
 }
 
-export class YuiLogger implements LoggerService {
+export class Logger implements LoggerService {
   private static chalk = new Instance({ level: 2 })
   private context: string
-  private static instance?: typeof YuiLogger | LoggerService = YuiLogger
+  private static instance?: typeof Logger | LoggerService = Logger
   private static yuiPid = process.pid
   private static winstonLogger: WinstonLogger = createLogger({
     format: format.json(),
 
     transports: [
       new transports.File({
-        filename: YuiLogger.buildPath('error'),
+        filename: Logger.buildPath('error'),
         level: 'error'
       }),
       new transports.File({
-        filename: YuiLogger.buildPath('warn'),
+        filename: Logger.buildPath('warn'),
         level: 'warn'
       }),
       new transports.Console({
@@ -37,7 +37,7 @@ export class YuiLogger implements LoggerService {
               all: true
             }),
             format.label({
-              label: `[Yui] ${YuiLogger.chalk.keyword('orange')(`[${process.pid}]`)}`
+              label: `[Yui] ${Logger.chalk.keyword('orange')(`[${process.pid}]`)}`
             }),
             format.timestamp({
               format: 'YY-MM-DD HH:MM:SS'
@@ -79,7 +79,7 @@ export class YuiLogger implements LoggerService {
 
   private callFunction(name: 'log' | 'warn' | 'debug' | 'info' | 'error', message: any, context?: string) {
     const instance = this.getInstance()
-    const func = instance && (instance as typeof YuiLogger)[name]
+    const func = instance && (instance as typeof Logger)[name]
     func && func.call(instance, message, context || this.context)
   }
 
@@ -103,9 +103,9 @@ export class YuiLogger implements LoggerService {
     return this.winstonLogger.debug(this.printMessage(message, this.chalk.cyan, context))
   }
 
-  private getInstance(): typeof YuiLogger | LoggerService {
-    const { instance } = YuiLogger
-    return instance === this ? YuiLogger : instance
+  private getInstance(): typeof Logger | LoggerService {
+    const { instance } = Logger
+    return instance === this ? Logger : instance
   }
 
   private static printMessage(message: string | Error, color: Chalk, context?: string) {
