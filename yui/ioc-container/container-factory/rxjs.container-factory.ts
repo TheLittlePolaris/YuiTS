@@ -1,15 +1,15 @@
 import { ClientEvents } from 'discord.js'
 import { catchError, finalize, fromEvent, map, noop, Observable, of, take, takeWhile } from 'rxjs'
-import { RxjsRecursiveCompiler } from '../compilers'
+import { RxjsRecursiveCompiler } from '../compilers/rxjs.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
 import { DiscordClient } from '../entrypoint'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
-import { RxjsCommands, RxjsHandler, Type } from '../interfaces'
+import { Type } from '../interfaces'
 import { Logger } from '../logger'
 import { BaseContainerFactory } from './base.container-factory'
 
-export class RxjsContainerFactory extends BaseContainerFactory<RxjsHandler, RxjsCommands> {
+export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> {
   constructor() {
     const moduleContainer = new ModulesContainer()
     const componentContainer = new ComponentsContainer()
@@ -18,7 +18,7 @@ export class RxjsContainerFactory extends BaseContainerFactory<RxjsHandler, Rxjs
     super(new RxjsRecursiveCompiler(moduleContainer, componentContainer, providerContainer, interceptorContainer))
   }
 
-  async initialize(rootModule: Type<any>, entryComponent = DiscordClient): Promise<DiscordClient> {
+  async initialize(rootModule: Type<any>, entryComponent = DiscordClient) {
     await this.compiler.compileModule(rootModule, entryComponent)
 
     this.assignContext()
@@ -79,11 +79,11 @@ export class RxjsContainerFactory extends BaseContainerFactory<RxjsHandler, Rxjs
     })
   }
 
-  public get<T>(type: Type<T>): InstanceType<Type<T>> {
+  public get<T>(type: Type<T>) {
     return this.compiler.componentContainer.getInstance(type)
   }
 
-  protected getHandler(event: keyof ClientEvents, command: string | false): RxjsHandler {
+  protected getHandler(event: keyof ClientEvents, command: string | false) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     if (command === false) return (..._args: any) => of(noop)
     const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =

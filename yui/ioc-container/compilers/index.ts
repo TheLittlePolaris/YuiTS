@@ -1,3 +1,3 @@
-export * from './base-recursive.compiler'
-export * from './promise-based.compiler'
-export * from './rxjs.compiler'
+export * from "./base";
+export * from "./promise-based.compiler";
+export * from "./rxjs.compiler";

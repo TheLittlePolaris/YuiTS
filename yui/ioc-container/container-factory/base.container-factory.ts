@@ -1,21 +1,22 @@
 import { ClientEvents, Message } from 'discord.js'
+import { BaseHandler } from '../compilers'
 
-import { BaseRecursiveCompiler } from '../compilers/base-recursive.compiler'
+import { BaseRecursiveCompiler } from '../compilers/base/base-recursive.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { DiscordClient } from '../entrypoint'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
-import { BaseCommands, BaseEventsHandlers, BaseHandler, BaseResult, Type } from '../interfaces'
+import { Type } from '../interfaces'
 import { ConfigService } from '../simple-config'
 
-export abstract class BaseContainerFactory<T extends BaseHandler, U extends BaseCommands<T>> {
+export abstract class BaseContainerFactory<TReturn> {
   static entryDetected = false
 
   protected _config: ConfigService
   protected _client: DiscordClient
 
-  constructor(private readonly _compiler: BaseRecursiveCompiler<T, U>) {}
+  constructor(private readonly _compiler: BaseRecursiveCompiler<TReturn>) {}
 
-  protected get compiler(): BaseRecursiveCompiler<T, U> {
+  protected get compiler() {
     return this._compiler
   }
 
@@ -47,7 +48,7 @@ export abstract class BaseContainerFactory<T extends BaseHandler, U extends Base
     return new ExecutionContext(args)
   }
 
-  protected handleEvent<T>(event: keyof ClientEvents, context: ExecutionContext): BaseResult {
+  protected handleEvent(event: keyof ClientEvents, context: ExecutionContext): ReturnType<BaseHandler<TReturn>> {
     const command = this.getCommand(event, context.getArguments())
 
     const commandHandler = this.getHandler(event, command)
@@ -90,5 +91,5 @@ export abstract class BaseContainerFactory<T extends BaseHandler, U extends Base
 
   protected abstract initialize(rootModule: Type<any>, entryComponent: Type<DiscordClient>): Promise<DiscordClient>
 
-  protected abstract getHandler(event: keyof ClientEvents, command: string | false): BaseHandler
+  protected abstract getHandler(event: keyof ClientEvents, command: string | false): BaseHandler<TReturn>
 }

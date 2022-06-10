@@ -10,24 +10,16 @@ import {
   ModuleMetadata,
   PARAMTYPES_METADATA,
   SELF_DECLARED_DEPS_METADATA
-} from '../constants'
-import { DiscordEvent } from '../constants/discord-events'
-import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
-import { isClassInjector, isValue, isValueInjector } from '../helpers'
-import {
-  BaseCommands,
-  BaseEventsHandlers,
-  BaseHandler,
-  CustomClassProvider,
-  CustomValueProvider,
-  ICommandHandlerMetadata,
-  Provider,
-  Type
-} from '../interfaces'
-import { Logger } from '../logger'
+} from '../../constants'
+import { DiscordEvent } from '../../constants/discord-events'
+import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../../containers'
+import { isClassInjector, isValue, isValueInjector } from '../../helpers'
+import { CustomClassProvider, CustomValueProvider, ICommandHandlerMetadata, Provider, Type } from '../../interfaces'
+import { Logger } from '../../logger'
+import { BaseHandler, BaseCommands, BaseEventsHandlers } from './base-recursive.compiler.type'
 
-export abstract class BaseRecursiveCompiler<T extends BaseHandler, U extends BaseCommands<T>> {
-  protected _eventHandlers: BaseEventsHandlers<T, U> = {}
+export abstract class BaseRecursiveCompiler<TReturn> {
+  protected _eventHandlers: BaseEventsHandlers<TReturn> = {}
 
   protected _config
 
@@ -189,7 +181,7 @@ export abstract class BaseRecursiveCompiler<T extends BaseHandler, U extends Bas
   protected createEventHandler(event: DiscordEvent) {
     if (this.eventHandlers[event]) return
     this.eventHandlers[event] = {
-      handlers: {} as U
+      handlers: {} as BaseCommands<TReturn>
     }
   }
 
@@ -211,8 +203,8 @@ export abstract class BaseRecursiveCompiler<T extends BaseHandler, U extends Bas
     target: Type<any>,
     instance: InstanceType<Type<any>>,
     handlerMetadata: ICommandHandlerMetadata[]
-  ): BaseCommands<BaseHandler> {
-    return handlerMetadata.reduce((acc: BaseCommands<BaseHandler>, { command, propertyKey, commandAliases }) => {
+  ): BaseCommands<TReturn> {
+    return handlerMetadata.reduce((acc: BaseCommands<TReturn>, { command, propertyKey, commandAliases }) => {
       const commandFn = this.compileCommand(target, instance, propertyKey)
       const mainCommand = { [command]: commandFn }
       const aliases = [...(commandAliases || [])].reduce(
@@ -223,7 +215,7 @@ export abstract class BaseRecursiveCompiler<T extends BaseHandler, U extends Bas
         {}
       )
       return Object.assign(acc, mainCommand, aliases)
-    }, {} as BaseCommands<BaseHandler>)
+    }, {} as BaseCommands<TReturn>)
   }
 
   protected assignConfig(event: DiscordEvent, config: ICommandHandlerMetadata[]): void {
@@ -231,7 +223,7 @@ export abstract class BaseRecursiveCompiler<T extends BaseHandler, U extends Bas
     this.eventHandlers[event].config = config
   }
 
-  protected assignHandleFunctions(event: DiscordEvent, commandHandlers: BaseCommands<BaseHandler>): void {
+  protected assignHandleFunctions(event: DiscordEvent, commandHandlers: BaseCommands<TReturn>): void {
     assign(this.eventHandlers[event].handlers, commandHandlers)
   }
 
@@ -250,5 +242,5 @@ export abstract class BaseRecursiveCompiler<T extends BaseHandler, U extends Bas
     target: Type<any>,
     instance: InstanceType<Type<any>>,
     propertyKey: string
-  ): BaseHandler
+  ): BaseHandler<TReturn>
 }

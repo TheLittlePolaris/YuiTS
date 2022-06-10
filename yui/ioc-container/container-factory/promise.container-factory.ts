@@ -1,13 +1,13 @@
 import { ClientEvents } from 'discord.js'
+import { PromiseBasedRecursiveCompiler } from '../compilers/promise-based.compiler'
 
-import { PromiseBasedRecursiveCompiler } from '../compilers'
 import { COMPONENT_METADATA, DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
 import { DiscordClient } from '../entrypoint'
-import { PromiseCommands, PromiseHandler, Type } from '../interfaces'
+import { Type } from '../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
 
-export class RecursiveContainerFactory extends BaseContainerFactory<PromiseHandler, PromiseCommands> {
+export class RecursiveContainerFactory extends BaseContainerFactory<Promise<any>> {
   static entryDetected = false
 
   constructor() {
@@ -73,12 +73,12 @@ export class RecursiveContainerFactory extends BaseContainerFactory<PromiseHandl
     return client
   }
 
-  protected getHandler(event: keyof ClientEvents, command: string | false): PromiseHandler {
+  protected getHandler(event: keyof ClientEvents, command: string | false) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     if (command === false) return (..._: any[]) => Promise.resolve()
     const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =
       this.eventHandlers[event].handlers
 
-    return (compiledCommand || defaultAction) as PromiseHandler
+    return compiledCommand || defaultAction
   }
 }
