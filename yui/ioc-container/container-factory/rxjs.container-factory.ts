@@ -1,5 +1,5 @@
 import { ClientEvents } from 'discord.js'
-import { catchError, finalize, fromEvent, map, noop, Observable, of, take, takeWhile } from 'rxjs'
+import { catchError, EMPTY, finalize, fromEvent, mergeMap, noop, Observable, of, take } from 'rxjs'
 import { RxjsRecursiveCompiler } from '../compilers/rxjs.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../constants'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
@@ -42,44 +42,37 @@ export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> 
     Object.keys(this.eventHandlers).forEach((event: DiscordEvent) => {
       fromEvent(client, event)
         .pipe(
-          map((args: ClientEvents[DiscordEvent]) => this.filterCommand(event, args)),
-          takeWhile((args: ClientEvents[DiscordEvent]) => !!args),
-          map((args: ClientEvents[DiscordEvent]) => this.createExecutionContext(args)),
-          map((context: ExecutionContext) => ({
-            observable: this.handleEvent(event, context) as Observable<any>,
-            context
-          })),
-          map(({ observable, context }) =>
-            observable
-              .pipe(
-                take(1),
-                finalize(() => {
-                  Logger.log(
-                    `${context.contextName}.${context.propertyKey} execution time: ${
-                      Date.now() - context.executionStartTimestamp
-                    }ms`
-                  )
-                }),
-                catchError((error: Error) => {
-                  Logger.error(
-                    `Uncaught handler error: ${error?.stack}`,
-                    `${context.contextName}.${context.propertyKey}`
-                  )
-                  return of(null)
-                })
-              )
-              .subscribe()
+          // filter incoming events
+          mergeMap((args: ClientEvents[DiscordEvent]) => this.filterEvent(event, args)),
+          // prepare the context
+          mergeMap((args) => this.createObservablePipelineContext(event, args)),
+          // execute the context
+          mergeMap(({ observable, context }) =>
+            observable.pipe(
+              take(1),
+              finalize(() => {
+                Logger.log(
+                  `${context.contextName}.${context.propertyKey} execution time: ${
+                    Date.now() - context.executionStartTimestamp
+                  }ms`
+                )
+              }),
+              catchError((error: Error) => {
+                Logger.error(`Uncaught handler error: ${error?.stack}`, `${context.contextName}.${context.propertyKey}`)
+                return EMPTY
+              })
+            )
           ),
           catchError((error: Error) => {
             Logger.error(`Uncaught event pipeline error: Stack: ${error?.stack}`, 'AppContainer')
-            return of(null)
+            return EMPTY
           })
         )
         .subscribe()
     })
   }
 
-  public get<T>(type: Type<T>) {
+  public get<T>(type: Type<T>): InstanceType<Type<T>> {
     return this.compiler.componentContainer.getInstance(type)
   }
 
@@ -90,5 +83,41 @@ export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> 
       this.eventHandlers[event].handlers
 
     return compiledCommand || defaultAction
+  }
+
+  protected filterEvent(
+    event: DiscordEvent,
+    args: ClientEvents[DiscordEvent]
+  ): Observable<ClientEvents[DiscordEvent] | never> {
+    let result: Observable<ClientEvents[DiscordEvent] | never> = of(args)
+    switch (event) {
+      case 'messageCreate': {
+        const {
+          author: { bot },
+          content
+        } = args as any
+
+        const { config } = this.eventHandlers['messageCreate']
+        if (!config) break
+
+        const { ignoreBots, startsWithPrefix } = config
+
+        const notStartsWithPrefix = startsWithPrefix && !content.startsWith(this._config['prefix'])
+        const isBot = ignoreBots && bot
+
+        if (notStartsWithPrefix || isBot) result = EMPTY
+
+        break
+      }
+      default:
+        break
+    }
+    return result
+  }
+
+  private createObservablePipelineContext(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
+    const context = this.createExecutionContext(args)
+    const observable = this.handleEvent(event, context)
+    return of({ observable, context }).pipe(take(1))
   }
 }

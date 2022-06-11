@@ -56,32 +56,18 @@ export abstract class BaseContainerFactory<TReturn> {
     return commandHandler(context)
   }
 
-  protected filterCommand(event: DiscordEvent, args: ClientEvents[DiscordEvent]): ClientEvents[DiscordEvent] | null {
-    switch (event) {
-      case 'messageCreate': {
-        const {
-          author: { bot },
-          content
-        } = args as any as Message
-        const { config } = this.eventHandlers['messageCreate']
-        if (config) {
-          const { ignoreBots, startsWithPrefix } = config
-
-          if ((startsWithPrefix && !content.startsWith(this._config['prefix'])) || (ignoreBots && bot)) return null
-        }
-        break
-      }
-      default:
-        break
-    }
-
-    return args
-  }
-
   private getCommand(event: DiscordEvent, args: ClientEvents[DiscordEvent]): string | false {
     switch (event) {
       case 'messageCreate': {
-        const { content } = args[0] as Message
+        const {
+          // author: { bot },
+          content
+        } = args[0] as Message
+        // const { config } = this.eventHandlers['messageCreate']
+        // if (config) {
+        //   const { ignoreBots, startsWithPrefix } = config
+        //   if ((startsWithPrefix && !content.startsWith(this._config['prefix'])) || (ignoreBots && bot)) return false
+        // }
         return content.replace(this._config['prefix'], '').trim().split(/ +/g)[0]
       }
       default:
@@ -89,6 +75,7 @@ export abstract class BaseContainerFactory<TReturn> {
     }
   }
 
+  protected abstract filterEvent(event: DiscordEvent, args: ClientEvents[DiscordEvent]): TReturn
   protected abstract initialize(rootModule: Type<any>, entryComponent: Type<DiscordClient>): Promise<DiscordClient>
 
   protected abstract getHandler(event: keyof ClientEvents, command: string | false): BaseHandler<TReturn>

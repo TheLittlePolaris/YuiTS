@@ -81,4 +81,9 @@ export class RecursiveContainerFactory extends BaseContainerFactory<Promise<any>
 
     return compiledCommand || defaultAction
   }
+
+  // TODO: assign logic here
+  protected filterEvent(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
+    return Promise.resolve(true)
+  }
 }
