@@ -56,7 +56,7 @@ export class ExecutionContext {
     return this._mutatedArguments as T
   }
 
-  getOriginalArguments(): any[] {
+  getOriginalArguments<T = any[]>(): T {
     return this._arguments
   }
 

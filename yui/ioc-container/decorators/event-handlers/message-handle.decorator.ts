@@ -1,37 +1,36 @@
 /* eslint-disable prefer-rest-params */
 import { ClientEvents, Message, PermissionResolvable } from 'discord.js'
 
+import { COMMAND_HANDLER, METHOD_PARAM_METADATA } from '../../constants'
+import { ICommandHandlerMetadata, Prototype } from '../../interfaces'
+import { createMethodDecorator, createParamDecorator } from '@/ioc-container/helpers'
+import { ExecutionContext } from '@/ioc-container/event-execution-context'
+import { getParamDecoratorResolverValue } from '@/ioc-container/containers/params-decorator.container'
 import { ConfigService } from '@/config-service/config.service'
 
-import { COMMAND_HANDLER, COMMAND_HANDLER_PARAMS, MESSAGE_PARAMS } from '../../constants'
-import { ICommandHandlerMetadata, Prototype } from '../../interfaces'
+export const HandleCommand = (command = 'default', ...aliases: string[]) =>
+  createMethodDecorator(
+    (context: ExecutionContext) => {
+      const compiledArgs = context.getArguments<ClientEvents['messageCreate']>()
+      const { target, propertyKey } = context.getContextMetadata()
 
-export function HandleCommand(command = 'default', ...aliases: string[]) {
-  return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    let commands: ICommandHandlerMetadata[] = Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
-    commands = [...commands, { propertyKey, command, commandAliases: aliases }]
-    Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
+      const paramResolverList: Record<string, number> =
+        Reflect.getMetadata(METHOD_PARAM_METADATA, target.constructor, propertyKey) || []
 
-    const originalHandler = descriptor.value as Function
-    descriptor.value = function ([message]: ClientEvents['messageCreate']) {
-      const [_, ...args] = message.content.replace('-', '').trim().split(/ +/g)
+      Object.entries(paramResolverList).forEach(([key, index]) => {
+        const value = getParamDecoratorResolverValue(key, context)
+        compiledArgs[index] = value
+      })
 
-      const paramList: [number, number][] =
-        Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
-
-      const { channel, author, guild } = message
-      const defaultIndex = [message, author, args, guild, channel, command]
-
-      const compiledArgs = []
-      for (let i = 0, n = paramList.length; i < n; i++) {
-        const [defaultPosition, definedPosition] = paramList[i]
-        compiledArgs[definedPosition] = defaultIndex[defaultPosition]
-      }
-
-      return originalHandler.apply(this, compiledArgs)
+      context.setArguments(compiledArgs)
+      return context
+    },
+    (target, propertyKey) => {
+      let commands: ICommandHandlerMetadata[] = Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
+      commands = [...commands, { propertyKey, command, commandAliases: aliases }]
+      Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
     }
-  }
-}
+  )()
 
 export function DeleteOriginalMessage(strategy?: 'send' | 'reply', responseMessage?: string) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
@@ -86,35 +85,19 @@ export function MemberPermissions(...permissions: PermissionResolvable[]) {
   }
 }
 
-const defineIndex = (defaultIndex: MESSAGE_PARAMS) => {
-  return function (target: Prototype, propertyKey: string, paramIndex: number) {
-    const paramList: [number, number][] =
-      Reflect.getMetadata(COMMAND_HANDLER_PARAMS, target.constructor, propertyKey) || []
-    paramList.unshift([defaultIndex, paramIndex])
-    Reflect.defineMetadata(COMMAND_HANDLER_PARAMS, paramList, target.constructor, propertyKey)
-  }
-}
+export const MessageParam = createParamDecorator((context) => context.getOriginalArguments()[0])
 
-export const Author = () => {
-  return defineIndex(MESSAGE_PARAMS.AUTHOR)
+const getMsgContent = (context: ExecutionContext) => {
+  const [message] = context.getOriginalArguments<ClientEvents['messageCreate']>()
+  return message.content.replace(context.config['prefix'], '').trim().split(/ +/g)
 }
+export const Args = createParamDecorator((context) => getMsgContent(context)[0])
+export const Command = createParamDecorator((context) => getMsgContent(context).slice(1))
 
-export const MessageParam = () => {
-  return defineIndex(MESSAGE_PARAMS.MESSAGE)
+const getMessageProperty = (context: ExecutionContext, key: keyof Message) => {
+  const [message] = context.getOriginalArguments<ClientEvents['messageCreate']>()
+  return message[key]
 }
-
-export const Args = () => {
-  return defineIndex(MESSAGE_PARAMS.ARGS)
-}
-
-export const MessageGuild = () => {
-  return defineIndex(MESSAGE_PARAMS.GUILD)
-}
-
-export const MessageChannel = () => {
-  return defineIndex(MESSAGE_PARAMS.CHANNEL)
-}
-
-export const Command = () => {
-  return defineIndex(MESSAGE_PARAMS.COMMAND)
-}
+export const Author = createParamDecorator((context) => getMessageProperty(context, 'author')) //
+export const MessageGuild = createParamDecorator((context) => getMessageProperty(context, 'guild'))
+export const MessageChannel = createParamDecorator((context) => getMessageProperty(context, 'channel'))

@@ -47,8 +47,8 @@ export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> 
           // prepare the context
           mergeMap((args) => this.createObservablePipelineContext(event, args)),
           // execute the context
-          mergeMap(({ observable, context }) =>
-            observable.pipe(
+          mergeMap(({ observable, context }) => {
+            return observable.pipe(
               take(1),
               finalize(() => {
                 Logger.log(
@@ -62,7 +62,7 @@ export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> 
                 return EMPTY
               })
             )
-          ),
+          }),
           catchError((error: Error) => {
             Logger.error(`Uncaught event pipeline error: Stack: ${error?.stack}`, 'AppContainer')
             return EMPTY
@@ -117,7 +117,9 @@ export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> 
 
   private createObservablePipelineContext(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
     const context = this.createExecutionContext(args)
+
     const observable = this.handleEvent(event, context)
+
     return of({ observable, context }).pipe(take(1))
   }
 }

@@ -1,6 +1,3 @@
-import { ClientEvents } from 'discord.js'
-import { DiscordEvent } from '../constants'
-
 import { ComponentsContainer, InterceptorsContainer, ProvidersContainer } from '../containers'
 import { ModulesContainer } from '../containers/modules.container'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
@@ -23,14 +20,12 @@ export class PromiseBasedRecursiveCompiler extends BaseRecursiveCompiler<Promise
   protected compileCommand(target: Type<any>, instance: InstanceType<Type<any>>, propertyKey: string) {
     const interceptor = this.getInterceptor(target)
     // bind: passive when go through interceptor, active when call directly
-    const fromHandler = (_eventArgs: ClientEvents[DiscordEvent]) =>
-      (instance[propertyKey] as Function).call(instance, _eventArgs)
+    const fromHandler = (context: ExecutionContext) => context.call<Promise<any>>()
 
     const handler = (context: ExecutionContext): Promise<any> => {
       context.setContextMetadata({ target, propertyKey })
-      return !interceptor
-        ? fromHandler(context.getArguments())
-        : interceptor.intercept(context, () => fromHandler(context.getArguments()))
+      context.setHandler(instance[propertyKey].bind(instance))
+      return !interceptor ? fromHandler(context) : interceptor.intercept(context, () => fromHandler(context))
     }
 
     return handler

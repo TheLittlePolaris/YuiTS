@@ -1,4 +1,4 @@
-import { ClientEvents, Message } from 'discord.js'
+import { ClientEvents } from 'discord.js'
 import { BaseHandler } from '../compilers'
 
 import { BaseRecursiveCompiler } from '../compilers/base/base-recursive.compiler'
@@ -59,15 +59,7 @@ export abstract class BaseContainerFactory<TReturn> {
   private getCommand(event: DiscordEvent, args: ClientEvents[DiscordEvent]): string | false {
     switch (event) {
       case 'messageCreate': {
-        const {
-          // author: { bot },
-          content
-        } = args[0] as Message
-        // const { config } = this.eventHandlers['messageCreate']
-        // if (config) {
-        //   const { ignoreBots, startsWithPrefix } = config
-        //   if ((startsWithPrefix && !content.startsWith(this._config['prefix'])) || (ignoreBots && bot)) return false
-        // }
+        const [{ content }] = args as ClientEvents['messageCreate']
         return content.replace(this._config['prefix'], '').trim().split(/ +/g)[0]
       }
       default:

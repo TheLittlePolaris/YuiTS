@@ -6,7 +6,7 @@ const _container: {
   [key: string]: ParamDecoratorResolver<any>
 } = {}
 
-export function setParamDecorator(key: string, valueResolver: ParamDecoratorResolver<any>) {
+export function setParamDecoratorResolver(key: string, valueResolver: ParamDecoratorResolver<any>) {
   _container[key] = valueResolver
 }
 
@@ -14,7 +14,7 @@ export function getParamDecoratorResolver(key: string): ParamDecoratorResolver<a
   return _container[key]
 }
 
-export function getParamValue(key: string, context: ExecutionContext) {
+export function getParamDecoratorResolverValue(key: string, context: ExecutionContext) {
   const resolver = getParamDecoratorResolver(key)
   return isFunction(resolver) ? resolver(context) : null
 }

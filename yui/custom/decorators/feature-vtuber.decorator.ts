@@ -1,4 +1,3 @@
-import { Message } from 'discord.js'
 import {
   holoStatRegionSubCommand,
   defaultDetailSubCommand,
@@ -6,8 +5,7 @@ import {
   holoStatList
 } from '@/services/app-services/feature/vtuberstat-service/holostat-service/holostat.interface'
 import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/dependencies-injection.constant'
-import { createMethodDecorator, DiscordClient, ExecutionContext, Prototype } from '@/ioc-container'
-import { ConfigService } from '@/config-service/config.service'
+import { createMethodDecorator, ExecutionContext, Prototype } from '@/ioc-container'
 
 export enum VTUBER_PARAMS {
   REGION = 'region',

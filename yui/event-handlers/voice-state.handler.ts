@@ -1,4 +1,4 @@
-import { HandleVoiceState, OnEvent, StateChannel } from '@/ioc-container'
+import { HandleVoiceState, OnEvent, State, VoiceStateKey } from '@/ioc-container'
 import { VoiceChannel } from 'discord.js'
 import { MusicService } from '../services/app-services/music/music.service'
 
@@ -8,8 +8,8 @@ export class VoiceStateEventHandler {
 
   @HandleVoiceState()
   public onVoiceStateUpdate(
-    @StateChannel('old') oldChannel: VoiceChannel,
-    @StateChannel('new') newChannel: VoiceChannel
+    @State(VoiceStateKey.OldStateChannel) oldChannel: VoiceChannel,
+    @State(VoiceStateKey.NewStateChannel) newChannel: VoiceChannel
   ) {
     const stream = this.musicService.streams.get(oldChannel?.guild.id || newChannel?.guild.id)
     const boundVC = stream?.boundVoiceChannel

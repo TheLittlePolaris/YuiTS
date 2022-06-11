@@ -1,7 +1,5 @@
-import { ClientEvents } from 'discord.js'
-import { from, Observable, of } from 'rxjs'
+import { Observable, of } from 'rxjs'
 
-import { DiscordEvent } from '../constants'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
 import { ExecutionContext } from '../event-execution-context/event-execution-context'
 import { Type } from '../interfaces'
@@ -23,13 +21,12 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler<Observable<any>
   protected compileCommand(target: Type<any>, instance: InstanceType<Type<any>>, propertyKey: string) {
     const interceptor = this.getInterceptor(target)
 
-    const fromHandler = (_eventArgs: ClientEvents[DiscordEvent]) => from(of(instance[propertyKey](_eventArgs)))
+    const fromHandler = (context: ExecutionContext) => of(context.call())
 
     const handler = (context: ExecutionContext) => {
       context.setContextMetadata({ target, propertyKey })
-      return !interceptor
-        ? fromHandler(context.getArguments())
-        : interceptor.intercept(context, () => fromHandler(context.getArguments()))
+      context.setHandler(instance[propertyKey].bind(instance))
+      return !interceptor ? fromHandler(context) : interceptor.intercept(context, () => fromHandler(context))
     }
 
     return handler

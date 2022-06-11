@@ -1,4 +1,5 @@
 import { config } from 'dotenv'
+import { get } from 'lodash'
 
 import { Injectable } from '../decorators'
 
@@ -21,5 +22,9 @@ export class ConfigService {
 
   public get config() {
     return this._configValues
+  }
+
+  public get(key: string) {
+    return get(this.config, key)
   }
 }
