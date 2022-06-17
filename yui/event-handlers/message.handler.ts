@@ -5,9 +5,9 @@ import { MusicService } from '../services/app-services/music/music.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import {
   Args,
-  MessageChannel,
+  MsgChannel,
   HandleCommand,
-  MessageParam,
+  Msg,
   Command,
   DeleteOriginalMessage,
   MemberPermissions,
@@ -28,125 +28,125 @@ export class MessageCreateEventHandler {
   ) {}
 
   @HandleCommand('play', 'p')
-  public async playMusic(@Args() args: string[], @MessageParam() message: Message) {
+  public async playMusic(@Args() args: string[], @Msg() message: Message) {
     return this.musicService.play(message, args, false)
   }
 
   @HandleCommand('playnext', 'pnext', 'pn')
-  public async playNext(@MessageParam() message: Message, @Args() args: string[]) {
+  public async playNext(@Msg() message: Message, @Args() args: string[]) {
     return this.musicService.play(message, args, true)
   }
 
   @HandleCommand('skip', 'next')
-  async skipSong(@MessageParam() message: Message, @Args() args: string[]) {
+  async skipSong(@Msg() message: Message, @Args() args: string[]) {
     return this.musicService.skipSongs(message, args)
   }
 
   @HandleCommand('join', 'come')
-  async join(@MessageParam() message: Message) {
+  async join(@Msg() message: Message) {
     return this.musicService.joinVoiceChannel(message)
   }
 
   @HandleCommand('leave', 'bye')
-  async leave(@MessageParam() message: Message) {
+  async leave(@Msg() message: Message) {
     return this.musicService.leaveVoiceChannel(message)
   }
 
   @HandleCommand('np', 'nowplaying')
-  async nowPlaying(@MessageParam() message: Message) {
+  async nowPlaying(@Msg() message: Message) {
     return this.musicService.getNowPlayingData(message)
   }
 
   @HandleCommand('queue', 'q')
-  async getQueue(@MessageParam() message: Message, @Args() args: string[]) {
+  async getQueue(@Msg() message: Message, @Args() args: string[]) {
     return this.musicService.printQueue(message, args)
   }
 
   @HandleCommand('pause')
-  async pause(@MessageParam() message: Message) {
+  async pause(@Msg() message: Message) {
     return this.musicService.musicController(message, true)
   }
 
   @HandleCommand('pause')
-  async resume(@MessageParam() message: Message) {
+  async resume(@Msg() message: Message) {
     return this.musicService.musicController(message, true)
   }
 
   @HandleCommand('stop')
-  async stopPlaying(@MessageParam() message: Message) {
+  async stopPlaying(@Msg() message: Message) {
     return this.musicService.stopPlaying(message)
   }
   @HandleCommand('loop')
-  async loopSong(@MessageParam() message: Message, @Args() args: string[]) {
+  async loopSong(@Msg() message: Message, @Args() args: string[]) {
     return this.musicService.loopSettings(message, args)
   }
 
   @HandleCommand('shuffle')
-  async shuffle(@MessageParam() message: Message) {
+  async shuffle(@Msg() message: Message) {
     return this.musicService.shuffleQueue(message)
   }
 
   @HandleCommand('remove', 'rm')
-  async removeSong(@MessageParam() message: Message, @Args() args: string[]) {
+  async removeSong(@Msg() message: Message, @Args() args: string[]) {
     return this.musicService.removeSongs(message, args)
   }
 
   @HandleCommand('clear')
-  async clearQueue(@MessageParam() message: Message, @Args() args: string[]) {
+  async clearQueue(@Msg() message: Message, @Args() args: string[]) {
     return this.musicService.setVolume(message, args)
   }
 
   @HandleCommand('search', 's')
-  async searchSong(@MessageParam() message: Message, @Args() args: string[]) {
+  async searchSong(@Msg() message: Message, @Args() args: string[]) {
     return this.musicService.searchSong(message, args)
   }
 
   @HandleCommand('autoplay', 'ap')
-  async autoplay(@MessageParam() message: Message) {
+  async autoplay(@Msg() message: Message) {
     return this.musicService.autoPlay(message)
   }
 
   @HandleCommand('volume', 'v')
-  async volume(@MessageParam() message: Message, @Args() args: string[]) {
+  async volume(@Msg() message: Message, @Args() args: string[]) {
     return this.musicService.setVolume(message, args)
   }
 
   @HandleCommand('say', 'repeat')
   // @DeleteOriginalMessage()
-  async repeat(@MessageParam() message: Message, @Args() args: string[]) {
+  async repeat(@Msg() message: Message, @Args() args: string[]) {
     return this.featureService.say(message, args)
   }
 
   @HandleCommand('ping')
-  async ping(@MessageParam() message: Message) {
+  async ping(@Msg() message: Message) {
     return this.featureService.getPing(message)
   }
 
   @HandleCommand('holostat')
-  async getHolostat(@MessageParam() message: Message, @Args() args: string[]) {
+  async getHolostat(@Msg() message: Message, @Args() args: string[]) {
     return this.featureService.getHoloStat(message, args)
   }
 
   @HandleCommand('tenor')
   @DeleteOriginalMessage()
-  async sendGif(@MessageParam() message: Message, @Args() args: string[]) {
+  async sendGif(@Msg() message: Message, @Args() args: string[]) {
     return this.featureService.tenorGif(message, args)
   }
 
   @HandleCommand('admin', 'management')
   @DeleteOriginalMessage()
   @MemberPermissions('KICK_MEMBERS', 'BAN_MEMBERS')
-  async managementaction(@MessageParam() message: Message, @Args() args: string[]) {
+  async managementaction(@Msg() message: Message, @Args() args: string[]) {
     return this.administrationService.executeCommand(message, args)
   }
 
   @HandleCommand('help')
-  async sendManual(@MessageParam() message: Message) {
+  async sendManual(@Msg() message: Message) {
     return this.featureService.help(message)
   }
 
   @HandleCommand()
-  async defaultResponse(@MessageChannel() channel: TextChannel, @Command() command: string) {
+  async defaultResponse(@MsgChannel() channel: TextChannel, @Command() command: string) {
     channel.send(`I cannot recognize ${command}. How about taking a look at \`${this.configService.prefix}help\` ?`)
   }
 

@@ -1,4 +1,4 @@
-import { Args, HandleCommand, MessageParam, OnEvent, UseInterceptor } from '@/ioc-container'
+import { Args, HandleCommand, Msg, OnEvent, UseInterceptor } from '@/ioc-container'
 import { DMInterceptor } from '@/event-handlers/event-interceptors/dm.interceptor'
 import { OwnerChannelService } from '@/services/owner-service/channel.service'
 import { Message } from 'discord.js'
@@ -9,7 +9,7 @@ export class DMEventHandler {
   constructor(private ownerChannelService: OwnerChannelService) {}
 
   @HandleCommand('statistics', 'stat')
-  async statistics(@MessageParam() message: Message, @Args() args: string[]): Promise<void> {
+  async statistics(@Msg() message: Message, @Args() args: string[]): Promise<void> {
     return this.ownerChannelService.statistics(message, args)
   }
 }

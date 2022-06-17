@@ -1,4 +1,4 @@
-import { get, isArray } from 'lodash'
+import { clone, get, isArray } from 'lodash'
 
 import { DiscordClient } from '../entrypoint'
 import { Prototype, Type } from '../interfaces'
@@ -14,17 +14,17 @@ export class ExecutionContext {
 
   private _mutatedArguments: any[]
 
-  private _contextTarget: Prototype | Type<any>
+  private _ctxTarget: Prototype | Type<any>
 
-  private _contextPropertyKey: string
-  private _contextDescriptor: TypedPropertyDescriptor<Function>
+  private _ctxPropertyKey: string
+  private _ctxDescriptor: TypedPropertyDescriptor<Function>
 
   private _terminated = false
 
   private _executionStartTimestamp: number
 
   constructor(
-    private readonly _arguments: any,
+    private readonly _arguments: any[],
     _metadata?: IExecutionContextMetadata,
     _contextHandler?: Function | ((...args: any[]) => any)
   ) {
@@ -52,16 +52,16 @@ export class ExecutionContext {
     return ExecutionContext.config
   }
 
-  getArguments<T extends any[] = any[]>(): T {
+  getArguments<T extends any[]>(): T {
     return this._mutatedArguments as T
   }
 
-  getOriginalArguments<T = any[]>(): T {
-    return this._arguments
+  getOriginalArguments<T extends any[]>(): T {
+    return this._arguments as T
   }
 
   setArguments(args: any[]): void {
-    this._mutatedArguments = [...args]
+    this._mutatedArguments = clone(args)
   }
 
   setHandler(handler: Function | ((...args: any[]) => any)): void {
@@ -73,25 +73,25 @@ export class ExecutionContext {
   }
 
   setContextMetadata({ target, propertyKey, descriptor }: IExecutionContextMetadata): void {
-    this._contextTarget = target
-    this._contextPropertyKey = propertyKey
-    this._contextDescriptor = descriptor
+    this._ctxTarget = target
+    this._ctxPropertyKey = propertyKey
+    this._ctxDescriptor = descriptor
   }
 
   get target() {
-    return this._contextTarget
+    return this._ctxTarget
   }
 
   get contextName(): string {
-    return get(this._contextTarget, 'name') || get(this._contextTarget, 'constructor.name')
+    return get(this._ctxTarget, 'name') || get(this._ctxTarget, 'constructor.name')
   }
 
   get propertyKey() {
-    return this._contextPropertyKey
+    return this._ctxPropertyKey
   }
 
   get descriptor() {
-    return this._contextDescriptor
+    return this._ctxDescriptor
   }
 
   getContextMetadata() {
@@ -104,7 +104,7 @@ export class ExecutionContext {
 
   call<T>(): T {
     const handler = this.getHandler()
-    const args = this.getArguments()
+    const args = this.getArguments<any[]>()
 
     if (this._terminated || !handler) return
     return handler(...args)

@@ -14,7 +14,7 @@ export function getParamDecoratorResolver(key: string): ParamDecoratorResolver<a
   return _container[key]
 }
 
-export function getParamDecoratorResolverValue(key: string, context: ExecutionContext) {
+export async function getParamDecoratorResolverValue(key: string, context: ExecutionContext) {
   const resolver = getParamDecoratorResolver(key)
-  return isFunction(resolver) ? resolver(context) : null
+  return isFunction(resolver) ? await resolver(context) : null
 }

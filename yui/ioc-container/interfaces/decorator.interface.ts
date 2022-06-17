@@ -8,4 +8,4 @@ export type MethodDecoratorPresetter = (
   descriptor: TypedPropertyDescriptor<Function>
 ) => void
 
-export type ParamDecoratorResolver<T = any> = (context: ExecutionContext) => T
+export type ParamDecoratorResolver<T = any> = (context: ExecutionContext) => T | Promise<T>

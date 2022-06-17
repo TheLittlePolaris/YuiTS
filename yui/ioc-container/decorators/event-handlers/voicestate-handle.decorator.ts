@@ -1,26 +1,12 @@
 import { ClientEvents } from 'discord.js'
 
-import { COMMAND_HANDLER, DEFAULT_ACTION_KEY, METHOD_PARAM_METADATA } from '../../constants'
+import { COMMAND_HANDLER, DEFAULT_ACTION_KEY } from '../../constants'
 import { ICommandHandlerMetadata, Prototype } from '../../interfaces'
 import { createMethodDecorator, createParamDecorator, VoiceStateKey } from '../../helpers'
 import { ExecutionContext } from '../../event-execution-context'
-import { getParamDecoratorResolverValue } from '../../containers/params-decorator.container'
 
 export const HandleVoiceState = createMethodDecorator(
   (context: ExecutionContext) => {
-    const compiledArgs = context.getOriginalArguments<ClientEvents['voiceStateUpdate']>()
-
-    const { target, propertyKey } = context.getContextMetadata()
-
-    const paramResolverList: Record<string, number> =
-      Reflect.getMetadata(METHOD_PARAM_METADATA, target.constructor, propertyKey) || []
-
-    Object.entries(paramResolverList).forEach(([key, index]) => {
-      const value = getParamDecoratorResolverValue(key, context)
-      compiledArgs[index] = value
-    })
-
-    context.setArguments(compiledArgs)
     return context
   },
   (target: Prototype, propertyKey: string) => {

@@ -1,28 +1,25 @@
 /* eslint-disable prefer-rest-params */
-import { ClientEvents, Message, PermissionResolvable } from 'discord.js'
+import { ClientEvents, Guild, GuildMember, Message, PermissionResolvable, User } from 'discord.js'
 
-import { COMMAND_HANDLER, METHOD_PARAM_METADATA } from '../../constants'
-import { ICommandHandlerMetadata, Prototype } from '../../interfaces'
-import { createMethodDecorator, createParamDecorator } from '@/ioc-container/helpers'
-import { ExecutionContext } from '@/ioc-container/event-execution-context'
-import { getParamDecoratorResolverValue } from '@/ioc-container/containers/params-decorator.container'
-import { ConfigService } from '@/config-service/config.service'
+import { COMMAND_HANDLER } from '../../constants'
+import { ICommandHandlerMetadata } from '../../interfaces'
+import { createMethodDecorator, createParamDecorator, samePermissions } from '../../helpers'
+import { ExecutionContext } from '../../event-execution-context'
+import { Logger } from '../../logger'
+
+const getMsgContent = (ctx: ExecutionContext) => {
+  const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
+  return message.content.replace(ctx.config['prefix'], '').trim().split(/ +/g)
+}
+
+const getMessageProperty = <T extends Message[keyof Message]>(ctx: ExecutionContext, key: keyof Message): T => {
+  const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
+  return message[key] as T
+}
 
 export const HandleCommand = (command = 'default', ...aliases: string[]) =>
   createMethodDecorator(
     (context: ExecutionContext) => {
-      const compiledArgs = context.getArguments<ClientEvents['messageCreate']>()
-      const { target, propertyKey } = context.getContextMetadata()
-
-      const paramResolverList: Record<string, number> =
-        Reflect.getMetadata(METHOD_PARAM_METADATA, target.constructor, propertyKey) || []
-
-      Object.entries(paramResolverList).forEach(([key, index]) => {
-        const value = getParamDecoratorResolverValue(key, context)
-        compiledArgs[index] = value
-      })
-
-      context.setArguments(compiledArgs)
       return context
     },
     (target, propertyKey) => {
@@ -32,72 +29,49 @@ export const HandleCommand = (command = 'default', ...aliases: string[]) =>
     }
   )()
 
-export function DeleteOriginalMessage(strategy?: 'send' | 'reply', responseMessage?: string) {
-  return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    const originalHandler = descriptor.value as Function
-    descriptor.value = function (...args: any[]) {
-      const [message, config] = args.slice(-2) as [Message, ConfigService]
-      const { guild, author } = message
+export const DeleteOriginalMessage = (strategy?: 'send' | 'reply', responseMessage?: string) =>
+  createMethodDecorator(async (ctx) => {
+    const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
+    const cfg = ctx.config
+    const guild = getMessageProperty<Guild>(ctx, 'guild')
+    const author = getMessageProperty<User>(ctx, 'author')
 
-      const yuiMember = guild.members.resolve(config.yuiId)
-      const yuiCanDelete = yuiMember.permissions.has('MANAGE_MESSAGES')
+    const yuiMember = guild.members.resolve(cfg['yuiId'])
+    const yuiCanDelete = yuiMember.permissions.has('MANAGE_MESSAGES')
 
-      if (yuiCanDelete) {
-        message
-          .delete()
-          .then(() => {
-            if (!strategy) return
-            if (strategy === 'reply') message.reply(responseMessage)
-            else author.send(responseMessage)
-          })
-          .catch(null)
-      }
-
-      return originalHandler.apply(this, args)
+    if (yuiCanDelete) {
+      await message.delete().catch((err) => {
+        Logger.error(err.stack)
+      })
+      if (strategy === 'reply') message.reply(responseMessage)
+      else if (strategy === 'send') author.send(responseMessage)
     }
-  }
-}
 
-export function MemberPermissions(...permissions: PermissionResolvable[]) {
-  return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
-    const originalHandler = descriptor.value as Function
-    descriptor.value = function (...args: any[]) {
-      const [message, config] = args.slice(-2) as [Message, ConfigService]
-      const { author, member, guild } = message
+    return ctx
+  })()
 
-      const yuiMember = guild.members.resolve(config.yuiId)
-      const [hasPermissions, yuiHasPermission] = [
-        member.permissions.has(permissions),
-        yuiMember.permissions.has(permissions)
-      ]
+export const MemberPermissions = (...permissions: PermissionResolvable[]) =>
+  createMethodDecorator((ctx) => {
+    const [author, member, guild] = [
+      getMessageProperty<User>(ctx, 'author'),
+      getMessageProperty<GuildMember>(ctx, 'guild'),
+      getMessageProperty<Guild>(ctx, 'guild')
+    ]
 
-      if (!hasPermissions) {
-        author.send('You dont have permission to use this function')
-        return null
-      }
-      if (!yuiHasPermission) {
-        author.send('I dont have permission to perform this action')
-        return null
-      }
+    const yuiMember = guild.members.resolve(ctx.config['yuiId'])
+    const enoughPermissions = samePermissions(permissions, yuiMember, member)
 
-      return originalHandler.apply(this, args)
+    if (!enoughPermissions) {
+      ctx.terminate()
+      author.send('Not enough permission to perform this action').catch(null)
     }
-  }
-}
 
-export const MessageParam = createParamDecorator((context) => context.getOriginalArguments()[0])
+    return ctx
+  })()
 
-const getMsgContent = (context: ExecutionContext) => {
-  const [message] = context.getOriginalArguments<ClientEvents['messageCreate']>()
-  return message.content.replace(context.config['prefix'], '').trim().split(/ +/g)
-}
-export const Args = createParamDecorator((context) => getMsgContent(context)[0])
-export const Command = createParamDecorator((context) => getMsgContent(context).slice(1))
-
-const getMessageProperty = (context: ExecutionContext, key: keyof Message) => {
-  const [message] = context.getOriginalArguments<ClientEvents['messageCreate']>()
-  return message[key]
-}
-export const Author = createParamDecorator((context) => getMessageProperty(context, 'author')) //
-export const MessageGuild = createParamDecorator((context) => getMessageProperty(context, 'guild'))
-export const MessageChannel = createParamDecorator((context) => getMessageProperty(context, 'channel'))
+export const Msg = createParamDecorator((ctx) => ctx.getOriginalArguments()[0])
+export const Args = createParamDecorator((ctx) => getMsgContent(ctx)[0])
+export const Command = createParamDecorator((ctx) => getMsgContent(ctx).slice(1))
+export const MsgAuthor = createParamDecorator((ctx) => getMessageProperty(ctx, 'author')) //
+export const MsgGuild = createParamDecorator((ctx) => getMessageProperty(ctx, 'guild'))
+export const MsgChannel = createParamDecorator((ctx) => getMessageProperty(ctx, 'channel'))
