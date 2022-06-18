@@ -1,22 +1,9 @@
-import { Constants } from '@/constants'
-import { GuildMember, Message, MessageEmbed, TextChannel, VoiceChannel } from 'discord.js'
-import { PassThrough, Readable } from 'stream'
-import ytdl from 'ytdl-core'
-import { discordRichEmbedConstructor, RNG } from '../utilities'
-import { MusicStream, MusicQueue } from './music-entities'
-import { ISong, IYoutubeVideo } from './music-interfaces'
-import { createProgressBar, printQueueList, STREAM_STATUS, timeConverter } from './music-util'
-import {
-  PolarisSoundCloudService,
-  PolarisSoundCloudPlayer,
-  isSoundCloudPlaylistUrl,
-  isSoundCloudSongUrl,
-  isSoundCloudUrl
-} from './soundcloud-service'
-import { YoutubeInfoService, isYoutubePlaylistUrl, isYoutubeUrl, youtubeTimeConverter } from './youtube-service'
-import { YuiLogger } from '@/services/logger/logger.service'
-import { GlobalMusicStream } from '@/custom/classes/global-music-streams'
 import { ConfigService } from '@/config-service/config.service'
+import { Constants } from '@/constants'
+import { GlobalMusicStream } from '@/custom/classes/global-music-streams'
+import { AccessController, MusicParam } from '@/custom/decorators/music.decorator'
+import { DiscordClient, Injectable } from '@/ioc-container'
+import { YuiLogger } from '@/services/logger/logger.service'
 import {
   AudioPlayerState,
   AudioPlayerStatus,
@@ -26,8 +13,21 @@ import {
   StreamType,
   VoiceConnection
 } from '@discordjs/voice'
-import { DiscordClient, Injectable } from '@/ioc-container'
-import { AccessController, MusicParam } from '@/custom/decorators/music.decorator'
+import { GuildMember, Message, MessageEmbed, TextChannel, VoiceChannel } from 'discord.js'
+import { PassThrough, Readable } from 'stream'
+import ytdl from 'ytdl-core'
+import { discordRichEmbedConstructor, RNG } from '../utilities'
+import { MusicQueue, MusicStream } from './music-entities'
+import { ISong, IYoutubeVideo } from './music-interfaces'
+import { createProgressBar, printQueueList, STREAM_STATUS, timeConverter } from './music-util'
+import {
+  isSoundCloudPlaylistUrl,
+  isSoundCloudSongUrl,
+  isSoundCloudUrl,
+  PolarisSoundCloudPlayer,
+  PolarisSoundCloudService
+} from './soundcloud-service'
+import { isYoutubePlaylistUrl, isYoutubeUrl, YoutubeInfoService, youtubeTimeConverter } from './youtube-service'
 
 @Injectable()
 export class MusicService {
@@ -84,7 +84,7 @@ export class MusicService {
       channelId: voiceChannel.id,
       guildId,
       selfDeaf: true,
-      adapterCreator: <DiscordGatewayAdapterCreator>(<any>voiceAdapterCreator),
+      adapterCreator: <DiscordGatewayAdapterCreator>(<any>voiceAdapterCreator)
     })
     return connection
   }
@@ -682,7 +682,6 @@ export class MusicService {
 
   @AccessController({ join: true, silent: true })
   public async searchSong(message: Message, args: string[]) {
-
     const searchQuery = args.join(' ')
     const result = await this.youtubeInfoService.searchByQuery(searchQuery).catch((err) => this.handleError(err))
 

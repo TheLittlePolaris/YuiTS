@@ -1,7 +1,7 @@
 import { Message, TextChannel } from 'discord.js'
-import { AdministrationService } from '../services/app-services/administration/administration.service'
-import { FeatureService } from '../services/app-services/feature/feature.service'
-import { MusicService } from '../services/app-services/music/music.service'
+import { AdministrationService } from '../../services/app-services/administration/administration.service'
+import { FeatureService } from '../../services/app-services/feature/feature.service'
+import { MusicService } from '../../services/app-services/music/music.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import {
   MsgArgs,
@@ -15,10 +15,10 @@ import {
   UseInterceptor
 } from '@/ioc-container/decorators'
 import { ConfigService } from '@/config-service/config.service'
-import { MessageCreateEventInterceptor } from '@/event-handlers/event-interceptors'
+import { MessageCreateInterceptor } from '@/event-handlers/event-interceptors'
 
 @OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
-@UseInterceptor(MessageCreateEventInterceptor)
+@UseInterceptor(MessageCreateInterceptor)
 export class MessageCreateEventHandler {
   constructor(
     private musicService: MusicService,

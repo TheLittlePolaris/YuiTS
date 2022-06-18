@@ -1,5 +1,5 @@
 import { MsgArgs, HandleCommand, Msg, OnEvent, UseInterceptor } from '@/ioc-container'
-import { DMInterceptor } from '@/event-handlers/event-interceptors/dm.interceptor'
+import { DMInterceptor } from '@/event-handlers/messageCreate/dm.interceptor'
 import { OwnerChannelService } from '@/services/owner-service/channel.service'
 import { Message } from 'discord.js'
 
@@ -10,6 +10,8 @@ export class DMEventHandler {
 
   @HandleCommand('statistics', 'stat')
   async statistics(@Msg() message: Message, @MsgArgs() args: string[]): Promise<void> {
+    console.log('TLP::LOG ', message, '<==== message, <yui/event-handlers/messageCreate/dm.handler.ts:13>')
+    
     return this.ownerChannelService.statistics(message, args)
   }
 }

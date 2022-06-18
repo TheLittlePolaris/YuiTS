@@ -1,6 +1,6 @@
 import { YoutubeRequestService } from './youtube-request.service'
 import { IYoutubePlaylistResult, IYoutubeVideo, IYoutubeSearchResult } from '../music-interfaces/youtube-info.interface'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { Injectable } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()

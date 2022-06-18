@@ -1,4 +1,4 @@
-import { Message, GuildMember, EmbedFieldData, MessageCollectorOptions, MessageOptions } from 'discord.js'
+import { Message, GuildMember, EmbedFieldData, MessageOptions } from 'discord.js'
 import { discordRichEmbedConstructor } from '@/services/app-services/utilities/discord-embed-constructor'
 import { subscriberCountFormatter, dateTimeJSTFormatter } from '../feature-services/feature-utilities'
 import { HOLO_KNOWN_REGION, HOLO_REGION_MAP, holoStatList, HoloStatRequestService } from './holostat-service'

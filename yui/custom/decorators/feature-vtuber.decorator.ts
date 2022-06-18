@@ -20,7 +20,6 @@ export const VTuberParam = (key: VTUBER_PARAM_KEY) => {
     let definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target, propertyKey) || []
     definedParams = { [VTUBER_PARAMS[key]]: paramIndex, ...definedParams }
     Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
-    console.log('RUN: paramDecorator', target.constructor.name, propertyKey, paramIndex)
   }
 }
 

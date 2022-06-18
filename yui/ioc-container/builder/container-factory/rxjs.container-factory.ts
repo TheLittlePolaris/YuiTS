@@ -1,5 +1,5 @@
 import { ClientEvents } from 'discord.js'
-import { catchError, EMPTY, finalize, fromEvent, mergeMap, noop, Observable, of, take } from 'rxjs'
+import { catchError, EMPTY, finalize, fromEvent, mergeMap, noop, Observable, of, take, tap } from 'rxjs'
 import { RxjsRecursiveCompiler } from '../compilers/rxjs.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../../constants'
 import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
@@ -48,8 +48,8 @@ export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> 
           mergeMap((args) => this.createObservablePipelineContext(event, args)),
           // execute the context
           mergeMap(({ observable, context }) => {
+            if (!observable) return EMPTY
             return observable.pipe(
-              take(1),
               finalize(() => {
                 Logger.log(
                   `${context.contextName}.${context.propertyKey} execution time: ${

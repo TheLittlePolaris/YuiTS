@@ -4,8 +4,8 @@ import {
   SoundcloudInfoRecord
 } from '../music-interfaces/soundcloud-info.interface'
 import { spawn } from 'child_process'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
+import { Injectable } from '@/ioc-container'
 
 enum FORMAT_URL {
   M3U8_64,

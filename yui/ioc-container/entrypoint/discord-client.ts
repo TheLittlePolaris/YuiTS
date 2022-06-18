@@ -1,4 +1,4 @@
-import { Client, IntentsString, Message } from 'discord.js'
+import { Client, ClientOptions, Message } from 'discord.js'
 
 import { InjectToken } from '../constants'
 import { Inject, Injectable } from '../decorators'
@@ -6,8 +6,8 @@ import { Logger } from '../logger'
 
 @Injectable()
 export class DiscordClient extends Client {
-  constructor(@Inject(InjectToken.CLIENT_INTENTS) intents: IntentsString[]) {
-    super({ intents })
+  constructor(@Inject(InjectToken.CLIENT_OPTIONS) options: ClientOptions) {
+    super(options)
   }
   public get id() {
     return this.user.id

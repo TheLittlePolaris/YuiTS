@@ -1,5 +1,5 @@
-import { ExecutionContext } from '../event-execution-context/execution-context'
+import { ExecutionContext } from '../event-execution-context'
 
-export type IInterceptor<T> = {
+export interface IInterceptor<T> {
   intercept(context: ExecutionContext, next: () => T): T
 }

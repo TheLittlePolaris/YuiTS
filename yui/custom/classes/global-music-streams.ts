@@ -1,4 +1,4 @@
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { Injectable } from '@/ioc-container'
 import { Collection } from 'discord.js'
 import { MusicStream } from '../../services/app-services/music/music-entities/music-stream'
 

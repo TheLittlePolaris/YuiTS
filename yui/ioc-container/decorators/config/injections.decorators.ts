@@ -2,7 +2,11 @@ import { isFunction, isUndefined } from 'lodash'
 import 'reflect-metadata'
 
 import {
-  DESIGN_TYPE, INJECTABLE_METADATA, InjectToken, PROPERTY_DEPS_METADATA, SELF_DECLARED_DEPS_METADATA
+  DESIGN_TYPE,
+  INJECTABLE_METADATA,
+  InjectToken,
+  PROPERTY_DEPS_METADATA,
+  SELF_DECLARED_DEPS_METADATA
 } from '../../constants'
 import { GenericClassDecorator, Type } from '../../interfaces'
 

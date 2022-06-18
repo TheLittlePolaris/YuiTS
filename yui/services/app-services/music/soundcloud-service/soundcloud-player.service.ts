@@ -3,7 +3,7 @@ import { URL } from 'url'
 import axios, { AxiosResponse } from 'axios'
 import { default as M3U8Stream, Progress, Options as M3U8Options } from 'm3u8stream'
 import { PolarisSoundCloudService } from './soundcloud-info.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { Injectable } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()

@@ -4,7 +4,7 @@ import {
   IYoutubeVideosResult,
   IYoutubePlaylistResult
 } from '../music-interfaces/youtube-info.interface'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { Injectable } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ConfigService } from '@/config-service/config.service'
 

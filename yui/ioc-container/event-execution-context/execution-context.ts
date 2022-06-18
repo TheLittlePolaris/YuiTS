@@ -12,6 +12,7 @@ export class ExecutionContext {
 
   private _handler: Function | ((...args: any[]) => any)
 
+  private _arguments: any[]
   private _mutatedArguments: any[]
 
   private _ctxTarget: Prototype | Type<any>
@@ -24,14 +25,20 @@ export class ExecutionContext {
   private _executionStartTimestamp: number
 
   constructor(
-    private readonly _arguments: any[],
-    _metadata?: IExecutionContextMetadata,
-    _contextHandler?: Function | ((...args: any[]) => any)
+    inputArguments: any[],
+    ctxMetadata?: IExecutionContextMetadata,
+    ctxHandler?: Function | ((...args: any[]) => any)
   ) {
-    this.setArguments(isArray(_arguments) ? _arguments : [_arguments])
+    if (!isArray(inputArguments)) {
+      this._arguments = clone([inputArguments])
+    } else {
+      this._arguments = clone(inputArguments)
+    }
 
-    if (_metadata) this.setContextMetadata(_metadata)
-    if (_contextHandler) this.setHandler(_contextHandler)
+    this.setArguments(this._arguments)
+
+    if (ctxMetadata) this.setContextMetadata(ctxMetadata)
+    if (ctxHandler) this.setHandler(ctxHandler)
 
     this._executionStartTimestamp = Date.now()
   }
@@ -102,18 +109,23 @@ export class ExecutionContext {
     }
   }
 
-  call<T>(): T {
+  async call<T>(): Promise<T> {
     const handler = this.getHandler()
     const args = this.getArguments<any[]>()
 
     if (this._terminated || !handler) return
-    return handler(...args)
+    try {
+      return await handler(...args)
+    } catch (error) {
+      Logger.error(error?.stack || error)
+      return null
+    }
   }
 
   terminate() {
     delete this._handler
     delete this._mutatedArguments
     this._terminated = true
-    Logger.log(`${this.target?.constructor?.name || this.target?.['name']} terminated`)
+    Logger.log(`${this.contextName}.${this._ctxPropertyKey} terminated`)
   }
 }

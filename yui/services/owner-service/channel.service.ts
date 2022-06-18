@@ -1,14 +1,14 @@
 import { Message, EmbedFieldData } from 'discord.js'
 import { discordRichEmbedConstructor } from '../app-services/utilities/discord-embed-constructor'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
+import { Injectable } from '@/ioc-container'
 
 @Injectable()
 export class OwnerChannelService {
   constructor(private yuiClient: DiscordClient) {}
 
   async statistics(message: Message, args: Array<string>): Promise<void> {
-    const channels = this.yuiClient.channels.cache
+    // const channels = this.yuiClient.channels.cache
     const guilds = this.yuiClient.guilds.cache
     const totalUsers = guilds
       .map((guild) => guild.members.cache.filter((member) => !member.user.bot).size)
@@ -30,6 +30,8 @@ export class OwnerChannelService {
       description: `**Guilds: ${guilds.size}\nUsers: ${totalUsers}**`,
       fields
     })
+    console.log('TLP::LOG ', message, '<==== message, <yui/services/owner-service/channel.service.ts:33>')
+
     message.channel.send({ embeds: [embed] })
   }
 }
