@@ -2,7 +2,7 @@ import { Interceptor } from '@/ioc-container/decorators/interceptor.decorator'
 import { IRxjsInterceptor } from '@/ioc-container/interfaces/interceptor.interface'
 import { catchError, finalize, Observable, throwError } from 'rxjs'
 import { YuiLogger } from '@/services/logger'
-import { ExecutionContext } from '@/ioc-container/event-execution-context/event-execution-context'
+import { ExecutionContext } from '@/ioc-container/event-execution-context/execution-context'
 
 // @Interceptor('messageCreate')
 // export class MessageCreateEventInterceptor implements IBaseInterceptor {

@@ -2,7 +2,7 @@ import bilibili from 'bili-api'
 import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
 import { Constants } from '@/constants'
 import { BaseChannelService } from './base-channel.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { Injectable } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()

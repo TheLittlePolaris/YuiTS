@@ -6,7 +6,7 @@ import { HOLO_KNOWN_REGION, HOLO_REGION_MAP, holoStatList, HoloStatRequestServic
 import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { Injectable } from '@/ioc-container'
 
 @Injectable()
 export class VtuberStatService {

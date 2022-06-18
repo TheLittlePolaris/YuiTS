@@ -1,8 +1,8 @@
 import { config } from 'dotenv'
 import { existsSync } from 'fs'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { RedisOptions } from 'ioredis'
+import { Injectable } from '@/ioc-container'
 
 interface EnvConfig {
   [key: string]: string
@@ -41,10 +41,6 @@ export class ConfigService {
 
   public get tenorAnonymousId(): string {
     return this.envConfig['TENOR_ANONYMOUS_ID']
-  }
-
-  public get yuiId(): string {
-    return this.envConfig['YUI_ID']
   }
 
   public get ownerId(): string {

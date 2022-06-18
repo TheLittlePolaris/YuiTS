@@ -23,10 +23,9 @@ export const CUSTOM_INTERCEPTOR = 'design:custom:interceptor'
 export const INTERCEPTOR_TARGET = 'self:interceptor_target'
 
 export enum InjectToken {
-  CLIENT_TOKEN = 'BotToken',
-  CLIENT_INTENTS = 'BotIntents',
+  CLIENT_TOKEN = '_BotToken',
+  CLIENT_INTENTS = '_BotIntents',
   REDIS_CONFIG = 'RedisConfig',
-  YUI_CLIENT = 'YuiClient'
 }
 
 // Event handlers

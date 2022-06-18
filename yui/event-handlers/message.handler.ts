@@ -4,11 +4,11 @@ import { FeatureService } from '../services/app-services/feature/feature.service
 import { MusicService } from '../services/app-services/music/music.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import {
-  Args,
+  MsgArgs,
   MsgChannel,
   HandleCommand,
   Msg,
-  Command,
+  MsgCmd,
   DeleteOriginalMessage,
   MemberPermissions,
   OnEvent,
@@ -28,17 +28,17 @@ export class MessageCreateEventHandler {
   ) {}
 
   @HandleCommand('play', 'p')
-  public async playMusic(@Args() args: string[], @Msg() message: Message) {
+  public async playMusic(@MsgArgs() args: string[], @Msg() message: Message) {
     return this.musicService.play(message, args, false)
   }
 
   @HandleCommand('playnext', 'pnext', 'pn')
-  public async playNext(@Msg() message: Message, @Args() args: string[]) {
+  public async playNext(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.musicService.play(message, args, true)
   }
 
   @HandleCommand('skip', 'next')
-  async skipSong(@Msg() message: Message, @Args() args: string[]) {
+  async skipSong(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.musicService.skipSongs(message, args)
   }
 
@@ -58,7 +58,7 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('queue', 'q')
-  async getQueue(@Msg() message: Message, @Args() args: string[]) {
+  async getQueue(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.musicService.printQueue(message, args)
   }
 
@@ -77,7 +77,7 @@ export class MessageCreateEventHandler {
     return this.musicService.stopPlaying(message)
   }
   @HandleCommand('loop')
-  async loopSong(@Msg() message: Message, @Args() args: string[]) {
+  async loopSong(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.musicService.loopSettings(message, args)
   }
 
@@ -87,17 +87,17 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('remove', 'rm')
-  async removeSong(@Msg() message: Message, @Args() args: string[]) {
+  async removeSong(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.musicService.removeSongs(message, args)
   }
 
   @HandleCommand('clear')
-  async clearQueue(@Msg() message: Message, @Args() args: string[]) {
+  async clearQueue(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.musicService.setVolume(message, args)
   }
 
   @HandleCommand('search', 's')
-  async searchSong(@Msg() message: Message, @Args() args: string[]) {
+  async searchSong(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.musicService.searchSong(message, args)
   }
 
@@ -107,13 +107,13 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('volume', 'v')
-  async volume(@Msg() message: Message, @Args() args: string[]) {
+  async volume(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.musicService.setVolume(message, args)
   }
 
   @HandleCommand('say', 'repeat')
   // @DeleteOriginalMessage()
-  async repeat(@Msg() message: Message, @Args() args: string[]) {
+  async repeat(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.featureService.say(message, args)
   }
 
@@ -123,20 +123,20 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('holostat')
-  async getHolostat(@Msg() message: Message, @Args() args: string[]) {
+  async getHolostat(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.featureService.getHoloStat(message, args)
   }
 
   @HandleCommand('tenor')
   @DeleteOriginalMessage()
-  async sendGif(@Msg() message: Message, @Args() args: string[]) {
+  async sendGif(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.featureService.tenorGif(message, args)
   }
 
   @HandleCommand('admin', 'management')
   @DeleteOriginalMessage()
   @MemberPermissions('KICK_MEMBERS', 'BAN_MEMBERS')
-  async managementaction(@Msg() message: Message, @Args() args: string[]) {
+  async managementaction(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.administrationService.executeCommand(message, args)
   }
 
@@ -146,7 +146,7 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand()
-  async defaultResponse(@MsgChannel() channel: TextChannel, @Command() command: string) {
+  async defaultResponse(@MsgChannel() channel: TextChannel, @MsgCmd() command: string) {
     channel.send(`I cannot recognize ${command}. How about taking a look at \`${this.configService.prefix}help\` ?`)
   }
 

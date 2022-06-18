@@ -2,8 +2,8 @@ import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interf
 import { HOLO_KNOWN_REGION } from './holostat.interface'
 import { BaseRequestService } from '../channel-service/base-request.service'
 import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
-import { YuiLogger } from '@/services/logger/logger.service'
+import { Injectable } from '@/ioc-container'
+import { YuiLogger } from '@/services/logger'
 
 @Injectable()
 export class HoloStatRequestService implements BaseRequestService<HOLO_KNOWN_REGION> {

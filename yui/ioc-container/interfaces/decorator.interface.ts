@@ -1,4 +1,4 @@
-import { ExecutionContext } from '../event-execution-context/event-execution-context'
+import { ExecutionContext } from '../event-execution-context/execution-context'
 import { Prototype } from './dependencies-injection.interfaces'
 
 export type MethodDecoratorResolver = (context: ExecutionContext) => ExecutionContext | Promise<ExecutionContext>

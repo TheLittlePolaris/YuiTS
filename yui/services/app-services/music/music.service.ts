@@ -84,7 +84,7 @@ export class MusicService {
       channelId: voiceChannel.id,
       guildId,
       selfDeaf: true,
-      adapterCreator: <DiscordGatewayAdapterCreator>(<any>voiceAdapterCreator)
+      adapterCreator: <DiscordGatewayAdapterCreator>(<any>voiceAdapterCreator),
     })
     return connection
   }
@@ -682,6 +682,7 @@ export class MusicService {
 
   @AccessController({ join: true, silent: true })
   public async searchSong(message: Message, args: string[]) {
+
     const searchQuery = args.join(' ')
     const result = await this.youtubeInfoService.searchByQuery(searchQuery).catch((err) => this.handleError(err))
 
