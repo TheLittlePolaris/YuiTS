@@ -9,8 +9,8 @@ import {
   HandleCommand,
   Msg,
   MsgCmd,
-  DeleteOriginalMessage,
-  MemberPermissions,
+  DeleteMessage,
+  Permissions,
   OnEvent,
   UseInterceptor
 } from '@/ioc-container/decorators'
@@ -128,14 +128,14 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand('tenor')
-  @DeleteOriginalMessage()
+  @DeleteMessage()
   async sendGif(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.featureService.tenorGif(message, args)
   }
 
   @HandleCommand('admin', 'management')
-  @DeleteOriginalMessage()
-  @MemberPermissions('KICK_MEMBERS', 'BAN_MEMBERS')
+  @DeleteMessage()
+  @Permissions('KICK_MEMBERS', 'BAN_MEMBERS')
   async managementaction(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.administrationService.executeCommand(message, args)
   }

@@ -1,13 +1,12 @@
 /* eslint-disable prefer-rest-params */
 import { samePermissions } from '../../helpers'
-import { ClientEvents, Guild, GuildMember, Message, PermissionResolvable, User } from 'discord.js'
+import { ClientEvents, GuildMember, Message, PermissionResolvable, User } from 'discord.js'
 
 import { COMMAND_HANDLER } from '../../constants'
 import { ExecutionContext } from '../../event-execution-context'
 import { ICommandHandlerMetadata } from '../../interfaces'
 import { Logger } from '../../logger'
 import { createMethodDecorator, createParamDecorator } from '../generators'
-import { get } from 'lodash'
 
 const getMsgContent = (ctx: ExecutionContext) => {
   const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
@@ -31,7 +30,7 @@ export const HandleCommand = (command = 'default', ...aliases: string[]) =>
     }
   )()
 
-export const DeleteOriginalMessage = (strategy?: 'send' | 'reply', responseMessage?: string) =>
+export const DeleteMessage = (strategy?: 'send' | 'reply', responseMessage?: string) =>
   createMethodDecorator(async (ctx) => {
     const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
     const author = getMessageProperty<User>(ctx, 'author')
@@ -50,7 +49,7 @@ export const DeleteOriginalMessage = (strategy?: 'send' | 'reply', responseMessa
     return ctx
   })()
 
-export const MemberPermissions = (...permissions: PermissionResolvable[]) =>
+export const Permissions = (...permissions: PermissionResolvable[]) =>
   createMethodDecorator((ctx) => {
     const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
     const [author, member] = [getMessageProperty<User>(ctx, 'author'), getMessageProperty<GuildMember>(ctx, 'guild')]
