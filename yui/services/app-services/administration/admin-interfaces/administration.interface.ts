@@ -1,4 +1,4 @@
-import { Message } from "discord.js"
+import { Message } from 'discord.js'
 
 export enum AdminAction {
   Kick = 'kick',
@@ -12,7 +12,6 @@ export enum AdminAction {
 export type ADMIN_ACTION_TYPE = 'kick' | 'ban' | 'mute' | 'unmute' | 'setnickname' | 'addrole' | 'removerole'
 
 export const ADMIN_COMMANDS = ['kick', 'ban', 'mute', 'unmute', 'setnickname', 'addrole', 'removerole']
-
 
 export interface IAdminAction {
   [AdminAction.Kick]: (message: Message, args: string[], ...otherArgs) => Promise<any>

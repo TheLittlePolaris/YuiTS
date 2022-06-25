@@ -1,3 +1,3 @@
-export * from "./config";
-export * from "./generators";
-export * from "./handlers";
+export * from './config'
+export * from './generators'
+export * from './handlers'

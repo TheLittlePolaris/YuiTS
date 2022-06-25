@@ -1,12 +1,7 @@
 import { isFunction, isUndefined } from 'lodash'
 import 'reflect-metadata'
 
-import {
-  DESIGN_TYPE,
-  INJECTABLE_METADATA,
-  PROPERTY_DEPS_METADATA,
-  SELF_DECLARED_DEPS_METADATA
-} from '../../constants'
+import { DESIGN_TYPE, INJECTABLE_METADATA, PROPERTY_DEPS_METADATA, SELF_DECLARED_DEPS_METADATA } from '../../constants'
 import { GenericClassDecorator, Type } from '../../interfaces'
 
 // NestJS Inject function, edited

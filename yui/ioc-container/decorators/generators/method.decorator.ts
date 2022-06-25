@@ -41,15 +41,12 @@ export function wrappedDecorator(method?: MethodDecoratorResolver, presetter?: M
   }
 }
 
-
-
 /**
- * 
+ *
  * @param method The method to perform at run time, on every execution of this method
  * @param presetter the method to perform at build time, run only once (mostly used for emitting custom metadata)
- * @returns 
+ * @returns
  */
 export function createMethodDecorator(method: MethodDecoratorResolver, presetter?: MethodDecoratorPresetter) {
   return () => wrappedDecorator(method, presetter)
 }
-

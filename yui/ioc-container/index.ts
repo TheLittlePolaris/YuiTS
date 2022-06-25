@@ -7,4 +7,3 @@ export * from './helpers'
 export * from './interfaces'
 export * from './logger'
 export * from './simple-config'
-

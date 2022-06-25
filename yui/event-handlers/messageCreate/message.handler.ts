@@ -136,7 +136,7 @@ export class MessageCreateEventHandler {
   @HandleCommand('admin', 'ad')
   @DeleteMessage()
   @Permissions('MODERATE_MEMBERS')
-  async managementaction(@Msg() message: Message, @MsgArgs() args: string[]) {   
+  async managementaction(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.administrationService.executeCommand(message, args)
   }
 

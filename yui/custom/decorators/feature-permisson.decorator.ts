@@ -1,4 +1,10 @@
-import { createMethodDecorator, createParamDecorator, ExecutionContext, METHOD_PARAM_METADATA, Prototype } from '@/ioc-container'
+import {
+  createMethodDecorator,
+  createParamDecorator,
+  ExecutionContext,
+  METHOD_PARAM_METADATA,
+  Prototype
+} from '@/ioc-container'
 import { Message, PermissionString } from 'discord.js'
 
 export enum FEATURE_PROPERTY_PARAMS {
@@ -70,11 +76,9 @@ export const GetParam = (key: FEATURE_PARAM_KEY) => {
   }
 }
 
-
 export const GuildMem = createParamDecorator((ctx) => {
   const [message] = ctx.getOriginalArguments<[Message]>()
   return message.member
-
 })
 
 export const Mentions = createParamDecorator((ctx) => {

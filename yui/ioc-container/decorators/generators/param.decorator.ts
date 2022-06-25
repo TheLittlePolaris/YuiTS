@@ -16,7 +16,7 @@ export function wrappedParamDecorator(method: ParamDecoratorResolver) {
       Reflect.getMetadata(METHOD_PARAMS_METADATA_INTERNAL, target.constructor, propertyKey) || []
 
     const paramKey = constructParamKey(target, propertyKey, paramIndex)
-    setParamDecoratorResolver(paramKey, method)    
+    setParamDecoratorResolver(paramKey, method)
 
     // TODO: remove after done migrating
     Reflect.defineMetadata(
@@ -44,4 +44,3 @@ export function wrappedParamDecorator(method: ParamDecoratorResolver) {
 export function createParamDecorator(method: ParamDecoratorResolver) {
   return () => wrappedParamDecorator(method)
 }
-

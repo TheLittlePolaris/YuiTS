@@ -25,7 +25,7 @@ export const INTERCEPTOR_TARGET = 'self:interceptor_target'
 export enum InjectToken {
   CLIENT_TOKEN = '_BotToken',
   CLIENT_OPTIONS = '_ClientOptions',
-  REDIS_CONFIG = 'RedisConfig',
+  REDIS_CONFIG = 'RedisConfig'
 }
 
 // Event handlers

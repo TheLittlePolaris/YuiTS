@@ -1,1 +1,1 @@
-export * from "./ready.handler";
+export * from './ready.handler'

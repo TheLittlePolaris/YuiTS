@@ -7,4 +7,3 @@ export function hasPermissions(guildMember: GuildMember, permissions: Permission
 export function samePermissions(permissions: PermissionResolvable[], ...entities: GuildMember[]) {
   return entities.every((entity) => hasPermissions(entity, permissions))
 }
-

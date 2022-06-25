@@ -3,7 +3,6 @@ import { GuildMember, Message, Role, MessagePayload, MessageOptions } from 'disc
 import { YuiLogger } from '@/services/logger/logger.service'
 import {
   AdminCommandValidator,
-  AdminParam,
   CmdExecutor,
   MentionedRoles,
   Nickname,

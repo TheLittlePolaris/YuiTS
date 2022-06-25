@@ -12,7 +12,7 @@ export function Entrypoint<T = any>(): GenericClassDecorator<Type<T>> {
 
 // https://www.typescriptlang.org/docs/handbook/decorators.html#method-decorators
 export const On = (event: DiscordEvent): MethodDecorator => {
-  return function (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (target: Prototype, propertyKey: string, _descriptor: PropertyDescriptor) {
     const propertyDesignType = Reflect.getMetadata(DESIGN_TYPE, target, propertyKey)
     if (!isFunction(propertyDesignType)) throw new Error(`Client's event property has to be a method!`)
     let eventList: { [key: string]: string } =

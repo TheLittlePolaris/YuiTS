@@ -9,7 +9,7 @@ export class DMEventHandler {
   constructor(private ownerChannelService: OwnerChannelService) {}
 
   @HandleCommand('statistics', 'stat')
-  async statistics(@Msg() message: Message, @MsgArgs() args: string[]): Promise<void> {    
+  async statistics(@Msg() message: Message, @MsgArgs() args: string[]): Promise<void> {
     return this.ownerChannelService.statistics(message, args)
   }
 }

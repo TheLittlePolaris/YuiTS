@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js'
+import { Message } from 'discord.js'
 import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/dependencies-injection.constant'
 import { Prototype } from '../../ioc-container/interfaces/dependencies-injection.interfaces'
 import { YuiLogger } from '@/services/logger/logger.service'
