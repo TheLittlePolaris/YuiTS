@@ -4,14 +4,13 @@ import 'reflect-metadata'
 import {
   DESIGN_TYPE,
   INJECTABLE_METADATA,
-  InjectToken,
   PROPERTY_DEPS_METADATA,
   SELF_DECLARED_DEPS_METADATA
 } from '../../constants'
 import { GenericClassDecorator, Type } from '../../interfaces'
 
 // NestJS Inject function, edited
-export const Inject = (token: InjectToken) => {
+export const Inject = (token: string | Symbol) => {
   return (target: object, key: string | symbol, index?: number) => {
     token = token || Reflect.getMetadata(DESIGN_TYPE, target, key)
     const type = token && isFunction(token) ? (token as any as Function).name : token

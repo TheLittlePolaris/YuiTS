@@ -133,10 +133,10 @@ export class MessageCreateEventHandler {
     return this.featureService.tenorGif(message, args)
   }
 
-  @HandleCommand('admin', 'management')
+  @HandleCommand('admin', 'ad')
   @DeleteMessage()
-  @Permissions('KICK_MEMBERS', 'BAN_MEMBERS')
-  async managementaction(@Msg() message: Message, @MsgArgs() args: string[]) {
+  @Permissions('MODERATE_MEMBERS')
+  async managementaction(@Msg() message: Message, @MsgArgs() args: string[]) {   
     return this.administrationService.executeCommand(message, args)
   }
 

@@ -1,5 +1,5 @@
-import { createMethodDecorator, ExecutionContext, METHOD_PARAM_METADATA, Prototype } from '@/ioc-container'
-import { PermissionString } from 'discord.js'
+import { createMethodDecorator, createParamDecorator, ExecutionContext, METHOD_PARAM_METADATA, Prototype } from '@/ioc-container'
+import { Message, PermissionString } from 'discord.js'
 
 export enum FEATURE_PROPERTY_PARAMS {
   GUILD_MEMBER = 'guildMember',
@@ -69,3 +69,15 @@ export const GetParam = (key: FEATURE_PARAM_KEY) => {
     Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
   }
 }
+
+
+export const GuildMem = createParamDecorator((ctx) => {
+  const [message] = ctx.getOriginalArguments<[Message]>()
+  return message.member
+
+})
+
+export const Mentions = createParamDecorator((ctx) => {
+  const [message] = ctx.getOriginalArguments<[Message]>()
+  return message.mentions.members
+})

@@ -52,20 +52,23 @@ export const DeleteMessage = (strategy?: 'send' | 'reply', responseMessage?: str
 export const Permissions = (...permissions: PermissionResolvable[]) =>
   createMethodDecorator((ctx) => {
     const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
-    const [author, member] = [getMessageProperty<User>(ctx, 'author'), getMessageProperty<GuildMember>(ctx, 'guild')]
+    const [author, member] = [getMessageProperty<User>(ctx, 'author'), getMessageProperty<GuildMember>(ctx, 'member')]
 
     const yuiMember = ctx.client.getGuildMember(message)
+
     const enoughPermissions = samePermissions(permissions, yuiMember, member)
 
     if (!enoughPermissions) {
       ctx.terminate()
-      author.send('Not enough permission to perform this action').catch(null)
+      author
+        .send(`<@${member?.user.id}>, you do not have permission to use this command in \`${message.guild.name}\`.`)
+        .catch(null)
     }
 
     return ctx
   })()
 
-  /**
+/**
  * @descrition Message
  */
 export const Msg = createParamDecorator((ctx) => ctx.getOriginalArguments()[0])

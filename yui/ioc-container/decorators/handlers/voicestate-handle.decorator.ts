@@ -4,7 +4,6 @@ import { COMMAND_HANDLER, DEFAULT_ACTION_KEY } from '../../constants'
 import { ICommandHandlerMetadata, Prototype } from '../../interfaces'
 import { ExecutionContext } from '../../event-execution-context'
 import { createMethodDecorator, createParamDecorator } from '../generators'
-import { VoiceStateKey } from './constants'
 
 export const HandleVoiceState = createMethodDecorator(
   (context: ExecutionContext) => {
@@ -17,19 +16,9 @@ export const HandleVoiceState = createMethodDecorator(
   }
 )
 
-export const State = (type: VoiceStateKey) =>
-  createParamDecorator((context: ExecutionContext) => {
-    const [oldState, newState] = context.getOriginalArguments() as ClientEvents['voiceStateUpdate']
-    switch (type) {
-      case VoiceStateKey.NewState:
-        return newState
-      case VoiceStateKey.NewStateChannel:
-        return newState?.channel
-      case VoiceStateKey.OldState:
-        return oldState
-      case VoiceStateKey.OldStateChannel:
-        return oldState?.channel
-      default:
-        return newState
-    }
-  })()
+const getArgsCtx = (ctx: ExecutionContext) => ctx.getOriginalArguments<ClientEvents['voiceStateUpdate']>()
+
+export const OldState = createParamDecorator((ctx) => getArgsCtx(ctx)[0])
+export const OldStateChannel = createParamDecorator((ctx) => getArgsCtx(ctx)[0]?.channel)
+export const NewState = createParamDecorator((ctx) => getArgsCtx(ctx)[1])
+export const NewStateChannel = createParamDecorator((ctx) => getArgsCtx(ctx)[1]?.channel)

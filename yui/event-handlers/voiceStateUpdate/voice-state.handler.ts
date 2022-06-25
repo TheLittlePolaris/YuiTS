@@ -1,4 +1,4 @@
-import { HandleVoiceState, OnEvent, State, UseInterceptor, VoiceStateKey } from '@/ioc-container'
+import { HandleVoiceState, NewStateChannel, OldStateChannel, OnEvent, UseInterceptor} from '@/ioc-container'
 import { VoiceChannel } from 'discord.js'
 import { MusicService } from '../../services/app-services/music/music.service'
 import { VoiceStateInterceptor } from './voicestate.interceptor'
@@ -10,17 +10,17 @@ export class VoiceStateEventHandler {
 
   @HandleVoiceState()
   public onVoiceStateUpdate(
-    @State(VoiceStateKey.OldStateChannel) oldChannel: VoiceChannel,
-    @State(VoiceStateKey.NewStateChannel) newChannel: VoiceChannel
+    @OldStateChannel() oldChannel: VoiceChannel,
+    @NewStateChannel() newChannel: VoiceChannel
   ) {    
     const stream = this.musicService.streams.get(oldChannel?.guild.id || newChannel?.guild.id)
-    const boundVC = stream?.boundVoiceChannel
-    if (!boundVC) return
+    const boundVoiceChannel = stream?.boundVoiceChannel
+    if (!boundVoiceChannel) return
 
-    if (newChannel?.id === boundVC.id && stream.leaveOnTimeout) {
+    if (newChannel?.id === boundVoiceChannel.id && stream.leaveOnTimeout) {
       clearTimeout(stream.leaveOnTimeout)
       stream.set('leaveOnTimeout', null)
-    } else if ((!newChannel || newChannel.id !== boundVC.id) && oldChannel?.members?.size === 1) {
+    } else if ((newChannel?.id !== boundVoiceChannel.id) && oldChannel?.members?.size === 1) {
       const timeout = setTimeout(() => this.musicService.timeoutLeaveChannel(stream), 30000)
       stream.set('leaveOnTimeout', timeout)
     }

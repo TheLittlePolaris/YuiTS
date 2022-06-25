@@ -9,9 +9,7 @@ export class DMEventHandler {
   constructor(private ownerChannelService: OwnerChannelService) {}
 
   @HandleCommand('statistics', 'stat')
-  async statistics(@Msg() message: Message, @MsgArgs() args: string[]): Promise<void> {
-    console.log('TLP::LOG ', message, '<==== message, <yui/event-handlers/messageCreate/dm.handler.ts:13>')
-    
+  async statistics(@Msg() message: Message, @MsgArgs() args: string[]): Promise<void> {    
     return this.ownerChannelService.statistics(message, args)
   }
 }

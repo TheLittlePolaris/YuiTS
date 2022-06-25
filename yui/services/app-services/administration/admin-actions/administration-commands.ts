@@ -1,41 +1,47 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { GuildMember, Message, Role, MessagePayload, MessageOptions } from 'discord.js'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { AdminCommandValidator, AdminParam } from '@/custom/decorators/admin-action.decorator'
+import {
+  AdminCommandValidator,
+  AdminParam,
+  CmdExecutor,
+  MentionedRoles,
+  Nickname,
+  Reason,
+  Targets
+} from '@/custom/decorators/admin-action.decorator'
 import { Injectable } from '@/ioc-container'
+import { IAdminAction } from '../admin-interfaces'
 
 @Injectable()
-export class AdminCommandComponent {
-  constructor() {}
-
-  async kick(message: Message, args: Array<string>, ...otherArgs)
+export class AdministrationCommands implements IAdminAction {
   @AdminCommandValidator()
   async kick(
     message: Message,
     args: Array<string>,
-    @AdminParam('EXECUTOR') executor: GuildMember,
-    @AdminParam('TARGETS') targets: GuildMember[],
-    @AdminParam('REASON') reason: string
+    @CmdExecutor() executor: GuildMember,
+    @Targets() targets: GuildMember[],
+    @Reason() reason: string
   ) {
     const kicks = await Promise.all([targets.map((target) => target.kick())]).catch((err) =>
       this.handleError(new Error(err))
     )
+
     const content = `\`${targets.map((t) => t.user.username).join(', ')}\` has been kicked by \`${
       executor.displayName
     }\`${reason ? ` for reason ${reason}` : ``}`
     kicks.length
-      ? this.sendMessage(message, 'channel', content).catch((err) => this.handleError(new Error(err)))
+      ? this.sendMessage(message, 'channel', content)
       : this.sendMessage(message, 'author', `Unable to kick the member(s).`)
   }
 
-  async ban(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async ban(
     message: Message,
     args: Array<string>,
-    @AdminParam('EXECUTOR') executor: GuildMember,
-    @AdminParam('TARGETS') targets: GuildMember[],
-    @AdminParam('REASON') reason: string
+    @CmdExecutor() executor: GuildMember,
+    @Targets() targets: GuildMember[],
+    @Reason() reason: string
   ) {
     const bans = await Promise.all([targets.map((target) => target.ban({ reason }))]).catch((err) =>
       this.handleError(new Error(err))
@@ -48,14 +54,13 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to ban the member(s).`)
   }
 
-  async addrole(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async addrole(
     message: Message,
     args: Array<string>,
-    @AdminParam('TARGETS') targets: GuildMember[],
-    @AdminParam('REASON') reason: string,
-    @AdminParam('ROLES') roles: Role[]
+    @Targets() targets: GuildMember[],
+    @Reason() reason: string,
+    @MentionedRoles() roles: Role[]
   ) {
     const addedRoles = await Promise.all(
       targets.map((target) => target.roles.add(roles, reason).catch((err) => this.handleError(new Error(err))))
@@ -69,14 +74,13 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
   }
 
-  async removerole(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async removerole(
     message: Message,
     args: Array<string>,
-    @AdminParam('TARGETS') targets: GuildMember[],
-    @AdminParam('REASON') reason: string,
-    @AdminParam('ROLES') roles: Role[]
+    @Targets() targets: GuildMember[],
+    @Reason() reason: string,
+    @MentionedRoles() roles: Role[]
   ) {
     const removedRoles = await Promise.all(
       targets.map((target) => target.roles.remove(roles, reason).catch((err) => this.handleError(new Error(err))))
@@ -92,14 +96,13 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
   }
 
-  async mute(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async mute(
     message: Message,
     args: Array<string>,
-    @AdminParam('EXECUTOR') executor: GuildMember,
-    @AdminParam('TARGETS') targets: GuildMember[],
-    @AdminParam('REASON') reason: string
+    @CmdExecutor() executor: GuildMember,
+    @Targets() targets: GuildMember[],
+    @Reason() reason: string
   ) {
     const muted = await Promise.all([
       targets.map((target) => target.voice.setMute(true, reason).catch((err) => this.handleError(new Error(err))))
@@ -114,14 +117,13 @@ export class AdminCommandComponent {
       : this.sendMessage(message, 'author', `Unable to mute the member.`)
   }
 
-  async unmute(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async unmute(
     message: Message,
     args: Array<string>,
-    @AdminParam('EXECUTOR') executor: GuildMember,
-    @AdminParam('TARGETS') targets: GuildMember[],
-    @AdminParam('REASON') reason: string
+    @CmdExecutor() executor: GuildMember,
+    @Targets() targets: GuildMember[],
+    @Reason() reason: string
   ) {
     const unmuted = await Promise.all([
       targets.map((target) => target.voice.setMute(false, reason).catch((err) => this.handleError(new Error(err))))
@@ -138,14 +140,13 @@ export class AdminCommandComponent {
     return
   }
 
-  async setnickname(message: Message, args: Array<string>, ...otherArgs)
   @AdminCommandValidator()
   async setnickname(
     message: Message,
     args: Array<string>,
-    @AdminParam('EXECUTOR') executor: GuildMember,
-    @AdminParam('TARGETS') targets: GuildMember[],
-    @AdminParam('NICKNAME') nickname: string
+    @CmdExecutor() executor: GuildMember,
+    @Targets() targets: GuildMember[],
+    @Nickname() nickname: string
   ) {
     const setnickname = await Promise.all([
       targets.map((target) => target.setNickname(nickname).catch((err) => this.handleError(new Error(err))))
