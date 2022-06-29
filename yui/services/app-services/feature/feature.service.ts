@@ -1,35 +1,37 @@
 import Axios from 'axios'
 import { DiscordClient, Injectable } from '@/ioc-container'
-import { GuildMember, Message, MessagePayload, MessageOptions } from 'discord.js'
-import { discordRichEmbedConstructor, RNG } from '../utilities'
+import { GuildMember, Message, Collection } from 'discord.js'
+import { discordRichEmbedConstructor, getMentionString } from '../utilities'
 
-import { VtuberStatService } from './vtuberstat-service/vtuberstat.service'
-import { YuiLogger } from '@/services/logger/logger.service'
+import { VtuberStatService } from './vtuberstats/vtuberstat.service'
 import { ConfigService } from '@/config-service/config.service'
-import { HOLO_KNOWN_REGION } from './vtuberstat-service/holostat-service/holostat.interface'
-import { GetParam, Feature } from '@/custom/decorators/feature-permisson.decorator'
-import { Holostat, VTuberParam } from '@/custom/decorators/feature-vtuber.decorator'
+import { KnownHoloStatRegions } from './vtuberstats/holostat-service'
+import { Feature, Mentions, Action, ActionParam } from './decorators'
+import { sendChannelMessage } from '../utilities'
+import { HoloDetail, HoloRegion, Holostat } from './decorators'
+import { TENOR_QUERY_LIMIT } from './constants'
+import { sample } from 'lodash'
 
 @Injectable()
 export class FeatureService {
   constructor(
-    public yui: DiscordClient,
-    private vtuberStatService: VtuberStatService,
-    private configService: ConfigService
+    private readonly yui: DiscordClient,
+    private readonly vtuberStatService: VtuberStatService,
+    private readonly configService: ConfigService
   ) {}
 
   @Feature()
   async getPing(message: Message): Promise<`OK`> {
     const yuiPing = this.yui.ws.ping
-    const sentMessage = await this.sendMessage(message, '**`Pinging... `**')
+    const sentMessage = await sendChannelMessage(message, '**`Pinging... `**')
 
     if (!sentMessage) {
-      this.sendMessage(message, '**Something went wrong, please try again.**')
+      await sendChannelMessage(message, '**Something went wrong, please try again.**')
       return
     }
     const timeStart = message.createdTimestamp
     const timeEnd = sentMessage.createdTimestamp
-    const embed = await discordRichEmbedConstructor({
+    const embed = discordRichEmbedConstructor({
       title: 'Status',
       description: `:heartbeat: **Yui's ping: \`${yuiPing}ms\`**.\n:revolving_hearts: **Estimated message RTT: \`${
         timeEnd - timeStart
@@ -39,14 +41,13 @@ export class FeatureService {
     // const attachment = new MessageAttachment(image, 'ping.jpg')
     if (sentMessage) sentMessage.delete().catch(null)
 
-    this.sendMessage(message, { embeds: [embed] })
+    await sendChannelMessage(message, { embeds: [embed] })
 
     return 'OK'
   }
 
-  async help(message: Message, ..._args: any[])
   @Feature()
-  async help(message: Message, @GetParam('GUILD_MEMBER') yui: GuildMember) {
+  async help(message: Message) {
     const commands = `**__Music:__**
     \`play, p\`: Add to end
     \`playnext, pnext, pn\`: Add to next
@@ -73,17 +74,18 @@ export class FeatureService {
     \`say\`: Repeat
     \`holostat\` <?jp|id> <?detail|d>: Hololive member(s) channel status`
 
+    const yuiMember = this.yui.getGuildMember(message)
     const embed = discordRichEmbedConstructor({
       author: {
-        authorName: yui.displayName || yui.user.username,
-        avatarUrl: yui.user.avatarURL()
+        authorName: yuiMember.displayName || this.yui.user.username,
+        avatarUrl: this.yui.user.avatarURL()
       },
       description: commands,
       title: 'Command List',
       footer: 'Note: <>: required param | <?>: optional param'
     })
 
-    this.sendMessage(message, { embeds: [embed] })
+    sendChannelMessage(message, { embeds: [embed] })
   }
 
   @Feature()
@@ -91,71 +93,56 @@ export class FeatureService {
     const embed = discordRichEmbedConstructor({
       description: `**${args.join(' ')}**`
     })
-    this.sendMessage(message, { embeds: [embed] })
+    sendChannelMessage(message, { embeds: [embed] })
   }
 
-  async tenorGif(message: Message, args: string[], ..._args: any[])
   @Feature()
-  // @FeaturePermissionValidator()
   async tenorGif(
     message: Message,
     args: string[],
-    @GetParam('MENTIONS') users: GuildMember[],
-    @GetParam('ACTION') action: string,
-    @GetParam('REQUEST_PARAM') params: string
+    @Mentions() mentions?: Collection<string, GuildMember>,
+    @Action() action?: string,
+    @ActionParam() params?: string
   ): Promise<void> {
-    const num = await RNG(5)
+    const results = await this.queryTenorGif(action, params)
+    const mentionString = getMentionString(mentions)
 
-    const { data = null } = await Axios.get(
-      `https://g.tenor.com/v1/search?q=${encodeURIComponent(`anime ${action} ${params ? params : ``}`)}&key=${
-        this.configService.tenorKey
-      }&limit=5&media_filter=basic&anon_id=${this.configService.tenorAnonymousId}`
-    )
+    const description = !mentions?.size ? `${message.member} ${action}` : `${message.member} ${action} ${mentionString}`
 
-    const { results = [] } = data || {}
-
-    let mentionString
-    if (users?.length) {
-      switch (users.length) {
-        case 0:
-          break
-        case 1:
-          mentionString = users[0]
-          break
-        default:
-          {
-            const last = users.pop()
-            mentionString = `${users.length > 1 ? users.join(', ') : users[0]} and ${last}`
-          }
-          break
-      }
-    }
-
-    const description = !users?.length ? `${message.member} ${action}` : `${message.member} ${action} ${mentionString}`
-
-    this.sendMessage(message, {
+    sendChannelMessage(message, {
       embeds: [
         discordRichEmbedConstructor({
           description,
-          imageUrl: results[num]?.media[0]?.gif?.url
+          imageUrl: sample(results)
         })
       ]
     })
   }
-  async getHoloStat(message: Message, args: string[], ..._args: any[])
+
+  async queryTenorGif(action: string, params?: string) {
+    return Axios.get(
+      `https://g.tenor.com/v1/search?q=${encodeURIComponent(`anime ${action} ${params ? params : ``}`)}&key=${
+        this.configService.tenorKey
+      }&limit=${TENOR_QUERY_LIMIT}&media_filter=basic&anon_id=${this.configService.tenorAnonymousId}`
+    ).then(({ data }) => data.results?.map((r) => r?.media[0]?.gif?.url))
+  }
+
   @Feature()
   @Holostat()
   async getHoloStat(
     message: Message,
     args: Array<string>,
-    @GetParam('GUILD_MEMBER') yui: GuildMember,
-    @VTuberParam('REGION') region: HOLO_KNOWN_REGION,
-    @VTuberParam('DETAIL') detail: boolean
+    @HoloRegion() region?: KnownHoloStatRegions,
+    @HoloDetail() detail?: boolean
   ): Promise<unknown> {
+    console.log(detail, '<==== detail, <yui/services/app-services/feature/feature.service.ts:144>')
+
+    console.log(region, '<==== region, <yui/services/app-services/feature/feature.service.ts:146>')
+
     if (!detail)
       return this.vtuberStatService.vtuberStatStatistics({
         message,
-        yui,
+        yui: this.yui.getGuildMember(message),
         affiliation: 'Hololive',
         region
       })
@@ -165,9 +152,5 @@ export class FeatureService {
       affiliation: 'Hololive',
       regionCode: region
     })
-  }
-
-  private async sendMessage(message: Message, content: string | MessagePayload | MessageOptions): Promise<Message> {
-    return (await message.channel.send(content as any).catch((err) => YuiLogger.error(err))) as Message
   }
 }

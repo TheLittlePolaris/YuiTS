@@ -1,4 +1,4 @@
-import { IYoutubeChannel } from '../../feature-interfaces/youtube-channel.interface'
+import { IYoutubeChannel } from '../../interfaces/youtube-channel.interface'
 
 export abstract class BaseRequestService<T> {
   constructor() {}

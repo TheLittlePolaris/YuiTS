@@ -1,5 +1,5 @@
 import { MessageEmbed, EmbedFieldData, HexColorString } from 'discord.js'
-import { Constants } from '@/constants'
+import { AppConfig } from '@/constants'
 
 interface IEmbedConstructor {
   title?: string
@@ -16,7 +16,7 @@ interface IEmbedConstructor {
 
 export function discordRichEmbedConstructor(records: IEmbedConstructor) {
   const embed = new MessageEmbed()
-    .setColor((records.color as HexColorString) || Constants.YUI_COLOR_CODE)
+    .setColor((records.color as HexColorString) || AppConfig.YUI_COLOR_CODE)
     .setDescription(records.description)
 
   if (records.title) embed.setTitle(records.title)

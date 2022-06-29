@@ -8,7 +8,7 @@ import {
   Nickname,
   Reason,
   Targets
-} from '@/custom/decorators/admin-action.decorator'
+} from '@/services/app-services/feature/decorators/admin-action.decorator'
 import { Injectable } from '@/ioc-container'
 import { IAdminAction } from '../admin-interfaces'
 

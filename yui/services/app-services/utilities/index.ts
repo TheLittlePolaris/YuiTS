@@ -1,2 +1,3 @@
-export * from './discord-embed-constructor'
-export * from './util-function'
+export * from './discord-embed.util'
+export * from './functions.utils'
+export * from './messages.util'

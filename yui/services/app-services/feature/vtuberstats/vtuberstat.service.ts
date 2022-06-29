@@ -1,9 +1,9 @@
 import { Message, GuildMember, EmbedFieldData, MessageOptions } from 'discord.js'
-import { discordRichEmbedConstructor } from '@/services/app-services/utilities/discord-embed-constructor'
-import { subscriberCountFormatter, dateTimeJSTFormatter } from '../feature-services/feature-utilities'
-import { HOLO_KNOWN_REGION, HOLO_REGION_MAP, holoStatList, HoloStatRequestService } from './holostat-service'
+import { discordRichEmbedConstructor } from '@/services/app-services/utilities/discord-embed.util'
+import { subscriberCountFormatter, dateTimeJSTFormatter } from '../services/feature-utilities'
+import { KnownHoloStatRegions, HoloStatRegions, holoStatList, HoloStatRequestService } from './holostat-service'
 
-import { KNOWN_AFFILIATION } from '../feature-interfaces/vtuber-stat.interface'
+import { KNOWN_AFFILIATION } from '../interfaces/vtuber-stat.interface'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container'
@@ -22,7 +22,7 @@ export class VtuberStatService {
   }: {
     message: Message
     affiliation: KNOWN_AFFILIATION
-    regionCode?: HOLO_KNOWN_REGION
+    regionCode?: KnownHoloStatRegions
   }): Promise<unknown> {
     if (!regionCode) {
       return this.getRegion({ message, affiliation })
@@ -207,7 +207,7 @@ export class VtuberStatService {
     message: Message
     yui: GuildMember
     affiliation: KNOWN_AFFILIATION
-    region?: HOLO_KNOWN_REGION
+    region?: KnownHoloStatRegions
   }): Promise<void> {
     const waitingMessage = await this.sendMessage(
       message,
@@ -231,7 +231,7 @@ export class VtuberStatService {
 
     if (fieldsData) this.deleteMessage(waitingMessage)
 
-    const regionMap = HOLO_REGION_MAP
+    const regionMap = HoloStatRegions
 
     const limit = 18
     const hasPaging = fieldsData.length > limit

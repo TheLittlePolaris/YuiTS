@@ -1,7 +1,7 @@
 import { createMethodDecorator } from '@/ioc-container'
 import { ExecutionContext } from '@/ioc-container/event-execution-context/execution-context'
 
-export const ExampleDecorator = createMethodDecorator((context: ExecutionContext) => {
+export const ExampleMethodDecorator = createMethodDecorator((context: ExecutionContext) => {
   // console.log(
   //   'TLP::LOG ',
   //   context.client,

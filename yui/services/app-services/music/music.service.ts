@@ -1,5 +1,5 @@
 import { ConfigService } from '@/config-service/config.service'
-import { Constants } from '@/constants'
+import { AppConfig } from '@/constants'
 import { GlobalMusicStream } from '@/custom/classes/global-music-streams'
 import { AccessController, MusicParam } from '@/custom/decorators/music.decorator'
 import { DiscordClient, Injectable } from '@/ioc-container'
@@ -16,7 +16,7 @@ import {
 import { GuildMember, Message, MessageEmbed, TextChannel, VoiceChannel } from 'discord.js'
 import { PassThrough, Readable } from 'stream'
 import ytdl from 'ytdl-core'
-import { discordRichEmbedConstructor, RNG } from '../utilities'
+import { discordRichEmbedConstructor, randomNumberGenerator } from '../utilities'
 import { MusicQueue, MusicStream } from './music-entities'
 import { ISong, IYoutubeVideo } from './music-interfaces'
 import { createProgressBar, printQueueList, STREAM_STATUS, timeConverter } from './music-util'
@@ -294,7 +294,7 @@ export class MusicService {
           avatarUrl: message.author.avatarURL()
         },
         description: nowPlayingDescription,
-        color: Constants.YUI_COLOR_CODE,
+        color: AppConfig.YUI_COLOR_CODE,
         thumbnailUrl: queuedSong.videoThumbnail,
         appendTimeStamp: true,
         titleUrl: queuedSong.videoUrl,
@@ -521,7 +521,7 @@ export class MusicService {
     const videoInfo = await this.youtubeInfoService.getSongsByChannelId(stream.autoplayChannelId, stream.nextPage)
     const { nextPageToken, items } = videoInfo
     stream.set('nextPage', nextPageToken)
-    const rand = RNG(items.length)
+    const rand = randomNumberGenerator(items.length)
     const songMetadata = await this.youtubeInfoService.getInfoIds(items[rand].id.videoId)
 
     this.pushToQueue({

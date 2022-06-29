@@ -1,7 +1,6 @@
 import { Message, EmbedFieldData } from 'discord.js'
-import { discordRichEmbedConstructor } from '../app-services/utilities/discord-embed-constructor'
-import { DiscordClient } from '@/ioc-container/entrypoint/discord-client'
-import { Injectable } from '@/ioc-container'
+import { discordRichEmbedConstructor } from '../app-services/utilities/discord-embed.util'
+import { DiscordClient, Injectable } from '@/ioc-container'
 
 @Injectable()
 export class OwnerChannelService {
@@ -30,7 +29,6 @@ export class OwnerChannelService {
       description: `**Guilds: ${guilds.size}\nUsers: ${totalUsers}**`,
       fields
     })
-    console.log('TLP::LOG ', message, '<==== message, <yui/services/owner-service/channel.service.ts:33>')
 
     message.channel.send({ embeds: [embed] })
   }

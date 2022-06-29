@@ -16,6 +16,8 @@ import {
 } from '@/ioc-container/decorators'
 import { ConfigService } from '@/config-service/config.service'
 import { MessageCreateInterceptor } from '@/event-handlers/event-interceptors'
+import { discordRichEmbedConstructor, sendChannelMessage } from '@/services/app-services/utilities'
+import { sample } from 'lodash'
 
 @OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
 @UseInterceptor(MessageCreateInterceptor)
@@ -146,8 +148,14 @@ export class MessageCreateEventHandler {
   }
 
   @HandleCommand()
-  async defaultResponse(@MsgChannel() channel: TextChannel, @MsgCmd() command: string) {
-    channel.send(`I cannot recognize ${command}. How about taking a look at \`${this.configService.prefix}help\` ?`)
+  async defaultResponse(@Msg() message: Message, @MsgChannel() channel: TextChannel, @MsgCmd() command: string) {
+    const messageContent = `I cannot recognize the command \`${command}\`. How about taking a look at \`${this.configService.prefix}help\`?`
+    const images = await this.featureService.queryTenorGif('girl shy').catch(() => null)
+    sendChannelMessage(message, {
+      ...((images && {
+        embeds: [discordRichEmbedConstructor({ description: messageContent, imageUrl: sample(images) })]
+      }) || { content: messageContent })
+    })
   }
 
   handleError(error: Error | string): null {

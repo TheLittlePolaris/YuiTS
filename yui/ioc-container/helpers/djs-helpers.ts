@@ -1,6 +1,10 @@
 import { GuildMember, PermissionResolvable } from 'discord.js'
 
-export function hasPermissions(guildMember: GuildMember, permissions: PermissionResolvable[]): boolean {
+export function hasPermissions(
+  guildMember: GuildMember,
+  permissions: PermissionResolvable[],
+  checkAdmin?: boolean
+): boolean {
   return guildMember.permissions.has(permissions)
 }
 
