@@ -1,10 +1,11 @@
 import { YuiLogger } from '@/services/logger'
-import { Collection, Guild, GuildMember, Message, MessageOptions, MessagePayload } from 'discord.js'
+import { Collection, GuildMember, Message, MessageOptions, MessagePayload, ReplyMessageOptions } from 'discord.js'
 
 export const sendChannelMessage = async (message: Message, content: string | MessagePayload | MessageOptions) => {
   try {
     return await message.channel.send(content)
   } catch (error) {
+    error.content = content
     YuiLogger.error(error?.['stack'] || error, 'SendMessageToChannel')
   }
 }
@@ -13,7 +14,17 @@ export const sendDMMessage = async (message: Message, content: string | MessageP
   try {
     return await message.author.send(content)
   } catch (error) {
+    error.content = content
     YuiLogger.error(error?.['stack'] || error, 'SendMessageToUser')
+  }
+}
+
+export const replyMessage = async (message: Message, content: string | MessagePayload | ReplyMessageOptions) => {
+  try {
+    return await message.reply(content)
+  } catch (error) {
+    error.content = content
+    YuiLogger.error(error, 'ReplyMessage')
   }
 }
 

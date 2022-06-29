@@ -3,6 +3,7 @@ import { METHOD_PARAM_METADATA } from '@/ioc-container/constants/dependencies-in
 import { Prototype } from '../../ioc-container/interfaces/dependencies-injection.interfaces'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { MusicService } from '@/services/app-services/music/music.service'
+import { replyMessage } from '@/services/app-services/utilities'
 
 enum MUSIC_PARAM {
   CLIENT = 'client',
@@ -13,9 +14,8 @@ export type MUSIC_PARAM_NAME = Record<MUSIC_PARAM, string>
 export type MUSIC_PARAM_KEY = keyof typeof MUSIC_PARAM
 
 export function AccessController(
-  { join, silent }: { join?: boolean; silent?: boolean } = {
-    join: false,
-    silent: false
+  { join }: { join?: boolean } = {
+    join: false
   }
 ) {
   return (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => {
@@ -28,7 +28,7 @@ export function AccessController(
         voice: { channel: voiceChannel }
       } = member || {}
       if (!voiceChannel) {
-        return this.replyMessage(message, '**please join a __`Voice Channel`__!**').catch(null)
+        return replyMessage(message, '**please join a __`Voice Channel`__!**')
       }
 
       if (!this.streams) return
@@ -53,7 +53,7 @@ export function AccessController(
       if (boundVoiceChannel) {
         const boundTextChannel = stream.boundTextChannel
         if (channel.id !== boundTextChannel.id || voiceChannel.id !== boundVoiceChannel.id) {
-          return this.replyMessage(
+          return replyMessage(
             message,
             `**I'm playing at \`${boundTextChannel.name}\` -- \` ${boundVoiceChannel.name}\`**`
           )
@@ -61,7 +61,7 @@ export function AccessController(
           return originalMethod.apply(this, filteredArgs)
         }
       } else {
-        return this.replyMessage(message, `**\`I'm not in any voice channel.\`**`)
+        return replyMessage(message, `**I'm not in any voice channel.**`)
       }
     }
   }
@@ -73,8 +73,4 @@ export const MusicParam = (key: MUSIC_PARAM_KEY) => {
     definedParams = { [MUSIC_PARAM[key]]: paramIndex, ...definedParams }
     Reflect.defineMetadata(METHOD_PARAM_METADATA, definedParams, target, propertyKey)
   }
-}
-
-function handleError(error: string | Error) {
-  return YuiLogger.error(error)
 }
