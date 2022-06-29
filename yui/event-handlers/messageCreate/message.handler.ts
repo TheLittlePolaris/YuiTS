@@ -95,7 +95,7 @@ export class MessageCreateEventHandler {
 
   @HandleCommand('clear')
   async clearQueue(@Msg() message: Message, @MsgArgs() args: string[]) {
-    return this.musicService.setVolume(message, args)
+    return this.musicService.clearQueue(message, args)
   }
 
   @HandleCommand('search', 's')

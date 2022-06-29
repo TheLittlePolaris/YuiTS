@@ -471,7 +471,7 @@ export class MusicService {
 
     const newVolume = Number(args.shift())
 
-    if (!Number.isNaN(newVolume) && newVolume < 0 && newVolume > 100) {
+    if (!isNaN(newVolume) && newVolume < 0 && newVolume > 100) {
       this.sendMessage(message, '**Please choose a valid number! (0 <= volume <= 100)**')
     }
 
