@@ -74,7 +74,7 @@ export class FeatureService {
     \`say\`: Repeat
     \`holostat\` <?jp|id> <?detail|d>: Hololive member(s) channel status`
 
-    const yuiMember = this.yui.getGuildMember(message)
+    const yuiMember = this.yui.getGuildMemberByMessage(message)
     const embed = discordRichEmbedConstructor({
       author: {
         authorName: yuiMember.displayName || this.yui.user.username,
@@ -142,7 +142,7 @@ export class FeatureService {
     if (!detail)
       return this.vtuberStatService.vtuberStatStatistics({
         message,
-        yui: this.yui.getGuildMember(message),
+        yui: this.yui.getGuildMemberByMessage(message),
         affiliation: 'Hololive',
         region
       })

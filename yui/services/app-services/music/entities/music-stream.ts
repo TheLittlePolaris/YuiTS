@@ -1,7 +1,9 @@
-import type { Guild, VoiceChannel, TextChannel } from 'discord.js'
+import type { Guild, VoiceChannel, TextChannel, MessageOptions, MessagePayload, Message } from 'discord.js'
 import { MusicQueue } from './music-queue'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { AudioPlayer, AudioResource, PlayerSubscription, VoiceConnection } from '@discordjs/voice'
+import { AudioPlayer, AudioResource, createAudioResource, PlayerSubscription, VoiceConnection } from '@discordjs/voice'
+import { sendMessageToChannel } from '../../utilities'
+import { ISong } from '../interfaces'
 
 export class MusicStream {
   private _id: string
@@ -12,28 +14,37 @@ export class MusicStream {
   private _isPlaying = false
   private _isPaused = false
 
-  private _voiceConnection: VoiceConnection
   private _audioPlayer: AudioPlayer
   private _playerSubscription: PlayerSubscription
   private _audioResource: AudioResource
 
-  private _autoplayChannelId: string
+  private _autoplayVideoId: string
+  private _autoplayQueue: ISong[]
+
   private _nextPage: string
-  public _queue: MusicQueue
-  public _leaveOnTimeout: NodeJS.Timeout
+  private _queue: MusicQueue
+  private _leaveOnTimeout: NodeJS.Timeout
 
   /**
    *
    * @param guild Current guild, get from message.guild
-   * @param boundVoiceChannel Voice channel the the bot has joined: message.member.voiceChannel
-   * @param boundTextChannel Text channel message was sent: message.channel
+   * @param voiceChannel Voice channel the the bot has joined: message.member.voiceChannel
+   * @param textChannel Text channel message was sent: message.channel
+   * @param voiceConnection The voice connection associated with the voiceChannel
    */
-  constructor(guild: Guild, public boundVoiceChannel: VoiceChannel, public boundTextChannel: TextChannel) {
+  constructor(
+    guild: Guild,
+    public voiceChannel: VoiceChannel,
+    public textChannel: TextChannel,
+    public voiceConnection: VoiceConnection
+  ) {
     this._id = guild.id
     this._name = guild.name
 
     this._queue = new MusicQueue()
     this._audioPlayer = new AudioPlayer()
+
+    this._autoplayQueue = []
 
     YuiLogger.info(`[${this._name}] stream created!`, this.constructor.name)
   }
@@ -83,12 +94,8 @@ export class MusicStream {
     return this._audioResource
   }
 
-  public get voiceConnection(): VoiceConnection {
-    return this._voiceConnection
-  }
-
-  public get autoplayChannelId(): string {
-    return this._autoplayChannelId
+  public get autoplayVideoId(): string {
+    return this._autoplayVideoId
   }
 
   public get nextPage(): string {
@@ -97,6 +104,21 @@ export class MusicStream {
 
   public get queue(): MusicQueue {
     return this._queue
+  }
+
+  public get autoplayQueue(): ISong[] {
+    return this._autoplayQueue
+  }
+
+  /**
+   * @description Remove the first song from Autoplay Queue and return it
+   */
+  public get autoplayNext(): ISong {
+    return this._autoplayQueue.at(0)
+  }
+
+  public get hasAutoplay(): boolean {
+    return this.autoplayQueue.length > 0
   }
 
   /**
@@ -119,16 +141,42 @@ export class MusicStream {
     this._isAutoPlaying = false
     this._isQueueLooping = false
     this._isLooping = false
+    this._isPlaying = false
     this._isPaused = false
     this._nextPage = null
     this.queue.deleteQueue()
     this.playerSubscription?.unsubscribe()
-    // TODO:
-    // if (this.isPlaying) {
-    //   if (this.streamDispatcher && !this.streamDispatcher.destroyed) {
-    //     this.streamDispatcher.destroy()
-    //   }
-    //   this._isPlaying = false
-    // }
+  }
+
+  public playAudio(
+    audioSource: Parameters<typeof createAudioResource>[0],
+    options: Parameters<typeof createAudioResource>[1] & { metadata: { [key: string]: string } }
+  ) {
+    if (this.playerSubscription) this.playerSubscription.unsubscribe()
+
+    const resource = createAudioResource(audioSource, options)
+    this.audioPlayer.play(resource)
+    const subscription = this.voiceConnection.subscribe(this.audioPlayer)
+    this.set('playerSubscription', subscription)
+    this.set('audioResource', resource)
+
+    return this.audioPlayer
+  }
+
+  public sendMessage(content: string | MessagePayload | MessageOptions): Promise<Message | null> {
+    if (!this.textChannel) return null
+    return sendMessageToChannel(this.textChannel, content)
+  }
+
+  public enqueue(data: ISong[]): number {
+    return this._queue.push(...data)
+  }
+
+  public enqueueFromAutoplayQueue() {
+    this._queue.push(this.autoplayQueue.shift())
+  }
+
+  public importAutoplayQueue(data: ISong[]): number {
+    return this.autoplayQueue.push(...data)
   }
 }

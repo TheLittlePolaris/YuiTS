@@ -1,4 +1,4 @@
-import { MusicQueue } from '../music-entities/music-queue'
+import { MusicQueue } from '../entities/music-queue'
 
 export enum STREAM_STATUS {
   LIVE = 'LIVE',

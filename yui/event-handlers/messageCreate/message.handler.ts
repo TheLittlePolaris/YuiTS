@@ -69,9 +69,9 @@ export class MessageCreateEventHandler {
     return this.musicService.musicController(message, true)
   }
 
-  @HandleCommand('pause')
+  @HandleCommand('resume')
   async resume(@Msg() message: Message) {
-    return this.musicService.musicController(message, true)
+    return this.musicService.musicController(message, false)
   }
 
   @HandleCommand('stop')
@@ -129,7 +129,7 @@ export class MessageCreateEventHandler {
     return this.featureService.getHoloStat(message, args)
   }
 
-  @HandleCommand('tenor')
+  @HandleCommand('tenor', 'yui')
   @DeleteMessage()
   async sendGif(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.featureService.tenorGif(message, args)
@@ -145,6 +145,17 @@ export class MessageCreateEventHandler {
   @HandleCommand('help')
   async sendManual(@Msg() message: Message) {
     return this.featureService.help(message)
+  }
+
+  @HandleCommand('hey')
+  async handleHey(@Msg() message: Message) {
+    const messageContent = `This is just for testing, stop pinging this command pls.`
+    const images = await this.featureService.queryTenorGif('punches').catch(() => null)
+    sendChannelMessage(message, {
+      ...((images && {
+        embeds: [discordRichEmbedConstructor({ description: messageContent, imageUrl: sample(images) })]
+      }) || { content: messageContent })
+    })
   }
 
   @HandleCommand()

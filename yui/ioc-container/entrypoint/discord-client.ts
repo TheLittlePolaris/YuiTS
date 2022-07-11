@@ -1,4 +1,4 @@
-import { Client, ClientOptions, Message } from 'discord.js'
+import { Client, ClientOptions, Guild, Message } from 'discord.js'
 
 import { InjectToken } from '../constants'
 import { Inject, Injectable } from '../decorators'
@@ -20,7 +20,23 @@ export class DiscordClient extends Client {
     })
   }
 
-  public getGuildMember(message: Message) {
-    return message.guild.members.cache.get(this.id)
+  public getGuildMemberByMessage(message: Message) {
+    return message.guild.members?.cache.get(this.id)
+  }
+
+  public getGuildMemberByGuild(guild: Guild) {
+    return guild.members?.cache.get(this.id)
+  }
+
+  public getGuildMemberByGuildId(guildId: string) {
+    return this.guilds.cache?.get(guildId)?.members?.cache.get(this.id)
+  }
+
+  public getDisplayName({ message, guild, guildId }: { message?: Message; guild?: Guild; guildId?: string }): string {
+    if (message) return this.getGuildMemberByMessage(message).displayName
+    if (guild) return this.getGuildMemberByGuild(guild).displayName
+    if (guildId) return this.getGuildMemberByGuildId(guildId).displayName
+
+    return this.user.username
   }
 }

@@ -3,7 +3,7 @@ import {
   IYoutubeSearchResult,
   IYoutubeVideosResult,
   IYoutubePlaylistResult
-} from '../music-interfaces/youtube-info.interface'
+} from '../interfaces/youtube-info.interface'
 import { Injectable } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ConfigService } from '@/config-service/config.service'

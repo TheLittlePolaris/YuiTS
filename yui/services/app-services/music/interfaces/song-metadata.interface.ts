@@ -1,3 +1,5 @@
+export type ISongType = 'youtube' | 'soundcloud'
+
 export interface ISong {
   id: string
   title: string
@@ -7,5 +9,11 @@ export interface ISong {
   requester: string
   videoUrl: string
   videoThumbnail: string
-  type: 'youtube' | 'soundcloud'
+  type: ISongType
+}
+
+export type ISongOption = {
+  requester: string
+  next?: boolean
+  type?: ISongType
 }

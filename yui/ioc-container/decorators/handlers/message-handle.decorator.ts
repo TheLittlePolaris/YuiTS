@@ -35,7 +35,7 @@ export const DeleteMessage = (strategy?: 'send' | 'reply', responseMessage?: str
     const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
     const author = getMessageProperty<User>(ctx, 'author')
 
-    const yuiMember = ctx.client.getGuildMember(message)
+    const yuiMember = ctx.client.getGuildMemberByMessage(message)
     const yuiCanDelete = yuiMember.permissions.has('MANAGE_MESSAGES')
 
     if (yuiCanDelete) {
@@ -54,7 +54,7 @@ export const Permissions = (...permissions: PermissionResolvable[]) =>
     const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
     const [author, member] = [getMessageProperty<User>(ctx, 'author'), getMessageProperty<GuildMember>(ctx, 'member')]
 
-    const yuiMember = ctx.client.getGuildMember(message)
+    const yuiMember = ctx.client.getGuildMemberByMessage(message)
 
     const enoughPermissions = samePermissions(permissions, yuiMember, member)
 

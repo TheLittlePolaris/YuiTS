@@ -1,5 +1,5 @@
 import { YoutubeRequestService } from './youtube-request.service'
-import { IYoutubePlaylistResult, IYoutubeVideo, IYoutubeSearchResult } from '../music-interfaces/youtube-info.interface'
+import { IYoutubePlaylistResult, IYoutubeVideo, IYoutubeSearchResult } from '../interfaces/youtube-info.interface'
 import { Injectable } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 
@@ -32,7 +32,7 @@ export class YoutubeInfoService {
     return data?.items?.[0]?.id?.videoId || '3uOWvcFLUY0' // default
   }
 
-  public async getInfoIds(...ids: string[]): Promise<IYoutubeVideo[]> {
+  public async getVideoMetadata(...ids: string[]): Promise<IYoutubeVideo[]> {
     const data = await this.youtubeRequestService.googleYoutubeApiVideos({
       part: ['snippet', 'contentDetails'],
       id: ids,
@@ -70,18 +70,30 @@ export class YoutubeInfoService {
       })
     ).catch((err) => this.handleError(err))
 
-    const videos = await this.getInfoIds(...tmpIdsArray).catch((err) => this.handleError(err))
+    const videos = await this.getVideoMetadata(...tmpIdsArray).catch((err) => this.handleError(err))
 
     return videos
   }
 
-  public async getSongsByChannelId(channelId: string, pageToken?: string): Promise<IYoutubeSearchResult> {
+  public async getVideosByChannelId(channelId: string, pageToken?: string): Promise<IYoutubeSearchResult> {
     const data = await this.youtubeRequestService.googleYoutubeApiSearch({
       part: ['snippet'],
       channelId,
       type: ['video'],
       fields: 'nextPageToken,items(id(videoId))',
-      ...(pageToken ? { pageToken } : {})
+      ...(pageToken ? { pageToken } : {}),
+    })
+    return data
+  }
+
+  public async getRelatedVideos(videoId: string, pageToken?: string) {
+    const data = await this.youtubeRequestService.googleYoutubeApiSearch({
+      part: ['snippet'],
+      relatedToVideoId: videoId,
+      type: ['video'],
+      fields: 'nextPageToken,items(id(videoId))',
+      ...(pageToken ? { pageToken } : {}),
+      maxResults: 10
     })
     return data
   }

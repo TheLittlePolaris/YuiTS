@@ -2,7 +2,7 @@ import {
   ISoundCloudSong,
   SoundcloudGetUrlInfoType,
   SoundcloudInfoRecord
-} from '../music-interfaces/soundcloud-info.interface'
+} from '../interfaces/soundcloud-info.interface'
 import { spawn } from 'child_process'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { Injectable } from '@/ioc-container'
@@ -86,12 +86,12 @@ export class PolarisSoundCloudService {
             PolarisSoundCloudService.name
           )
           if (!processExecution.killed) processExecution.kill('SIGKILL')
-          reject(error)
+          throw error
         }
         processExecution.stderr.on('data', onError)
         processExecution.on('error', onError)
       } catch (err) {
-        reject(err)
+        YuiLogger.error(err)
       }
     })
   }
@@ -111,7 +111,7 @@ export class PolarisSoundCloudService {
 
     return {
       id: id,
-      songUrl: webpage_url,
+      videoUrl: webpage_url,
       snippet: {
         title: title,
         channelId: uploader_id,
@@ -127,32 +127,4 @@ export class PolarisSoundCloudService {
       }
     }
   }
-
-  // public async getInfoUrlTest(url: string, options?: SpawnSyncOptions): Promise<unknown[]> {
-  //   if (!url || !url.length) throw new Error('Empty url')
-  //   const result = await spawnSync(
-  //     'youtube-dl',
-  //     ['--skip-download', '-s', '--dump-json', '--', url],
-  //     {
-  //       ...options,
-  //       encoding: 'utf-8',
-  //     }
-  //   )
-  //   const timeEnd = console.timeEnd('json')
-  //   const rawInfo = result.stdout.trim().split(/\r?\n/)
-  //   console.log(rawInfo[0])
-  //   if (!rawInfo || !rawInfo.length) return []
-
-  //   const info = rawInfo
-  //     .map((item) => {
-  //       try {
-  //         return JSON.parse(item)
-  //       } catch (err) {
-  //         return item
-  //       }
-  //     })
-  //     .filter(Boolean)
-  //   if (!info) throw new Error('Cannot get any info')
-  //   return info
-  // }
 }
