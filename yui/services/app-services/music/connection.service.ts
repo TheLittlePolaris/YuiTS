@@ -27,15 +27,23 @@ export class MusicConnectionService {
     return connection
   }
 
-  registerConnectionListener(connection: VoiceConnection, eventHandlers?: Partial<VoiceConnectionEvents>) {
-    Object.entries(eventHandlers).forEach(([event, handler]) => connection.on(event as any, handler))
+  registerConnectionListener(
+    connection: VoiceConnection,
+    eventHandlers?: Partial<VoiceConnectionEvents>
+  ) {
+    Object.entries(eventHandlers).forEach(([event, handler]) =>
+      connection.on(event as any, handler)
+    )
   }
 
   async connectionReady(connection: VoiceConnection) {
     return new Promise((resolve) => {
       if (connection.state.status === VoiceConnectionStatus.Ready) return resolve(null)
       const timeout = setTimeout(() => {
-        connection.emit('error', new Error(`Connection was not READY after ${CONNECTION_READY_TIMEOUT / 1000}s`))
+        connection.emit(
+          'error',
+          new Error(`Connection was not READY after ${CONNECTION_READY_TIMEOUT / 1000}s`)
+        )
         resolve(null)
       }, CONNECTION_READY_TIMEOUT)
       connection.on(VoiceConnectionStatus.Ready, () => {
@@ -45,4 +53,3 @@ export class MusicConnectionService {
     })
   }
 }
-

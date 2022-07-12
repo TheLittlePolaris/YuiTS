@@ -1,8 +1,21 @@
-import type { Guild, VoiceChannel, TextChannel, MessageOptions, MessagePayload, Message } from 'discord.js'
+import type {
+  Guild,
+  VoiceChannel,
+  TextChannel,
+  MessageOptions,
+  MessagePayload,
+  Message
+} from 'discord.js'
 import { MusicQueue } from './music-queue'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { AudioPlayer, AudioResource, createAudioResource, PlayerSubscription, VoiceConnection } from '@discordjs/voice'
-import { sendMessageToChannel } from '../../utilities'
+import {
+  AudioPlayer,
+  AudioResource,
+  createAudioResource,
+  PlayerSubscription,
+  VoiceConnection
+} from '@discordjs/voice'
+import { discordRichEmbedConstructor, sendMessageToChannel } from '../../utilities'
 import { ISong } from '../interfaces'
 
 export class MusicStream {
@@ -166,6 +179,19 @@ export class MusicStream {
   public sendMessage(content: string | MessagePayload | MessageOptions): Promise<Message | null> {
     if (!this.textChannel) return null
     return sendMessageToChannel(this.textChannel, content)
+  }
+
+  public sendNowPlaying() {
+    return this.sendMessage({
+      embeds: [
+        discordRichEmbedConstructor({
+          title: `${!this._isAutoPlaying ? '🎧  Now Playing' : ':infinity: Autoplaying'}: ${
+            this.queue.first.title
+          }`,
+          description: ''
+        })
+      ]
+    })
   }
 
   public enqueue(data: ISong[]): number {

@@ -44,7 +44,9 @@ export class YuiLogger implements LoggerService {
             format.timestamp({
               format: 'YY-MM-DD HH:MM:SS'
             }),
-            format.printf((info) => ` ${info.label}  ${info.timestamp}  ${info.level} : ${info.message}`)
+            format.printf(
+              (info) => ` ${info.label}  ${info.timestamp}  ${info.level} : ${info.message}`
+            )
           )
         )
       })
@@ -79,7 +81,11 @@ export class YuiLogger implements LoggerService {
     return this.callFunction('debug', message, context)
   }
 
-  private callFunction(name: 'log' | 'warn' | 'debug' | 'info' | 'error', message: any, context?: string) {
+  private callFunction(
+    name: 'log' | 'warn' | 'debug' | 'info' | 'error',
+    message: any,
+    context?: string
+  ) {
     const instance = this.getInstance()
     const func = instance && (instance as typeof YuiLogger)[name]
     func && func.call(instance, message, context || this.context)

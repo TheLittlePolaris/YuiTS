@@ -8,7 +8,8 @@ export const cross = (text: string | number) => `~~${text}~~`
 
 export const code = (text: string | number) => `\`${text}\``
 
-export const codeBlock = (text: string | number, codeType?: string) => `\`\`\`${codeType || ``}\n${text}\n\`\`\``
+export const codeBlock = (text: string | number, codeType?: string) =>
+  `\`\`\`${codeType || ``}\n${text}\n\`\`\``
 
 export abstract class Markdown {
   static bold(text: string | number) {

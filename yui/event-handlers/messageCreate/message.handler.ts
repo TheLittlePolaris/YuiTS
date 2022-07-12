@@ -153,18 +153,26 @@ export class MessageCreateEventHandler {
     const images = await this.featureService.queryTenorGif('punches').catch(() => null)
     sendChannelMessage(message, {
       ...((images && {
-        embeds: [discordRichEmbedConstructor({ description: messageContent, imageUrl: sample(images) })]
+        embeds: [
+          discordRichEmbedConstructor({ description: messageContent, imageUrl: sample(images) })
+        ]
       }) || { content: messageContent })
     })
   }
 
   @HandleCommand()
-  async defaultResponse(@Msg() message: Message, @MsgChannel() channel: TextChannel, @MsgCmd() command: string) {
+  async defaultResponse(
+    @Msg() message: Message,
+    @MsgChannel() channel: TextChannel,
+    @MsgCmd() command: string
+  ) {
     const messageContent = `I cannot recognize the command \`${command}\`. How about taking a look at \`${this.configService.prefix}help\`?`
     const images = await this.featureService.queryTenorGif('girl shy').catch(() => null)
     sendChannelMessage(message, {
       ...((images && {
-        embeds: [discordRichEmbedConstructor({ description: messageContent, imageUrl: sample(images) })]
+        embeds: [
+          discordRichEmbedConstructor({ description: messageContent, imageUrl: sample(images) })
+        ]
       }) || { content: messageContent })
     })
   }

@@ -1,7 +1,11 @@
 import { Message } from 'discord.js'
 import { AdminAction, IAdminAction } from './admin-interfaces/administration.interface'
 import { Inject, Injectable } from '@/ioc-container'
-import { AdminCommand, AdminPermissionValidator, CommandValidator } from '@/custom/decorators/permission.decorator'
+import {
+  AdminCommand,
+  AdminPermissionValidator,
+  CommandValidator
+} from '@/custom/decorators/permission.decorator'
 import { ADMIN_ACTION_PROVIDER } from './constants/adminisatration-commands.constants'
 
 @Injectable()
@@ -11,7 +15,11 @@ export class AdministrationService {
   async executeCommand(message: Message, args: string[], ..._args)
   @CommandValidator()
   @AdminPermissionValidator()
-  async executeCommand(message: Message, args: Array<string>, @AdminCommand() command: AdminAction) {
+  async executeCommand(
+    message: Message,
+    args: Array<string>,
+    @AdminCommand() command: AdminAction
+  ) {
     this._adminCommands[command](message, args)
   }
 }

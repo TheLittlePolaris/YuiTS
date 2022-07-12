@@ -1,4 +1,5 @@
-export const isSoundCloudUrl = (url: string): boolean => /^(https:\/\/)?(soundcloud\.com)\//g.test(url)
+export const isSoundCloudUrl = (url: string): boolean =>
+  /^(https:\/\/)?(soundcloud\.com)\//g.test(url)
 
 export const isSoundCloudSongUrl = (url: string): boolean => {
   const scSongRegexp =

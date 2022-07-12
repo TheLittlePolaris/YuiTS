@@ -1,5 +1,10 @@
 import { messageMentionRegexp } from '@/constants'
-import { createMethodDecorator, createParamDecorator, ExecutionContext, hasPermissions } from '@/ioc-container'
+import {
+  createMethodDecorator,
+  createParamDecorator,
+  ExecutionContext,
+  hasPermissions
+} from '@/ioc-container'
 import { Message, PermissionString } from 'discord.js'
 
 export enum FEATURE_PROPERTY_PARAMS {
@@ -17,7 +22,10 @@ export const Feature = createMethodDecorator(async (context: ExecutionContext) =
   const discordClient = context.client
 
   const requiredPermissions: PermissionString[] = ['SEND_MESSAGES']
-  const [yuiMember, actionMember] = [context.client.getGuildMemberByMessage(message), message.member]
+  const [yuiMember, actionMember] = [
+    context.client.getGuildMemberByMessage(message),
+    message.member
+  ]
   const [yuiPermission, memberPermission, isOwner] = [
     hasPermissions(yuiMember, [...requiredPermissions, 'MANAGE_MESSAGES'], true),
     hasPermissions(actionMember, requiredPermissions, true),

@@ -14,12 +14,17 @@ export function YuiModule<T = any>(options: ModuleOption): GenericClassDecorator
   return function (target: Type<any>) {
     for (const property in options) {
       if (property === 'entryComponent') {
-        if (RecursiveContainerFactory.entryDetected) throw new Error('Multiple entry detected: ' + target['name'])
+        if (RecursiveContainerFactory.entryDetected)
+          throw new Error('Multiple entry detected: ' + target['name'])
         RecursiveContainerFactory.entryDetected = true
       }
 
       if (options.hasOwnProperty(property)) {
-        Reflect.defineMetadata(getPropertyKey(property as ModuleMetadata), options[property], target)
+        Reflect.defineMetadata(
+          getPropertyKey(property as ModuleMetadata),
+          options[property],
+          target
+        )
       }
     }
   }

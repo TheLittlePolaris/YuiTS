@@ -2,7 +2,12 @@ import { ClientEvents } from 'discord.js'
 import { PromiseBasedRecursiveCompiler } from '../compilers/promise-based.compiler'
 
 import { COMPONENT_METADATA, DEFAULT_ACTION_KEY, DiscordEvent } from '../../constants'
-import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
+import {
+  ComponentsContainer,
+  InterceptorsContainer,
+  ModulesContainer,
+  ProvidersContainer
+} from '../containers'
 import { DiscordClient } from '../../entrypoint'
 import { Type } from '../../interfaces'
 import { BaseContainerFactory } from './base.container-factory'
@@ -16,7 +21,12 @@ export class RecursiveContainerFactory extends BaseContainerFactory<Promise<any>
     const interceptorContainer = new InterceptorsContainer()
     const providerContainer = new ProvidersContainer()
     super(
-      new PromiseBasedRecursiveCompiler(moduleContainer, componentContainer, providerContainer, interceptorContainer)
+      new PromiseBasedRecursiveCompiler(
+        moduleContainer,
+        componentContainer,
+        providerContainer,
+        interceptorContainer
+      )
     )
   }
   /**
@@ -39,12 +49,15 @@ export class RecursiveContainerFactory extends BaseContainerFactory<Promise<any>
      */
     const entryInstance = this.get(entryComponent)
 
-    const boundEvents = Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryInstance['constructor']) || {}
+    const boundEvents =
+      Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryInstance['constructor']) || {}
 
     const { length: hasEvents, ...events } = Object.keys(boundEvents)
     if (hasEvents) {
       events.forEach((eventKey: DiscordEvent) =>
-        entryInstance.client.addListener(eventKey, (...args) => entryInstance[boundEvents[eventKey]](...args))
+        entryInstance.client.addListener(eventKey, (...args) =>
+          entryInstance[boundEvents[eventKey]](...args)
+        )
       )
     }
 

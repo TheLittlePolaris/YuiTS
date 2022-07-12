@@ -1,6 +1,11 @@
 import { Observable, of } from 'rxjs'
 
-import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
+import {
+  ComponentsContainer,
+  InterceptorsContainer,
+  ModulesContainer,
+  ProvidersContainer
+} from '../containers'
 import { ExecutionContext } from '../../event-execution-context'
 import { Type } from '../../interfaces'
 import { BaseRecursiveCompiler } from './base/base-recursive.compiler'
@@ -18,7 +23,11 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler<Observable<any>
     super(_moduleContainer, _componentContainer, _providerContainer, _interceptorContainer)
   }
 
-  protected compileCommand(target: Type<any>, instance: InstanceType<Type<any>>, propertyKey: string) {
+  protected compileCommand(
+    target: Type<any>,
+    instance: InstanceType<Type<any>>,
+    propertyKey: string
+  ) {
     const interceptor = this.getInterceptor(target)
 
     const fromHandler = (context: ExecutionContext) => of(context.call())
@@ -26,7 +35,9 @@ export class RxjsRecursiveCompiler extends BaseRecursiveCompiler<Observable<any>
     const handler = (context: ExecutionContext) => {
       context.setContextMetadata({ target, propertyKey })
       context.setHandler(instance[propertyKey].bind(instance))
-      return !interceptor ? fromHandler(context) : interceptor.intercept(context, () => fromHandler(context))
+      return !interceptor
+        ? fromHandler(context)
+        : interceptor.intercept(context, () => fromHandler(context))
     }
 
     return handler

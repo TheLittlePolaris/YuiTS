@@ -9,9 +9,24 @@ export enum AdminAction {
   AddRole = 'addrole',
   RemoveRole = 'removerole'
 }
-export type ADMIN_ACTION_TYPE = 'kick' | 'ban' | 'mute' | 'unmute' | 'setnickname' | 'addrole' | 'removerole'
+export type ADMIN_ACTION_TYPE =
+  | 'kick'
+  | 'ban'
+  | 'mute'
+  | 'unmute'
+  | 'setnickname'
+  | 'addrole'
+  | 'removerole'
 
-export const ADMIN_COMMANDS = ['kick', 'ban', 'mute', 'unmute', 'setnickname', 'addrole', 'removerole']
+export const ADMIN_COMMANDS = [
+  'kick',
+  'ban',
+  'mute',
+  'unmute',
+  'setnickname',
+  'addrole',
+  'removerole'
+]
 
 export interface IAdminAction {
   [AdminAction.Kick]: (message: Message, args: string[], ...otherArgs) => Promise<any>

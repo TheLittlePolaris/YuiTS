@@ -10,7 +10,8 @@ export function constructParamKey(target: Prototype, propertyKey: string, paramI
 export function wrappedParamDecorator(method: ParamDecoratorResolver) {
   return (target: Prototype, propertyKey: string, paramIndex: number) => {
     // TODO: remove after done migrating
-    const definedParams = Reflect.getMetadata(METHOD_PARAM_METADATA, target.constructor, propertyKey) || []
+    const definedParams =
+      Reflect.getMetadata(METHOD_PARAM_METADATA, target.constructor, propertyKey) || []
 
     const definedParams_internal =
       Reflect.getMetadata(METHOD_PARAMS_METADATA_INTERNAL, target.constructor, propertyKey) || []

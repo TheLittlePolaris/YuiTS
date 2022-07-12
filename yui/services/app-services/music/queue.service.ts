@@ -2,7 +2,14 @@ import { AppConfig } from '@/constants'
 import { DiscordClient, Injectable } from '@/ioc-container'
 import { YuiLogger } from '@/services/logger'
 import { Message } from 'discord.js'
-import { sendChannelMessage, discordRichEmbedConstructor, Markdown, italic, code, bold } from '../utilities'
+import {
+  sendChannelMessage,
+  discordRichEmbedConstructor,
+  Markdown,
+  italic,
+  code,
+  bold
+} from '../utilities'
 import { MusicStream } from './entities'
 import { IYoutubeVideo, ISong, ISongType, ISongOption } from './interfaces'
 import { PolarisSoundCloudService } from './soundcloud-service'
@@ -17,20 +24,28 @@ export class MusicQueueService {
     private readonly yui: DiscordClient
   ) {}
 
-  async enqueueSongFromQuery(stream: MusicStream, args: string, options: ISongOption): Promise<ISong> {
+  async enqueueSongFromQuery(
+    stream: MusicStream,
+    args: string,
+    options: ISongOption
+  ): Promise<ISong> {
     const { type = 'youtube', next, requester } = options
     let data: IYoutubeVideo[]
     if (type === 'youtube') {
       const videoId = await this.youtubeInfoService.getYoutubeVideoId(args)
       if (!videoId) {
-        stream.sendMessage(bold('Something went wrong while trying to fetch the song from Youtube...'))
+        stream.sendMessage(
+          bold('Something went wrong while trying to fetch the song from Youtube...')
+        )
         return
       }
       data = await this.youtubeInfoService.getVideoMetadata(videoId)
     } else {
       const song = (await this.soundcloudService.getSoundcloudInfoFromUrl(args)) as IYoutubeVideo
       if (!song) {
-        stream.sendMessage(bold('Something went wrong while trying to fetch the song from Soundcloud...'))
+        stream.sendMessage(
+          bold('Something went wrong while trying to fetch the song from Soundcloud...')
+        )
         return
       }
       data = [song]
@@ -42,14 +57,22 @@ export class MusicQueueService {
   }
 
   convertToSong(video: IYoutubeVideo, requester: string, type: ISongType = 'youtube'): ISong {
-    const { id, snippet, contentDetails, videoUrl = `https://www.youtube.com/watch?v=${id}` } = video
+    const {
+      id,
+      snippet,
+      contentDetails,
+      videoUrl = `https://www.youtube.com/watch?v=${id}`
+    } = video
     const { title, channelId, channelTitle, thumbnails } = snippet
     return {
       id,
       title: title,
       channelId,
       channelTitle,
-      duration: type === 'youtube' ? youtubeTimeConverter(contentDetails.duration) : contentDetails.rawDuration,
+      duration:
+        type === 'youtube'
+          ? youtubeTimeConverter(contentDetails.duration)
+          : contentDetails.rawDuration,
       requester,
       videoUrl,
       videoThumbnail: thumbnails.default.url,
@@ -83,13 +106,16 @@ export class MusicQueueService {
     )
     stream.set('nextPage', nextPageToken)
 
-    const relatedVideosMetadata = await this.youtubeInfoService.getVideoMetadata(...items.map((i) => i.id.videoId))
+    const relatedVideosMetadata = await this.youtubeInfoService.getVideoMetadata(
+      ...items.map((i) => i.id.videoId)
+    )
 
     this.importAutoplayQueue(stream, relatedVideosMetadata)
   }
 
   importAutoplayQueue(stream: MusicStream, data: IYoutubeVideo[]) {
-    if (!data?.length) return stream.sendMessage(bold('Songthing went wrong while getting video data...'))
+    if (!data?.length)
+      return stream.sendMessage(bold('Songthing went wrong while getting video data...'))
     const songs: ISong[] = this.getSongsData(data, {
       requester: this.yui.getDisplayName({ guildId: stream.id }),
       type: 'youtube'
@@ -138,9 +164,12 @@ export class MusicQueueService {
       )}`
     )
 
-    const playlistSongs: IYoutubeVideo[] = (await this.soundcloudService.getSoundcloudInfoFromUrl(playlistLink, {
-      getUrl: false
-    })) as IYoutubeVideo[] // checked, should be fine
+    const playlistSongs: IYoutubeVideo[] = (await this.soundcloudService.getSoundcloudInfoFromUrl(
+      playlistLink,
+      {
+        getUrl: false
+      }
+    )) as IYoutubeVideo[] // checked, should be fine
 
     if (!playlistSongs || !playlistSongs.length) {
       sendChannelMessage(message, bold('Sorry, i could not find any song in that playlist...'))
@@ -164,4 +193,3 @@ export class MusicQueueService {
     return error
   }
 }
-

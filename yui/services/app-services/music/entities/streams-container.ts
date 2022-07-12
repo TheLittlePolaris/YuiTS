@@ -23,4 +23,3 @@ export const getBoundTextChannel = (guildId: string) => {
 export const deleteStream = (guildId: string): boolean => {
   return delete streamsContainer[guildId]
 }
-

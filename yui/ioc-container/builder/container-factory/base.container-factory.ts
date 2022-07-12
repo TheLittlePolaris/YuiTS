@@ -37,7 +37,9 @@ export abstract class BaseContainerFactory<TReturn> {
   }
 
   protected getClient() {
-    return this._client || (this._client = this.compiler.componentContainer.getInstance(DiscordClient))
+    return (
+      this._client || (this._client = this.compiler.componentContainer.getInstance(DiscordClient))
+    )
   }
 
   protected getConfig() {
@@ -48,7 +50,10 @@ export abstract class BaseContainerFactory<TReturn> {
     return new ExecutionContext(args)
   }
 
-  protected handleEvent(event: keyof ClientEvents, context: ExecutionContext): ReturnType<BaseHandler<TReturn>> {
+  protected handleEvent(
+    event: keyof ClientEvents,
+    context: ExecutionContext
+  ): ReturnType<BaseHandler<TReturn>> {
     const command = this.getCommand(event, context.getArguments())
 
     const commandHandler = this.getHandler(event, command)
@@ -68,7 +73,13 @@ export abstract class BaseContainerFactory<TReturn> {
   }
 
   protected abstract filterEvent(event: DiscordEvent, args: ClientEvents[DiscordEvent]): TReturn
-  protected abstract initialize(rootModule: Type<any>, entryComponent: Type<DiscordClient>): Promise<DiscordClient>
+  protected abstract initialize(
+    rootModule: Type<any>,
+    entryComponent: Type<DiscordClient>
+  ): Promise<DiscordClient>
 
-  protected abstract getHandler(event: keyof ClientEvents, command: string | false): BaseHandler<TReturn>
+  protected abstract getHandler(
+    event: keyof ClientEvents,
+    command: string | false
+  ): BaseHandler<TReturn>
 }

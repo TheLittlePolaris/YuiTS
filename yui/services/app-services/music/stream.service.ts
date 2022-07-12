@@ -273,4 +273,3 @@ export class MusicStreamService {
     YuiLogger.error(error, this.constructor.name)
   }
 }
-

@@ -1,7 +1,12 @@
 import { Message, GuildMember, EmbedFieldData, MessageOptions } from 'discord.js'
 import { discordRichEmbedConstructor } from '@/services/app-services/utilities/discord-embed.util'
 import { subscriberCountFormatter, dateTimeJSTFormatter } from '../services/feature-utilities'
-import { KnownHoloStatRegions, HoloStatRegions, holoStatList, HoloStatRequestService } from './holostat-service'
+import {
+  KnownHoloStatRegions,
+  HoloStatRegions,
+  holoStatList,
+  HoloStatRequestService
+} from './holostat-service'
 
 import { KNOWN_AFFILIATION } from '../interfaces/vtuber-stat.interface'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
@@ -31,7 +36,8 @@ export class VtuberStatService {
     const service = this.holostatRequestService
     const dataList = await service.getChannelList(regionCode)
 
-    if (!dataList || !dataList.length) return this.sendMessage(message, '**Something went wrong :(**')
+    if (!dataList || !dataList.length)
+      return this.sendMessage(message, '**Something went wrong :(**')
 
     const fieldsData: EmbedFieldData[] = dataList.map((item, index) => ({
       name: `**${index + 1}**`,
@@ -44,7 +50,8 @@ export class VtuberStatService {
     const limit = 20
     const hasPaging = fieldsData.length > limit
     const sendPartial = async (index: number) => {
-      const currentPartLimit = index + limit >= fieldsData.length ? fieldsData.length : index + limit
+      const currentPartLimit =
+        index + limit >= fieldsData.length ? fieldsData.length : index + limit
 
       const sendingEmbed = await discordRichEmbedConstructor({
         description: `**Select the number dedicated to the channel name for detail${
@@ -64,7 +71,8 @@ export class VtuberStatService {
     sendPartial(0)
 
     const collectorFilter = (messageFilter: Message) =>
-      messageFilter.author.id === message.author.id && messageFilter.channel.id === message.channel.id
+      messageFilter.author.id === message.author.id &&
+      messageFilter.channel.id === message.channel.id
 
     const collector = message.channel.createMessageCollector({
       filter: collectorFilter,
@@ -105,7 +113,13 @@ export class VtuberStatService {
     })
   }
 
-  public async getChannelDetail({ message, channelId }: { message: Message; channelId: string }): Promise<void> {
+  public async getChannelDetail({
+    message,
+    channelId
+  }: {
+    message: Message
+    channelId: string
+  }): Promise<void> {
     const service = this.youtubeRequestService
     const channelData = await service.getSelectedChannelDetail(channelId)
     if (!channelData) {
@@ -159,7 +173,8 @@ export class VtuberStatService {
       return
     }
     const collectorFilter = (messageFilter: Message) =>
-      messageFilter.author.id === message.author.id && messageFilter.channel.id === message.channel.id
+      messageFilter.author.id === message.author.id &&
+      messageFilter.channel.id === message.channel.id
 
     const collector = sentMessage.channel.createMessageCollector({
       filter: collectorFilter,
@@ -219,7 +234,9 @@ export class VtuberStatService {
       const fieldName = `${item.snippet.title}`
       const channelUrl = `https://www.youtube.com/channel/${item.id}`
 
-      const fieldData = `Channel: [${item.snippet.title}](${channelUrl})\nSubscribers: ${subscriberCountFormatter(
+      const fieldData = `Channel: [${
+        item.snippet.title
+      }](${channelUrl})\nSubscribers: ${subscriberCountFormatter(
         item.statistics.subscriberCount
       )}\nViews: ${item.statistics.viewCount}\nVideos: ${item.statistics.videoCount}`
       return {
@@ -236,7 +253,8 @@ export class VtuberStatService {
     const limit = 18
     const hasPaging = fieldsData.length > limit
     const sendPartial = async (index: number) => {
-      const currentPartLimit = index + limit >= fieldsData.length ? fieldsData.length : index + limit
+      const currentPartLimit =
+        index + limit >= fieldsData.length ? fieldsData.length : index + limit
 
       const sendingEmbed = await discordRichEmbedConstructor({
         author: {

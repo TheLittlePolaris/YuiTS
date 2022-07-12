@@ -1,6 +1,11 @@
 import { ExecutionContext } from '../../event-execution-context/execution-context'
 import { Type } from '../../interfaces/dependencies-injection.interfaces'
-import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
+import {
+  ComponentsContainer,
+  InterceptorsContainer,
+  ModulesContainer,
+  ProvidersContainer
+} from '../containers'
 import { BaseRecursiveCompiler } from './base/base-recursive.compiler'
 
 /**
@@ -16,7 +21,11 @@ export class PromiseBasedRecursiveCompiler extends BaseRecursiveCompiler<Promise
     super(_moduleContainer, _componentContainer, _providerContainer, _interceptorContainer)
   }
 
-  protected compileCommand(target: Type<any>, instance: InstanceType<Type<any>>, propertyKey: string) {
+  protected compileCommand(
+    target: Type<any>,
+    instance: InstanceType<Type<any>>,
+    propertyKey: string
+  ) {
     const interceptor = this.getInterceptor(target)
     // bind: passive when go through interceptor, active when call directly
     const fromHandler = (context: ExecutionContext) => context.call<Promise<any>>()
@@ -24,7 +33,9 @@ export class PromiseBasedRecursiveCompiler extends BaseRecursiveCompiler<Promise
     const handler = (context: ExecutionContext): Promise<any> => {
       context.setContextMetadata({ target, propertyKey })
       context.setHandler(instance[propertyKey].bind(instance))
-      return !interceptor ? fromHandler(context) : interceptor.intercept(context, () => fromHandler(context))
+      return !interceptor
+        ? fromHandler(context)
+        : interceptor.intercept(context, () => fromHandler(context))
     }
 
     return handler

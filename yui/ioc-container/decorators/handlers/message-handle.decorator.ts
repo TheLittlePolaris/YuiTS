@@ -13,7 +13,10 @@ const getMsgContent = (ctx: ExecutionContext) => {
   return message.content.replace(ctx.config['prefix'], '').trim().split(/ +/g)
 }
 
-const getMessageProperty = <T extends Message[keyof Message]>(ctx: ExecutionContext, key: keyof Message): T => {
+const getMessageProperty = <T extends Message[keyof Message]>(
+  ctx: ExecutionContext,
+  key: keyof Message
+): T => {
   const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
   return message[key] as T
 }
@@ -24,7 +27,8 @@ export const HandleCommand = (command = 'default', ...aliases: string[]) =>
       return context
     },
     (target, propertyKey) => {
-      let commands: ICommandHandlerMetadata[] = Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
+      let commands: ICommandHandlerMetadata[] =
+        Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
       commands = [...commands, { propertyKey, command, commandAliases: aliases }]
       Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
     }
@@ -52,7 +56,10 @@ export const DeleteMessage = (strategy?: 'send' | 'reply', responseMessage?: str
 export const Permissions = (...permissions: PermissionResolvable[]) =>
   createMethodDecorator((ctx) => {
     const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
-    const [author, member] = [getMessageProperty<User>(ctx, 'author'), getMessageProperty<GuildMember>(ctx, 'member')]
+    const [author, member] = [
+      getMessageProperty<User>(ctx, 'author'),
+      getMessageProperty<GuildMember>(ctx, 'member')
+    ]
 
     const yuiMember = ctx.client.getGuildMemberByMessage(message)
 
@@ -61,7 +68,9 @@ export const Permissions = (...permissions: PermissionResolvable[]) =>
     if (!enoughPermissions) {
       ctx.terminate()
       author
-        .send(`<@${member?.user.id}>, you do not have permission to use this command in \`${message.guild.name}\`.`)
+        .send(
+          `<@${member?.user.id}>, you do not have permission to use this command in \`${message.guild.name}\`.`
+        )
         .catch(null)
     }
 

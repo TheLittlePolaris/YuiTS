@@ -21,13 +21,17 @@ export class YoutubeRequestService {
 
   constructor(private configService: ConfigService) {}
 
-  public async googleYoutubeApiSearch(options: youtube_v3.Params$Resource$Search$List): Promise<IYoutubeSearchResult> {
+  public async googleYoutubeApiSearch(
+    options: youtube_v3.Params$Resource$Search$List
+  ): Promise<IYoutubeSearchResult> {
     const { data, status } = await this.youtubeSearch.list(options)
     if (status !== 200 || !data.items) throw new Error('Youtube Request Failed: ' + data)
     return data
   }
 
-  public async googleYoutubeApiVideos(options: youtube_v3.Params$Resource$Videos$List): Promise<IYoutubeVideosResult> {
+  public async googleYoutubeApiVideos(
+    options: youtube_v3.Params$Resource$Videos$List
+  ): Promise<IYoutubeVideosResult> {
     const { data, status } = await this.youtubeVideos.list(options)
     if (status !== 200 || !data.items) throw new Error('Youtube Request Failed: ' + data)
     return data

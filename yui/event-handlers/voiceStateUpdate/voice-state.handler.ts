@@ -1,4 +1,10 @@
-import { HandleVoiceState, NewStateChannel, OldStateChannel, OnEvent, UseInterceptor } from '@/ioc-container'
+import {
+  HandleVoiceState,
+  NewStateChannel,
+  OldStateChannel,
+  OnEvent,
+  UseInterceptor
+} from '@/ioc-container'
 import { getStream } from '@/services/app-services/music'
 import { VoiceChannel } from 'discord.js'
 import { MusicService } from '../../services/app-services/music/music.service'
@@ -10,7 +16,10 @@ export class VoiceStateEventHandler {
   constructor(private musicService: MusicService) {}
 
   @HandleVoiceState()
-  public onVoiceStateUpdate(@OldStateChannel() oldChannel: VoiceChannel, @NewStateChannel() newChannel: VoiceChannel) {
+  public onVoiceStateUpdate(
+    @OldStateChannel() oldChannel: VoiceChannel,
+    @NewStateChannel() newChannel: VoiceChannel
+  ) {
     const stream = getStream(oldChannel?.guild.id || newChannel?.guild.id)
 
     const boundVoiceChannel = stream?.voiceChannel

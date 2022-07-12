@@ -8,7 +8,8 @@ export const EventHandler = createMethodDecorator(
     return context
   },
   (target: Prototype, propertyKey: string) => {
-    let commands: ICommandHandlerMetadata[] = Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
+    let commands: ICommandHandlerMetadata[] =
+      Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
     commands = [...commands, { propertyKey, command: 'default' }]
     Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
   }

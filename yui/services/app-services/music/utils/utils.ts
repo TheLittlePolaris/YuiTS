@@ -17,7 +17,9 @@ export function timeConverter(duration: number) {
   } else {
     const hours = Math.floor(totalMinutes / 60)
     const minutesLeft = totalMinutes % 60
-    return `${hours >= 10 ? hours : `0${hours}`}:${minutesLeft >= 10 ? minutesLeft : `0${minutesLeft}`}:${seconds}`
+    return `${hours >= 10 ? hours : `0${hours}`}:${
+      minutesLeft >= 10 ? minutesLeft : `0${minutesLeft}`
+    }:${seconds}`
   }
 }
 

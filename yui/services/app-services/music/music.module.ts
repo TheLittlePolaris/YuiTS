@@ -15,7 +15,7 @@ import { streamsContainer } from './entities/streams-container'
     YoutubeInfoService,
     YoutubeRequestService,
     PolarisSoundCloudPlayer,
-    PolarisSoundCloudService,
+    PolarisSoundCloudService
   ],
   providers: [{ provide: Music.StreamProvider, useValue: streamsContainer }]
 })

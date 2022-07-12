@@ -32,7 +32,15 @@ export class DiscordClient extends Client {
     return this.guilds.cache?.get(guildId)?.members?.cache.get(this.id)
   }
 
-  public getDisplayName({ message, guild, guildId }: { message?: Message; guild?: Guild; guildId?: string }): string {
+  public getDisplayName({
+    message,
+    guild,
+    guildId
+  }: {
+    message?: Message
+    guild?: Guild
+    guildId?: string
+  }): string {
     if (message) return this.getGuildMemberByMessage(message).displayName
     if (guild) return this.getGuildMemberByGuild(guild).displayName
     if (guildId) return this.getGuildMemberByGuildId(guildId).displayName

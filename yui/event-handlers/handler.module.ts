@@ -7,11 +7,20 @@ import { OwnerServiceModule } from '../services/owner-service/owner-service.modu
 import { DMEventHandler } from './messageCreate/dm.handler'
 import { YuiModule } from '@/ioc-container/decorators'
 import { ReadyEventHandler } from './ready/ready.handler'
-import { DMInterceptor, MessageCreateInterceptor, VoiceStateInterceptor } from './event-interceptors'
+import {
+  DMInterceptor,
+  MessageCreateInterceptor,
+  VoiceStateInterceptor
+} from './event-interceptors'
 
 @YuiModule({
   modules: [MusicModule, FeatureModule, AdminModule, OwnerServiceModule],
-  components: [MessageCreateEventHandler, VoiceStateEventHandler, DMEventHandler, ReadyEventHandler],
+  components: [
+    MessageCreateEventHandler,
+    VoiceStateEventHandler,
+    DMEventHandler,
+    ReadyEventHandler
+  ],
   interceptors: [MessageCreateInterceptor, DMInterceptor, VoiceStateInterceptor]
 })
 export class HandlerModule {}

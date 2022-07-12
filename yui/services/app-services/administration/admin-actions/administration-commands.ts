@@ -62,12 +62,14 @@ export class AdministrationCommands implements IAdminAction {
     @MentionedRoles() roles: Role[]
   ) {
     const addedRoles = await Promise.all(
-      targets.map((target) => target.roles.add(roles, reason).catch((err) => this.handleError(new Error(err))))
+      targets.map((target) =>
+        target.roles.add(roles, reason).catch((err) => this.handleError(new Error(err)))
+      )
     ).catch((error) => this.handleError(new Error(error)))
     const roleNames = roles.map((role) => role.name)
-    const content = `Added role \`${roleNames.join(', ')}\` to ${targets.map((t) => t.displayName).join(', ')}${
-      reason ? ` for reason ${reason}` : ``
-    }`
+    const content = `Added role \`${roleNames.join(', ')}\` to ${targets
+      .map((t) => t.displayName)
+      .join(', ')}${reason ? ` for reason ${reason}` : ``}`
     addedRoles.length
       ? this.sendMessage(message, 'channel', content)
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
@@ -82,14 +84,16 @@ export class AdministrationCommands implements IAdminAction {
     @MentionedRoles() roles: Role[]
   ) {
     const removedRoles = await Promise.all(
-      targets.map((target) => target.roles.remove(roles, reason).catch((err) => this.handleError(new Error(err))))
+      targets.map((target) =>
+        target.roles.remove(roles, reason).catch((err) => this.handleError(new Error(err)))
+      )
     ).catch((err) => this.handleError(new Error(err)))
 
     const roleNames = roles.map((role) => role.name)
 
-    const content = `Removed role \`${roleNames.join(', ')}\` from ${targets.map((t) => t.displayName).join(', ')}${
-      reason ? ` for reason ${reason}` : ``
-    }`
+    const content = `Removed role \`${roleNames.join(', ')}\` from ${targets
+      .map((t) => t.displayName)
+      .join(', ')}${reason ? ` for reason ${reason}` : ``}`
     removedRoles.length
       ? this.sendMessage(message, 'channel', content)
       : this.sendMessage(message, 'author', `Unable to add role to the member.`)
@@ -104,12 +108,14 @@ export class AdministrationCommands implements IAdminAction {
     @Reason() reason: string
   ) {
     const muted = await Promise.all([
-      targets.map((target) => target.voice.setMute(true, reason).catch((err) => this.handleError(new Error(err))))
+      targets.map((target) =>
+        target.voice.setMute(true, reason).catch((err) => this.handleError(new Error(err)))
+      )
     ]).catch((err) => this.handleError(new Error(err)))
 
-    const content = `\`${targets.map((t) => t.displayName).join(', ')}\` has been muted by \`${executor.displayName}\`${
-      reason ? ` for reason ${reason}` : ``
-    }`
+    const content = `\`${targets.map((t) => t.displayName).join(', ')}\` has been muted by \`${
+      executor.displayName
+    }\`${reason ? ` for reason ${reason}` : ``}`
 
     muted.length
       ? this.sendMessage(message, 'channel', content)
@@ -125,7 +131,9 @@ export class AdministrationCommands implements IAdminAction {
     @Reason() reason: string
   ) {
     const unmuted = await Promise.all([
-      targets.map((target) => target.voice.setMute(false, reason).catch((err) => this.handleError(new Error(err))))
+      targets.map((target) =>
+        target.voice.setMute(false, reason).catch((err) => this.handleError(new Error(err)))
+      )
     ]).catch((err) => this.handleError(new Error(err)))
 
     const content = `\`${targets.map((t) => t.displayName).join(', ')}\` has been unmuted by \`${
@@ -148,7 +156,9 @@ export class AdministrationCommands implements IAdminAction {
     @Nickname() nickname: string
   ) {
     const setnickname = await Promise.all([
-      targets.map((target) => target.setNickname(nickname).catch((err) => this.handleError(new Error(err))))
+      targets.map((target) =>
+        target.setNickname(nickname).catch((err) => this.handleError(new Error(err)))
+      )
     ]).catch((err) => this.handleError(new Error(err)))
 
     const content = `\`${targets[0].user.username}'s ${

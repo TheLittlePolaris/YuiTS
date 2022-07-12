@@ -16,18 +16,28 @@ export class HoloStatRequestService implements BaseRequestService<KnownHoloStatR
   constructor(private youtubeChannelService: YoutubeChannelService) {}
 
   public async getChannelList(region: KnownHoloStatRegions): Promise<IYoutubeChannel[]> {
-    const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(this.featuredChannels[region])
+    const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(
+      this.featuredChannels[region]
+    )
 
     if (!featuredChannelIds) return this.handleError('No featured channels')
 
-    return await this.youtubeChannelService.getChannelList([...featuredChannelIds, this.featuredChannels[region]])
+    return await this.youtubeChannelService.getChannelList([
+      ...featuredChannelIds,
+      this.featuredChannels[region]
+    ])
   }
 
   public async getAllMembersChannelDetail(region?: KnownHoloStatRegions) {
-    const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(this.featuredChannels[region])
+    const featuredChannelIds = await this.youtubeChannelService.getFeaturedChannelIds(
+      this.featuredChannels[region]
+    )
 
     if (!featuredChannelIds) return this.handleError('No featured channels')
-    return this.youtubeChannelService.getAllMembersChannelDetail([...featuredChannelIds, this.featuredChannels[region]])
+    return this.youtubeChannelService.getAllMembersChannelDetail([
+      ...featuredChannelIds,
+      this.featuredChannels[region]
+    ])
   }
   public async getSelectedChannelDetail(channelId: string) {
     return await this.youtubeChannelService.getSelectedChannelDetail(channelId)

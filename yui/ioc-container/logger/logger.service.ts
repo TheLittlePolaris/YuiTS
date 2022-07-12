@@ -42,14 +42,20 @@ export class Logger implements LoggerService {
             format.timestamp({
               format: 'YY-MM-DD HH:MM:SS'
             }),
-            format.printf((info) => ` ${info.label}  ${info.timestamp}  ${info.level} : ${info.message}`)
+            format.printf(
+              (info) => ` ${info.label}  ${info.timestamp}  ${info.level} : ${info.message}`
+            )
           )
         )
       })
     ]
   })
   private static buildPath(type: string) {
-    const [m, d, y] = new Intl.DateTimeFormat('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    const [m, d, y] = new Intl.DateTimeFormat('en-US', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
       .format(new Date())
       .split('/')
     return `logs/${y}-${m}-${d}/${type}.log`
@@ -79,7 +85,11 @@ export class Logger implements LoggerService {
     return this.callFunction('debug', message, context)
   }
 
-  private callFunction(name: 'log' | 'warn' | 'debug' | 'info' | 'error', message: any, context?: string) {
+  private callFunction(
+    name: 'log' | 'warn' | 'debug' | 'info' | 'error',
+    message: any,
+    context?: string
+  ) {
     const instance = this.getInstance()
     const func = instance && (instance as typeof Logger)[name]
     func && func.call(instance, message, context || this.context)

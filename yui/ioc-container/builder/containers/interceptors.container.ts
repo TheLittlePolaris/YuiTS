@@ -3,7 +3,10 @@ import { Collection } from 'discord.js'
 import { Type } from '../../interfaces'
 
 export class InterceptorsContainer {
-  private _interceptors: Collection<string, InstanceType<Type<any>>> = new Collection<string, InstanceType<Type<any>>>()
+  private _interceptors: Collection<string, InstanceType<Type<any>>> = new Collection<
+    string,
+    InstanceType<Type<any>>
+  >()
 
   public get interceptors() {
     return this._interceptors

@@ -1,8 +1,24 @@
 import { ClientEvents } from 'discord.js'
-import { catchError, EMPTY, finalize, fromEvent, mergeMap, noop, Observable, of, take, tap } from 'rxjs'
+import {
+  catchError,
+  EMPTY,
+  finalize,
+  fromEvent,
+  mergeMap,
+  noop,
+  Observable,
+  of,
+  take,
+  tap
+} from 'rxjs'
 import { RxjsRecursiveCompiler } from '../compilers/rxjs.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../../constants'
-import { ComponentsContainer, InterceptorsContainer, ModulesContainer, ProvidersContainer } from '../containers'
+import {
+  ComponentsContainer,
+  InterceptorsContainer,
+  ModulesContainer,
+  ProvidersContainer
+} from '../containers'
 import { DiscordClient } from '../../entrypoint'
 import { ExecutionContext } from '../../event-execution-context/execution-context'
 import { Type } from '../../interfaces'
@@ -15,7 +31,14 @@ export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> 
     const componentContainer = new ComponentsContainer()
     const interceptorContainer = new InterceptorsContainer()
     const providerContainer = new ProvidersContainer()
-    super(new RxjsRecursiveCompiler(moduleContainer, componentContainer, providerContainer, interceptorContainer))
+    super(
+      new RxjsRecursiveCompiler(
+        moduleContainer,
+        componentContainer,
+        providerContainer,
+        interceptorContainer
+      )
+    )
   }
 
   async initialize(rootModule: Type<any>, entryComponent = DiscordClient) {
@@ -58,7 +81,10 @@ export class RxjsContainerFactory extends BaseContainerFactory<Observable<any>> 
                 )
               }),
               catchError((error: Error) => {
-                Logger.error(`Uncaught handler error: ${error?.stack}`, `${context.contextName}.${context.propertyKey}`)
+                Logger.error(
+                  `Uncaught handler error: ${error?.stack}`,
+                  `${context.contextName}.${context.propertyKey}`
+                )
                 return EMPTY
               })
             )

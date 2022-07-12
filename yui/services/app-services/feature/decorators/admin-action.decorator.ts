@@ -18,7 +18,9 @@ export const CmdExecutor = createParamDecorator((ctx) => {
 
 export const Reason = createParamDecorator((ctx) => {
   const [_, args] = ctx.getOriginalArguments<[Message, string[]]>()
-  return args.filter((arg) => !(messageMentionRegexp.test(arg) || messageMentionRoleRegex.test(arg))).join(' ')
+  return args
+    .filter((arg) => !(messageMentionRegexp.test(arg) || messageMentionRoleRegex.test(arg)))
+    .join(' ')
 })
 
 export const SubCommand = createParamDecorator((ctx) => {
@@ -32,5 +34,7 @@ export const MentionedRoles = createParamDecorator((ctx) => {
 
 export const Nickname = createParamDecorator((ctx) => {
   const [_, args] = ctx.getOriginalArguments<[Message, string[]]>()
-  return args.filter((arg) => !(messageMentionRegexp.test(arg) && messageMentionRoleRegex.test(arg))).join(' ')
+  return args
+    .filter((arg) => !(messageMentionRegexp.test(arg) && messageMentionRoleRegex.test(arg)))
+    .join(' ')
 })

@@ -10,7 +10,10 @@ import {
   TextBasedChannel
 } from 'discord.js'
 
-export const sendChannelMessage = async (message: Message, content: string | MessagePayload | MessageOptions) => {
+export const sendChannelMessage = async (
+  message: Message,
+  content: string | MessagePayload | MessageOptions
+) => {
   try {
     return await message.channel.send(content)
   } catch (error) {
@@ -19,7 +22,10 @@ export const sendChannelMessage = async (message: Message, content: string | Mes
   }
 }
 
-export const sendMessageToChannel = (channel: TextBasedChannel, content: string | MessagePayload | MessageOptions) => {
+export const sendMessageToChannel = (
+  channel: TextBasedChannel,
+  content: string | MessagePayload | MessageOptions
+) => {
   try {
     return channel.send(content)
   } catch (error) {
@@ -28,7 +34,10 @@ export const sendMessageToChannel = (channel: TextBasedChannel, content: string 
   }
 }
 
-export const sendDMMessage = async (message: Message, content: string | MessagePayload | MessageOptions) => {
+export const sendDMMessage = async (
+  message: Message,
+  content: string | MessagePayload | MessageOptions
+) => {
   try {
     return await message.author.send(content)
   } catch (error) {
@@ -37,7 +46,10 @@ export const sendDMMessage = async (message: Message, content: string | MessageP
   }
 }
 
-export const replyMessage = async (message: Message, content: string | MessagePayload | ReplyMessageOptions) => {
+export const replyMessage = async (
+  message: Message,
+  content: string | MessagePayload | ReplyMessageOptions
+) => {
   try {
     return await message.reply(content)
   } catch (error) {
@@ -46,7 +58,10 @@ export const replyMessage = async (message: Message, content: string | MessagePa
   }
 }
 
-export const editMessage = async (message: Message, content: string | MessagePayload | MessageEditOptions) => {
+export const editMessage = async (
+  message: Message,
+  content: string | MessagePayload | MessageEditOptions
+) => {
   try {
     return await message.edit(content)
   } catch (error) {

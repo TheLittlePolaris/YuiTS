@@ -25,7 +25,10 @@ export const AccessController = ({ join }: { join: boolean } = { join: false }) 
     if (boundVoiceChannel) {
       const boundTextChannel = stream.textChannel
       if (channel.id !== boundTextChannel.id || voiceChannel.id !== boundVoiceChannel.id) {
-        replyMessage(message, bold(`I'm playing at ${boundTextChannel.toString()} -- ${boundVoiceChannel.toString()}`))
+        replyMessage(
+          message,
+          bold(`I'm playing at ${boundTextChannel.toString()} -- ${boundVoiceChannel.toString()}`)
+        )
         ctx.terminate()
       }
     } else {
@@ -43,4 +46,3 @@ export const GuildStream = createParamDecorator((ctx) => {
 export const YuiMember = createParamDecorator((ctx) => {
   return ctx.client.getGuildMemberByMessage(ctx.getOriginalArguments<[Message]>()[0])
 })
-

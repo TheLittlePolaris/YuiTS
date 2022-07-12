@@ -107,7 +107,9 @@ export class FeatureService {
     const results = await this.queryTenorGif(action, params)
     const mentionString = getMentionString(mentions)
 
-    const description = !mentions?.size ? `${message.member} ${action}` : `${message.member} ${action} ${mentionString}`
+    const description = !mentions?.size
+      ? `${message.member} ${action}`
+      : `${message.member} ${action} ${mentionString}`
 
     sendChannelMessage(message, {
       embeds: [
@@ -121,9 +123,11 @@ export class FeatureService {
 
   async queryTenorGif(action: string, params?: string) {
     return Axios.get(
-      `https://g.tenor.com/v1/search?q=${encodeURIComponent(`anime ${action} ${params ? params : ``}`)}&key=${
-        this.configService.tenorKey
-      }&limit=${TENOR_QUERY_LIMIT}&media_filter=basic&anon_id=${this.configService.tenorAnonymousId}`
+      `https://g.tenor.com/v1/search?q=${encodeURIComponent(
+        `anime ${action} ${params ? params : ``}`
+      )}&key=${this.configService.tenorKey}&limit=${TENOR_QUERY_LIMIT}&media_filter=basic&anon_id=${
+        this.configService.tenorAnonymousId
+      }`
     ).then(({ data }) => data.results?.map((r) => r?.media[0]?.gif?.url))
   }
 
