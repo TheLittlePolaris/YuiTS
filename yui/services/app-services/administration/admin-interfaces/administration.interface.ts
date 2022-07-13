@@ -1,11 +1,13 @@
-export enum ADMIN_ACTION {
-  KICK = 'kick',
-  BAN = 'ban',
-  MUTE = 'mute',
-  UNMUTE = 'unmute',
-  SET_NICKNAME = 'setnickname',
-  ADD_ROLE = 'addrole',
-  REMOVE_ROLE = 'removerole',
+import { Message } from 'discord.js'
+
+export enum AdminAction {
+  Kick = 'kick',
+  Ban = 'ban',
+  Mute = 'mute',
+  Unmute = 'unmute',
+  SetNickname = 'setnickname',
+  AddRole = 'addrole',
+  RemoveRole = 'removerole'
 }
 export type ADMIN_ACTION_TYPE =
   | 'kick'
@@ -23,5 +25,15 @@ export const ADMIN_COMMANDS = [
   'unmute',
   'setnickname',
   'addrole',
-  'removerole',
+  'removerole'
 ]
+
+export interface IAdminAction {
+  [AdminAction.Kick]: (message: Message, args: string[], ...otherArgs) => Promise<any>
+  [AdminAction.Ban]: (message: Message, args: string[], ...otherArgs) => Promise<any>
+  [AdminAction.Mute]: (message: Message, args: string[], ...otherArgs) => Promise<any>
+  [AdminAction.Unmute]: (message: Message, args: string[], ...otherArgs) => Promise<any>
+  [AdminAction.SetNickname]: (message: Message, args: string[], ...otherArgs) => Promise<any>
+  [AdminAction.AddRole]: (message: Message, args: string[], ...otherArgs) => Promise<any>
+  [AdminAction.RemoveRole]: (message: Message, args: string[], ...otherArgs) => Promise<any>
+}

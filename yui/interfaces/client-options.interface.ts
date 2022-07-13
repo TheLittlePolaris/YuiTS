@@ -1,6 +1,6 @@
 export interface ClientOptions {
-  disableEveryone: boolean;
-  disabledEvents: Array<WSEvents>;
+  disableEveryone: boolean
+  disabledEvents: Array<WSEvents>
 }
 // 'TYPING_START', 'MESSAGE_REACTION_ADD', 'RELATIONSHIP_ADD', 'RELATIONSHIP_REMOVE', 'MESSAGE_REACTION_REMOVE'
 export enum WSEvents {

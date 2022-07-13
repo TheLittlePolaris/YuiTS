@@ -3,7 +3,7 @@ import { URL } from 'url'
 import axios, { AxiosResponse } from 'axios'
 import { default as M3U8Stream, Progress, Options as M3U8Options } from 'm3u8stream'
 import { PolarisSoundCloudService } from './soundcloud-info.service'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+import { Injectable } from 'djs-ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()
@@ -38,7 +38,7 @@ export class PolarisSoundCloudPlayer {
         headers,
         timeout: 30000,
         onDownloadProgress: (progressEvent) => stream.emit('progress', progressEvent),
-        responseType: 'stream',
+        responseType: 'stream'
       })
       .catch((rejectedReason) => {
         YuiLogger.error(rejectedReason)
@@ -81,8 +81,8 @@ export class PolarisSoundCloudPlayer {
       highWaterMark,
       requestOptions: {
         maxRetries: 1,
-        highWaterMark,
-      },
+        highWaterMark
+      }
     })
 
     m3u8Stream.on('progress', (data: Progress) => stream.emit('progress', data))
@@ -103,7 +103,7 @@ export class PolarisSoundCloudPlayer {
     type: string
   }> {
     const soundcloudDll = (await this.soundcloudService.getSoundcloudInfoFromUrl(videoUrl, {
-      getUrl: true,
+      getUrl: true
     })) as {
       url: string
       type: string

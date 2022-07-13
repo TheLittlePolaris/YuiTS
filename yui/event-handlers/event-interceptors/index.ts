@@ -1,3 +1,3 @@
-export * from './dm.interceptor'
-export * from './message.interceptor'
-export * from './voicestate.interceptor'
+export * from '../messageCreate/dm.interceptor'
+export * from '../messageCreate/message.interceptor'
+export * from '../voiceStateUpdate/voicestate.interceptor'

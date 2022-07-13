@@ -1,9 +1,9 @@
-import { YuiModule } from '@/ioc-container/decorators'
+import { YuiModule } from 'djs-ioc-container'
 import { FeatureService } from './feature.service'
-import { VTuberModule } from './vtuberstat-service/vtuber.module'
+import { VTuberModule } from './vtuberstats/vtuber.module'
 
 @YuiModule({
   components: [FeatureService],
-  modules: [VTuberModule],
+  modules: [VTuberModule]
 })
 export class FeatureModule {}

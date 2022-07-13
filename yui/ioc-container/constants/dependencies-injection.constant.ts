@@ -4,7 +4,7 @@ export const COMPONENT_METADATA = {
   EVENT_LIST: 'custom_metadata:event_list',
   PROPERT: 'custom_type:property',
   METHOD: 'custom_type:method',
-  CLIENT: 'custom_param:client',
+  CLIENT: 'custom_param:client'
 }
 
 export const INJECTABLE_METADATA = 'injectable-metadata'
@@ -17,15 +17,15 @@ export const SCOPE_OPTIONS_METADATA = 'scope:options'
 export const DESIGN_TYPE = 'design:type'
 
 export const METHOD_PARAM_METADATA = 'method:params'
+export const METHOD_PARAMS_METADATA_INTERNAL = 'method:params:internal'
 
 export const CUSTOM_INTERCEPTOR = 'design:custom:interceptor'
 export const INTERCEPTOR_TARGET = 'self:interceptor_target'
 
 export enum InjectToken {
-  CLIENT_TOKEN = 'BotToken',
-  CLIENT_INTENTS = 'BotIntents',
-  REDIS_CONFIG = 'RedisConfig',
-  YUI_CLIENT = 'YuiClient',
+  CLIENT_TOKEN = '_BotToken',
+  CLIENT_OPTIONS = '_ClientOptions',
+  REDIS_CONFIG = 'RedisConfig'
 }
 
 // Event handlers
@@ -42,14 +42,14 @@ export enum MESSAGE_PARAMS {
   ARGS,
   GUILD,
   CHANNEL,
-  COMMAND,
+  COMMAND
 }
 
 export enum VOICESTATE_PARAMS {
   OLD_STATE,
   NEW_STATE,
   OLD_CHANNEL,
-  NEW_CHANNEL,
+  NEW_CHANNEL
 }
 
 export enum ModuleMetadata {
@@ -57,7 +57,7 @@ export enum ModuleMetadata {
   PROVIDERS = 'providers',
   COMPONENTS = 'components',
   INTERCEPTOR = 'interceptors',
-  ENTRY_COMPONENT = 'entryComponent',
+  ENTRY_COMPONENT = 'entryComponent'
 }
 
 export const getPropertyKey = (key: ModuleMetadata) => `${MODULE_METADATA_KEY_PREFIX}:${key}`

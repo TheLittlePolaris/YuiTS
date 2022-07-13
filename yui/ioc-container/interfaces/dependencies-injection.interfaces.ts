@@ -1,22 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { DiscordEvent } from '@/ioc-container/constants/discord-events'
 import { Client } from 'discord.js'
+
+import { DiscordEvent } from 'djs-ioc-container/constants/discord-events'
 
 /* ================================== INTERFACES ===================================== */
 export type GenericClassDecorator<T> = (target: T) => void
 
-export type GenericMethodDecorator<T> = (target: Prototype, propertyKey: string, descriptor: PropertyDescriptor) => void
+export type GenericMethodDecorator = (
+  target: Prototype,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) => void
 
 export type Type<T> = Function & {
-  new(...args: any[]): T
+  new (...args: any[]): T
 }
 
 export interface Prototype {
   constructor: Function
 }
 
-export type Provider<T = any> = CustomValueProvider<T> & CustomClassProvider<T> & CustomFactoryProvider<T>
+export type Provider<T = any> = CustomValueProvider<T> &
+  CustomClassProvider<T> &
+  CustomFactoryProvider<T>
 
 export interface CustomValueProvider<T> {
   provide: string
@@ -30,7 +37,7 @@ export interface CustomClassProvider<T> {
 
 export interface CustomFactoryProvider<T> {
   provide: string
-  useFactory: Function
+  useFactory: (..._injections: any[]) => T
 }
 
 export type CustomProviderToken = { [key: string]: number | string }

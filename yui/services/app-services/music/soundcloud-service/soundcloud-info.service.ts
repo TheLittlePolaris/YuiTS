@@ -1,16 +1,16 @@
 import {
   ISoundCloudSong,
   SoundcloudGetUrlInfoType,
-  SoundcloudInfoRecord,
-} from '../music-interfaces/soundcloud-info.interface'
+  SoundcloudInfoRecord
+} from '../interfaces/soundcloud-info.interface'
 import { spawn } from 'child_process'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
 import { YuiLogger } from '@/services/logger/logger.service'
+import { Injectable } from 'djs-ioc-container'
 
 enum FORMAT_URL {
   M3U8_64,
   M3U8_128,
-  HTTP_128,
+  HTTP_128
 }
 
 enum FORMAT_THUMBNAILS {
@@ -23,7 +23,7 @@ enum FORMAT_THUMBNAILS {
   t300x300,
   crop,
   t500x500,
-  original,
+  original
 }
 
 @Injectable()
@@ -58,7 +58,7 @@ export class PolarisSoundCloudService {
           'youtube-dl',
           ['--skip-download', '--no-cache-dir', '-s', '--dump-json', '--', url],
           {
-            stdio: ['inherit', 'pipe', 'pipe'],
+            stdio: ['inherit', 'pipe', 'pipe']
           }
         )
         YuiLogger.info(
@@ -91,12 +91,12 @@ export class PolarisSoundCloudService {
             PolarisSoundCloudService.name
           )
           if (!processExecution.killed) processExecution.kill('SIGKILL')
-          reject(error)
+          throw error
         }
         processExecution.stderr.on('data', onError)
         processExecution.on('error', onError)
       } catch (err) {
-        reject(err)
+        YuiLogger.error(err)
       }
     })
   }
@@ -113,7 +113,7 @@ export class PolarisSoundCloudService {
       thumbnail,
       duration,
       protocol,
-      url,
+      url
     } = info
 
     const selectedFormat = formats[FORMAT_URL.M3U8_128] || formats[FORMAT_URL.HTTP_128] // select m3u8 as default
@@ -121,54 +121,26 @@ export class PolarisSoundCloudService {
     if (getUrl) {
       return {
         url: selectedFormat.url || url,
-        type: selectedFormat.protocol || protocol,
+        type: selectedFormat.protocol || protocol
       }
     }
 
     return {
       id: id,
-      songUrl: webpage_url,
+      videoUrl: webpage_url,
       snippet: {
         title: title,
         channelId: uploader_id,
         channelTitle: uploader,
         thumbnails: {
           default: {
-            url: thumbnails[FORMAT_THUMBNAILS.t500x500]?.url || thumbnail,
-          },
-        },
+            url: thumbnails[FORMAT_THUMBNAILS.t500x500]?.url || thumbnail
+          }
+        }
       },
       contentDetails: {
-        rawDuration: Math.round(duration),
-      },
+        rawDuration: Math.round(duration)
+      }
     }
   }
-
-  // public async getInfoUrlTest(url: string, options?: SpawnSyncOptions): Promise<unknown[]> {
-  //   if (!url || !url.length) throw new Error('Empty url')
-  //   const result = await spawnSync(
-  //     'youtube-dl',
-  //     ['--skip-download', '-s', '--dump-json', '--', url],
-  //     {
-  //       ...options,
-  //       encoding: 'utf-8',
-  //     }
-  //   )
-  //   const timeEnd = console.timeEnd('json')
-  //   const rawInfo = result.stdout.trim().split(/\r?\n/)
-  //   console.log(rawInfo[0])
-  //   if (!rawInfo || !rawInfo.length) return []
-
-  //   const info = rawInfo
-  //     .map((item) => {
-  //       try {
-  //         return JSON.parse(item)
-  //       } catch (err) {
-  //         return item
-  //       }
-  //     })
-  //     .filter(Boolean)
-  //   if (!info) throw new Error('Cannot get any info')
-  //   return info
-  // }
 }

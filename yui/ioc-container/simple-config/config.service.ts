@@ -1,4 +1,6 @@
 import { config } from 'dotenv'
+import { get } from 'lodash'
+
 import { Injectable } from '../decorators'
 
 interface EnvConfig {
@@ -6,7 +8,7 @@ interface EnvConfig {
 }
 
 @Injectable()
-export class SimpleConfigService {
+export class ConfigService {
   private _configValues: EnvConfig
   constructor() {
     const dotenvConfig = config({ path: '.env' }) || {}
@@ -20,5 +22,9 @@ export class SimpleConfigService {
 
   public get config() {
     return this._configValues
+  }
+
+  public get(key: string) {
+    return get(this.config, key)
   }
 }

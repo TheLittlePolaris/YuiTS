@@ -2,9 +2,9 @@ import { YoutubeRequestService } from './youtube-request.service'
 import {
   IYoutubePlaylistResult,
   IYoutubeVideo,
-  IYoutubeSearchResult,
-} from '../music-interfaces/youtube-info.interface'
-import { Injectable } from '@/ioc-container/decorators/injections.decorators'
+  IYoutubeSearchResult
+} from '../interfaces/youtube-info.interface'
+import { Injectable } from 'djs-ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()
@@ -31,19 +31,19 @@ export class YoutubeInfoService {
       maxResults: 10,
       q: query,
       type: ['video'],
-      fields: 'items(id(kind,videoId),snippet(channelId,channelTitle,title))',
+      fields: 'items(id(kind,videoId),snippet(channelId,channelTitle,title))'
     })
     if (!data) throw Error('Something went wrong during request')
 
     return data?.items?.[0]?.id?.videoId || '3uOWvcFLUY0' // default
   }
 
-  public async getInfoIds(...ids: string[]): Promise<IYoutubeVideo[]> {
+  public async getVideoMetadata(...ids: string[]): Promise<IYoutubeVideo[]> {
     const data = await this.youtubeRequestService.googleYoutubeApiVideos({
       part: ['snippet', 'contentDetails'],
       id: ids,
       fields:
-        'items(contentDetails(duration),id,snippet(channelId,channelTitle,thumbnails/default,title))',
+        'items(contentDetails(duration),id,snippet(channelId,channelTitle,thumbnails/default,title))'
     })
     if (!data) throw Error('Something went wrong during request')
     return data.items
@@ -59,7 +59,7 @@ export class YoutubeInfoService {
       fields:
         'nextPageToken,items(id,kind,snippet(channelId,channelTitle,resourceId(kind,videoId),title))',
       ...(currentPageToken ? { pageToken: currentPageToken } : {}),
-      maxResults: 50,
+      maxResults: 50
     })
     if (!data) return []
     const { nextPageToken } = data
@@ -83,12 +83,12 @@ export class YoutubeInfoService {
       })
     ).catch((err) => this.handleError(err))
 
-    const videos = await this.getInfoIds(...tmpIdsArray).catch((err) => this.handleError(err))
+    const videos = await this.getVideoMetadata(...tmpIdsArray).catch((err) => this.handleError(err))
 
     return videos
   }
 
-  public async getSongsByChannelId(
+  public async getVideosByChannelId(
     channelId: string,
     pageToken?: string
   ): Promise<IYoutubeSearchResult> {
@@ -97,7 +97,19 @@ export class YoutubeInfoService {
       channelId,
       type: ['video'],
       fields: 'nextPageToken,items(id(videoId))',
+      ...(pageToken ? { pageToken } : {})
+    })
+    return data
+  }
+
+  public async getRelatedVideos(videoId: string, pageToken?: string) {
+    const data = await this.youtubeRequestService.googleYoutubeApiSearch({
+      part: ['snippet'],
+      relatedToVideoId: videoId,
+      type: ['video'],
+      fields: 'nextPageToken,items(id(videoId))',
       ...(pageToken ? { pageToken } : {}),
+      maxResults: 10
     })
     return data
   }
@@ -108,7 +120,7 @@ export class YoutubeInfoService {
       maxResults: 10,
       q: query,
       type: ['video'],
-      fields: 'items(id,kind,snippet(channelId,channelTitle,title))',
+      fields: 'items(id,kind,snippet(channelId,channelTitle,title))'
     })
     return data
   }

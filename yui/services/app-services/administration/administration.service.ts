@@ -1,25 +1,25 @@
 import { Message } from 'discord.js'
-import { ADMIN_ACTION_TYPE } from './admin-interfaces/administration.interface'
-import { AdminCommandComponent } from './admin-action-command.service'
-import { Injectable } from '@/ioc-container'
+import { AdminAction, IAdminAction } from './admin-interfaces/administration.interface'
+import { Inject, Injectable } from 'djs-ioc-container'
 import {
   AdminCommand,
   AdminPermissionValidator,
-  CommandValidator,
+  CommandValidator
 } from '@/custom/decorators/permission.decorator'
+import { ADMIN_ACTION_PROVIDER } from './constants/adminisatration-commands.constants'
 
 @Injectable()
 export class AdministrationService {
-  constructor(private adminCommands: AdminCommandComponent) {}
+  constructor(@Inject(ADMIN_ACTION_PROVIDER) private readonly _adminCommands: IAdminAction) {}
 
-  public async executeCommand(message: Message, args: string[], ..._args)
+  async executeCommand(message: Message, args: string[], ..._args)
   @CommandValidator()
   @AdminPermissionValidator()
-  public async executeCommand(
+  async executeCommand(
     message: Message,
     args: Array<string>,
-    @AdminCommand() command: ADMIN_ACTION_TYPE
+    @AdminCommand() command: AdminAction
   ) {
-    this.adminCommands[command](message, args)
+    this._adminCommands[command](message, args)
   }
 }

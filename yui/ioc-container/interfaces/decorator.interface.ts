@@ -1,11 +1,13 @@
-import { ConfigService } from '@/config-service/config.service'
-import { DiscordClient } from '..'
+import { ExecutionContext } from '../event-execution-context/execution-context'
 import { Prototype } from './dependencies-injection.interfaces'
 
-export type CreateMethodDecoratorParameters<T = Function> = (
-  [target, propertyKey, descriptor]: [Prototype, string, TypedPropertyDescriptor<T>],
-  originalArguments: any[],
-  [config, discordClient, originalArgumentList]?: [ConfigService, DiscordClient, any[]]
-) =>
-  | [/* descriptor */ Function, /* argument list */ any[]]
-  | Promise<[/* descriptor */ Function, /* argument list */ any[]]>
+export type MethodDecoratorResolver = (
+  context: ExecutionContext
+) => ExecutionContext | Promise<ExecutionContext>
+export type MethodDecoratorPresetter = (
+  target: Prototype,
+  propertyKey: string,
+  descriptor: TypedPropertyDescriptor<Function>
+) => void
+
+export type ParamDecoratorResolver<T = any> = (context: ExecutionContext) => T | Promise<T>

@@ -1,7 +1,7 @@
-import { YuiModule } from '@/ioc-container/decorators';
+import { YuiModule } from 'djs-ioc-container'
 import { OwnerChannelService } from './channel.service'
 
 @YuiModule({
-  components: [OwnerChannelService],
+  components: [OwnerChannelService]
 })
 export class OwnerServiceModule {}
