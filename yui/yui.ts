@@ -1,15 +1,18 @@
 import 'module-alias/register'
 import 'reflect-metadata'
-import { RxjsContainerFactory } from '@/ioc-container'
+
+import * as semver from 'semver'
+import { RxjsContainerFactory } from 'djs-ioc-container'
+
 import { AppModule } from './yui-app.module'
 import { ConfigService } from './config-service/config.service'
 import { YuiLogger } from './services/logger/logger.service'
 
 const bootstrap = async () => {
-  const [major, _minor, _patch] = /v(\d{1,2})\.(\d{1,2})\.(\d{0,2})/g.exec(process.version)
-  if (+major < 16) {
+  const version = process.version.replace(/\p{L}/g, '')
+  if (semver.satisfies('>=16.6.0', version)) {
     throw new Error(
-      `Incompatible node version: You are using node version ${process.version}. Yui requires node version >=16.6.`
+      `Incompatible node version: You are using node version ${process.version}. Yui requires node version >=16.6`
     )
   }
   const container = new RxjsContainerFactory()

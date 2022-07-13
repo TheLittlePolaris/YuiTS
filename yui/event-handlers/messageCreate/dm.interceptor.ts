@@ -1,5 +1,5 @@
 import { ConfigService } from '@/config-service/config.service'
-import { ExecutionContext, IInterceptor, Interceptor } from '@/ioc-container'
+import { ExecutionContext, IInterceptor, Interceptor } from 'djs-ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { ClientEvents } from 'discord.js'
 import { catchError, finalize, Observable, throwError } from 'rxjs'

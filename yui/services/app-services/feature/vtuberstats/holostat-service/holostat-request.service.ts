@@ -2,7 +2,7 @@ import { IYoutubeChannel } from '../../interfaces/youtube-channel.interface'
 import { HoloStatRegions, KnownHoloStatRegions } from './holostat.interface'
 import { BaseRequestService } from '../channel-service/base-request.service'
 import { YoutubeChannelService } from '../channel-service/youtube-channel.service'
-import { Injectable } from '@/ioc-container'
+import { Injectable } from 'djs-ioc-container'
 import { YuiLogger } from '@/services/logger'
 
 @Injectable()

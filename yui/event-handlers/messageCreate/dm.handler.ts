@@ -1,4 +1,4 @@
-import { MsgArgs, HandleCommand, Msg, OnEvent, UseInterceptor } from '@/ioc-container'
+import { MsgArgs, HandleCommand, Msg, OnEvent, UseInterceptor } from 'djs-ioc-container'
 import { DMInterceptor } from '@/event-handlers/messageCreate/dm.interceptor'
 import { OwnerChannelService } from '@/services/owner-service/channel.service'
 import { Message } from 'discord.js'

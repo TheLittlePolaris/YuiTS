@@ -4,7 +4,7 @@ import {
   ADMIN_ACTION_TYPE
 } from '@/services/app-services/administration/admin-interfaces/administration.interface'
 import { AdministrationService } from '@/services/app-services/administration/administration.service'
-import { Prototype, BOT_GLOBAL_CLIENT, BOT_GLOBAL_CONFIG } from '@/ioc-container'
+import { Prototype, BOT_GLOBAL_CLIENT, BOT_GLOBAL_CONFIG } from 'djs-ioc-container'
 
 enum REFLECT_PERMISSION_SYMBOLS {
   COMMAND = 'command'

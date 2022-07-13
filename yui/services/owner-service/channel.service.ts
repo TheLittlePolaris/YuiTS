@@ -1,6 +1,6 @@
 import { Message, EmbedFieldData } from 'discord.js'
 import { discordRichEmbedConstructor } from '../app-services/utilities/discord-embed.util'
-import { DiscordClient, Injectable } from '@/ioc-container'
+import { DiscordClient, Injectable } from 'djs-ioc-container'
 
 @Injectable()
 export class OwnerChannelService {

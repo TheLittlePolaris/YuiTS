@@ -1,4 +1,4 @@
-import { YuiModule } from '@/ioc-container'
+import { YuiModule } from 'djs-ioc-container'
 import { OwnerChannelService } from './channel.service'
 
 @YuiModule({

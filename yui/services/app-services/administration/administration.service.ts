@@ -1,6 +1,6 @@
 import { Message } from 'discord.js'
 import { AdminAction, IAdminAction } from './admin-interfaces/administration.interface'
-import { Inject, Injectable } from '@/ioc-container'
+import { Inject, Injectable } from 'djs-ioc-container'
 import {
   AdminCommand,
   AdminPermissionValidator,

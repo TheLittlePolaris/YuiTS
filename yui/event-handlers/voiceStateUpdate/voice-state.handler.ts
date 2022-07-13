@@ -4,7 +4,7 @@ import {
   OldStateChannel,
   OnEvent,
   UseInterceptor
-} from '@/ioc-container'
+} from 'djs-ioc-container'
 import { getStream } from '@/services/app-services/music'
 import { VoiceChannel } from 'discord.js'
 import { MusicService } from '../../services/app-services/music/music.service'

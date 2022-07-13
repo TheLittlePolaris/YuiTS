@@ -1,5 +1,5 @@
 import { MusicService } from './music.service'
-import { YuiModule } from '@/ioc-container'
+import { YuiModule } from 'djs-ioc-container'
 import { ConfigModule } from '@/config-service/config.module'
 import { YoutubeInfoService } from './youtube-service/youtube-info.service'
 import { YoutubeRequestService } from './youtube-service/youtube-request.service'

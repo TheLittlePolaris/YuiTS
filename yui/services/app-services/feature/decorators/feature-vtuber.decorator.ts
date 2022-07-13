@@ -3,7 +3,7 @@ import {
   holoStatRegions,
   HoloStatRegions
 } from '@/services/app-services/feature/vtuberstats/holostat-service/holostat.interface'
-import { createMethodDecorator, createParamDecorator, ExecutionContext } from '@/ioc-container'
+import { createMethodDecorator, createParamDecorator, ExecutionContext } from 'djs-ioc-container'
 import { Message } from 'discord.js'
 import { startCase } from 'lodash'
 

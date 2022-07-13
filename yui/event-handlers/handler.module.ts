@@ -5,7 +5,7 @@ import { FeatureModule } from '../services/app-services/feature/feature.module'
 import { AdminModule } from '../services/app-services/administration/admin.module'
 import { OwnerServiceModule } from '../services/owner-service/owner-service.module'
 import { DMEventHandler } from './messageCreate/dm.handler'
-import { YuiModule } from '@/ioc-container/decorators'
+import { YuiModule } from 'djs-ioc-container'
 import { ReadyEventHandler } from './ready/ready.handler'
 import {
   DMInterceptor,

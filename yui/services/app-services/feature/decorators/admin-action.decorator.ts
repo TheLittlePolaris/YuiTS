@@ -1,5 +1,5 @@
 import { Message } from 'discord.js'
-import { createMethodDecorator, ExecutionContext, createParamDecorator } from '@/ioc-container'
+import { createMethodDecorator, ExecutionContext, createParamDecorator } from 'djs-ioc-container'
 import { messageMentionRegexp, messageMentionRoleRegex } from '@/constants'
 
 export const AdminCommandValidator = createMethodDecorator((ctx: ExecutionContext) => {

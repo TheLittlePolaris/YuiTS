@@ -13,7 +13,7 @@ import {
   Permissions,
   OnEvent,
   UseInterceptor
-} from '@/ioc-container/decorators'
+} from 'djs-ioc-container'
 import { ConfigService } from '@/config-service/config.service'
 import { MessageCreateInterceptor } from '@/event-handlers/event-interceptors'
 import { discordRichEmbedConstructor, sendChannelMessage } from '@/services/app-services/utilities'

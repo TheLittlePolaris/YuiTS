@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import { DiscordClient, Injectable } from '@/ioc-container'
+import { DiscordClient, Injectable } from 'djs-ioc-container'
 import { GuildMember, Message, Collection } from 'discord.js'
 import { discordRichEmbedConstructor, getMentionString } from '../utilities'
 

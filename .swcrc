@@ -14,6 +14,7 @@
     "baseUrl": ".",
     "keepClassNames": true,
     "paths": {
+      "djs-ioc-container": ["yui/ioc-container"],
       "@/*": ["yui/*"],
       "config-service/*": ["yui/config-service/*"]
     },

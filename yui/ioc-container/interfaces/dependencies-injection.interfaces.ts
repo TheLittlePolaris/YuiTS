@@ -2,7 +2,7 @@
 
 import { Client } from 'discord.js'
 
-import { DiscordEvent } from '@/ioc-container/constants/discord-events'
+import { DiscordEvent } from 'djs-ioc-container/constants/discord-events'
 
 /* ================================== INTERFACES ===================================== */
 export type GenericClassDecorator<T> = (target: T) => void

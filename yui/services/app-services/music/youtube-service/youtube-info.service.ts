@@ -4,7 +4,7 @@ import {
   IYoutubeVideo,
   IYoutubeSearchResult
 } from '../interfaces/youtube-info.interface'
-import { Injectable } from '@/ioc-container'
+import { Injectable } from 'djs-ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 
 @Injectable()

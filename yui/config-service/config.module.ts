@@ -1,4 +1,4 @@
-import { YuiModule } from '@/ioc-container/decorators'
+import { YuiModule } from 'djs-ioc-container'
 import { ConfigService } from './config.service'
 
 @YuiModule({

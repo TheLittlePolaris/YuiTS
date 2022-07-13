@@ -1,4 +1,4 @@
-import { YuiModule, InjectToken } from '@/ioc-container'
+import { YuiModule, InjectToken } from 'djs-ioc-container'
 import { ClientOptions, Intents } from 'discord.js'
 import { ConfigModule } from './config-service/config.module'
 import { HandlerModule } from './event-handlers/handler.module'

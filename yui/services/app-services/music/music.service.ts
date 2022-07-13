@@ -1,6 +1,6 @@
 import { GuildMember, Message } from 'discord.js'
 
-import { Injectable } from '@/ioc-container'
+import { Injectable } from 'djs-ioc-container'
 import { YuiLogger } from '@/services/logger/logger.service'
 import { AudioPlayerStatus } from '@discordjs/voice'
 

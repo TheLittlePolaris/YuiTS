@@ -9,7 +9,7 @@ import {
   Reason,
   Targets
 } from '@/services/app-services/feature/decorators/admin-action.decorator'
-import { Injectable } from '@/ioc-container'
+import { Injectable } from 'djs-ioc-container'
 import { IAdminAction } from '../admin-interfaces'
 
 @Injectable()

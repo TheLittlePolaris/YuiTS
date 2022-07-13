@@ -1,8 +1,7 @@
-import { Injectable } from '@/ioc-container'
+import { Injectable } from 'djs-ioc-container'
 import {
   VoiceConnection,
   joinVoiceChannel,
-  DiscordGatewayAdapterCreator,
   VoiceConnectionStatus,
   VoiceConnectionEvents
 } from '@discordjs/voice'
@@ -11,6 +10,7 @@ import { CONNECTION_READY_TIMEOUT } from './constants/connection.constant'
 
 @Injectable()
 export class MusicConnectionService {
+  constructor() {}
   async createVoiceConnection(message: Message): Promise<VoiceConnection> {
     const {
       voice: { channel: voiceChannel },
@@ -21,7 +21,7 @@ export class MusicConnectionService {
       channelId: voiceChannel.id,
       guildId,
       selfDeaf: true,
-      adapterCreator: <DiscordGatewayAdapterCreator>(<any>voiceAdapterCreator)
+      adapterCreator: voiceAdapterCreator as any
     })
     await this.connectionReady(connection)
     return connection
@@ -51,5 +51,9 @@ export class MusicConnectionService {
         resolve(null)
       })
     })
+  }
+
+  async cleanupConnection(connection: VoiceConnection) {
+    connection.destroy()
   }
 }

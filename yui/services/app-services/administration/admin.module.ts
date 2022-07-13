@@ -1,4 +1,4 @@
-import { YuiModule } from '@/ioc-container/decorators'
+import { YuiModule } from 'djs-ioc-container'
 import { AdministrationCommands, AdministrationService } from '.'
 import { ADMIN_ACTION_PROVIDER } from './constants/adminisatration-commands.constants'
 

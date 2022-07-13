@@ -11,7 +11,7 @@ import {
 import { KNOWN_AFFILIATION } from '../interfaces/vtuber-stat.interface'
 import { YoutubeChannelService } from './channel-service/youtube-channel.service'
 import { YuiLogger } from '@/services/logger/logger.service'
-import { Injectable } from '@/ioc-container'
+import { Injectable } from 'djs-ioc-container'
 
 @Injectable()
 export class VtuberStatService {

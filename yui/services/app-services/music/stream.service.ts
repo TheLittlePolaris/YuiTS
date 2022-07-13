@@ -1,5 +1,5 @@
 import { AppConfig } from '@/constants'
-import { Injectable } from '@/ioc-container'
+import { Injectable } from 'djs-ioc-container'
 import { YuiLogger } from '@/services/logger'
 import { AudioPlayerStatus, StreamType } from '@discordjs/voice'
 import { Message, VoiceChannel, TextChannel } from 'discord.js'

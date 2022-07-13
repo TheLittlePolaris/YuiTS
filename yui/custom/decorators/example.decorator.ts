@@ -1,5 +1,4 @@
-import { createMethodDecorator } from '@/ioc-container'
-import { ExecutionContext } from '@/ioc-container/event-execution-context/execution-context'
+import { createMethodDecorator, ExecutionContext } from 'djs-ioc-container'
 
 export const ExampleMethodDecorator = createMethodDecorator((context: ExecutionContext) => {
   // console.log(

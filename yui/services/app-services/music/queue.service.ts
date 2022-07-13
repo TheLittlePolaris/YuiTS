@@ -1,5 +1,5 @@
 import { AppConfig } from '@/constants'
-import { DiscordClient, Injectable } from '@/ioc-container'
+import { DiscordClient, Injectable } from 'djs-ioc-container'
 import { YuiLogger } from '@/services/logger'
 import { Message } from 'discord.js'
 import {

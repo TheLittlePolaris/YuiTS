@@ -1,6 +1,6 @@
-import { createMethodDecorator, createParamDecorator } from '@/ioc-container'
+import { createMethodDecorator, createParamDecorator } from 'djs-ioc-container'
 import { Message } from 'discord.js'
-import { bold, getVoiceChannel, italic, replyMessage } from '../../utilities'
+import { bold, getVoiceChannel, replyMessage } from '../../utilities'
 import { getStream } from '../entities/streams-container'
 
 export const AccessController = ({ join }: { join: boolean } = { join: false }) =>

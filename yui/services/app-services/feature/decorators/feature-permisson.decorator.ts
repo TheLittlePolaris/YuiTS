@@ -4,7 +4,7 @@ import {
   createParamDecorator,
   ExecutionContext,
   hasPermissions
-} from '@/ioc-container'
+} from 'djs-ioc-container'
 import { Message, PermissionString } from 'discord.js'
 
 export enum FEATURE_PROPERTY_PARAMS {
