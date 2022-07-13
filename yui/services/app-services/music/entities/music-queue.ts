@@ -19,7 +19,7 @@ export class MusicQueue extends Array<ISong> {
   public addSong(song: ISong): void {
     this.push(song)
   }
-  
+
   /**
    * @param {ISong} song Add the song to after the currently playing song
    */
