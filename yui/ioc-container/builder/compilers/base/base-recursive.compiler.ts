@@ -1,8 +1,6 @@
 import {
   ModuleMetadata,
   getPropertyKey,
-  BOT_GLOBAL_CLIENT,
-  BOT_GLOBAL_CONFIG,
   EVENT_HANDLER,
   PARAMTYPES_METADATA,
   SELF_DECLARED_DEPS_METADATA,
@@ -141,17 +139,8 @@ export abstract class BaseRecursiveCompiler<TReturn> {
     this._componentContainer.addInstance(target, compiledInstance)
 
     Promise.resolve().then(() => this.compileHandlerForEvent(target, compiledInstance))
-    setTimeout(() => this.injectExternalConfig(target, compiledInstance))
 
     return compiledInstance
-  }
-
-  protected injectExternalConfig(type: Type<any>, instance: InstanceType<Type<any>>) {
-    const { entryComponent } = this._moduleContainer
-    if (type.name === entryComponent.name) return
-    // TODO: create something like: createMethodDecorator(([client,config]) => {...})
-    instance[BOT_GLOBAL_CLIENT] = this._componentContainer.getInstance(entryComponent)
-    instance[BOT_GLOBAL_CONFIG] = this._config
   }
 
   protected async compileHandlerForEvent(
