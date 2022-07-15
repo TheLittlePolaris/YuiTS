@@ -22,7 +22,7 @@
     "swc:start-dev": "export NODE_ENV=development && node -r tsconfig-paths/register dist/yui.js",
     "swc:watch-dev": "swc yui -d dist --only **/*.ts -w --log-watch-compilation",
     "swc:nodemon": "export NODE_ENV=development && nodemon --delay 200ms --watch dist dist/yui.js",
-    "swc:dev-cc": "npm run prebuild && npm run swc:build && concurrently --handle-input -n swc:watch,nodemon -k \"npm run swc:watch-dev\" \"npm run swc:nodemon\"",
+    "swc:dev-cc": "concurrently --handle-input -n swc,nodemon -k \"npm run swc:watch-dev\" \"npm run swc:nodemon\"",
     "swc:node": "NODE_ENV=development node -r @swc-node/register yui/yui.ts"
   },
   "dependencies": {

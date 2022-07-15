@@ -1,9 +1,9 @@
 import { GuildMember, Message } from 'discord.js'
-
+import { unescape } from 'lodash'
 import { Injectable } from 'djs-ioc-container'
-import { YuiLogger } from '@/services/logger/logger.service'
 import { AudioPlayerStatus } from '@discordjs/voice'
 
+import { YuiLogger } from '@/services/logger/logger.service'
 import {
   bold,
   code,
@@ -22,7 +22,6 @@ import { isYoutubePlaylistUrl, YoutubeInfoService } from './youtube-service'
 import { MusicStreamService } from './stream.service'
 import { MusicQueueService } from './queue.service'
 import { MusicStream } from './entities'
-import { unescape } from 'lodash'
 
 @Injectable()
 export class MusicService {
