@@ -20,13 +20,14 @@ export function discordRichEmbedConstructor(records: IEmbedConstructor) {
     .setDescription(records.description)
 
   if (records.title) embed.setTitle(records.title)
-  if (records.author) embed.setAuthor(records.author.authorName, records.author.avatarUrl || null)
+  if (records.author)
+    embed.setAuthor({ name: records.author.authorName, url: records.author.avatarUrl })
 
   if (records.fields?.length) embed.addFields(...records.fields)
   if (records.thumbnailUrl) embed.setThumbnail(records.thumbnailUrl)
   if (records.appendTimeStamp) embed.setTimestamp()
   if (records.titleUrl) embed.setURL(records.titleUrl)
-  if (records.footer) embed.setFooter(records.footer)
+  if (records.footer) embed.setFooter({ text: records.footer })
   if (records.imageUrl) embed.setImage(records.imageUrl)
 
   return embed

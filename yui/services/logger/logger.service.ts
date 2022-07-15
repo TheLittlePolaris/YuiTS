@@ -52,10 +52,12 @@ export class YuiLogger implements LoggerService {
       })
     ]
   })
+
   private static buildPath(type: string) {
     const [m, d, y] = new Date().toLocaleDateString().split('/')
-    return `logs/${d}-${m}-${y}/${type}.log`
+    return `logs/${y}-${m}-${d}/app/${type}.log`
   }
+
   // context = class name: target.name || target.constructor.name
   constructor(context?: string) {
     this.context = context

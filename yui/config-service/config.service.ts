@@ -74,4 +74,8 @@ export class ConfigService {
       retryStrategy: (times = 5) => Math.min(times * 1000, 5000)
     }
   }
+
+  public get(key: string) {
+    return this.envConfig[key]
+  }
 }

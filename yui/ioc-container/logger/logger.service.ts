@@ -50,17 +50,12 @@ export class Logger implements LoggerService {
       })
     ]
   })
+
   private static buildPath(type: string) {
-    const [m, d, y] = new Intl.DateTimeFormat('en-US', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
-      .format(new Date())
-      .split('/')
-    return `logs/${y}-${m}-${d}/${type}.log`
+    const [m, d, y] = new Date().toLocaleDateString().split('/')
+    return `logs/${y}-${m}-${d}/container/${type}.log`
   }
-  // context = class name: target.name || target.constructor.name
+
   constructor(context?: string) {
     this.context = context
   }

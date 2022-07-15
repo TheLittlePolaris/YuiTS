@@ -6,12 +6,11 @@ import { DEFAULT_ACTION_KEY, DiscordEvent } from '../../constants'
 import { DiscordClient } from '../../entrypoint'
 import { ExecutionContext } from '../../event-execution-context/execution-context'
 import { Type } from '../../interfaces'
-import { ConfigService } from '../../simple-config'
 
 export abstract class BaseContainerFactory<TReturn> {
   static entryDetected = false
 
-  protected _config: ConfigService
+  protected _config
   protected _client: DiscordClient
 
   constructor(private readonly _compiler: BaseRecursiveCompiler<TReturn>) {}

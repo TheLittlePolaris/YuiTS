@@ -22,6 +22,7 @@ import { isYoutubePlaylistUrl, YoutubeInfoService } from './youtube-service'
 import { MusicStreamService } from './stream.service'
 import { MusicQueueService } from './queue.service'
 import { MusicStream } from './entities'
+import { unescape } from 'lodash'
 
 @Injectable()
 export class MusicService {
@@ -359,11 +360,11 @@ export class MusicService {
 
     const embed = discordRichEmbedConstructor({
       title: bold(`Pick one option from the list below, or type ${code('cancel')} to abort.`),
-      description: codeBlock(
-        items
-          .map((item, index) => `#${index + 1}: ${item.snippet.title.replace('&amp;', '&')}\n\n`)
-          .join(),
-        'css'
+      description: bold(
+        codeBlock(
+          items.map((item, index) => `#${index + 1}\n${unescape(item.snippet.title)}\n\n`).join(''),
+          'cpp'
+        )
       )
     })
 
@@ -371,7 +372,7 @@ export class MusicService {
     const collector = message.channel.createMessageCollector({
       filter: (m: Message) =>
         m.author.id === message.author.id && m.channel.id === message.channel.id,
-      time: 15000,
+      time: 60000,
       max: 1
     })
 

@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Client } from 'discord.js'
-
-import { DiscordEvent } from 'djs-ioc-container/constants/discord-events'
+import { DiscordEvent } from '../constants'
 
 /* ================================== INTERFACES ===================================== */
 export type GenericClassDecorator<T> = (target: T) => void

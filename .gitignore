@@ -5,6 +5,7 @@ dist
 LICENCE
 *.pem
 *.txt
+*.log
 package-lock.json
 logs/
 google-apis-client-secret.json

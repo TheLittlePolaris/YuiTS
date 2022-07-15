@@ -16,7 +16,12 @@ import {
 } from 'djs-ioc-container'
 import { ConfigService } from '@/config-service/config.service'
 import { MessageCreateInterceptor } from '@/event-handlers/event-interceptors'
-import { discordRichEmbedConstructor, sendChannelMessage } from '@/services/app-services/utilities'
+import {
+  bold,
+  discordRichEmbedConstructor,
+  randomNumberGenerator,
+  sendChannelMessage
+} from '@/services/app-services/utilities'
 import { sample } from 'lodash'
 
 @OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
@@ -138,8 +143,8 @@ export class MessageCreateEventHandler {
   @HandleCommand('admin', 'ad')
   @DeleteMessage()
   @Permissions('MODERATE_MEMBERS')
-  async managementaction(@Msg() message: Message, @MsgArgs() args: string[]) {
-    return this.administrationService.executeCommand(message, args)
+  async managementAction(@Msg() message: Message, @MsgArgs() args: string[]) {
+    return this.administrationService.executeAdminAction(message, args)
   }
 
   @HandleCommand('help')
@@ -149,14 +154,22 @@ export class MessageCreateEventHandler {
 
   @HandleCommand('hey')
   async handleHey(@Msg() message: Message) {
-    const messageContent = `This is just for testing, stop pinging this command pls.`
-    const images = await this.featureService.queryTenorGif('punches').catch(() => null)
+    const responses = [
+      'What?',
+      'Hmm?',
+      `Yea?`,
+      `Hello~!`,
+      `I'm here.`,
+      `I'm all ears.`,
+      `Yaaahoo!`,
+      `Erm...?`,
+      `Heyyy!`,
+      `Hi~!`,
+      `What's up?`
+    ]
+    const messageContent = responses.at(randomNumberGenerator(responses.length))
     sendChannelMessage(message, {
-      ...((images && {
-        embeds: [
-          discordRichEmbedConstructor({ description: messageContent, imageUrl: sample(images) })
-        ]
-      }) || { content: messageContent })
+      embeds: [discordRichEmbedConstructor({ description: bold(messageContent) })]
     })
   }
 

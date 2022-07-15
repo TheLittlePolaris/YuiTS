@@ -4,11 +4,10 @@ import { DiscordClient } from '../entrypoint'
 import { Prototype, Type } from '../interfaces'
 import { IExecutionContextMetadata } from './execution-context.interface'
 import { Logger } from '../logger'
-import { ConfigService } from '../simple-config'
 
 export class ExecutionContext {
   static client: DiscordClient
-  static config: ConfigService
+  static config
 
   private _handler: Function | ((...args: any[]) => any)
 
