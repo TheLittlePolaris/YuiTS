@@ -18,4 +18,3 @@ export const AdminCommand = createParamDecorator(
 export const AdminCommandArgs = createParamDecorator((ctx) =>
   ctx.getOriginalArguments<[Message, string[]]>()[1].slice(1)
 )
-
