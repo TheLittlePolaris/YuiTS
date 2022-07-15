@@ -15,8 +15,7 @@
     "baseUrl": ".",
     "paths": {
       "djs-ioc-container": ["yui/ioc-container"],
-      "@/*": ["yui/*"],
-      "config-service/*": ["yui/config-service/*"]
+      "@/*": ["yui/*"]
     },
     "target": "es2020",
     "loose": false,
