@@ -1,17 +1,17 @@
-import { VoiceStateEventHandler } from './voiceStateUpdate/voice-state.handler'
-import { MessageCreateEventHandler } from './messageCreate/message.handler'
-import { MusicModule } from '../services/app-services/music/music.module'
-import { FeatureModule } from '../services/app-services/feature/feature.module'
-import { AdminModule } from '../services/app-services/administration/admin.module'
-import { OwnerServiceModule } from '../services/owner-service/owner-service.module'
-import { DMEventHandler } from './messageCreate/dm.handler'
 import { YuiModule } from 'djs-ioc-container'
-import { ReadyEventHandler } from './ready/ready.handler'
+
+import { AdminModule } from '@/services/administration/admin.module'
+import { FeatureModule } from '@/services/feature/feature.module'
+import { MusicModule } from '@/services/music/music.module'
+import { OwnerServiceModule } from '@/services/statistics/statistics.module'
 import {
-  DMInterceptor,
+  MessageCreateEventHandler,
+  DMEventHandler,
   MessageCreateInterceptor,
-  VoiceStateInterceptor
-} from './event-interceptors'
+  DMInterceptor
+} from './messageCreate'
+import { ReadyEventHandler } from './ready'
+import { VoiceStateEventHandler, VoiceStateInterceptor } from './voiceStateUpdate'
 
 @YuiModule({
   modules: [MusicModule, FeatureModule, AdminModule, OwnerServiceModule],

@@ -1,27 +1,22 @@
-import { Chalk, Instance } from 'chalk'
+import { Instance, Chalk } from 'chalk'
+import { isObject } from 'djs-ioc-container'
 import { createLogger, format, Logger as WinstonLogger, transports } from 'winston'
-
-import { isObject } from '../helpers'
 import { ILoggerService } from './logger.interface'
 
-// Nestjs logger
-
-
-export class Logger implements ILoggerService {
+export class YuiLogger implements ILoggerService {
   private static chalk = new Instance({ level: 2 })
   private context: string
-  private static instance?: typeof Logger | ILoggerService = Logger
+  private static instance?: typeof YuiLogger | ILoggerService = YuiLogger
   private static yuiPid = process.pid
   private static winstonLogger: WinstonLogger = createLogger({
     format: format.json(),
-
     transports: [
       new transports.File({
-        filename: Logger.buildPath('error'),
+        filename: YuiLogger.buildPath('error'),
         level: 'error'
       }),
       new transports.File({
-        filename: Logger.buildPath('warn'),
+        filename: YuiLogger.buildPath('warn'),
         level: 'warn'
       }),
       new transports.Console({
@@ -33,7 +28,7 @@ export class Logger implements ILoggerService {
               all: true
             }),
             format.label({
-              label: `[Yui] ${Logger.chalk.keyword('orange')(`[${process.pid}]`)}`
+              label: `[Yui] ${YuiLogger.chalk.keyword('orange')(`[${process.pid}]`)}`
             }),
             format.timestamp({
               format: 'YY-MM-DD HH:MM:SS'
@@ -49,9 +44,10 @@ export class Logger implements ILoggerService {
 
   private static buildPath(type: string) {
     const [m, d, y] = new Date().toLocaleDateString().split('/')
-    return `logs/${y}-${m}-${d}/container/${type}.log`
+    return `logs/${y}-${m}-${d}/app/${type}.log`
   }
 
+  // context = class name: target.name || target.constructor.name
   constructor(context?: string) {
     this.context = context
   }
@@ -82,7 +78,7 @@ export class Logger implements ILoggerService {
     context?: string
   ) {
     const instance = this.getInstance()
-    const func = instance && (instance as typeof Logger)[name]
+    const func = instance && (instance as typeof YuiLogger)[name]
     func && func.call(instance, message, context || this.context)
   }
 
@@ -106,9 +102,9 @@ export class Logger implements ILoggerService {
     return this.winstonLogger.debug(this.printMessage(message, this.chalk.cyan, context))
   }
 
-  private getInstance(): typeof Logger | ILoggerService {
-    const { instance } = Logger
-    return instance === this ? Logger : instance
+  private getInstance(): typeof YuiLogger | ILoggerService {
+    const { instance } = YuiLogger
+    return instance === this ? YuiLogger : instance
   }
 
   private static printMessage(message: string | Error, color: Chalk, context?: string) {

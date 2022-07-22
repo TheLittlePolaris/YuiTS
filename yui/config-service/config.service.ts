@@ -1,8 +1,9 @@
+import { RedisOptions } from 'ioredis'
 import { config } from 'dotenv'
 import { existsSync } from 'fs'
-import { YuiLogger } from '@/services/logger/logger.service'
-import { RedisOptions } from 'ioredis'
+
 import { Injectable } from 'djs-ioc-container'
+import { YuiLogger } from '@/logger/logger.service'
 
 interface EnvConfig {
   [key: string]: string

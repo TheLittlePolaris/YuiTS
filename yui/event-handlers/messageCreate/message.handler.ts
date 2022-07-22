@@ -1,8 +1,5 @@
 import { Message, TextChannel } from 'discord.js'
-import { AdministrationService } from '../../services/app-services/administration/administration.service'
-import { FeatureService } from '../../services/app-services/feature/feature.service'
-import { MusicService } from '../../services/app-services/music/music.service'
-import { YuiLogger } from '@/services/logger/logger.service'
+import { YuiLogger } from '@/logger/logger.service'
 import {
   MsgArgs,
   MsgChannel,
@@ -15,14 +12,18 @@ import {
   UseInterceptor
 } from 'djs-ioc-container'
 import { ConfigService } from '@/config-service/config.service'
-import { MessageCreateInterceptor } from '@/event-handlers/event-interceptors'
-import {
-  bold,
-  discordRichEmbedConstructor,
-  randomNumberGenerator,
-  sendChannelMessage
-} from '@/services/app-services/utilities'
+
 import { sample } from 'lodash'
+import { MusicService } from '@/services/music/music.service'
+import { AdministrationService } from '@/services/administration/administration.service'
+import { FeatureService } from '@/services/feature/feature.service'
+import {
+  randomNumberGenerator,
+  sendChannelMessage,
+  discordRichEmbedConstructor,
+  bold
+} from '@/services/utilities'
+import { MessageCreateInterceptor } from './message.interceptor'
 
 @OnEvent('messageCreate', { ignoreBots: true, startsWithPrefix: true })
 @UseInterceptor(MessageCreateInterceptor)

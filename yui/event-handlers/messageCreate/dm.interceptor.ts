@@ -1,8 +1,8 @@
-import { ConfigService } from '@/config-service/config.service'
-import { ExecutionContext, IInterceptor, Interceptor } from 'djs-ioc-container'
-import { YuiLogger } from '@/services/logger/logger.service'
 import { ClientEvents } from 'discord.js'
 import { catchError, finalize, Observable, throwError } from 'rxjs'
+import { ExecutionContext, IInterceptor, Interceptor } from 'djs-ioc-container'
+import { ConfigService } from '@/config-service/config.service'
+import { YuiLogger } from '@/logger/logger.service'
 
 @Interceptor('messageCreate')
 export class DMInterceptor implements IInterceptor<Observable<any>> {

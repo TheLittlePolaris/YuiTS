@@ -1,5 +1,5 @@
-import { Interceptor, IInterceptor, ExecutionContext, Logger } from 'djs-ioc-container'
-import { Observable, tap } from 'rxjs'
+import { Interceptor, IInterceptor, ExecutionContext } from 'djs-ioc-container'
+import { Observable } from 'rxjs'
 
 @Interceptor('voiceStateUpdate')
 export class VoiceStateInterceptor implements IInterceptor<Observable<any>> {

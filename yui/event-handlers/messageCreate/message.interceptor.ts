@@ -1,6 +1,6 @@
 import { catchError, finalize, Observable, throwError } from 'rxjs'
-import { YuiLogger } from '@/services/logger'
 import { IInterceptor, Interceptor, ExecutionContext } from 'djs-ioc-container'
+import { YuiLogger } from '@/logger/logger.service'
 
 @Interceptor('messageCreate')
 export class MessageCreateInterceptor implements IInterceptor<Observable<any>> {

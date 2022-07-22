@@ -5,10 +5,10 @@ import {
   OnEvent,
   UseInterceptor
 } from 'djs-ioc-container'
-import { getStream } from '@/services/app-services/music'
 import { VoiceChannel } from 'discord.js'
-import { MusicService } from '../../services/app-services/music/music.service'
 import { VoiceStateInterceptor } from './voicestate.interceptor'
+import { getStream } from '@/services/music/entities'
+import { MusicService } from '@/services/music/music.service'
 
 @OnEvent('voiceStateUpdate')
 @UseInterceptor(VoiceStateInterceptor)

@@ -1,5 +1,5 @@
 import { ConfigService } from '@/config-service/config.service'
-import { YuiLogger } from '@/services/logger/logger.service'
+import { YuiLogger } from '@/logger/logger.service'
 import { DiscordClient, EventHandler, OnEvent } from 'djs-ioc-container'
 
 @OnEvent('ready')
