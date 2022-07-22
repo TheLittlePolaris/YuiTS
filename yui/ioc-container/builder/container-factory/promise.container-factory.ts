@@ -96,6 +96,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory<Promise<any>
   }
 
   // TODO: assign logic here
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected filterEvent(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
     return Promise.resolve(true)
   }

@@ -5,7 +5,7 @@ export function hasPermissions(
   permissions: PermissionResolvable[],
   checkAdmin?: boolean
 ): boolean {
-  return guildMember.permissions.has(permissions)
+  return guildMember.permissions.has(permissions, checkAdmin)
 }
 
 export function samePermissions(permissions: PermissionResolvable[], ...entities: GuildMember[]) {

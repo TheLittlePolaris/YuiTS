@@ -16,6 +16,7 @@ export function Entrypoint<T = any>(): GenericClassDecorator<Type<T>> {
 
 // https://www.typescriptlang.org/docs/handbook/decorators.html#method-decorators
 export const On = (event: DiscordEvent): MethodDecorator => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return function (target: Prototype, propertyKey: string, _descriptor: PropertyDescriptor) {
     const propertyDesignType = Reflect.getMetadata(DESIGN_TYPE, target, propertyKey)
     if (!isFunction(propertyDesignType))

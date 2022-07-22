@@ -1,4 +1,4 @@
-import { uniqFlattenEntries } from "@/services/utilities"
+import { uniqFlattenEntries } from '@/services/utilities'
 
 export type REACTION_KEY = '1️⃣' | '2️⃣' | '3️⃣' | '4️⃣'
 // | '5️⃣'

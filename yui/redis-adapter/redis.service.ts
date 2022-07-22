@@ -31,7 +31,7 @@ export class RedisService {
     return this._redisClient.rpush(this.buildArrKey(type, arrayName), value)
   }
 
-  pop(type: string, arrayName: string, value: string) {
+  pop(type: string, arrayName: string) {
     return this._redisClient.rpop(this.buildArrKey(type, arrayName))
   }
 

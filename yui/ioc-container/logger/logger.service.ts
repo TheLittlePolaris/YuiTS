@@ -6,7 +6,6 @@ import { ILoggerService } from './logger.interface'
 
 // Nestjs logger
 
-
 export class Logger implements ILoggerService {
   private static chalk = new Instance({ level: 2 })
   private context: string

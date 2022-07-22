@@ -1,2 +1,2 @@
-export * from "./holostat-request.service";
-export * from "./youtube-channel.service";
+export * from './holostat-request.service'
+export * from './youtube-channel.service'

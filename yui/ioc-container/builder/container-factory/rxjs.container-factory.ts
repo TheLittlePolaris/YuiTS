@@ -9,7 +9,6 @@ import {
   Observable,
   of,
   take,
-  tap
 } from 'rxjs'
 import { RxjsRecursiveCompiler } from '../compilers/rxjs.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../../constants'

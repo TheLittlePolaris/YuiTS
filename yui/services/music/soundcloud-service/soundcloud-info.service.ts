@@ -52,7 +52,7 @@ export class PolarisSoundCloudService {
     { getUrl } = { getUrl: false }
   ): Promise<SoundcloudGetUrlInfoType> {
     if (!url || !url.length) return Promise.reject('Empty url')
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       try {
         const processExecution = spawn(
           'youtube-dl',

@@ -3,7 +3,7 @@ import { GuildMember, Message, Role, MessagePayload, MessageOptions } from 'disc
 import { YuiLogger } from '@/logger/logger.service'
 import { Injectable } from 'djs-ioc-container'
 import { IAdminAction } from '../admin-interfaces'
-import { AdminAction,  CmdExecutor, Targets, Reason, MentionedRoles, Nickname  } from '../decorators'
+import { AdminAction, CmdExecutor, Targets, Reason, MentionedRoles, Nickname } from '../decorators'
 
 @Injectable()
 export class AdministrationCommands implements IAdminAction {
