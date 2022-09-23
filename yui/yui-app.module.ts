@@ -1,5 +1,5 @@
 import { YuiModule, InjectToken } from 'djs-ioc-container'
-import { ClientOptions, Intents } from 'discord.js'
+import { ClientOptions, GatewayIntentBits, Partials } from 'discord.js'
 import { ConfigModule } from './config-service/config.module'
 import { HandlerModule } from './event-handlers/handler.module'
 
@@ -10,13 +10,19 @@ import { HandlerModule } from './event-handlers/handler.module'
       provide: InjectToken.CLIENT_OPTIONS,
       useValue: <ClientOptions>{
         intents: [
-          Intents.FLAGS.GUILDS,
-          Intents.FLAGS.GUILD_VOICE_STATES,
-          Intents.FLAGS.GUILD_MESSAGES,
-          Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-          Intents.FLAGS.DIRECT_MESSAGES
+          GatewayIntentBits.GuildBans,
+          GatewayIntentBits.GuildMembers,
+          GatewayIntentBits.GuildMessages,
+          GatewayIntentBits.GuildPresences,
+          GatewayIntentBits.GuildEmojisAndStickers,
+          GatewayIntentBits.GuildVoiceStates,
+          GatewayIntentBits.GuildWebhooks,
+          GatewayIntentBits.Guilds,
+          GatewayIntentBits.DirectMessages,
+          GatewayIntentBits.DirectMessageReactions,
+          GatewayIntentBits.GuildMessageReactions
         ],
-        partials: ['MESSAGE', 'CHANNEL', 'REACTION']
+        partials: [Partials.Message, Partials.Channel, Partials.Reaction]
       }
     }
   ]
