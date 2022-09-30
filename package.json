@@ -20,8 +20,8 @@
     "start": "npm run build && export NODE_ENV=build && node dist/yui.js",
     "dev": "npm run build && export NODE_ENV=development && node dist/yui.js",
     "build:docker": "tsc -p tsconfig.build.json",
-    "lint": "eslint '*/**/*.ts' --fix-type suggestion,problem,layout,directive --ext .ts --fix ./yui",
-    "pretty": "yarn run prettier --config .prettierrc --write ./yui"
+    "lint": "eslint '*/**/*.ts' --quiet --ext .ts --fix ./yui",
+    "pretty": "prettier --config .prettierrc --write ./yui"
   },
   "dependencies": {
     "@discordjs/collection": "^1.1.0",
@@ -72,6 +72,7 @@
     "node-gyp-build": "^4.4.0",
     "nodemon": "^2.0.20",
     "prettier": "^2.7.1",
+    "prettier-eslint": "^15.0.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^3.14.1",
     "typescript": "^4.6.3",

@@ -14,6 +14,7 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
+    "project": "tsconfig.json",
     "ecmaVersion": 11
   },
   "plugins": [
@@ -26,10 +27,10 @@
     "arrow-body-style": "error",
     "arrow-parens": ["error", "always"],
     "brace-style": ["error", "1tbs"],
-    "comma-dangle": ["error", "always-multiline"],
+    "comma-dangle": ["off", "always-multiline"],
     "complexity": "off",
     "constructor-super": "error",
-    "curly": "error",
+    "curly": ["error", "multi"],
     "dot-notation": "off",
     "eol-last": "error",
     "eqeqeq": ["error", "smart"],
@@ -42,7 +43,7 @@
     "new-parens": "error",
     "no-array-constructor": "off",
     "no-async-promise-executor": "error",
-    "no-bitwise": "error",
+    "no-bitwise": "warn",
     "no-caller": "error",
     "no-case-declarations": "error",
     "no-class-assign": "error",
@@ -95,7 +96,7 @@
     "no-this-before-super": "error",
     "no-throw-literal": "error",
     "no-trailing-spaces": "error",
-    "no-undef": "error",
+    "no-undef": "warn",
     "no-undef-init": "error",
     "no-unreachable": "error",
     "no-unsafe-finally": "error",
@@ -149,7 +150,7 @@
     "no-underscore-dangle": "warn",
     "guard-for-in": "warn",
     "space-in-parens": ["error", "never"],
-    "object-curly-spacing": ["error", "never"],
+    "object-curly-spacing": ["error", "always"],
     "array-bracket-spacing": ["error", "never"],
     "computed-property-spacing": ["error", "never"],
     "@typescript-eslint/adjacent-overload-signatures": "error",
@@ -195,13 +196,27 @@
     "@typescript-eslint/member-delimiter-style": [
       "error",
       {
-        "multiline": {
-          "delimiter": "semi",
-          "requireLast": true
-        },
-        "singleline": {
-          "delimiter": "semi",
-          "requireLast": false
+        "overrides": {
+          "interface": {
+            "multiline": {
+              "delimiter": "semi",
+              "requireLast": true
+            },
+            "singleline": {
+              "delimiter": "semi",
+              "requireLast": false
+            }
+          },
+          "typeLiteral": {
+            "multiline": {
+              "delimiter": "semi",
+              "requireLast": true
+            },
+            "singleline": {
+              "delimiter": "semi",
+              "requireLast": false
+            }
+          }
         }
       }
     ],
@@ -214,7 +229,7 @@
     "@typescript-eslint/no-inferrable-types": "error",
     "@typescript-eslint/no-loss-of-precision": "error",
     "@typescript-eslint/no-misused-new": "error",
-    "@typescript-eslint/no-misused-promises": "error",
+    "@typescript-eslint/no-misused-promises": "warn",
     "@typescript-eslint/no-namespace": "error",
     "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
     "@typescript-eslint/no-non-null-assertion": "warn",
@@ -240,10 +255,7 @@
     "@typescript-eslint/prefer-function-type": "error",
     "@typescript-eslint/prefer-namespace-keyword": "error",
     "@typescript-eslint/prefer-readonly": "error",
-    "@typescript-eslint/quotes": ["error", "single"],
-    "@typescript-eslint/restrict-plus-operands": "error",
     "@typescript-eslint/restrict-template-expressions": "off",
-    "@typescript-eslint/semi": ["error", "always"],
     "@typescript-eslint/triple-slash-reference": [
       "error",
       {
@@ -260,18 +272,20 @@
     "@typescript-eslint/no-unsafe-call": "warn",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-empty-function": "warn",
-    "@typescript-eslint/explicit-function-return-type": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off", // TODO:
     "@typescript-eslint/require-await": "off",
     "@typescript-eslint/promise-function-async": "error",
     "@typescript-eslint/naming-convention": [
       "error",
       {
         "selector": "variable",
-        "format": ["camelCase", "UPPER_CASE", "PascalCase"], // TODO: enforce
+        "format": ["camelCase", "UPPER_CASE", "PascalCase", "snake_case"], // TODO: enforce
         "leadingUnderscore": "allow",
         "trailingUnderscore": "forbid"
       }
     ],
+    "@typescript-eslint/restrict-plus-operands": "off",
+    "@typescript-eslint/semi": "off",
     "prefer-arrow/prefer-arrow-functions": [
       "warn",
       {
@@ -288,7 +302,7 @@
     "import/no-duplicates": "warn",
     "import/no-named-as-default": "warn",
     "import/no-named-as-default-member": "warn",
-    "import/no-unresolved": "error",
+    "import/no-unresolved": "warn",
     "import/order": [
       "error",
       {
@@ -326,7 +340,9 @@
     "unicorn/no-array-callback-reference": "warn",
     "unicorn/consistent-destructuring": "off",
     "unicorn/prefer-object-from-entries": "off",
-    "unicorn/prefer-array-flat": "off"
+    "unicorn/prefer-array-flat": "off",
+    "unicorn/text-encoding-identifier-case": "off",
+    "unicorn/no-static-only-class": "warn"
   },
   "settings": {
     "import/extensions": [".ts"],
