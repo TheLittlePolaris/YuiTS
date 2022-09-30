@@ -1,4 +1,4 @@
-import { clone, Function, get, isArray } from 'lodash';
+import { clone, get, isArray } from 'lodash';
 
 import { DiscordClient } from '../entrypoint';
 import { FunctionType, Prototype, Type } from '../interfaces';

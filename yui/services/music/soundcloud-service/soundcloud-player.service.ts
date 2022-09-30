@@ -99,9 +99,10 @@ export class PolarisSoundCloudPlayer {
     url: string;
     type: string;
   }> {
-    const soundcloudDll = (await this.soundcloudService.getSoundcloudInfoFromUrl(videoUrl, {
-      getUrl: true
-    })) as {
+    const soundcloudDll = (await this.soundcloudService.getSoundcloudInfoFromUrl(
+      videoUrl,
+      true
+    )) as {
       url: string;
       type: string;
     };

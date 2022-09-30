@@ -17,8 +17,8 @@
     "prebuild": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run prebuild && tsc -p tsconfig.json",
-    "start": "npm run build && export NODE_ENV=build && node dist/yui.js",
-    "dev": "npm run build && export NODE_ENV=development && node dist/yui.js",
+    "start": "npm run build && export NODE_ENV=build && node -r tsconfig-paths/register dist/yui.js",
+    "dev": "npm run build && export NODE_ENV=development && node -r tsconfig-paths/register dist/yui.js",
     "build:docker": "tsc -p tsconfig.build.json",
     "lint": "eslint '*/**/*.ts' --quiet --ext .ts --fix ./yui",
     "pretty": "prettier --config .prettierrc --write ./yui"
@@ -46,6 +46,7 @@
     "rxjs": "^7.5.5",
     "semver": "^7.3.7",
     "sodium": "^3.0.2",
+    "tsconfig-paths": "^4.1.0",
     "utf-8-validate": "^5.0.9",
     "winston": "^3.7.2",
     "ytdl-core": "^4.11.2"
@@ -74,11 +75,11 @@
     "prettier": "^2.7.1",
     "prettier-eslint": "^15.0.1",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^3.14.1",
     "typescript": "^4.6.3",
     "yarn-upgrade-all": "^0.7.1"
   },
   "_moduleAliases": {
-    "@": "dist"
+    "@": "dist",
+    "djs-ioc-container": "dist/ioc-container"
   }
 }

@@ -302,7 +302,12 @@
     "import/no-duplicates": "warn",
     "import/no-named-as-default": "warn",
     "import/no-named-as-default-member": "warn",
-    "import/no-unresolved": "warn",
+    "import/no-unresolved": [
+      "warn",
+      {
+        "caseSensitive": false
+      }
+    ],
     "import/order": [
       "error",
       {
@@ -353,7 +358,11 @@
     },
     "import/resolver": {
       "node": {
-        "extensions": [".ts", ".js"]
+        "extensions": [".ts", ".js"],
+        "project": ["tsconfig.json"]
+      },
+      "typescript": {
+        "project": ["tsconfig.json"]
       }
     }
   }

@@ -1,4 +1,4 @@
-// import 'module-alias/register'
+import 'module-alias/register';
 import 'reflect-metadata';
 
 import * as semver from 'semver';
