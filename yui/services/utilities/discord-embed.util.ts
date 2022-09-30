@@ -1,12 +1,11 @@
-import { MessageEmbed, EmbedFieldData, HexColorString } from 'discord.js'
+import { APIEmbedField, EmbedBuilder, EmbedData, HexColorString } from 'discord.js'
 import { AppConfig } from '@/constants'
-
 interface IEmbedConstructor {
   title?: string
   titleUrl?: string
   author?: { authorName?: string; avatarUrl?: string }
-  description: string
-  fields?: EmbedFieldData[] | EmbedFieldData[][]
+  description?: string
+  fields?: APIEmbedField[]
   color?: string
   thumbnailUrl?: string
   appendTimeStamp?: boolean
@@ -15,14 +14,15 @@ interface IEmbedConstructor {
 }
 
 export function discordRichEmbedConstructor(records: IEmbedConstructor) {
-  const embed = new MessageEmbed()
-    .setColor((records.color as HexColorString) || AppConfig.YUI_COLOR_CODE)
-    .setDescription(records.description)
+  const embed = new EmbedBuilder().setColor(
+    (records.color as HexColorString) || AppConfig.YUI_COLOR_CODE
+  )
+
+  if (records.description) embed.setDescription(records.description)
 
   if (records.title) embed.setTitle(records.title)
   if (records.author)
-    embed.setAuthor({ name: records.author.authorName, url: records.author.avatarUrl })
-
+    embed.setAuthor({ name: records.author.authorName || '', url: records.author.avatarUrl })
   if (records.fields?.length) embed.addFields(...records.fields)
   if (records.thumbnailUrl) embed.setThumbnail(records.thumbnailUrl)
   if (records.appendTimeStamp) embed.setTimestamp()

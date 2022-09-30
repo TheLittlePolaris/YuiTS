@@ -20,7 +20,8 @@ import { HandlerModule } from './event-handlers/handler.module'
           GatewayIntentBits.Guilds,
           GatewayIntentBits.DirectMessages,
           GatewayIntentBits.DirectMessageReactions,
-          GatewayIntentBits.GuildMessageReactions
+          GatewayIntentBits.GuildMessageReactions,
+          GatewayIntentBits.MessageContent
         ],
         partials: [Partials.Message, Partials.Channel, Partials.Reaction]
       }

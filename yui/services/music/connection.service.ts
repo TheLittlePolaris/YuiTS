@@ -1,10 +1,5 @@
 import { Injectable } from 'djs-ioc-container'
-import {
-  VoiceConnection,
-  joinVoiceChannel,
-  VoiceConnectionStatus,
-  VoiceConnectionEvents
-} from '@discordjs/voice'
+import { VoiceConnection, joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice'
 import { Message } from 'discord.js'
 import { CONNECTION_READY_TIMEOUT } from './constants/connection.constant'
 
@@ -28,7 +23,7 @@ export class MusicConnectionService {
 
   registerConnectionListener(
     connection: VoiceConnection,
-    eventHandlers?: Partial<VoiceConnectionEvents>
+    eventHandlers?: Record<string, (...params) => void>
   ) {
     Object.entries(eventHandlers).forEach(([event, handler]) =>
       connection.on(event as any, handler)

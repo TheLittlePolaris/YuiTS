@@ -141,8 +141,7 @@ export class MusicStreamService {
         discordRichEmbedConstructor({
           title: `${!stream.isAutoPlaying ? '🎧  Now Playing' : ':infinity: Autoplaying'}: ${
             stream.queue.first.title
-          }`,
-          description: ''
+          }`
         })
       ]
     })

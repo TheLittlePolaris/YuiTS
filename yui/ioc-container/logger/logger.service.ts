@@ -10,7 +10,6 @@ export class Logger implements ILoggerService {
   private static chalk = new Instance({ level: 2 })
   private context: string
   private static instance?: typeof Logger | ILoggerService = Logger
-  private static yuiPid = process.pid
   private static winstonLogger: WinstonLogger = createLogger({
     format: format.json(),
 
