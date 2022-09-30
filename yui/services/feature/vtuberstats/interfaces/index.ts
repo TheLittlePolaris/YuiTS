@@ -1,3 +1,3 @@
-export * from './base-channel.interface'
-export * from './base-request.interface'
-export * from './holostat.interface'
+export * from './base-channel.interface';
+export * from './base-request.interface';
+export * from './holostat.interface';

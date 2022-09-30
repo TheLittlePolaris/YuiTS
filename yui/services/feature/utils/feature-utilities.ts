@@ -1,14 +1,14 @@
 export const subscriberCountFormatter = (number: number | string): string => {
-  number = typeof number === 'string' ? Number(number) : number
-  let result: string
+  number = typeof number === 'string' ? Number(number) : number;
+  let result: string;
 
-  if (number > 0 && number <= 999) result = `${number}`
-  else if (number > 999 && number <= 999999) result = `${(number / 1000).toFixed(2)}K`
-  else if (number > 999999 && number <= 999999999) result = `${(number / 1000000).toFixed(2)}M`
-  else result = `${number}`
+  if (number > 0 && number <= 999) result = `${number}`;
+  else if (number > 999 && number <= 999999) result = `${(number / 1000).toFixed(2)}K`;
+  else if (number > 999999 && number <= 999999999) result = `${(number / 1000000).toFixed(2)}M`;
+  else result = `${number}`;
 
-  return result.includes('.00') ? result.replace('.00', '') : result
-}
+  return result.includes('.00') ? result.replace('.00', '') : result;
+};
 
 export const dateTimeJSTFormatter = (iso8601DateString: string): string =>
   `${new Date(iso8601DateString).toLocaleString('en-US', {
@@ -20,7 +20,7 @@ export const dateTimeJSTFormatter = (iso8601DateString: string): string =>
     hour: 'numeric',
     minute: 'numeric',
     second: 'numeric'
-  })} JST`
+  })} JST`;
 
 // export const pingImageGenerator = async (ping: number, rtt: number) => {
 //   const sourceImg = readFileSync(

@@ -1,6 +1,6 @@
-import { uniqFlattenEntries } from '@/services/utilities'
+import { uniqFlattenEntries } from '@/services/utilities';
 
-export type REACTION_KEY = '1️⃣' | '2️⃣' | '3️⃣' | '4️⃣'
+export type REACTION_KEY = '1️⃣' | '2️⃣' | '3️⃣' | '4️⃣';
 // | '5️⃣'
 // | '6️⃣'
 // | '7️⃣'
@@ -8,9 +8,9 @@ export type REACTION_KEY = '1️⃣' | '2️⃣' | '3️⃣' | '4️⃣'
 // | '9️⃣'
 // | '🔟'
 export interface IHoloStatReactionData {
-  icon: string
-  name: string
-  code: string
+  icon: string;
+  name: string;
+  code: string;
 }
 
 export enum HoloStatRegions {
@@ -19,7 +19,7 @@ export enum HoloStatRegions {
   English = 'en'
 }
 
-export type KnownHoloStatRegions = `${HoloStatRegions}`
+export type KnownHoloStatRegions = `${HoloStatRegions}`;
 
 export const holoStatList: Record<HoloStatRegions, IHoloStatReactionData> = {
   [HoloStatRegions.Japan]: {
@@ -37,7 +37,7 @@ export const holoStatList: Record<HoloStatRegions, IHoloStatReactionData> = {
     name: 'English',
     code: 'en'
   }
-}
+};
 
 export enum HoloStatFunctionalCommands {
   Detail = 'd'
@@ -47,9 +47,9 @@ export type HoloStatParams =
   | Lowercase<keyof typeof HoloStatRegions>
   | Lowercase<KnownHoloStatRegions>
   | Lowercase<keyof typeof HoloStatFunctionalCommands>
-  | Lowercase<`${HoloStatFunctionalCommands}`>
+  | Lowercase<`${HoloStatFunctionalCommands}`>;
 
-export const holoStatRegions = uniqFlattenEntries(HoloStatRegions)
-export const holoStatFunctionalCommands = uniqFlattenEntries(HoloStatFunctionalCommands)
+export const holoStatRegions = uniqFlattenEntries(HoloStatRegions);
+export const holoStatFunctionalCommands = uniqFlattenEntries(HoloStatFunctionalCommands);
 
-export const holoStatCommands = [...holoStatRegions, ...holoStatFunctionalCommands]
+export const holoStatCommands = [...holoStatRegions, ...holoStatFunctionalCommands];

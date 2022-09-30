@@ -1,25 +1,29 @@
-import { AdminAction, AdminActionPermission } from '../admin-interfaces'
-import { Message } from 'discord.js'
-import { createMethodDecorator, ExecutionContext, hasPermissions } from 'djs-ioc-container'
-import { getEnumValues } from '../../utilities'
+import { Message } from 'discord.js';
+import { createMethodDecorator, ExecutionContext, hasPermissions } from 'djs-ioc-container';
 
-const adminCommands = getEnumValues(AdminAction)
+import { AdminAction, AdminActionPermission } from '../admin-interfaces';
+import { getEnumValues } from '../../utilities';
 
-export const AdminPermissionValidator = createMethodDecorator((ctx: ExecutionContext) => {
-  const [message, _, command] = ctx.getOriginalArguments<[Message, Array<string>, AdminAction]>()
+const adminCommands = getEnumValues(AdminAction);
+
+export const AdminPermissionValidator = createMethodDecorator((context: ExecutionContext) => {
+  const [message, _, command] =
+    context.getOriginalArguments<[Message, Array<string>, AdminAction]>();
   if (!command || !adminCommands.includes(command)) {
-    ctx.terminate()
-    return ctx
+    context.terminate();
+    return context;
   }
 
-  const isOwner = message.author.id === ctx.config.get('OWNERID')
+  const isOwner = message.author.id === context.config.get('OWNERID');
 
   if (
-    !hasPermissions(ctx.client.getGuildMemberByMessage(message), AdminActionPermission[command]) ||
+    !hasPermissions(
+      context.client.getGuildMemberByMessage(message),
+      AdminActionPermission[command]
+    ) ||
     !(isOwner || hasPermissions(message.member, AdminActionPermission[command]))
-  ) {
-    ctx.terminate()
-  }
+  )
+    context.terminate();
 
-  return ctx
-})
+  return context;
+});

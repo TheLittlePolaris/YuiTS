@@ -1,19 +1,24 @@
-import { Injectable } from 'djs-ioc-container'
-import { Message, GuildMember, MessageOptions, EmbedField } from 'discord.js'
+import { Injectable } from 'djs-ioc-container';
+import { Message, GuildMember, EmbedField } from 'discord.js';
 
-import { subscriberCountFormatter, dateTimeJSTFormatter } from '../utils/feature-utilities'
-import { HoloStatRequestService } from './requests'
-import { KNOWN_AFFILIATION } from '../interfaces/vtuber-stat.interface'
-import { YoutubeChannelService } from './requests/youtube-channel.service'
-import { YuiLogger } from '@/logger/logger.service'
-import { discordRichEmbedConstructor } from '@/services/utilities'
-import { KnownHoloStatRegions, holoStatList, HoloStatRegions } from './interfaces'
+import { subscriberCountFormatter, dateTimeJSTFormatter } from '../utils/feature-utilities';
+import { KNOWN_AFFILIATION } from '../interfaces/vtuber-stat.interface';
+
+import { HoloStatRequestService } from './requests';
+import { YoutubeChannelService } from './requests/youtube-channel.service';
+import { KnownHoloStatRegions, holoStatList, HoloStatRegions } from './interfaces';
+
+import {
+  deleteMessage,
+  discordRichEmbedConstructor,
+  sendChannelMessage
+} from '@/services/utilities';
 
 @Injectable()
 export class VtuberStatService {
   constructor(
-    private holostatRequestService: HoloStatRequestService,
-    private youtubeRequestService: YoutubeChannelService
+    private readonly holostatRequestService: HoloStatRequestService,
+    private readonly youtubeRequestService: YoutubeChannelService
   ) {}
 
   public async vtuberStatSelectList({
@@ -21,119 +26,119 @@ export class VtuberStatService {
     affiliation = 'Hololive',
     regionCode
   }: {
-    message: Message
-    affiliation: KNOWN_AFFILIATION
-    regionCode?: KnownHoloStatRegions
+    message: Message;
+    affiliation: KNOWN_AFFILIATION;
+    regionCode?: KnownHoloStatRegions;
   }): Promise<unknown> {
-    if (!regionCode) {
-      return this.getRegion({ message, affiliation })
-    }
+    if (!regionCode) return this.getRegion({ message, affiliation });
 
-    const service = this.holostatRequestService
-    const dataList = await service.getChannelList(regionCode)
+    const service = this.holostatRequestService;
+    const dataList = await service.getChannelList(regionCode);
 
     if (!dataList || !dataList.length)
-      return this.sendMessage(message, '**Something went wrong :(**')
+      return sendChannelMessage(message, '**Something went wrong :(**');
 
     const fieldsData: EmbedField[] = dataList.map((item, index) => ({
       name: `**${index + 1}**`,
       value: `**${item.snippet.title}**`,
       inline: true
-    }))
+    }));
 
-    const sentContent: Message[] = []
+    const sentContent: Message[] = [];
 
-    const limit = 20
-    const hasPaging = fieldsData.length > limit
+    const limit = 20;
+    const hasPaging = fieldsData.length > limit;
     const sendPartial = async (index: number) => {
       const currentPartLimit =
-        index + limit >= fieldsData.length ? fieldsData.length : index + limit
+        index + limit >= fieldsData.length ? fieldsData.length : index + limit;
 
-      const sendingEmbed = await discordRichEmbedConstructor({
+      const sendingEmbed = discordRichEmbedConstructor({
         description: `**Select the number dedicated to the channel name for detail${
-          hasPaging ? ` (page ${index / limit + 1})` : ``
+          hasPaging ? ` (page ${index / limit + 1})` : ''
         }**`,
         fields: fieldsData.slice(index, currentPartLimit)
-      })
+      });
 
-      const sent = await this.sendMessage(message, { embeds: [sendingEmbed] })
+      const sent = await sendChannelMessage(message, { embeds: [sendingEmbed] });
 
-      sentContent.push(sent)
+      sentContent.push(sent);
 
-      if (!(currentPartLimit >= fieldsData.length)) sendPartial(currentPartLimit)
+      if (!(currentPartLimit >= fieldsData.length)) sendPartial(currentPartLimit);
 
-      return
-    }
-    sendPartial(0)
+      return;
+    };
+    sendPartial(0);
 
-    const collectorFilter = (messageFilter: Message) =>
+    const collectorFilter = (messageFilter: Message): boolean =>
       messageFilter.author.id === message.author.id &&
-      messageFilter.channel.id === message.channel.id
+      messageFilter.channel.id === message.channel.id;
 
     const collector = message.channel.createMessageCollector({
       filter: collectorFilter,
       time: 30000,
       max: 1
-    })
+    });
 
     const deleteSentContent = () => {
-      sentContent.filter(Boolean).forEach((message) => this.deleteMessage(message))
-    }
+      sentContent.filter(Boolean).forEach((sentMessage) => {
+        deleteMessage(sentMessage);
+      });
+    };
 
     collector.on('collect', async (collected: Message) => {
-      collector.stop()
+      collector.stop();
 
-      const selected = /^\d{1,2}|cancel$/.exec(collected.content)
+      const selected = /^\d{1,2}|cancel$/.exec(collected.content);
       if (!selected) {
-        this.sendMessage(message, '**Please choose a valid number**')
-        return
+        sendChannelMessage(message, '**Please choose a valid number**');
+        return;
       }
-      const option = selected[0]
+      const option = selected[0];
       if (option === 'cancel') {
-        this.sendMessage(message, '**Canceled**')
-        deleteSentContent()
-        return
+        sendChannelMessage(message, '**Canceled**');
+        deleteSentContent();
+        return;
       } else {
-        const selectedNumber = Number(option) //number is valid
+        const selectedNumber = Number(option); // number is valid
         this.getChannelDetail({
           message,
           channelId: dataList[selectedNumber - 1]?.id
-        })
-        return
+        });
+        return;
       }
-    })
+    });
     collector.on('end', (collected) => {
-      if (sentContent) deleteSentContent()
-      if (collected.size < 1) this.sendMessage(message, ':ok_hand: Action aborted.')
-      return
-    })
+      if (sentContent) deleteSentContent();
+
+      if (collected.size < 1) sendChannelMessage(message, ':ok_hand: Action aborted.');
+
+      return;
+    });
   }
 
   public async getChannelDetail({
     message,
     channelId
   }: {
-    message: Message
-    channelId: string
+    message: Message;
+    channelId: string;
   }): Promise<void> {
-    const service = this.youtubeRequestService
-    const channelData = await service.getSelectedChannelDetail(channelId)
-    if (!channelData) {
-      this.sendMessage(message, 'Something went wrong, please try again.')
-    }
+    const service = this.youtubeRequestService;
+    const channelData = await service.getSelectedChannelDetail(channelId);
+    if (!channelData) sendChannelMessage(message, 'Something went wrong, please try again.');
 
     const [subscriberCount, channelUrl, publishedDate] = [
       subscriberCountFormatter(channelData.statistics.subscriberCount),
       `https://www.youtube.com/channel/${channelData.id}`,
       dateTimeJSTFormatter(channelData.snippet.publishedAt)
-    ]
+    ];
 
     const description = `**Description:** ${channelData.snippet.description}
     
     **Created date: \`${publishedDate}\`\
     Subscribers: \`${subscriberCount}\`
     Views: \`${channelData.statistics.viewCount}\`
-    Videos: \`${channelData.statistics.videoCount}\`**`
+    Videos: \`${channelData.statistics.videoCount}\`**`;
 
     const embed = discordRichEmbedConstructor({
       title: channelData?.snippet?.title,
@@ -142,71 +147,73 @@ export class VtuberStatService {
       thumbnailUrl: channelData?.snippet?.thumbnails?.high?.url,
       description,
       color: channelData?.brandingSettings?.channel?.profileColor
-    })
+    });
 
-    await this.sendMessage(message, { embeds: [embed] })
+    await sendChannelMessage(message, { embeds: [embed] });
 
-    return
+    return;
   }
 
   public async getRegion({
     message,
     affiliation = 'Hololive'
   }: {
-    message: Message
-    affiliation?: KNOWN_AFFILIATION
+    message: Message;
+    affiliation?: KNOWN_AFFILIATION;
   }): Promise<void> {
-    const reactionList = holoStatList
+    const reactionList = holoStatList;
 
-    const regionCodes = Object.keys(reactionList)
+    const regionCodes = Object.keys(reactionList);
 
     const content = `**Which region should i look for ? ${regionCodes.map(
-      (k, i) => `\n${i + 1}. ${reactionList[k].name}`
-    )}**`
-    const sentMessage = await this.sendMessage(message, content)
+      (k, index) => `\n${index + 1}. ${reactionList[k].name}`
+    )}**`;
+    const sentMessage = await sendChannelMessage(message, content);
     if (!sentMessage) {
-      this.sendMessage(message, '**Sorry, something went wrong.**')
-      return
+      sendChannelMessage(message, '**Sorry, something went wrong.**');
+      return;
     }
     const collectorFilter = (messageFilter: Message) =>
       messageFilter.author.id === message.author.id &&
-      messageFilter.channel.id === message.channel.id
+      messageFilter.channel.id === message.channel.id;
 
     const collector = sentMessage.channel.createMessageCollector({
       filter: collectorFilter,
       time: 15000,
       max: 1
-    })
+    });
 
     collector.on('collect', (collected: Message) => {
-      collector.stop()
+      collector.stop();
 
-      const selected = /^[1-4]|cancel$/.exec(collected.content)
+      const selected = /^[1-4]|cancel$/.exec(collected.content);
       if (!selected) {
-        this.sendMessage(message, 'Invailid option! Action aborted.')
-        return
+        sendChannelMessage(message, 'Invailid option! Action aborted.');
+        return;
       }
-      const option = selected[0]
+      const option = selected[0];
       if (option === 'cancel') {
-        this.sendMessage(message, '**`Canceled!`**')
-        this.deleteMessage(sentMessage)
-        return
+        sendChannelMessage(message, '**`Canceled!`**');
+        deleteMessage(sentMessage);
+        return;
       } else {
-        const index = Number(option)
+        const index = Number(option);
         this.vtuberStatSelectList({
           message,
           affiliation,
           regionCode: regionCodes[index - 1] as any
-        })
-        return
+        });
+        return;
       }
-    })
+    });
 
     collector.on('end', (collected) => {
-      if (sentMessage) sentMessage.delete()
-      if (collected.size < 1) this.sendMessage(message, ':ok_hand: Action aborted.')
-      return
-    })
+      if (sentMessage) sentMessage.delete();
+
+      if (collected.size < 1) sendChannelMessage(message, ':ok_hand: Action aborted.');
+
+      return;
+    });
   }
 
   public async vtuberStatStatistics({
@@ -215,79 +222,65 @@ export class VtuberStatService {
     affiliation,
     region
   }: {
-    message: Message
-    yui: GuildMember
-    affiliation: KNOWN_AFFILIATION
-    region?: KnownHoloStatRegions
+    message: Message;
+    yui: GuildMember;
+    affiliation: KNOWN_AFFILIATION;
+    region?: KnownHoloStatRegions;
   }): Promise<void> {
-    const waitingMessage = await this.sendMessage(
+    const waitingMessage = await sendChannelMessage(
       message,
       ':hourglass_flowing_sand: **_Hold on while i go grab some data!_**'
-    )
-    const holoStatData = await this.holostatRequestService.getAllMembersChannelDetail(region as any)
+    );
+    const holoStatData = await this.holostatRequestService.getAllMembersChannelDetail(
+      region as any
+    );
 
     const fieldsData: EmbedField[] = holoStatData.map((item) => {
-      const fieldName = `${item.snippet.title}`
-      const channelUrl = `https://www.youtube.com/channel/${item.id}`
+      const fieldName = `${item.snippet.title}`;
+      const channelUrl = `https://www.youtube.com/channel/${item.id}`;
 
       const fieldData = `Channel: [${
         item.snippet.title
       }](${channelUrl})\nSubscribers: ${subscriberCountFormatter(
         item.statistics.subscriberCount
-      )}\nViews: ${item.statistics.viewCount}\nVideos: ${item.statistics.videoCount}`
+      )}\nViews: ${item.statistics.viewCount}\nVideos: ${item.statistics.videoCount}`;
       return {
         name: fieldName,
         value: fieldData,
         inline: true
-      }
-    })
+      };
+    });
 
-    if (fieldsData) this.deleteMessage(waitingMessage)
+    if (fieldsData) deleteMessage(waitingMessage);
 
-    const regionMap = HoloStatRegions
+    const regionMap = HoloStatRegions;
 
-    const limit = 18
-    const hasPaging = fieldsData.length > limit
+    const limit = 18;
+    const hasPaging = fieldsData.length > limit;
     const sendPartial = async (index: number) => {
       const currentPartLimit =
-        index + limit >= fieldsData.length ? fieldsData.length : index + limit
+        index + limit >= fieldsData.length ? fieldsData.length : index + limit;
 
-      const sendingEmbed = await discordRichEmbedConstructor({
+      const sendingEmbed = discordRichEmbedConstructor({
         author: {
           authorName: yui.displayName,
           avatarUrl: yui.user.avatarURL()
         },
         description: `${affiliation} ${regionMap[region]} members statistics${
-          hasPaging ? ` page ${index / limit + 1}` : ``
+          hasPaging ? ` page ${index / limit + 1}` : ''
         }`,
         fields: fieldsData.slice(index, currentPartLimit)
-      })
+      });
 
-      this.sendMessage(message, {
+      sendChannelMessage(message, {
         embeds: [sendingEmbed]
-      })
+      });
 
-      if (!(currentPartLimit >= fieldsData.length)) sendPartial(currentPartLimit)
+      if (!(currentPartLimit >= fieldsData.length)) sendPartial(currentPartLimit);
 
-      return
-    }
+      return;
+    };
 
-    sendPartial(0)
-  }
-
-  private async sendMessage(message: Message, content: string | MessageOptions): Promise<Message> {
-    return message.channel.send(content as any).catch((err) => {
-      YuiLogger.debug(content as any)
-      YuiLogger.error(err.message)
-      return err
-    })
-  }
-
-  private async deleteMessage(message: Message) {
-    if (!message?.deletable) return
-    return message.delete().catch((err) => {
-      YuiLogger.error(err)
-      return err
-    })
+    sendPartial(0);
   }
 }

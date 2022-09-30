@@ -1,1 +1,1 @@
-export const paramKeyPrefix = '_param'
+export const paramKeyPrefix = '_param';

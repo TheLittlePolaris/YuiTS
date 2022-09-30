@@ -1,1 +1,1 @@
-export type KNOWN_AFFILIATION = 'Hololive'
+export type KNOWN_AFFILIATION = 'Hololive';

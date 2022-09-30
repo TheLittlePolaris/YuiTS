@@ -1,48 +1,47 @@
-import { createMethodDecorator, createParamDecorator } from 'djs-ioc-container'
-import { Message } from 'discord.js'
-import { bold, getVoiceChannel, replyMessage } from '../../utilities'
-import { getStream } from '../entities/streams-container'
+import { createMethodDecorator, createParamDecorator } from 'djs-ioc-container';
+import { Message } from 'discord.js';
 
-export const AccessController = ({ join }: { join: boolean } = { join: false }) =>
-  createMethodDecorator((ctx) => {
-    const message = ctx.getOriginalArguments<[Message]>()[0]
+import { bold, getVoiceChannel, replyMessage } from '../../utilities';
+import { getStream } from '../entities/streams-container';
 
-    const { channel, guild } = message
+export const AccessController = (join?: boolean) =>
+  createMethodDecorator((context) => {
+    const message = context.getOriginalArguments<[Message]>()[0];
 
-    const voiceChannel = getVoiceChannel(message)
+    const { channel, guild } = message;
+
+    const voiceChannel = getVoiceChannel(message);
 
     if (!voiceChannel) {
-      replyMessage(message, bold('please join a voice channel!'))
-      ctx.terminate()
-      return ctx
+      replyMessage(message, bold('please join a voice channel!'));
+      context.terminate();
+      return context;
     }
 
-    const stream = getStream(guild.id)
-    const boundVoiceChannel = stream?.voiceChannel
+    const stream = getStream(guild.id);
+    const boundVoiceChannel = stream?.voiceChannel;
 
-    if (!boundVoiceChannel && join) return ctx
+    if (!boundVoiceChannel && join) return context;
 
     if (boundVoiceChannel) {
-      const boundTextChannel = stream.textChannel
+      const boundTextChannel = stream.textChannel;
       if (channel.id !== boundTextChannel.id || voiceChannel.id !== boundVoiceChannel.id) {
         replyMessage(
           message,
           bold(`I'm playing at ${boundTextChannel.toString()} -- ${boundVoiceChannel.toString()}`)
-        )
-        ctx.terminate()
+        );
+        context.terminate();
       }
-    } else {
-      replyMessage(message, `**I'm not in any voice channel.**`)
-    }
+    } else replyMessage(message, "**I'm not in any voice channel.**");
 
-    return ctx
-  })()
+    return context;
+  })();
 
-export const GuildStream = createParamDecorator((ctx) => {
-  const [message] = ctx.getOriginalArguments<[Message]>()
-  return getStream(message.guild?.id)
-})
+export const GuildStream = createParamDecorator((context) => {
+  const [message] = context.getOriginalArguments<[Message]>();
+  return getStream(message.guild?.id);
+});
 
-export const YuiMember = createParamDecorator((ctx) => {
-  return ctx.client.getGuildMemberByMessage(ctx.getOriginalArguments<[Message]>()[0])
-})
+export const YuiMember = createParamDecorator((context) =>
+  context.client.getGuildMemberByMessage(context.getOriginalArguments<[Message]>()[0])
+);

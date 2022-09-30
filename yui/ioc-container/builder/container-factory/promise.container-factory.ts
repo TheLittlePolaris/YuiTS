@@ -1,25 +1,26 @@
-import { ClientEvents } from 'discord.js'
-import { PromiseBasedRecursiveCompiler } from '../compilers/promise-based.compiler'
+import { ClientEvents } from 'discord.js';
 
-import { COMPONENT_METADATA, DEFAULT_ACTION_KEY, DiscordEvent } from '../../constants'
+import { PromiseBasedRecursiveCompiler } from '../compilers/promise-based.compiler';
+import { COMPONENT_METADATA, DEFAULT_ACTION_KEY, DiscordEvent } from '../../constants';
 import {
   ComponentsContainer,
   InterceptorsContainer,
   ModulesContainer,
   ProvidersContainer
-} from '../containers'
-import { DiscordClient } from '../../entrypoint'
-import { Type } from '../../interfaces'
-import { BaseContainerFactory } from './base.container-factory'
+} from '../containers';
+import { DiscordClient } from '../../entrypoint';
+import { Type } from '../../interfaces';
+
+import { BaseContainerFactory } from './base.container-factory';
 
 export class RecursiveContainerFactory extends BaseContainerFactory<Promise<any>> {
-  static entryDetected = false
+  static entryDetected = false;
 
   constructor() {
-    const moduleContainer = new ModulesContainer()
-    const componentContainer = new ComponentsContainer()
-    const interceptorContainer = new InterceptorsContainer()
-    const providerContainer = new ProvidersContainer()
+    const moduleContainer = new ModulesContainer();
+    const componentContainer = new ComponentsContainer();
+    const interceptorContainer = new InterceptorsContainer();
+    const providerContainer = new ProvidersContainer();
     super(
       new PromiseBasedRecursiveCompiler(
         moduleContainer,
@@ -27,7 +28,7 @@ export class RecursiveContainerFactory extends BaseContainerFactory<Promise<any>
         providerContainer,
         interceptorContainer
       )
-    )
+    );
   }
   /**
    *
@@ -42,62 +43,64 @@ export class RecursiveContainerFactory extends BaseContainerFactory<Promise<any>
    * @returns instance of MyEntryComponent
    */
   async createInstanceModule(moduleMetadata: Type<any>, entryComponent?: Type<any>) {
-    await this.compiler.compileModule(moduleMetadata, entryComponent)
+    await this.compiler.compileModule(moduleMetadata, entryComponent);
     /**
      * IMPORTANT:
      *  - Required the entry component to extend EntryComponent class
      */
-    const entryInstance = this.get(entryComponent)
+    const entryInstance = this.get(entryComponent);
 
     const boundEvents =
-      Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryInstance['constructor']) || {}
+      Reflect.getMetadata(COMPONENT_METADATA.EVENT_LIST, entryInstance.constructor) || {};
 
-    const { length: hasEvents, ...events } = Object.keys(boundEvents)
-    if (hasEvents) {
+    const { length: hasEvents, ...events } = Object.keys(boundEvents);
+    if (hasEvents)
       events.forEach((eventKey: DiscordEvent) =>
-        entryInstance.client.addListener(eventKey, (...args) =>
-          entryInstance[boundEvents[eventKey]](...args)
+        entryInstance.client.addListener(eventKey, (...arguments_) =>
+          entryInstance[boundEvents[eventKey]](...arguments_)
         )
-      )
-    }
+      );
 
     Object.keys(this.eventHandlers).map((handler: DiscordEvent) =>
-      entryInstance.client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
-        this.handleEvent(handler, this.createExecutionContext(args))
+      entryInstance.client.addListener(
+        handler,
+        async (...arguments_: ClientEvents[typeof handler]) =>
+          this.handleEvent(handler, this.createExecutionContext(arguments_))
       )
-    )
+    );
 
-    return entryInstance
+    return entryInstance;
   }
 
   async initialize(rootModule: Type<any>, entryComponent = DiscordClient) {
-    await this.compiler.compileModule(rootModule, entryComponent)
+    await this.compiler.compileModule(rootModule, entryComponent);
 
-    this._config = this.compiler.config
+    this._config = this.compiler.config;
 
-    const client = this.compiler.componentContainer.getInstance(entryComponent)
-    const compiledEvents = Object.keys(this.eventHandlers)
+    const client = this.compiler.componentContainer.getInstance(entryComponent);
+    const compiledEvents = Object.keys(this.eventHandlers);
     compiledEvents.map((handler: DiscordEvent) =>
-      client.addListener(handler, (...args: ClientEvents[typeof handler]) =>
-        this.handleEvent(handler, this.createExecutionContext(args))
+      client.addListener(handler, async (...arguments_: ClientEvents[typeof handler]) =>
+        this.handleEvent(handler, this.createExecutionContext(arguments_))
       )
-    )
+    );
 
-    return client
+    return client;
   }
 
   protected getHandler(event: keyof ClientEvents, command: string | false) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    if (command === false) return (..._: any[]) => Promise.resolve()
-    const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =
-      this.eventHandlers[event].handlers
+    if (command === false) return async (..._: any[]) => {};
 
-    return compiledCommand || defaultAction
+    const { [command]: compiledCommand = null, [DEFAULT_ACTION_KEY]: defaultAction } =
+      this.eventHandlers[event].handlers;
+
+    return compiledCommand || defaultAction;
   }
 
   // TODO: assign logic here
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected filterEvent(event: DiscordEvent, args: ClientEvents[DiscordEvent]) {
-    return Promise.resolve(true)
+  protected async filterEvent(event: DiscordEvent, arguments_: ClientEvents[DiscordEvent]) {
+    return true;
   }
 }

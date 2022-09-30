@@ -1,17 +1,20 @@
 /* ======================== HELPER FUCNTION ======================================== */
-export const isUndefined = (obj: unknown): obj is undefined => typeof obj === 'undefined'
-export const isFunction = (fn: unknown): boolean => typeof fn === 'function'
-export const isString = (fn: unknown): fn is string => typeof fn === 'string'
-export const isConstructor = (fn: unknown): boolean => fn === 'constructor'
-export const isNil = (obj: unknown): obj is null | undefined => isUndefined(obj) || obj === null
+export const isUndefined = (object: unknown): object is undefined => typeof object === 'undefined';
+export const isFunction = (function_: unknown): boolean => typeof function_ === 'function';
+export const isString = (function_: unknown): function_ is string => typeof function_ === 'string';
+export const isConstructor = (function_: unknown): boolean => function_ === 'constructor';
+export const isNil = (object: unknown): object is null | undefined =>
+  isUndefined(object) || object === null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isEmpty = (array: any): boolean => !(array && array.length > 0)
-export const isSymbol = (fn: unknown): fn is symbol => typeof fn === 'symbol'
+export const isEmpty = (array: any): boolean => !(array && array.length > 0);
+export const isSymbol = (function_: unknown): function_ is symbol => typeof function_ === 'symbol';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isValue = (fn: any): boolean =>
-  fn && (fn.name === 'String' || fn.name === 'Object' || fn.name === 'Number')
+export const isValue = (function_: any): boolean =>
+  function_ &&
+  (function_.name === 'String' || function_.name === 'Object' || function_.name === 'Number');
 
-export const isValueInjector = (obj: any): boolean => obj && obj['useValue']
-export const isClassInjector = (obj: any): boolean => obj && obj['useClass']
+export const isValueInjector = (object: any): boolean => object && object.useValue;
+export const isClassInjector = (object: any): boolean => object && object.useClass;
 
-export const isObject = (fn: any): fn is object => !isNil(fn) && typeof fn === 'object'
+export const isObject = (function_: any): function_ is object =>
+  !isNil(function_) && typeof function_ === 'object';

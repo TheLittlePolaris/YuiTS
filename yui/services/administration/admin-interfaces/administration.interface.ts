@@ -1,4 +1,4 @@
-import { Message, PermissionFlagsBits, Permissions } from 'discord.js'
+import { Message, PermissionFlagsBits, Permissions } from 'discord.js';
 
 export enum AdminAction {
   KICK = 'kick',
@@ -18,12 +18,12 @@ export const AdminActionPermission = {
   [AdminAction.ADD_ROLE]: [PermissionFlagsBits.ManageRoles],
   [AdminAction.REMOVE_ROLE]: [PermissionFlagsBits.ManageRoles],
   [AdminAction.SET_NICKNAME]: [PermissionFlagsBits.ManageNicknames]
-}
+};
 
 export type IAdminAction = {
   [key in keyof typeof AdminActionPermission]: (
     message: Message,
-    args: string[],
-    ...otherArgs
-  ) => Promise<any>
-}
+    arguments_: string[],
+    ...otherArguments
+  ) => Promise<any>;
+};

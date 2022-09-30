@@ -1,108 +1,120 @@
 /* eslint-disable prefer-rest-params */
-import { samePermissions } from '../../helpers'
-import { ClientEvents, GuildMember, Message, PermissionFlagsBits, PermissionResolvable, User } from 'discord.js'
+import {
+  ClientEvents,
+  GuildMember,
+  Message,
+  PermissionFlagsBits,
+  PermissionResolvable,
+  User
+} from 'discord.js';
 
-import { COMMAND_HANDLER } from '../../constants'
-import { ExecutionContext } from '../../event-execution-context'
-import { ICommandHandlerMetadata } from '../../interfaces'
-import { Logger } from '../../logger'
-import { createMethodDecorator, createParamDecorator } from '../generators'
+import { samePermissions } from '../../helpers';
+import { COMMAND_HANDLER } from '../../constants';
+import { ExecutionContext } from '../../event-execution-context';
+import { ICommandHandlerMetadata } from '../../interfaces';
+import { Logger } from '../../logger';
+import {
+  createMethodDecorator,
+  createParamDecorator as createParameterDecorator
+} from '../generators';
 
-const getMsgContent = (ctx: ExecutionContext) => {
-  const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
-  return message.content.replace(ctx.config['prefix'], '').trim().split(/ +/g)
-}
+const getMessageContent = (context: ExecutionContext) => {
+  const [message] = context.getOriginalArguments<ClientEvents['messageCreate']>();
+  return message.content.replace(context.config.prefix, '').trim().split(/ +/g);
+};
 
 const getMessageProperty = <T extends Message[keyof Message]>(
-  ctx: ExecutionContext,
+  context: ExecutionContext,
   key: keyof Message
 ): T => {
-  const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
-  return message[key] as T
-}
+  const [message] = context.getOriginalArguments<ClientEvents['messageCreate']>();
+  return message[key] as T;
+};
 
 export const HandleCommand = (command = 'default', ...aliases: string[]) =>
   createMethodDecorator(
-    (context: ExecutionContext) => {
-      return context
-    },
+    (context: ExecutionContext) => context,
     (target, propertyKey) => {
       let commands: ICommandHandlerMetadata[] =
-        Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || []
-      commands = [...commands, { propertyKey, command, commandAliases: aliases }]
-      Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor)
+        Reflect.getMetadata(COMMAND_HANDLER, target.constructor) || [];
+      commands = [...commands, { propertyKey, command, commandAliases: aliases }];
+      Reflect.defineMetadata(COMMAND_HANDLER, commands, target.constructor);
     }
-  )()
+  )();
 
 export const DeleteMessage = (strategy?: 'send' | 'reply', responseMessage?: string) =>
-  createMethodDecorator(async (ctx) => {
-    const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
-    const author = getMessageProperty<User>(ctx, 'author')
+  createMethodDecorator(async (context) => {
+    const [message] = context.getOriginalArguments<ClientEvents['messageCreate']>();
+    const author = getMessageProperty<User>(context, 'author');
 
-    const yuiMember = ctx.client.getGuildMemberByMessage(message)
-    const yuiCanDelete = yuiMember.permissions.has(PermissionFlagsBits.ManageMessages)
+    const yuiMember = context.client.getGuildMemberByMessage(message);
+    const yuiCanDelete = yuiMember.permissions.has(PermissionFlagsBits.ManageMessages);
 
     if (yuiCanDelete) {
-      await message.delete().catch((err) => {
-        Logger.error(err.stack)
-      })
-      if (strategy === 'reply') message.reply(responseMessage)
-      else if (strategy === 'send') author.send(responseMessage)
+      await message.delete().catch((error) => {
+        Logger.error(error.stack);
+      });
+      if (strategy === 'reply') message.reply(responseMessage);
+      else if (strategy === 'send') author.send(responseMessage);
     }
 
-    return ctx
-  })()
+    return context;
+  })();
 
 export const Permissions = (...permissions: PermissionResolvable[]) =>
-  createMethodDecorator((ctx) => {
-    const [message] = ctx.getOriginalArguments<ClientEvents['messageCreate']>()
+  createMethodDecorator((context) => {
+    const [message] = context.getOriginalArguments<ClientEvents['messageCreate']>();
     const [author, member] = [
-      getMessageProperty<User>(ctx, 'author'),
-      getMessageProperty<GuildMember>(ctx, 'member')
-    ]
+      getMessageProperty<User>(context, 'author'),
+      getMessageProperty<GuildMember>(context, 'member')
+    ];
 
-    const yuiMember = ctx.client.getGuildMemberByMessage(message)
+    const yuiMember = context.client.getGuildMemberByMessage(message);
 
-    const enoughPermissions = samePermissions(permissions, yuiMember, member)
+    const enoughPermissions = samePermissions(permissions, yuiMember, member);
 
     if (!enoughPermissions) {
-      ctx.terminate()
+      context.terminate();
       author
         .send(
           `<@${member?.user.id}>, you do not have permission to use this command in \`${message.guild.name}\`.`
         )
-        .catch(null)
+        .catch(null);
     }
 
-    return ctx
-  })()
+    return context;
+  })();
 
 /**
  * @descrition Message
  */
-export const Msg = createParamDecorator((ctx) => ctx.getOriginalArguments()[0])
+export const Msg = createParameterDecorator((context) => context.getOriginalArguments()[0]);
 
 /**
  * @descrition The command of this message
  */
-export const MsgCmd = createParamDecorator((ctx) => getMsgContent(ctx)[0])
+export const MsgCmd = createParameterDecorator((context) => getMessageContent(context)[0]);
 
 /**
  * @descrition Arguments for the command
  */
-export const MsgArgs = createParamDecorator((ctx) => getMsgContent(ctx).slice(1))
+export const MsgArgs = createParameterDecorator((context) => getMessageContent(context).slice(1));
 
 /**
  * @descrition Author of this message
  */
-export const MsgAuthor = createParamDecorator((ctx) => getMessageProperty(ctx, 'author'))
+export const MsgAuthor = createParameterDecorator((context) =>
+  getMessageProperty(context, 'author')
+);
 
 /**
  * @descrition Guild of this message
  */
-export const MsgGuild = createParamDecorator((ctx) => getMessageProperty(ctx, 'guild'))
+export const MsgGuild = createParameterDecorator((context) => getMessageProperty(context, 'guild'));
 
 /**
  * @descrition Channel of this message
  */
-export const MsgChannel = createParamDecorator((ctx) => getMessageProperty(ctx, 'channel'))
+export const MsgChannel = createParameterDecorator((context) =>
+  getMessageProperty(context, 'channel')
+);

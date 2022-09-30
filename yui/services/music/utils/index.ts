@@ -1,1 +1,1 @@
-export * from './music.utils'
+export * from './music.utils';

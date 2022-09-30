@@ -1,16 +1,24 @@
-import Axios from 'axios'
-import { DiscordClient, Injectable } from 'djs-ioc-container'
-import { GuildMember, Message, Collection } from 'discord.js'
-import { discordRichEmbedConstructor, getMentionString } from '../utilities'
+import Axios from 'axios';
+import { DiscordClient, Injectable } from 'djs-ioc-container';
+import { GuildMember, Message, Collection } from 'discord.js';
+import { sample } from 'lodash';
 
-import { VtuberStatService } from './vtuberstats/vtuberstat.service'
-import { ConfigService } from '@/config-service/config.service'
-import { Feature, Mentions, Action, ActionParam } from './decorators'
-import { sendChannelMessage } from '../utilities'
-import { HoloDetail, HoloRegion, Holostat } from './decorators'
-import { TENOR_QUERY_LIMIT } from './constants'
-import { sample } from 'lodash'
-import { KnownHoloStatRegions } from './vtuberstats/interfaces'
+import { discordRichEmbedConstructor, getMentionString, sendChannelMessage } from '../utilities';
+
+import {
+  Feature,
+  Mentions,
+  Action,
+  ActionParam as ActionParameter,
+  HoloDetail,
+  HoloRegion,
+  Holostat
+} from './decorators';
+import { VtuberStatService } from './vtuberstats/vtuberstat.service';
+import { TENOR_QUERY_LIMIT } from './constants';
+import { KnownHoloStatRegions } from './vtuberstats/interfaces';
+
+import { ConfigService } from '@/config-service/config.service';
 
 @Injectable()
 export class FeatureService {
@@ -21,29 +29,29 @@ export class FeatureService {
   ) {}
 
   @Feature()
-  async getPing(message: Message): Promise<`OK`> {
-    const yuiPing = this.yui.ws.ping
-    const sentMessage = await sendChannelMessage(message, '**`Pinging... `**')
+  async getPing(message: Message): Promise<'OK'> {
+    const yuiPing = this.yui.ws.ping;
+    const sentMessage = await sendChannelMessage(message, '**`Pinging... `**');
 
     if (!sentMessage) {
-      await sendChannelMessage(message, '**Something went wrong, please try again.**')
-      return
+      await sendChannelMessage(message, '**Something went wrong, please try again.**');
+      return;
     }
-    const timeStart = message.createdTimestamp
-    const timeEnd = sentMessage.createdTimestamp
+    const timeStart = message.createdTimestamp;
+    const timeEnd = sentMessage.createdTimestamp;
     const embed = discordRichEmbedConstructor({
       title: 'Status',
       description: `:heartbeat: **Yui's ping: \`${yuiPing}ms\`**.\n:revolving_hearts: **Estimated message RTT: \`${
         timeEnd - timeStart
       }ms\`**`
-    })
+    });
 
     // const attachment = new MessageAttachment(image, 'ping.jpg')
-    if (sentMessage) sentMessage.delete().catch(null)
+    if (sentMessage) sentMessage.delete().catch(null);
 
-    await sendChannelMessage(message, { embeds: [embed] })
+    await sendChannelMessage(message, { embeds: [embed] });
 
-    return 'OK'
+    return 'OK';
   }
 
   @Feature()
@@ -72,9 +80,9 @@ export class FeatureService {
     \`tenor\`: tenor GIFs
     \`ping\`: Connection status
     \`say\`: Repeat
-    \`holostat\` <?jp|id> <?detail|d>: Hololive member(s) channel status`
+    \`holostat\` <?jp|id> <?detail|d>: Hololive member(s) channel status`;
 
-    const yuiMember = this.yui.getGuildMemberByMessage(message)
+    const yuiMember = this.yui.getGuildMemberByMessage(message);
     const embed = discordRichEmbedConstructor({
       author: {
         authorName: yuiMember.displayName || this.yui.user.username,
@@ -83,33 +91,33 @@ export class FeatureService {
       description: commands,
       title: 'Command List',
       footer: 'Note: <>: required param | <?>: optional param'
-    })
+    });
 
-    sendChannelMessage(message, { embeds: [embed] })
+    sendChannelMessage(message, { embeds: [embed] });
   }
 
   @Feature()
-  say(message: Message, args: string[]) {
+  say(message: Message, arguments_: string[]) {
     const embed = discordRichEmbedConstructor({
-      description: `**${args.join(' ')}**`
-    })
-    sendChannelMessage(message, { embeds: [embed] })
+      description: `**${arguments_.join(' ')}**`
+    });
+    sendChannelMessage(message, { embeds: [embed] });
   }
 
   @Feature()
   async tenorGif(
     message: Message,
-    args: string[],
+    arguments_: string[],
     @Mentions() mentions?: Collection<string, GuildMember>,
     @Action() action?: string,
-    @ActionParam() params?: string
+    @ActionParameter() parameters?: string
   ): Promise<void> {
-    const results = await this.queryTenorGif(action, params)
-    const mentionString = getMentionString(mentions)
+    const results = await this.queryTenorGif(action, parameters);
+    const mentionString = getMentionString(mentions);
 
     const description = !mentions?.size
       ? `${message.member} ${action}`
-      : `${message.member} ${action} ${mentionString}`
+      : `${message.member} ${action} ${mentionString}`;
 
     sendChannelMessage(message, {
       embeds: [
@@ -118,24 +126,24 @@ export class FeatureService {
           imageUrl: sample(results)
         })
       ]
-    })
+    });
   }
 
-  async queryTenorGif(action: string, params?: string) {
+  async queryTenorGif(action: string, parameters?: string) {
     return Axios.get(
       `https://g.tenor.com/v1/search?q=${encodeURIComponent(
-        `anime ${action} ${params ? params : ``}`
+        `anime ${action} ${parameters ?? ''}`
       )}&key=${this.configService.tenorKey}&limit=${TENOR_QUERY_LIMIT}&media_filter=basic&anon_id=${
         this.configService.tenorAnonymousId
       }`
-    ).then(({ data }) => data.results?.map((r) => r?.media[0]?.gif?.url))
+    ).then(({ data }) => data.results?.map((r) => r?.media[0]?.gif?.url));
   }
 
   @Feature()
   @Holostat()
   async getHoloStat(
     message: Message,
-    args: Array<string>,
+    arguments_: Array<string>,
     @HoloRegion() region?: KnownHoloStatRegions,
     @HoloDetail() detail?: boolean
   ): Promise<unknown> {
@@ -145,12 +153,12 @@ export class FeatureService {
         yui: this.yui.getGuildMemberByMessage(message),
         affiliation: 'Hololive',
         region
-      })
+      });
 
     return this.vtuberStatService.vtuberStatSelectList({
       message,
       affiliation: 'Hololive',
       regionCode: region
-    })
+    });
   }
 }

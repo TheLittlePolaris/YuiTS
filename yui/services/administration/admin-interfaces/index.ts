@@ -1,1 +1,1 @@
-export * from './administration.interface'
+export * from './administration.interface';

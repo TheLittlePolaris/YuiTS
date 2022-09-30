@@ -342,7 +342,8 @@
     "unicorn/prefer-object-from-entries": "off",
     "unicorn/prefer-array-flat": "off",
     "unicorn/text-encoding-identifier-case": "off",
-    "unicorn/no-static-only-class": "warn"
+    "unicorn/no-static-only-class": "warn",
+    "unicorn/no-nested-ternary": "warn"
   },
   "settings": {
     "import/extensions": [".ts"],

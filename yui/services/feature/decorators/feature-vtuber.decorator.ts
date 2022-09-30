@@ -1,26 +1,32 @@
-import { createMethodDecorator, createParamDecorator, ExecutionContext } from 'djs-ioc-container'
-import { Message } from 'discord.js'
-import { startCase } from 'lodash'
-import { holoStatFunctionalCommands, holoStatRegions, HoloStatRegions } from '../vtuberstats'
+import { createMethodDecorator, createParamDecorator, ExecutionContext } from 'djs-ioc-container';
+import { Message } from 'discord.js';
+import { startCase } from 'lodash';
 
-export const Holostat = createMethodDecorator((context: ExecutionContext) => {
-  return context
-})
+import { holoStatFunctionalCommands, holoStatRegions, HoloStatRegions } from '../vtuberstats';
 
-export const HoloRegion = createParamDecorator((ctx) => {
-  const [_, args] = ctx.getOriginalArguments<[Message, string[]]>()
-  if (!args.length) return HoloStatRegions.Japan
-  const regionOrCode = args
-    .find((arg) => holoStatRegions.includes(arg.toLowerCase()))
-    ?.toLowerCase()
-  if (!regionOrCode) return HoloStatRegions.Japan
-  return regionOrCode.length > 2 ? HoloStatRegions[startCase(regionOrCode)] : regionOrCode
-})
+export const Holostat = createMethodDecorator((context: ExecutionContext) => context);
 
-export const HoloDetail = createParamDecorator((ctx) => {
-  const [_, args] = ctx.getOriginalArguments<[Message, string[]]>()
-  if (!args.length) return false
+export const HoloRegion = createParamDecorator((context) => {
+  const [_, inputArguments] = context.getOriginalArguments<[Message, string[]]>();
+  if (!inputArguments.length) return HoloStatRegions.Japan;
+
+  const regionOrCode = inputArguments
+    .find((argument) => holoStatRegions.includes(argument.toLowerCase()))
+    ?.toLowerCase();
+  if (!regionOrCode) return HoloStatRegions.Japan;
+
+  return regionOrCode.length > 2 ? HoloStatRegions[startCase(regionOrCode)] : regionOrCode;
+});
+
+export const HoloDetail = createParamDecorator((context) => {
+  const [_, inputArguments] = context.getOriginalArguments<[Message, string[]]>();
+  if (!inputArguments.length) return false;
+
   return (
-    (args.find((arg) => holoStatFunctionalCommands.includes(arg.toLowerCase())) && true) || false
-  )
-})
+    (inputArguments.find((argument) =>
+      holoStatFunctionalCommands.includes(argument.toLowerCase())
+    ) &&
+      true) ||
+    false
+  );
+});

@@ -1,11 +1,14 @@
+import { spawn } from 'child_process';
+
+import { Injectable } from 'djs-ioc-container';
+
 import {
   ISoundCloudSong,
   SoundcloudGetUrlInfoType,
   SoundcloudInfoRecord
-} from '../interfaces/soundcloud-info.interface'
-import { spawn } from 'child_process'
-import { YuiLogger } from '@/logger/logger.service'
-import { Injectable } from 'djs-ioc-container'
+} from '../interfaces/soundcloud-info.interface';
+
+import { YuiLogger } from '@/logger/logger.service';
 
 enum FORMAT_URL {
   M3U8_64,
@@ -29,29 +32,27 @@ enum FORMAT_THUMBNAILS {
 @Injectable()
 export class PolarisSoundCloudService {
   private collectBufferData(buffer: Buffer, previousBuffer: string) {
-    let data = buffer.toString('utf-8')
-    if (!data.length) return { done: false, data: '', more: false }
+    let data = buffer.toString('utf-8');
+    if (!data.length) return { done: false, data: '', more: false };
 
-    if (data.startsWith('{') && !data.endsWith('}\n')) {
-      return { done: false, data, more: true }
-    } else if (!data.startsWith('{') && !data.endsWith('}\n')) {
-      return { done: false, data: previousBuffer + data, more: true }
-    } else if (!data.startsWith('{') && data.endsWith('}\n')) {
-      data = previousBuffer + data
-    }
+    if (data.startsWith('{') && !data.endsWith('}\n')) return { done: false, data, more: true };
+    else if (!data.startsWith('{') && !data.endsWith('}\n'))
+      return { done: false, data: previousBuffer + data, more: true };
+    else if (!data.startsWith('{') && data.endsWith('}\n')) data = previousBuffer + data;
 
     try {
-      return { done: true, data: JSON.parse(data), more: false }
-    } catch (e) {
-      return { done: false, data: '', more: false }
+      return { done: true, data: JSON.parse(data), more: false };
+    } catch {
+      return { done: false, data: '', more: false };
     }
   }
 
   public async getSoundcloudInfoFromUrl(
     url: string,
-    { getUrl } = { getUrl: false }
+    getUrl: boolean
   ): Promise<SoundcloudGetUrlInfoType> {
-    if (!url || !url.length) return Promise.reject('Empty url')
+    if (!url || !url.length) throw new Error('Empty url');
+
     return new Promise((resolve) => {
       try {
         const processExecution = spawn(
@@ -60,45 +61,47 @@ export class PolarisSoundCloudService {
           {
             stdio: ['inherit', 'pipe', 'pipe']
           }
-        )
+        );
         YuiLogger.info(
           `youtube-dl process [${processExecution.pid}] spawned`,
           PolarisSoundCloudService.name
-        )
+        );
 
-        const results: SoundcloudInfoRecord[] = []
+        const results: SoundcloudInfoRecord[] = [];
         // eslint-disable-next-line prefer-const
-        let previousBuffer = ''
+        let previousBuffer = '';
 
         processExecution.stdout
           .on('data', (buffer: Buffer) => {
-            const { more, data, done } = this.collectBufferData(buffer, previousBuffer)
-            if (!done) return (previousBuffer = more ? previousBuffer + (data || '') : '')
-            else previousBuffer = ''
-            results.push(this.mapToYoutubeVideoFormat(data, getUrl))
+            const { more, data, done } = this.collectBufferData(buffer, previousBuffer);
+            if (!done) return (previousBuffer = more ? previousBuffer + (data || '') : '');
+            else previousBuffer = '';
+
+            results.push(this.mapToYoutubeVideoFormat(data, getUrl));
           })
           .on('end', () => {
-            resolve(results.length > 1 ? results : results[0])
-          })
+            resolve(results.length > 1 ? results : results[0]);
+          });
 
         processExecution.on('close', () =>
           YuiLogger.info(`youtube-dl process [${processExecution.pid}] closed`)
-        )
+        );
 
         const onError = (error: Error) => {
           YuiLogger.error(
             `youtube-dl process [${processExecution.pid}] got error: ${error.message}`,
             PolarisSoundCloudService.name
-          )
-          if (!processExecution.killed) processExecution.kill('SIGKILL')
-          throw error
-        }
-        processExecution.stderr.on('data', onError)
-        processExecution.on('error', onError)
-      } catch (err) {
-        YuiLogger.error(err)
+          );
+          if (!processExecution.killed) processExecution.kill('SIGKILL');
+
+          throw error;
+        };
+        processExecution.stderr.on('data', onError);
+        processExecution.on('error', onError);
+      } catch (error) {
+        YuiLogger.error(error);
       }
-    })
+    });
   }
 
   mapToYoutubeVideoFormat = (info: ISoundCloudSong, getUrl = false): SoundcloudInfoRecord => {
@@ -114,22 +117,21 @@ export class PolarisSoundCloudService {
       duration,
       protocol,
       url
-    } = info
+    } = info;
 
-    const selectedFormat = formats[FORMAT_URL.M3U8_128] || formats[FORMAT_URL.HTTP_128] // select m3u8 as default
+    const selectedFormat = formats[FORMAT_URL.M3U8_128] || formats[FORMAT_URL.HTTP_128]; // select m3u8 as default
 
-    if (getUrl) {
+    if (getUrl)
       return {
         url: selectedFormat.url || url,
         type: selectedFormat.protocol || protocol
-      }
-    }
+      };
 
     return {
-      id: id,
+      id,
       videoUrl: webpage_url,
       snippet: {
-        title: title,
+        title,
         channelId: uploader_id,
         channelTitle: uploader,
         thumbnails: {
@@ -141,6 +143,6 @@ export class PolarisSoundCloudService {
       contentDetails: {
         rawDuration: Math.round(duration)
       }
-    }
-  }
+    };
+  };
 }

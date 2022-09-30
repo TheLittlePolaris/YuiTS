@@ -1,7 +1,8 @@
-import { YuiModule } from 'djs-ioc-container'
-import { HoloStatRequestService } from './requests/holostat-request.service'
-import { YoutubeChannelService } from './requests/youtube-channel.service'
-import { VtuberStatService } from './vtuberstat.service'
+import { YuiModule } from 'djs-ioc-container';
+
+import { HoloStatRequestService } from './requests/holostat-request.service';
+import { YoutubeChannelService } from './requests/youtube-channel.service';
+import { VtuberStatService } from './vtuberstat.service';
 
 @YuiModule({
   components: [VtuberStatService, HoloStatRequestService, YoutubeChannelService]

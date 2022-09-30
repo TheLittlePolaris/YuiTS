@@ -1,1 +1,1 @@
-export const TENOR_QUERY_LIMIT = 7
+export const TENOR_QUERY_LIMIT = 7;

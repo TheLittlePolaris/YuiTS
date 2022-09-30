@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { youtube_v3 } from 'googleapis'
-import { IYoutubeDLSoundCloudAudioProtocol } from './soundcloud-info.interface'
+import { youtube_v3 } from 'googleapis';
+
+import { IYoutubeDLSoundCloudAudioProtocol } from './soundcloud-info.interface';
 
 // re-map interface name
 
@@ -11,12 +12,12 @@ export interface IYoutubeVideosResult extends youtube_v3.Schema$VideoListRespons
 export interface IYoutubePlaylistResult extends youtube_v3.Schema$PlaylistItemListResponse {}
 
 export interface ISoundCloudInfo {
-  url: string
-  type: IYoutubeDLSoundCloudAudioProtocol
+  url: string;
+  type: IYoutubeDLSoundCloudAudioProtocol;
 }
 export interface IYoutubeVideo extends youtube_v3.Schema$Video {
-  videoUrl?: string
+  videoUrl?: string;
   contentDetails?: youtube_v3.Schema$VideoContentDetails & {
-    rawDuration?: number
-  }
+    rawDuration?: number;
+  };
 }

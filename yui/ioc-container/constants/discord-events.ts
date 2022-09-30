@@ -1,11 +1,13 @@
-import { ClientEvents } from 'discord.js'
+import { ClientEvents } from 'discord.js';
 
-export type DiscordEvent = keyof ClientEvents
+import { ICommandHandlerMetadata } from '../interfaces';
+
+export type DiscordEvent = keyof ClientEvents;
 
 export interface DiscordEventConfig {
-  messageCreate: {
-    ignoreBots: boolean
-    startsWithPrefix: boolean
-  }
-  [allOthers: string]: {}
+  messageCreate: ICommandHandlerMetadata & {
+    ignoreBots: boolean;
+    startsWithPrefix: boolean;
+  };
+  [allOthers: string]: ICommandHandlerMetadata | Record<string, never>;
 }

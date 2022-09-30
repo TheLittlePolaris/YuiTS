@@ -1,1 +1,1 @@
-export const ADMIN_ACTION_PROVIDER = 'AdminActionProvider'
+export const ADMIN_ACTION_PROVIDER = 'AdminActionProvider';

@@ -1,14 +1,15 @@
-import { YuiModule, InjectToken } from 'djs-ioc-container'
-import { ClientOptions, GatewayIntentBits, Partials } from 'discord.js'
-import { ConfigModule } from './config-service/config.module'
-import { HandlerModule } from './event-handlers/handler.module'
+import { YuiModule, InjectToken } from 'djs-ioc-container';
+import { GatewayIntentBits, Partials } from 'discord.js';
+
+import { ConfigModule } from './config-service/config.module';
+import { HandlerModule } from './event-handlers/handler.module';
 
 @YuiModule({
   modules: [ConfigModule, HandlerModule],
   providers: [
     {
       provide: InjectToken.CLIENT_OPTIONS,
-      useValue: <ClientOptions>{
+      useValue: {
         intents: [
           GatewayIntentBits.GuildBans,
           GatewayIntentBits.GuildMembers,

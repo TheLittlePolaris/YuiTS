@@ -11,5 +11,5 @@ export enum AppConfig {
 //   BACKWARD: '◀',
 // }
 
-export const messageMentionRoleRegex = /^<@&\d+>$/
-export const messageMentionRegexp = /^<@\d+>$/
+export const messageMentionRoleRegex = /^<@&\d+>$/;
+export const messageMentionRegexp = /^<@\d+>$/;

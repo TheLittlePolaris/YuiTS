@@ -1,60 +1,63 @@
-import { getParamDecoratorResolverValue } from '../../builder'
-import { METHOD_PARAMS_METADATA_INTERNAL } from '../../constants'
-import { ExecutionContext } from '../../event-execution-context'
-import { MethodDecoratorResolver, MethodDecoratorPresetter, Prototype } from '../../interfaces'
-import { Logger } from '../../logger'
-import { isEmpty, isFunction } from 'lodash'
+import { isEmpty, isFunction } from 'lodash';
+
+import { getParamDecoratorResolverValue as getParameterDecoratorResolverValue } from '../../builder';
+import { METHOD_PARAMS_METADATA_INTERNAL } from '../../constants';
+import { ExecutionContext } from '../../event-execution-context';
+import {
+  MethodDecoratorResolver,
+  MethodDecoratorPresetter,
+  Prototype,
+  FunctionType,
+  Type
+} from '../../interfaces';
+import { Logger } from '../../logger';
 
 async function compileContextArguments(context: ExecutionContext): Promise<void> {
-  const paramResolverList: Record<string, number> =
+  const parameterResolverList: Record<string, number> =
     Reflect.getMetadata(
       METHOD_PARAMS_METADATA_INTERNAL,
       context.target.constructor,
       context.propertyKey
-    ) || {}
+    ) || {};
 
-  if (isEmpty(paramResolverList)) return
+  if (isEmpty(parameterResolverList)) return;
 
-  const compiledArgs = context.getArguments()
+  const compiledArguments = context.getArguments();
 
   await Promise.all(
-    Object.entries(paramResolverList).map(
+    Object.entries(parameterResolverList).map(
       async ([key, index]) =>
-        (compiledArgs[index] = await getParamDecoratorResolverValue(key, context))
+        (compiledArguments[index] = await getParameterDecoratorResolverValue(key, context))
     )
-  ).catch((error) => Logger.error(error))
+  ).catch((error) => Logger.error(error));
 
-  context.setArguments(compiledArgs)
+  context.setArguments(compiledArguments);
 }
 
 export function wrappedDecorator(
   method?: MethodDecoratorResolver,
   presetter?: MethodDecoratorPresetter
 ) {
-  return (
-    target: Prototype,
-    propertyKey: string,
-    descriptor: TypedPropertyDescriptor<Function>
-  ) => {
-    if (isFunction(presetter)) presetter(target, propertyKey, descriptor)
+  return (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<FunctionType>) => {
+    if (isFunction(presetter)) presetter(target, propertyKey, descriptor);
 
-    const originalDescriptor = descriptor.value
-    descriptor.value = async function (...args: any[]) {
+    const originalDescriptor = descriptor.value;
+    descriptor.value = async function (...arguments_: any[]) {
       const context = new ExecutionContext(
-        args,
+        arguments_,
         { target, propertyKey, descriptor },
         originalDescriptor.bind(this)
-      )
+      );
 
-      if (method) await method(context)
+      if (method) await method(context);
 
-      if (context.terminated) return
+      if (context.terminated) return;
 
-      await compileContextArguments(context)
+      await compileContextArguments(context);
 
-      return context.call()
-    }
-  }
+      return context.call();
+    };
+  };
 }
 
 /**
@@ -67,5 +70,5 @@ export function createMethodDecorator(
   method: MethodDecoratorResolver,
   presetter?: MethodDecoratorPresetter
 ) {
-  return () => wrappedDecorator(method, presetter)
+  return () => wrappedDecorator(method, presetter);
 }

@@ -1,40 +1,41 @@
-import { Message } from 'discord.js'
-import { createMethodDecorator, ExecutionContext, createParamDecorator } from 'djs-ioc-container'
-import { messageMentionRegexp, messageMentionRoleRegex } from '@/constants'
+import { Message } from 'discord.js';
+import { createMethodDecorator, ExecutionContext, createParamDecorator } from 'djs-ioc-container';
 
-export const AdminAction = createMethodDecorator((ctx: ExecutionContext) => {
-  return ctx
-})
+import { messageMentionRegexp, messageMentionRoleRegex } from '@/constants';
 
-export const Targets = createParamDecorator((ctx) => {
-  const [message] = ctx.getOriginalArguments<[Message]>()
-  return message.mentions.members
-})
+export const AdminAction = createMethodDecorator((context: ExecutionContext) => context);
 
-export const CmdExecutor = createParamDecorator((ctx) => {
-  const [message] = ctx.getOriginalArguments<[Message]>()
-  return message.member
-})
+export const Targets = createParamDecorator((context) => {
+  const [message] = context.getOriginalArguments<[Message]>();
+  return message.mentions.members;
+});
 
-export const Reason = createParamDecorator((ctx) => {
-  const [_, args] = ctx.getOriginalArguments<[Message, string[]]>()
-  return args
-    .filter((arg) => !(messageMentionRegexp.test(arg) || messageMentionRoleRegex.test(arg)))
-    .join(' ')
-})
+export const CmdExecutor = createParamDecorator((context) => {
+  const [message] = context.getOriginalArguments<[Message]>();
+  return message.member;
+});
 
-export const SubCommand = createParamDecorator((ctx) => {
-  return ctx.propertyKey
-})
+export const Reason = createParamDecorator((context) => {
+  const [_, inputArguments] = context.getOriginalArguments<[Message, string[]]>();
+  return inputArguments
+    .filter(
+      (argument) => !(messageMentionRegexp.test(argument) || messageMentionRoleRegex.test(argument))
+    )
+    .join(' ');
+});
 
-export const MentionedRoles = createParamDecorator((ctx) => {
-  const [message] = ctx.getOriginalArguments<[Message, string[]]>()
-  return message.mentions.roles
-})
+export const SubCommand = createParamDecorator((context) => context.propertyKey);
 
-export const Nickname = createParamDecorator((ctx) => {
-  const [_, args] = ctx.getOriginalArguments<[Message, string[]]>()
-  return args
-    .filter((arg) => !(messageMentionRegexp.test(arg) && messageMentionRoleRegex.test(arg)))
-    .join(' ')
-})
+export const MentionedRoles = createParamDecorator((context) => {
+  const [message] = context.getOriginalArguments<[Message, string[]]>();
+  return message.mentions.roles;
+});
+
+export const Nickname = createParamDecorator((context) => {
+  const [_, inputArguments] = context.getOriginalArguments<[Message, string[]]>();
+  return inputArguments
+    .filter(
+      (argument) => !(messageMentionRegexp.test(argument) && messageMentionRoleRegex.test(argument))
+    )
+    .join(' ');
+});

@@ -1,1 +1,1 @@
-export const DEFAULT_ACTION_KEY = 'default'
+export const DEFAULT_ACTION_KEY = 'default';

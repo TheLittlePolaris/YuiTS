@@ -1,6 +1,6 @@
-import { MusicStream } from '../entities/music-stream'
+import { MusicStream } from '../entities/music-stream';
 
 export interface VoiceStateAction {
-  stream: MusicStream
-  action: 'ignore' | 'clearTimeout' | 'setLeaveTimeout'
+  stream: MusicStream;
+  action: 'ignore' | 'clearTimeout' | 'setLeaveTimeout';
 }
