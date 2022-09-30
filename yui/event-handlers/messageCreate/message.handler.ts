@@ -1,4 +1,4 @@
-import { Message, TextChannel } from 'discord.js'
+import { Message, PermissionFlagsBits, TextChannel } from 'discord.js'
 import { YuiLogger } from '@/logger/logger.service'
 import {
   MsgArgs,
@@ -143,7 +143,7 @@ export class MessageCreateEventHandler {
 
   @HandleCommand('admin', 'ad')
   @DeleteMessage()
-  @Permissions('MODERATE_MEMBERS')
+  @Permissions(PermissionFlagsBits.ModerateMembers)
   async managementAction(@Msg() message: Message, @MsgArgs() args: string[]) {
     return this.administrationService.executeAdminAction(message, args)
   }

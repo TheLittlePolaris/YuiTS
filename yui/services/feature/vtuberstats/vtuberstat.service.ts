@@ -1,5 +1,5 @@
 import { Injectable } from 'djs-ioc-container'
-import { Message, GuildMember, EmbedFieldData, MessageOptions } from 'discord.js'
+import { Message, GuildMember, MessageOptions, EmbedField } from 'discord.js'
 
 import { subscriberCountFormatter, dateTimeJSTFormatter } from '../utils/feature-utilities'
 import { HoloStatRequestService } from './requests'
@@ -35,7 +35,7 @@ export class VtuberStatService {
     if (!dataList || !dataList.length)
       return this.sendMessage(message, '**Something went wrong :(**')
 
-    const fieldsData: EmbedFieldData[] = dataList.map((item, index) => ({
+    const fieldsData: EmbedField[] = dataList.map((item, index) => ({
       name: `**${index + 1}**`,
       value: `**${item.snippet.title}**`,
       inline: true
@@ -226,7 +226,7 @@ export class VtuberStatService {
     )
     const holoStatData = await this.holostatRequestService.getAllMembersChannelDetail(region as any)
 
-    const fieldsData: EmbedFieldData[] = holoStatData.map((item) => {
+    const fieldsData: EmbedField[] = holoStatData.map((item) => {
       const fieldName = `${item.snippet.title}`
       const channelUrl = `https://www.youtube.com/channel/${item.id}`
 

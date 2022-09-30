@@ -24,6 +24,7 @@
       "@/*": ["yui/*"]
     },
     "skipLibCheck": true
+    // "strict": true
   },
   "include": ["./yui/**/*"],
   "exclude": ["node_modules", "dist"]

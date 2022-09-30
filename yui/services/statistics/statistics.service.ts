@@ -1,6 +1,7 @@
-import { Message, EmbedFieldData } from 'discord.js'
+import { APIEmbedField, Message } from 'discord.js'
+import { Injectable, DiscordClient } from 'djs-ioc-container'
+
 import { discordRichEmbedConstructor } from '../utilities/discord-embed.util'
-import { DiscordClient, Injectable } from 'djs-ioc-container'
 
 @Injectable()
 export class OwnerChannelService {
@@ -13,7 +14,7 @@ export class OwnerChannelService {
       .map((guild) => guild.members.cache.filter((member) => !member.user.bot).size)
       .reduce((total, curr) => total + curr, 0)
 
-    const fields: EmbedFieldData[] = guilds.map((guild) => ({
+    const fields: APIEmbedField[] = guilds.map((guild) => ({
       name: `**${guild.name}**`,
       value: `Channels: ${guild.channels.cache.size}\nUsers: ${
         guild.members.cache.filter((member) => !member.user.bot).size

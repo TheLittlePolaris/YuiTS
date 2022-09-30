@@ -1,15 +1,5 @@
 import { ClientEvents } from 'discord.js'
-import {
-  catchError,
-  EMPTY,
-  finalize,
-  fromEvent,
-  mergeMap,
-  noop,
-  Observable,
-  of,
-  take,
-} from 'rxjs'
+import { catchError, EMPTY, finalize, fromEvent, mergeMap, noop, Observable, of, take } from 'rxjs'
 import { RxjsRecursiveCompiler } from '../compilers/rxjs.compiler'
 import { DEFAULT_ACTION_KEY, DiscordEvent } from '../../constants'
 import {

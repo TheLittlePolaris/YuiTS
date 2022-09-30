@@ -1,4 +1,4 @@
-import { Message, Permissions } from 'discord.js'
+import { Message, PermissionFlagsBits, Permissions } from 'discord.js'
 
 export enum AdminAction {
   KICK = 'kick',
@@ -11,13 +11,13 @@ export enum AdminAction {
 }
 
 export const AdminActionPermission = {
-  [AdminAction.KICK]: [Permissions.FLAGS.KICK_MEMBERS],
-  [AdminAction.BAN]: [Permissions.FLAGS.BAN_MEMBERS],
-  [AdminAction.MUTE]: [Permissions.FLAGS.MUTE_MEMBERS],
-  [AdminAction.UNMUTE]: [Permissions.FLAGS.MUTE_MEMBERS],
-  [AdminAction.ADD_ROLE]: [Permissions.FLAGS.MANAGE_ROLES],
-  [AdminAction.REMOVE_ROLE]: [Permissions.FLAGS.MANAGE_ROLES],
-  [AdminAction.SET_NICKNAME]: [Permissions.FLAGS.MANAGE_NICKNAMES]
+  [AdminAction.KICK]: [PermissionFlagsBits.KickMembers],
+  [AdminAction.BAN]: [PermissionFlagsBits.BanMembers],
+  [AdminAction.MUTE]: [PermissionFlagsBits.MuteMembers],
+  [AdminAction.UNMUTE]: [PermissionFlagsBits.MuteMembers],
+  [AdminAction.ADD_ROLE]: [PermissionFlagsBits.ManageRoles],
+  [AdminAction.REMOVE_ROLE]: [PermissionFlagsBits.ManageRoles],
+  [AdminAction.SET_NICKNAME]: [PermissionFlagsBits.ManageNicknames]
 }
 
 export type IAdminAction = {

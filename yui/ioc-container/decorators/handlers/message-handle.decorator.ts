@@ -1,6 +1,6 @@
 /* eslint-disable prefer-rest-params */
 import { samePermissions } from '../../helpers'
-import { ClientEvents, GuildMember, Message, PermissionResolvable, User } from 'discord.js'
+import { ClientEvents, GuildMember, Message, PermissionFlagsBits, PermissionResolvable, User } from 'discord.js'
 
 import { COMMAND_HANDLER } from '../../constants'
 import { ExecutionContext } from '../../event-execution-context'
@@ -40,7 +40,7 @@ export const DeleteMessage = (strategy?: 'send' | 'reply', responseMessage?: str
     const author = getMessageProperty<User>(ctx, 'author')
 
     const yuiMember = ctx.client.getGuildMemberByMessage(message)
-    const yuiCanDelete = yuiMember.permissions.has('MANAGE_MESSAGES')
+    const yuiCanDelete = yuiMember.permissions.has(PermissionFlagsBits.ManageMessages)
 
     if (yuiCanDelete) {
       await message.delete().catch((err) => {

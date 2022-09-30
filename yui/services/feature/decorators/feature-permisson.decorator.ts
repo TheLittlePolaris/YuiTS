@@ -5,7 +5,7 @@ import {
   ExecutionContext,
   hasPermissions
 } from 'djs-ioc-container'
-import { Message, PermissionString } from 'discord.js'
+import { Message, PermissionFlagsBits, PermissionResolvable } from 'discord.js'
 
 export enum FEATURE_PROPERTY_PARAMS {
   GUILD_MEMBER = 'guildMember',
@@ -21,13 +21,13 @@ export const Feature = createMethodDecorator(async (context: ExecutionContext) =
   const [message] = context.getOriginalArguments()
   const discordClient = context.client
 
-  const requiredPermissions: PermissionString[] = ['SEND_MESSAGES']
+  const requiredPermissions: PermissionResolvable[] = [PermissionFlagsBits.SendMessages]
   const [yuiMember, actionMember] = [
     context.client.getGuildMemberByMessage(message),
     message.member
   ]
   const [yuiPermission, memberPermission, isOwner] = [
-    hasPermissions(yuiMember, [...requiredPermissions, 'MANAGE_MESSAGES'], true),
+    hasPermissions(yuiMember, [...requiredPermissions, PermissionFlagsBits.ManageMessages], true),
     hasPermissions(actionMember, requiredPermissions, true),
     actionMember.user.id === discordClient.user.id
   ]

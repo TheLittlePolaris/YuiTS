@@ -16,7 +16,7 @@ export const sendChannelMessage = async (
 ) => {
   try {
     return await message.channel.send(content)
-  } catch (error) {
+  } catch (error: any) {
     error.content = content
     YuiLogger.error(error?.['stack'] || error, 'SendMessageToChannel_message')
   }
@@ -28,7 +28,7 @@ export const sendMessageToChannel = async (
 ) => {
   try {
     return await channel.send(content)
-  } catch (error) {
+  } catch (error: any) {
     error.content = content
     YuiLogger.error(error?.['stack'] || error, 'SendMessageToChannel_channel')
   }
@@ -40,7 +40,7 @@ export const sendDMMessage = async (
 ) => {
   try {
     return await message.author.send(content)
-  } catch (error) {
+  } catch (error: any) {
     error.content = content
     YuiLogger.error(error?.['stack'] || error, 'SendMessageToUser')
   }
@@ -52,7 +52,7 @@ export const replyMessage = async (
 ) => {
   try {
     return await message.reply(content)
-  } catch (error) {
+  } catch (error: any) {
     error.content = content
     YuiLogger.error(error, 'ReplyMessage')
   }
@@ -64,7 +64,7 @@ export const editMessage = async (
 ) => {
   try {
     return await message.edit(content)
-  } catch (error) {
+  } catch (error: any) {
     error.content = content
     YuiLogger.error(error, 'ReplyMessage')
   }
