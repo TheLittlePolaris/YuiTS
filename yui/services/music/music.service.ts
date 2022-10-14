@@ -184,7 +184,7 @@ export class MusicService {
     } else {
       stream.set('isAutoPlaying', false);
       sendChannelMessage(message, {
-        embeds: [discordRichEmbedConstructor({ title: "Yui's PABX mode - OFF~", description: '' })]
+        embeds: [discordRichEmbedConstructor({ title: "Yui's PABX mode - OFF~" })]
       });
       return;
     }

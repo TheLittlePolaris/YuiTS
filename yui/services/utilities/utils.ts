@@ -7,7 +7,7 @@ export function randomNumberGenerator(range: number): number {
 export const uniqFlattenEntries = (value: Record<string, string>) =>
   uniq(flatten(Object.entries(value)).map((k) => k.toLowerCase()));
 
-export const getEnumValues = (e: any) =>
-  Object.keys(e)
-    .map((k) => !isNumber(k) && e[k])
+export const getEnumValues = (enumValue: object) =>
+  Object.keys(enumValue)
+    .map((k) => !isNumber(k) && enumValue[k])
     .filter(Boolean);

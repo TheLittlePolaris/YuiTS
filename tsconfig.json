@@ -21,7 +21,8 @@
     "incremental": true,
     "paths": {
       "djs-ioc-container": ["yui/ioc-container"],
-      "@/*": ["yui/*"]
+      "@/*": ["yui/*"],
+      "src/*": ["src/*"]
     },
     "skipLibCheck": true
     // "strict": true

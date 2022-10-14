@@ -8,21 +8,22 @@
     "lib": ["ES2020", "ES2019", "esnext.asynciterable"],
     "esModuleInterop": true,
     "noImplicitAny": false,
-    "noErrorTruncation": false,
+    "noErrorTruncation": true,
     "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "declaration": false,
+    "pretty": false,
     "allowJs": false,
-    "removeComments": true,
     "forceConsistentCasingInFileNames": false,
     "outDir": "dist",
     "baseUrl": ".",
     "incremental": true,
     "paths": {
-      "@/*": ["./yui/*"],
-      "config-service/*": ["yui/config-service/*"]
-    }
+      "djs-ioc-container": ["yui/ioc-container"],
+      "@/*": ["yui/*"]
+    },
+    "skipLibCheck": true
   },
   "include": ["./yui/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -22,7 +22,7 @@ export class ConfigService {
       );
     else YuiLogger.info('NODE_ENV not detected, using default');
 
-    const filePath = `.env${(nodeEnvironment && `.${nodeEnvironment}`) || ''}`;
+    const filePath = `.env${nodeEnvironment ? `.${nodeEnvironment}` : ``}`;
     const path = existsSync(filePath) ? filePath : '.env';
     const dotEnvironmentConfig = config({ path });
     const { error, parsed } = dotEnvironmentConfig || {};

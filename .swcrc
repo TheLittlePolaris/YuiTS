@@ -6,7 +6,9 @@
       "tsx": false,
       "decorators": true,
       "dynamicImport": true,
-      "exportDefaultFrom": true
+      "noEarlyErrors": false,
+      "dts": true,
+      "importAssertions": true
     },
     "transform": {
       "legacyDecorator": true,
@@ -15,9 +17,10 @@
     "baseUrl": ".",
     "paths": {
       "djs-ioc-container": ["yui/ioc-container"],
-      "@/*": ["yui/*"]
+      "@/*": ["yui/*"],
+      "src/*": ["src/*"]
     },
-    "target": "es2020",
+    "target": "es2022",
     "loose": false,
     "externalHelpers": true,
     "keepClassNames": true
