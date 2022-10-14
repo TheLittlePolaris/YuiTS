@@ -1,4 +1,4 @@
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 import { Message, GuildMember, EmbedField } from 'discord.js';
 
 import { subscriberCountFormatter, dateTimeJSTFormatter } from '../utils/feature-utilities';

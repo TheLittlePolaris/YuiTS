@@ -1,4 +1,4 @@
-import { DiscordClient, Injectable } from 'djs-ioc-container';
+import { DiscordClient, Injectable } from '@tlp01/djs-ioc-container';
 import { Message } from 'discord.js';
 
 import { sendChannelMessage, italic, bold } from '../utilities';

@@ -3,7 +3,7 @@ import { Readable, PassThrough } from 'stream';
 import { Message, VoiceChannel, TextChannel } from 'discord.js';
 import { AudioPlayerStatus, StreamType } from '@discordjs/voice';
 import ytdl from 'ytdl-core';
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 
 import {
   sendChannelMessage,

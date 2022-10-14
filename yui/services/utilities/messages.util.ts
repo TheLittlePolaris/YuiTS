@@ -3,17 +3,16 @@ import {
   GuildMember,
   Message,
   MessageEditOptions,
-  MessageOptions,
   MessagePayload,
-  ReplyMessageOptions,
-  TextBasedChannel
+  TextBasedChannel,
+  MessageCreateOptions
 } from 'discord.js';
 
 import { YuiLogger } from '@/logger/logger.service';
 
 export const sendChannelMessage = async (
   message: Message,
-  content: string | MessagePayload | MessageOptions
+  content: string | MessagePayload | MessageCreateOptions
 ) => {
   try {
     return await message.channel.send(content);
@@ -25,7 +24,7 @@ export const sendChannelMessage = async (
 
 export const sendMessageToChannel = async (
   channel: TextBasedChannel,
-  content: string | MessagePayload | MessageOptions
+  content: string | MessagePayload | MessageCreateOptions
 ) => {
   try {
     return await channel.send(content);
@@ -37,7 +36,7 @@ export const sendMessageToChannel = async (
 
 export const sendDMMessage = async (
   message: Message,
-  content: string | MessagePayload | MessageOptions
+  content: string | MessagePayload | MessageCreateOptions
 ) => {
   try {
     return await message.author.send(content);
@@ -49,7 +48,7 @@ export const sendDMMessage = async (
 
 export const replyMessage = async (
   message: Message,
-  content: string | MessagePayload | ReplyMessageOptions
+  content: string | MessagePayload | MessageCreateOptions
 ) => {
   try {
     return await message.reply(content);

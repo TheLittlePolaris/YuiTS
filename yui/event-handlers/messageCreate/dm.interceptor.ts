@@ -1,6 +1,6 @@
 import { ChannelType, ClientEvents } from 'discord.js';
 import { catchError, finalize, Observable, throwError } from 'rxjs';
-import { ExecutionContext, IInterceptor, Interceptor } from 'djs-ioc-container';
+import { ExecutionContext, IInterceptor, Interceptor } from '@tlp01/djs-ioc-container';
 
 import { ConfigService } from '@/config-service/config.service';
 import { YuiLogger } from '@/logger/logger.service';

@@ -1,5 +1,5 @@
 import { catchError, finalize, Observable, throwError } from 'rxjs';
-import { IInterceptor, Interceptor, ExecutionContext } from 'djs-ioc-container';
+import { IInterceptor, Interceptor, ExecutionContext } from '@tlp01/djs-ioc-container';
 import { ChannelType, Message } from 'discord.js';
 
 import { YuiLogger } from '@/logger/logger.service';

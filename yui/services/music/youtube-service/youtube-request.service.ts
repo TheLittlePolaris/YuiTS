@@ -1,5 +1,5 @@
 import { youtube_v3, google } from 'googleapis';
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 
 import {
   IYoutubeSearchResult,

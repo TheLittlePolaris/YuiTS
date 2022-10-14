@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import { DiscordClient, Injectable } from 'djs-ioc-container';
+import { DiscordClient, Injectable } from '@tlp01/djs-ioc-container';
 import { GuildMember, Message, Collection } from 'discord.js';
 import { sample } from 'lodash';
 

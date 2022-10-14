@@ -1,4 +1,4 @@
-import { createMethodDecorator, createParamDecorator, ExecutionContext } from 'djs-ioc-container';
+import { createMethodDecorator, createParamDecorator, ExecutionContext } from '@tlp01/djs-ioc-container';
 import { Message } from 'discord.js';
 import { startCase } from 'lodash';
 

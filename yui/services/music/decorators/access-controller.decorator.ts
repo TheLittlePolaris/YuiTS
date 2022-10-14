@@ -1,4 +1,4 @@
-import { createMethodDecorator, createParamDecorator } from 'djs-ioc-container';
+import { createMethodDecorator, createParamDecorator } from '@tlp01/djs-ioc-container';
 import { Message } from 'discord.js';
 
 import { bold, getVoiceChannel, replyMessage } from '../../utilities';

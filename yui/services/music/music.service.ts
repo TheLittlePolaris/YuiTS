@@ -1,6 +1,6 @@
 import { GuildMember, Message } from 'discord.js';
 import { unescape } from 'lodash';
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 import { AudioPlayerStatus } from '@discordjs/voice';
 
 import {

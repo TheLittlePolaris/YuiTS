@@ -4,7 +4,7 @@ import {
   OldStateChannel,
   OnEvent,
   UseInterceptor
-} from 'djs-ioc-container';
+} from '@tlp01/djs-ioc-container';
 import { VoiceChannel } from 'discord.js';
 
 import { VoiceStateInterceptor } from './voicestate.interceptor';

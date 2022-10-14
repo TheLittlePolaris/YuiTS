@@ -1,4 +1,4 @@
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 import { VoiceConnection, joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
 import { Message } from 'discord.js';
 

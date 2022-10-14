@@ -3,7 +3,7 @@ import {
   createParamDecorator,
   ExecutionContext,
   hasPermissions
-} from 'djs-ioc-container';
+} from '@tlp01/djs-ioc-container';
 import { Message, PermissionFlagsBits, PermissionResolvable } from 'discord.js';
 
 import { messageMentionRegexp } from '@/constants';

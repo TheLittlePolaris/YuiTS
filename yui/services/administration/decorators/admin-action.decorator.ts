@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { createMethodDecorator, ExecutionContext, createParamDecorator } from 'djs-ioc-container';
+import { createMethodDecorator, ExecutionContext, createParamDecorator } from '@tlp01/djs-ioc-container';
 
 import { messageMentionRegexp, messageMentionRoleRegex } from '@/constants';
 

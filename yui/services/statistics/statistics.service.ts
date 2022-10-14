@@ -1,5 +1,5 @@
 import { APIEmbedField, Message } from 'discord.js';
-import { Injectable, DiscordClient } from 'djs-ioc-container';
+import { Injectable, DiscordClient } from '@tlp01/djs-ioc-container';
 
 import { discordRichEmbedConstructor } from '../utilities/discord-embed.util';
 

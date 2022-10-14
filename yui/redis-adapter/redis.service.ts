@@ -1,4 +1,4 @@
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 import { default as IORedis, Redis } from 'ioredis';
 
 import { ConfigService } from '@/config-service/config.service';

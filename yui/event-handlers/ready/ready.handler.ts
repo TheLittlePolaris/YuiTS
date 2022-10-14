@@ -1,5 +1,5 @@
 import { ActivityType } from 'discord.js';
-import { DiscordClient, EventHandler, OnEvent } from 'djs-ioc-container';
+import { DiscordClient, EventHandler, OnEvent } from '@tlp01/djs-ioc-container';
 
 import { ConfigService } from '@/config-service/config.service';
 import { YuiLogger } from '@/logger/logger.service';

@@ -1,4 +1,4 @@
-import { YuiModule } from 'djs-ioc-container';
+import { YuiModule } from '@tlp01/djs-ioc-container';
 
 import { AdministrationCommands } from './admin-actions/administration-commands';
 import { AdministrationService } from './administration.service';

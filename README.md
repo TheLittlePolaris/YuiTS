@@ -41,3 +41,11 @@ Yui but in TypeScript
 
 **Docker:**
  - `docker compose -p yui-bot up -d`
+
+
+**DEV only**
+Seperated ioc-container
+To build local:
+ - cd <ioc-container> folder then `npm link`
+ - in current project: `npm link djs-ioc-container`
+ - CMD + Shift + P: Restart TS Server

@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 
 import {
   ISoundCloudSong,

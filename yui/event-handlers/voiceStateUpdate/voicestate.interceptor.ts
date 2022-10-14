@@ -1,4 +1,4 @@
-import { Interceptor, IInterceptor, ExecutionContext } from 'djs-ioc-container';
+import { Interceptor, IInterceptor, ExecutionContext } from '@tlp01/djs-ioc-container';
 import { Observable } from 'rxjs';
 
 @Interceptor('voiceStateUpdate')

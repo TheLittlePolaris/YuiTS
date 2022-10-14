@@ -2,7 +2,7 @@ import 'module-alias/register';
 import 'reflect-metadata';
 
 import * as semver from 'semver';
-import { RxjsContainerFactory } from 'djs-ioc-container';
+import { RxjsContainerFactory } from '@tlp01/djs-ioc-container';
 
 import { AppModule } from './yui-app.module';
 import { ConfigService } from './config-service/config.service';

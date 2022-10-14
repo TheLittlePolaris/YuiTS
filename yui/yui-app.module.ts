@@ -1,4 +1,4 @@
-import { YuiModule, InjectToken } from 'djs-ioc-container';
+import { YuiModule, InjectToken } from '@tlp01/djs-ioc-container';
 import { GatewayIntentBits, Partials } from 'discord.js';
 
 import { ConfigModule } from './config-service/config.module';

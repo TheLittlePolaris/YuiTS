@@ -15,9 +15,9 @@ import type {
   Guild,
   VoiceChannel,
   TextChannel,
-  MessageOptions,
   MessagePayload,
-  Message
+  Message,
+  MessageCreateOptions
 } from 'discord.js';
 
 import { YuiLogger } from '@/logger/logger.service';
@@ -182,7 +182,7 @@ export class MusicStream {
   }
 
   public async sendMessage(
-    content: string | MessagePayload | MessageOptions
+    content: string | MessagePayload | MessageCreateOptions
   ): Promise<Message | null> {
     if (!this.textChannel) return null;
 

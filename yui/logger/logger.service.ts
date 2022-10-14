@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { isObject } from 'djs-ioc-container';
+import { isObject } from '@tlp01/djs-ioc-container';
 import { createLogger, format, Logger as WinstonLogger, transports } from 'winston';
 
 import { ILoggerService } from './logger.interface';

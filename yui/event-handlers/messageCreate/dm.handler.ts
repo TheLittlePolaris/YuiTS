@@ -1,4 +1,4 @@
-import { HandleCommand, Msg, OnEvent, UseInterceptor } from 'djs-ioc-container';
+import { HandleCommand, Msg, OnEvent, UseInterceptor } from '@tlp01/djs-ioc-container';
 import { Message } from 'discord.js';
 
 import { DMInterceptor } from './dm.interceptor';

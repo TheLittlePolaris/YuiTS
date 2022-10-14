@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { Inject, Injectable } from 'djs-ioc-container';
+import { Inject, Injectable } from '@tlp01/djs-ioc-container';
 
 import { AdminAction, IAdminAction } from './admin-interfaces/administration.interface';
 import { ADMIN_ACTION_PROVIDER } from './constants/adminisatration-commands.constants';

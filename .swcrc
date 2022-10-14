@@ -16,7 +16,6 @@
     },
     "baseUrl": ".",
     "paths": {
-      "djs-ioc-container": ["yui/ioc-container"],
       "@/*": ["yui/*"],
       "src/*": ["src/*"]
     },

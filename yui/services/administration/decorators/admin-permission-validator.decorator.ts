@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { createMethodDecorator, ExecutionContext, hasPermissions } from 'djs-ioc-container';
+import { createMethodDecorator, ExecutionContext, hasPermissions } from '@tlp01/djs-ioc-container';
 
 import { AdminAction, AdminActionPermission } from '../admin-interfaces';
 import { getEnumValues } from '../../utilities';

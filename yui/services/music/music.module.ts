@@ -1,4 +1,4 @@
-import { YuiModule } from 'djs-ioc-container';
+import { YuiModule } from '@tlp01/djs-ioc-container';
 
 import { MusicService } from './music.service';
 import { YoutubeInfoService } from './youtube-service/youtube-info.service';

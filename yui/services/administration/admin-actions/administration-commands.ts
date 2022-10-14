@@ -6,10 +6,10 @@ import {
   Message,
   Role,
   MessagePayload,
-  MessageOptions,
+  MessageCreateOptions,
   TextChannel
 } from 'discord.js';
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 
 import { IAdminAction } from '../admin-interfaces';
 import { AdminAction, CmdExecutor, Targets, Reason, MentionedRoles, Nickname } from '../decorators';
@@ -174,7 +174,7 @@ export class AdministrationCommands implements IAdminAction {
   private async sendMessage(
     message: Message,
     type: 'channel' | 'author',
-    content: string | MessagePayload | MessageOptions
+    content: string | MessagePayload | MessageCreateOptions
   ) {
     return sendMessageToChannel(message[type] as TextChannel, content);
   }

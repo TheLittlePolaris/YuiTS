@@ -9,7 +9,7 @@ import {
   Permissions,
   OnEvent,
   UseInterceptor
-} from 'djs-ioc-container';
+} from '@tlp01/djs-ioc-container';
 import { sample } from 'lodash';
 
 import { MessageCreateInterceptor } from './message.interceptor';

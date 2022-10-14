@@ -1,5 +1,5 @@
 import { google, youtube_v3 } from 'googleapis';
-import { Injectable } from 'djs-ioc-container';
+import { Injectable } from '@tlp01/djs-ioc-container';
 
 import { IYoutubeChannel } from '../../interfaces/youtube-channel.interface';
 import { IBaseChannelService } from '../interfaces/base-channel.interface';
