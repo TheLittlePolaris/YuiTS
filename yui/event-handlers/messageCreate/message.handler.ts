@@ -128,11 +128,6 @@ export class MessageCreateEventHandler {
 
   @HandleCommand('ping')
   async ping(@Msg() message: Message) {
-    console.log(
-      message,
-      '<==== message, <yui/event-handlers/messageCreate/message.handler.ts:130>'
-    );
-
     return this.featureService.getPing(message);
   }
 
@@ -187,8 +182,11 @@ export class MessageCreateEventHandler {
     @MsgCmd() command: string
   ) {
     const messageContent = `I cannot recognize the command \`${command}\`. How about taking a look at \`${this.configService.prefix}help\`?`;
-    const images = await this.featureService.queryTenorGif('girl shy').catch(() => null);
-    sendChannelMessage(message, {
+    const images = await this.featureService
+      .queryTenorGif('girl shy')
+      .catch((err) => YuiLogger.error(err?.stack || err));
+
+    await sendChannelMessage(message, {
       ...((images && {
         embeds: [
           discordRichEmbedConstructor({ description: messageContent, imageUrl: sample(images) })

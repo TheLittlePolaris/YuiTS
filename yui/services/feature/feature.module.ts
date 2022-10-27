@@ -1,9 +1,9 @@
-import { YuiModule } from '@tlp01/djs-ioc-container';
+import { Module } from '@tlp01/djs-ioc-container';
 
 import { FeatureService } from './feature.service';
 import { VTuberModule } from './vtuberstats/vtuber.module';
 
-@YuiModule({
+@Module({
   components: [FeatureService],
   modules: [VTuberModule]
 })

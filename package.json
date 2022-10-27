@@ -4,7 +4,6 @@
   "description": "YuiBot TypeScript version",
   "main": "yui/yui.ts",
   "scripts": {
-    "postinstall": "npm link djs-ioc-container",
     "//0": "Build lightning fast using swc (https://swc.rs/)",
     "//1": "But there's a drawback that you would need nodemon (https://www.npmjs.com/package/nodemon) and concurrently (https://www.npmjs.com/package/concurrently) to pull this off seamlessly",
     "swc:build": "npm run prebuild && swc ./yui -d dist --only **/*.ts",
@@ -29,7 +28,7 @@
     "@discordjs/opus": "^0.8.0",
     "@discordjs/rest": "^1.2.0",
     "@discordjs/voice": "^0.11.0",
-    "@tlp01/djs-ioc-container": "^1.0.2",
+    "@tlp01/djs-ioc-container": "^0.1.1",
     "axios": "^0.26.1",
     "bufferutil": "^4.0.6",
     "chalk": "^4.1.0",

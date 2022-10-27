@@ -1,4 +1,4 @@
-import { YuiModule } from '@tlp01/djs-ioc-container';
+import { Module } from '@tlp01/djs-ioc-container';
 
 import {
   MessageCreateEventHandler,
@@ -14,7 +14,7 @@ import { FeatureModule } from '@/services/feature/feature.module';
 import { MusicModule } from '@/services/music/music.module';
 import { OwnerServiceModule } from '@/services/statistics/statistics.module';
 
-@YuiModule({
+@Module({
   modules: [MusicModule, FeatureModule, AdminModule, OwnerServiceModule],
   components: [
     MessageCreateEventHandler,

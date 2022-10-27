@@ -1,4 +1,4 @@
-import { YuiModule } from '@tlp01/djs-ioc-container';
+import { Module } from '@tlp01/djs-ioc-container';
 
 import { MusicService } from './music.service';
 import { YoutubeInfoService } from './youtube-service/youtube-info.service';
@@ -10,7 +10,7 @@ import { streamsContainer } from './entities/streams-container';
 
 import { ConfigModule } from '@/config-service/config.module';
 
-@YuiModule({
+@Module({
   modules: [ConfigModule],
   components: [
     MusicService,

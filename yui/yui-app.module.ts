@@ -1,32 +1,11 @@
-import { YuiModule, InjectToken } from '@tlp01/djs-ioc-container';
-import { GatewayIntentBits, Partials } from 'discord.js';
+import { Module } from '@tlp01/djs-ioc-container';
 
 import { ConfigModule } from './config-service/config.module';
 import { HandlerModule } from './event-handlers/handler.module';
+import { providers } from './yui-app.providers';
 
-@YuiModule({
+@Module({
   modules: [ConfigModule, HandlerModule],
-  providers: [
-    {
-      provide: InjectToken.CLIENT_OPTIONS,
-      useValue: {
-        intents: [
-          GatewayIntentBits.GuildBans,
-          GatewayIntentBits.GuildMembers,
-          GatewayIntentBits.GuildMessages,
-          GatewayIntentBits.GuildPresences,
-          GatewayIntentBits.GuildEmojisAndStickers,
-          GatewayIntentBits.GuildVoiceStates,
-          GatewayIntentBits.GuildWebhooks,
-          GatewayIntentBits.Guilds,
-          GatewayIntentBits.DirectMessages,
-          GatewayIntentBits.DirectMessageReactions,
-          GatewayIntentBits.GuildMessageReactions,
-          GatewayIntentBits.MessageContent
-        ],
-        partials: [Partials.Message, Partials.Channel, Partials.Reaction]
-      }
-    }
-  ]
+  providers
 })
 export class AppModule {}

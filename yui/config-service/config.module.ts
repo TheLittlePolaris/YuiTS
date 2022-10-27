@@ -1,8 +1,8 @@
-import { YuiModule } from '@tlp01/djs-ioc-container';
+import { Module } from '@tlp01/djs-ioc-container';
 
 import { ConfigService } from './config.service';
 
-@YuiModule({
+@Module({
   components: [ConfigService]
 })
 export class ConfigModule {}
