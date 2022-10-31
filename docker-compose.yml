@@ -1,8 +1,11 @@
 version: '3.8'
+name: YuiTS_Bot
 services:
-  yui-bot:
+  yui_bot:
     container_name: YuiNoIe # 唯の家 
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.multistage
     environment:
       NODE_ENV: build
     ports:
